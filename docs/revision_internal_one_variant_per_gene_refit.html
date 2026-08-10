@@ -1,0 +1,2529 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-07" />
+
+<title>Internal sensitivity analysis: one random variant per gene</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Internal sensitivity analysis: one random
+variant per gene</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-07</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-07
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    analysis/site_libs/
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/revision_simulations/
+
+Untracked files:
+    Untracked:  Rplots.pdf
+    Untracked:  analysis/revision_combined_spiky_genotype_simulation.rmd
+    Untracked:  analysis/revision_correlated_error_simulation.rmd
+    Untracked:  analysis/revision_functional_testing_simulation.rmd
+    Untracked:  analysis/revision_genotype_level_simulation.rmd
+    Untracked:  analysis/revision_internal_observational_null_set_pilot.rmd
+    Untracked:  analysis/revision_internal_one_variant_per_gene_refit.rmd
+    Untracked:  analysis/revision_internal_real_genotype_simulation.rmd
+    Untracked:  analysis/revision_internal_targeted_broad_calibration.rmd
+    Untracked:  analysis/revision_internal_zero_intercept_correlation.rmd
+    Untracked:  analysis/revision_ld_tagging_switch_example.rmd
+    Untracked:  code/00_eQTLs_CL.R
+    Untracked:  code/01_fash_CL.R
+    Untracked:  code/01_fash_CL.sbatch
+    Untracked:  code/09_penalty_sensitivity.R
+    Untracked:  code/09_penalty_sensitivity.sbatch
+    Untracked:  code/revision_simulations/
+    Untracked:  fash_prior_comparison_order1_after.pdf
+    Untracked:  fash_prior_comparison_order1_after.png
+    Untracked:  fash_prior_comparison_order1_before.pdf
+    Untracked:  fash_prior_comparison_order1_before.png
+    Untracked:  fash_prior_comparison_order2_after.pdf
+    Untracked:  fash_prior_comparison_order2_after.png
+    Untracked:  fash_prior_comparison_order2_before.pdf
+    Untracked:  fash_prior_comparison_order2_before.png
+
+Unstaged changes:
+    Modified:   .gitignore
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Modified:   code/README.md
+    Modified:   output/toy_example/toy_example_11.pdf
+    Modified:   output/toy_example/toy_example_12.pdf
+    Modified:   output/toy_example/toy_example_21.pdf
+    Modified:   output/toy_example/toy_example_22.pdf
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style>
+.one-gene-internal-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.one-gene-key-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.one-gene-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.one-gene-table-scroll table {
+  margin-bottom: 1em;
+}
+.one-gene-inline-path {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+</style>
+<div class="one-gene-internal-banner">
+<p><strong>Internal sensitivity page.</strong> This page is not linked
+from the workflowr homepage, manuscript, or response letter. It does not
+replace or modify R1, R2, or any existing real-data page. All results
+below are read from completed retained caches.</p>
+</div>
+<div id="question-and-answer" class="section level2">
+<h2>Question and answer</h2>
+<p>The full FASH(1) analysis contains 1,009,173 tested gene-variant
+pairs from 6,362 genes. A gene with many tested cis variants therefore
+contributes more units to the empirical-Bayes fit than a gene with few
+tested variants. Nearby variants for the same gene can also be in
+linkage disequilibrium (LD).</p>
+<p>The primary sensitivity analysis uniformly samples one tested variant
+per gene and refits FASH on the resulting 6,362 units. It asks whether
+the fitted prior, selected-unit lfdr values, and discoveries depend
+strongly on the repeated representation of genes in the full pair-level
+data.</p>
+<div class="one-gene-key-result">
+<p><strong>Main result.</strong> The raw FASH fit retains almost the
+same ranking but changes in absolute prior and lfdr calibration. After
+the paper’s BF prior update, the thinned fits remain close to the
+full-data fit across all ten random selections: estimated null weights
+are 0.9348–0.9462, paired lfdr mean absolute differences are
+0.0014–0.0088, and lfdr Spearman correlations are 0.9978–0.9998. The
+complete full-data fit has one fixed result–1,177 genes with discovered
+dynamic eQTLs–whereas the ten independently thinned refits discover
+42–70 genes each.</p>
+</div>
+</div>
+<div id="sensitivity-design" class="section level2">
+<h2>Sensitivity design</h2>
+<p>The experiment uses the current raw and BF-adjusted FASH(1) objects
+without simulating new beta estimates or standard errors.</p>
+<pre class="r"><code>render_scrollable_table(
+  design_table,
+  align = &quot;ll&quot;,
+  minimum_width = &quot;680px&quot;
+)</code></pre>
+<div class="one-gene-table-scroll">
+<table class="table table-striped table-hover" style="min-width:680px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Quantity
+</th>
+<th style="text-align:left;">
+Value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Full gene-variant pairs
+</td>
+<td style="text-align:left;">
+1,009,173
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Unique genes
+</td>
+<td style="text-align:left;">
+6,362
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pairs retained per thinning
+</td>
+<td style="text-align:left;">
+6,362
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Random thinning seeds
+</td>
+<td style="text-align:left;">
+12345, 22345, 32345, 42345, 52345, 62345, 72345, 82345, 92345, 102345
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH order
+</td>
+<td style="text-align:left;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PSD grid points
+</td>
+<td style="text-align:left;">
+52
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Raw EB penalty
+</td>
+<td style="text-align:left;">
+10 (fixed to the original analysis)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BF update
+</td>
+<td style="text-align:left;">
+Applied after every raw refit
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Comparison alpha
+</td>
+<td style="text-align:left;">
+0.05
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The full analysis does not contribute the same number of units per
+gene. The distribution below is computed directly from the full fit’s
+pair keys. A gene has a median of 150 tested variants (IQR 111–196),
+with a range of 2–1,859.</p>
+<pre class="r"><code>render_scrollable_table(
+  variant_count_summary_table,
+  align = &quot;lr&quot;,
+  minimum_width = &quot;620px&quot;
+)</code></pre>
+<div class="one-gene-table-scroll">
+<table class="table table-striped table-hover" style="min-width:620px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Statistic
+</th>
+<th style="text-align:right;">
+Tested variants per gene
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Minimum
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Q1
+</td>
+<td style="text-align:right;">
+111
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Median
+</td>
+<td style="text-align:right;">
+150
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mean
+</td>
+<td style="text-align:right;">
+158.6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Q3
+</td>
+<td style="text-align:right;">
+196
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Maximum
+</td>
+<td style="text-align:right;">
+1,859
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>plot_variants_per_gene_histogram()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_one_variant_per_gene_refit.rmd/variants-per-gene-histogram-1.png" alt="Distribution of the number of tested variants contributed by each gene to the full FASH analysis. The horizontal axis is logarithmic so that both the main distribution and the long right tail remain visible." width="1584" />
+<p class="caption">
+Distribution of the number of tested variants contributed by each gene
+to the full FASH analysis. The horizontal axis is logarithmic so that
+both the main distribution and the long right tail remain visible.
+</p>
+</div>
+<p>The logarithmic horizontal axis changes only the display, not the
+counts. This unequal full-data representation is exactly what the
+one-per-gene thinning removes.</p>
+<p>For each deterministic seed, all pair keys are split by Ensembl gene
+ID and one index is sampled uniformly within every gene. The draw is
+independent of the observed beta estimates, standard errors, lfdr
+values, and significance.</p>
+<pre class="r"><code>pair_keys &lt;- names(fash_fit1$fash_data$data_list)
+gene_id &lt;- sub(&quot;_.*$&quot;, &quot;&quot;, pair_keys)
+gene_index &lt;- split(
+  seq_along(pair_keys),
+  factor(gene_id, levels = sort(unique(gene_id)))
+)
+
+set.seed(12345)
+selected_indices &lt;- vapply(
+  gene_index,
+  function(indices) {
+    if (length(indices) == 1L) indices else sample(indices, size = 1L)
+  },
+  integer(1)
+)</code></pre>
+<p>This changes the empirical target as well as reducing repeated
+variants per gene:</p>
+<ul>
+<li>the full fit is <strong>pair-weighted</strong>, so genes with more
+tested variants receive more weight;</li>
+<li>the thinned fit is <strong>gene-weighted</strong>, with exactly one
+pair per gene.</li>
+</ul>
+<p>It is therefore a sensitivity analysis of the complete
+unit-composition change, not an estimator of an LD-only effect.</p>
+<div id="selection-audit" class="section level3">
+<h3>Selection audit</h3>
+<p>Every seed retains exactly one unique gene-variant pair per gene. The
+selected sets contain 6,333–6,351 unique source variant IDs. A small
+number of variants are assigned to two different genes, producing 11–29
+repeated cross-gene assignments per seed.</p>
+<pre class="r"><code>render_scrollable_table(
+  selection_audit,
+  align = &quot;rrrrrr&quot;,
+  minimum_width = &quot;1040px&quot;
+)</code></pre>
+<div class="one-gene-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1040px;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Seed
+</th>
+<th style="text-align:right;">
+Gene-variant pairs
+</th>
+<th style="text-align:right;">
+Unique genes
+</th>
+<th style="text-align:right;">
+Unique source variants
+</th>
+<th style="text-align:right;">
+Repeated cross-gene assignments
+</th>
+<th style="text-align:right;">
+Maximum genes per variant
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+12345
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6345
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+22345
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6342
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+32345
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6338
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+42345
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6333
+</td>
+<td style="text-align:right;">
+29
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+52345
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6338
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+62345
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6345
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+72345
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6344
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+82345
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6351
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+92345
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6340
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+102345
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+6338
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Thus the design removes multiple tested variants <em>within each
+gene</em>, but it does not force globally unique SNP IDs and does not
+remove LD between nearby variants assigned to different genes.</p>
+</div>
+</div>
+<div id="exact-refitting-from-cached-likelihood-rows"
+class="section level2">
+<h2>Exact refitting from cached likelihood rows</h2>
+<p>For unit <span class="math inline">\(j\)</span> and PSD-grid
+component <span class="math inline">\(k\)</span>, let <span
+class="math inline">\(L_{jk}\)</span> be the likelihood stored in the
+full FASH object’s <code>L_matrix</code>. At fixed beta estimates,
+standard errors, basis, likelihood, and PSD grid, the data-likelihood
+part of the empirical-Bayes objective is</p>
+<p><span class="math display">\[
+\ell(\pi)
+=
+\sum_{j=1}^{J}
+\log\left\{
+\sum_{k=1}^{K}\pi_k L_{jk}
+\right\}.
+\]</span></p>
+<p>Each row of <span class="math inline">\(L\)</span> is computed
+independently before the mixture weights are estimated. Consequently,
+thinning the units requires selecting the matching likelihood rows and
+reoptimizing <span class="math inline">\(\pi\)</span>; it does not
+require recomputing the same 52 likelihood values from beta and SE for
+every selected unit.</p>
+<pre class="r"><code>selected_L &lt;- fash_fit1$L_matrix[selected_indices, , drop = FALSE]
+
+eb_result &lt;- fashr::fash_eb_est(
+  L_matrix = selected_L,
+  grid = fash_fit1$psd_grid,
+  penalty = fash_fit1$settings$penalty
+)
+
+thinned_raw &lt;- refit_fash_from_cached_likelihood(
+  fash_fit1,
+  selected_indices
+)
+thinned_bf &lt;- fashr::BF_update(thinned_raw, plot = FALSE)</code></pre>
+<p>This is a genuine refit: the thinned mixture weights, posterior
+weights, and lfdr values are re-estimated. Only the fixed per-unit
+likelihood calculations are reused.</p>
+</div>
+<div id="raw-and-bf-adjusted-stability" class="section level2">
+<h2>Raw and BF-adjusted stability</h2>
+<p>All raw fits use the original analysis choice
+<code>penalty = 10</code>; this setting is held fixed throughout the
+sensitivity analysis.</p>
+<p>The full raw fit estimates <span class="math inline">\(\widehat\pi_0=
+0.4290\)</span>. After thinning, the raw estimate rises to
+0.4705–0.5591. Its paired lfdr ranking remains extremely stable, but its
+absolute lfdr mean absolute difference reaches 0.1298.</p>
+<p>The full BF-adjusted fit estimates <span
+class="math inline">\(\widehat\pi_0=
+0.9382\)</span>. The ten thinned BF-adjusted estimates are
+0.9348–0.9462, a change of only -0.0034–+0.0081.</p>
+<pre class="r"><code>render_scrollable_table(
+  fit_range_table,
+  align = &quot;lrrrrrrrl&quot;,
+  minimum_width = &quot;1660px&quot;
+)</code></pre>
+<div class="one-gene-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1660px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Fit
+</th>
+<th style="text-align:right;">
+Full pi0
+</th>
+<th style="text-align:right;">
+Thinned pi0 range
+</th>
+<th style="text-align:right;">
+Delta pi0 range
+</th>
+<th style="text-align:right;">
+Prior TV range
+</th>
+<th style="text-align:right;">
+lfdr Spearman range
+</th>
+<th style="text-align:right;">
+lfdr MAE range
+</th>
+<th style="text-align:right;">
+Discovery Jaccard range
+</th>
+<th style="text-align:left;">
+Interpretation
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.4290
+</td>
+<td style="text-align:right;">
+0.4705–0.5591
+</td>
+<td style="text-align:right;">
++0.0415–+0.1301
+</td>
+<td style="text-align:right;">
+0.2923–0.5655
+</td>
+<td style="text-align:right;">
+0.9974–0.9997
+</td>
+<td style="text-align:right;">
+0.0416–0.1298
+</td>
+<td style="text-align:right;">
+0.7939–0.9363
+</td>
+<td style="text-align:left;">
+Ranks are stable, but absolute calibration changes.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+0.9382
+</td>
+<td style="text-align:right;">
+0.9348–0.9462
+</td>
+<td style="text-align:right;">
+-0.0034–+0.0081
+</td>
+<td style="text-align:right;">
+0.0312–0.0541
+</td>
+<td style="text-align:right;">
+0.9978–0.9998
+</td>
+<td style="text-align:right;">
+0.0014–0.0088
+</td>
+<td style="text-align:right;">
+0.8696–0.9804
+</td>
+<td style="text-align:left;">
+Null weight, lfdr values, and calls are practically stable.
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="a-concrete-draw-seed-12345" class="section level3">
+<h3>A concrete draw: seed 12345</h3>
+<p>The scatter plot below shows every selected pair for the first
+prespecified seed. The horizontal coordinate is the lfdr assigned by the
+fixed full-data fit; the vertical coordinate is the lfdr after
+re-estimating the mixture on the 6,362 selected pairs. Thus, both axes
+refer to exactly the same gene-variant pairs.</p>
+<pre class="r"><code>render_scrollable_table(
+  specific_seed_table,
+  align = &quot;lrrrrrrr&quot;,
+  minimum_width = &quot;1260px&quot;
+)</code></pre>
+<div class="one-gene-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1260px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Fit
+</th>
+<th style="text-align:right;">
+Full pi0
+</th>
+<th style="text-align:right;">
+Thinned pi0
+</th>
+<th style="text-align:right;">
+lfdr Spearman
+</th>
+<th style="text-align:right;">
+lfdr MAE
+</th>
+<th style="text-align:right;">
+Reference calls on sampled pairs
+</th>
+<th style="text-align:right;">
+Thinned-refit calls
+</th>
+<th style="text-align:right;">
+Discovery Jaccard
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.4290
+</td>
+<td style="text-align:right;">
+0.4705
+</td>
+<td style="text-align:right;">
+0.9990
+</td>
+<td style="text-align:right;">
+0.0416
+</td>
+<td style="text-align:right;">
+250
+</td>
+<td style="text-align:right;">
+236
+</td>
+<td style="text-align:right;">
+0.9363
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+0.9382
+</td>
+<td style="text-align:right;">
+0.9349
+</td>
+<td style="text-align:right;">
+0.9991
+</td>
+<td style="text-align:right;">
+0.0043
+</td>
+<td style="text-align:right;">
+46
+</td>
+<td style="text-align:right;">
+45
+</td>
+<td style="text-align:right;">
+0.9783
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>plot_specific_seed_lfdr()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_one_variant_per_gene_refit.rmd/specific-seed-lfdr-1.png" alt="Seed 12345 lfdr values from the fixed full-data fit and thinned refit. Each facet uses the identical 6,362 selected gene-variant pairs." width="1692" />
+<p class="caption">
+Seed 12345 lfdr values from the fixed full-data fit and thinned refit.
+Each facet uses the identical 6,362 selected gene-variant pairs.
+</p>
+</div>
+<p>The raw points show a calibration shift despite a nearly unchanged
+ordering. The BF-adjusted points lie much closer to the equality
+line.</p>
+</div>
+<div id="estimated-null-weight" class="section level3">
+<h3>Estimated null weight</h3>
+<pre class="r"><code>plot_pi0_stability()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_one_variant_per_gene_refit.rmd/pi0-stability-1.png" alt="Distribution of thinned null-weight estimates across ten seeds. Each point is one seed; diamonds mark the corresponding fixed full-data estimates." width="1692" />
+<p class="caption">
+Distribution of thinned null-weight estimates across ten seeds. Each
+point is one seed; diamonds mark the corresponding fixed full-data
+estimates.
+</p>
+</div>
+<p>The boxplots summarize cross-seed variability rather than connecting
+arbitrary seed labels. The raw estimates move upward under gene
+weighting and vary more across representative variants. The BF-adjusted
+estimates remain tightly centered around the full-data reference.</p>
+</div>
+<div id="paired-lfdr-agreement" class="section level3">
+<h3>Paired lfdr agreement</h3>
+<pre class="r"><code>plot_lfdr_mae()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_one_variant_per_gene_refit.rmd/lfdr-mae-1.png" alt="Distribution across ten seeds of the mean absolute lfdr difference between the full-fit reference and thinned refit on the same sampled pairs." width="1584" />
+<p class="caption">
+Distribution across ten seeds of the mean absolute lfdr difference
+between the full-fit reference and thinned refit on the same sampled
+pairs.
+</p>
+</div>
+<p>The logarithmic axis emphasizes the separation: BF-adjusted lfdr mean
+absolute differences remain below 0.009 in every seed, compared with
+0.0416–0.1298 for the raw fit.</p>
+</div>
+<div id="genes-with-discovered-dynamic-eqtls" class="section level3">
+<h3>Genes with discovered dynamic eQTLs</h3>
+<p>In the complete BF-adjusted analysis, cumulative-lfdr FDR control at
+0.05 discovers 9,205 gene-variant pairs from 1,177 distinct genes. This
+is one fixed full-data result; it has no thinning seed and does not vary
+across the ten refits.</p>
+<pre class="r"><code>render_scrollable_table(
+  full_data_discovery_table,
+  align = &quot;lrrrr&quot;,
+  minimum_width = &quot;1040px&quot;
+)</code></pre>
+<div class="one-gene-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1040px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Fit
+</th>
+<th style="text-align:right;">
+Tested gene-variant pairs
+</th>
+<th style="text-align:right;">
+Tested genes
+</th>
+<th style="text-align:right;">
+Discovered gene-variant pairs
+</th>
+<th style="text-align:right;">
+Genes with at least one discovered dynamic eQTL
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Full-data BF-adjusted FASH(1)
+</td>
+<td style="text-align:right;">
+1,009,173
+</td>
+<td style="text-align:right;">
+6,362
+</td>
+<td style="text-align:right;">
+9,205
+</td>
+<td style="text-align:right;">
+1,177
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Each thinned refit instead tests exactly 6,362 sampled pairs, one per
+gene. Therefore every discovered pair in a thinned fit corresponds to
+one discovered gene. Its discovery count can vary because a different
+representative variant is sampled for each gene and the FASH prior is
+then refitted on that selected dataset.</p>
+<pre class="r"><code>render_scrollable_table(
+  thinned_gene_discovery_table,
+  align = &quot;rr&quot;,
+  minimum_width = &quot;720px&quot;
+)</code></pre>
+<div class="one-gene-table-scroll">
+<table class="table table-striped table-hover" style="min-width:720px;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Seed
+</th>
+<th style="text-align:right;">
+Genes discovered by the thinned BF-adjusted refit
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+12345
+</td>
+<td style="text-align:right;">
+45
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+22345
+</td>
+<td style="text-align:right;">
+56
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+32345
+</td>
+<td style="text-align:right;">
+68
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+42345
+</td>
+<td style="text-align:right;">
+61
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+52345
+</td>
+<td style="text-align:right;">
+42
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+62345
+</td>
+<td style="text-align:right;">
+52
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+72345
+</td>
+<td style="text-align:right;">
+66
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+82345
+</td>
+<td style="text-align:right;">
+70
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+92345
+</td>
+<td style="text-align:right;">
+50
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+102345
+</td>
+<td style="text-align:right;">
+63
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>plot_thinned_gene_discoveries()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_one_variant_per_gene_refit.rmd/thinned-gene-discovery-boxplot-1.png" alt="Distribution of the number of genes discovered by the ten thinned BF-adjusted refits. Each point is one seed." width="1296" />
+<p class="caption">
+Distribution of the number of genes discovered by the ten thinned
+BF-adjusted refits. Each point is one seed.
+</p>
+</div>
+<p>Across the ten thinned refits, the count ranges from 42 to 70 genes,
+with median 58.5 and interquartile range 50.5–65.2. The full-data count
+of 1,177 and the thinned counts should not be compared as though they
+used the same testing universe: the full analysis tests all 1,009,173
+pairs, while each thinned analysis tests only one randomly selected pair
+per gene.</p>
+</div>
+<div id="conditional-agreement-on-the-sampled-pairs"
+class="section level3">
+<h3>Conditional agreement on the sampled pairs</h3>
+<p>The lfdr and discovery-overlap diagnostics use a different,
+deliberately paired comparison. For each seed, the fixed full-data fit
+is evaluated only on that seed’s 6,362 sampled pairs, and
+cumulative-lfdr FDR control is reapplied within that restricted set.
+This produces a seed-dependent <strong>reference on the sampled
+pairs</strong>; it is not the number of genes discovered by the full
+FASH analysis. The corresponding thinned refit is evaluated on exactly
+the same pairs, so their Jaccard overlap is meaningful as a conditional
+robustness diagnostic.</p>
+<pre class="r"><code>plot_discovery_jaccard()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_one_variant_per_gene_refit.rmd/discovery-overlap-1.png" alt="Distribution across ten seeds of the conditional discovery-set Jaccard. In each seed, both fits are evaluated on the same sampled pairs." width="1584" />
+<p class="caption">
+Distribution across ten seeds of the conditional discovery-set Jaccard.
+In each seed, both fits are evaluated on the same sampled pairs.
+</p>
+</div>
+<p>The BF-adjusted discovery Jaccard ranges from 0.8696 to 0.9804. The
+non-overlapping calls remain concentrated near the decision
+boundary.</p>
+</div>
+<div id="seed-level-results" class="section level3">
+<h3>Seed-level results</h3>
+<pre class="r"><code>render_scrollable_table(
+  seed_result_table,
+  align = &quot;rlrrrrrr&quot;,
+  minimum_width = &quot;1240px&quot;
+)</code></pre>
+<div class="one-gene-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1240px;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Seed
+</th>
+<th style="text-align:left;">
+Fit
+</th>
+<th style="text-align:right;">
+Full pi0
+</th>
+<th style="text-align:right;">
+Thinned pi0
+</th>
+<th style="text-align:right;">
+Delta pi0
+</th>
+<th style="text-align:right;">
+lfdr Spearman
+</th>
+<th style="text-align:right;">
+lfdr MAE
+</th>
+<th style="text-align:right;">
+Call Jaccard
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+12345
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.4290
+</td>
+<td style="text-align:right;">
+0.4705
+</td>
+<td style="text-align:right;">
++0.0415
+</td>
+<td style="text-align:right;">
+0.9990
+</td>
+<td style="text-align:right;">
+0.0416
+</td>
+<td style="text-align:right;">
+0.9363
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+12345
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+0.9382
+</td>
+<td style="text-align:right;">
+0.9349
+</td>
+<td style="text-align:right;">
+-0.0032
+</td>
+<td style="text-align:right;">
+0.9991
+</td>
+<td style="text-align:right;">
+0.0043
+</td>
+<td style="text-align:right;">
+0.9783
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+22345
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.4290
+</td>
+<td style="text-align:right;">
+0.5591
+</td>
+<td style="text-align:right;">
++0.1301
+</td>
+<td style="text-align:right;">
+0.9986
+</td>
+<td style="text-align:right;">
+0.1298
+</td>
+<td style="text-align:right;">
+0.8300
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+22345
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+0.9382
+</td>
+<td style="text-align:right;">
+0.9381
+</td>
+<td style="text-align:right;">
+-0.0001
+</td>
+<td style="text-align:right;">
+0.9990
+</td>
+<td style="text-align:right;">
+0.0064
+</td>
+<td style="text-align:right;">
+0.9107
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+32345
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.4290
+</td>
+<td style="text-align:right;">
+0.5506
+</td>
+<td style="text-align:right;">
++0.1216
+</td>
+<td style="text-align:right;">
+0.9990
+</td>
+<td style="text-align:right;">
+0.1215
+</td>
+<td style="text-align:right;">
+0.8624
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+32345
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+0.9382
+</td>
+<td style="text-align:right;">
+0.9393
+</td>
+<td style="text-align:right;">
++0.0012
+</td>
+<td style="text-align:right;">
+0.9993
+</td>
+<td style="text-align:right;">
+0.0042
+</td>
+<td style="text-align:right;">
+0.9118
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+42345
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.4290
+</td>
+<td style="text-align:right;">
+0.5547
+</td>
+<td style="text-align:right;">
++0.1257
+</td>
+<td style="text-align:right;">
+0.9985
+</td>
+<td style="text-align:right;">
+0.1255
+</td>
+<td style="text-align:right;">
+0.8480
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+42345
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+0.9382
+</td>
+<td style="text-align:right;">
+0.9379
+</td>
+<td style="text-align:right;">
+-0.0002
+</td>
+<td style="text-align:right;">
+0.9994
+</td>
+<td style="text-align:right;">
+0.0035
+</td>
+<td style="text-align:right;">
+0.9032
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+52345
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.4290
+</td>
+<td style="text-align:right;">
+0.5471
+</td>
+<td style="text-align:right;">
++0.1181
+</td>
+<td style="text-align:right;">
+0.9997
+</td>
+<td style="text-align:right;">
+0.1138
+</td>
+<td style="text-align:right;">
+0.7939
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+52345
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+0.9382
+</td>
+<td style="text-align:right;">
+0.9462
+</td>
+<td style="text-align:right;">
++0.0081
+</td>
+<td style="text-align:right;">
+0.9997
+</td>
+<td style="text-align:right;">
+0.0088
+</td>
+<td style="text-align:right;">
+0.8696
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+62345
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.4290
+</td>
+<td style="text-align:right;">
+0.5094
+</td>
+<td style="text-align:right;">
++0.0804
+</td>
+<td style="text-align:right;">
+0.9991
+</td>
+<td style="text-align:right;">
+0.0815
+</td>
+<td style="text-align:right;">
+0.9146
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+62345
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+0.9382
+</td>
+<td style="text-align:right;">
+0.9348
+</td>
+<td style="text-align:right;">
+-0.0034
+</td>
+<td style="text-align:right;">
+0.9995
+</td>
+<td style="text-align:right;">
+0.0041
+</td>
+<td style="text-align:right;">
+0.9423
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+72345
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.4290
+</td>
+<td style="text-align:right;">
+0.4872
+</td>
+<td style="text-align:right;">
++0.0582
+</td>
+<td style="text-align:right;">
+0.9996
+</td>
+<td style="text-align:right;">
+0.0589
+</td>
+<td style="text-align:right;">
+0.9236
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+72345
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+0.9382
+</td>
+<td style="text-align:right;">
+0.9354
+</td>
+<td style="text-align:right;">
+-0.0028
+</td>
+<td style="text-align:right;">
+0.9998
+</td>
+<td style="text-align:right;">
+0.0039
+</td>
+<td style="text-align:right;">
+0.9104
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+82345
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.4290
+</td>
+<td style="text-align:right;">
+0.5103
+</td>
+<td style="text-align:right;">
++0.0813
+</td>
+<td style="text-align:right;">
+0.9987
+</td>
+<td style="text-align:right;">
+0.0819
+</td>
+<td style="text-align:right;">
+0.9144
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+82345
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+0.9382
+</td>
+<td style="text-align:right;">
+0.9354
+</td>
+<td style="text-align:right;">
+-0.0028
+</td>
+<td style="text-align:right;">
+0.9996
+</td>
+<td style="text-align:right;">
+0.0033
+</td>
+<td style="text-align:right;">
+0.9571
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+92345
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.4290
+</td>
+<td style="text-align:right;">
+0.4785
+</td>
+<td style="text-align:right;">
++0.0495
+</td>
+<td style="text-align:right;">
+0.9994
+</td>
+<td style="text-align:right;">
+0.0488
+</td>
+<td style="text-align:right;">
+0.9187
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+92345
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+0.9382
+</td>
+<td style="text-align:right;">
+0.9387
+</td>
+<td style="text-align:right;">
++0.0005
+</td>
+<td style="text-align:right;">
+0.9993
+</td>
+<td style="text-align:right;">
+0.0014
+</td>
+<td style="text-align:right;">
+0.9804
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+102345
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.4290
+</td>
+<td style="text-align:right;">
+0.5126
+</td>
+<td style="text-align:right;">
++0.0836
+</td>
+<td style="text-align:right;">
+0.9974
+</td>
+<td style="text-align:right;">
+0.0839
+</td>
+<td style="text-align:right;">
+0.8929
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+102345
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+0.9382
+</td>
+<td style="text-align:right;">
+0.9362
+</td>
+<td style="text-align:right;">
+-0.0020
+</td>
+<td style="text-align:right;">
+0.9978
+</td>
+<td style="text-align:right;">
+0.0042
+</td>
+<td style="text-align:right;">
+0.9048
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="interpretation" class="section level2">
+<h2>Interpretation</h2>
+<p>This experiment separates two aspects of similarity.</p>
+<ol style="list-style-type: decimal">
+<li><strong>Ranking stability is strong even before BF
+adjustment.</strong> Raw paired lfdr Spearman correlations are
+0.9974–0.9997.</li>
+<li><strong>Raw absolute calibration is composition-sensitive.</strong>
+The raw null weight, alternative mixture allocation, and absolute lfdr
+scale shift after moving from pair weighting to gene weighting.</li>
+<li><strong>The BF-adjusted analysis is practically stable.</strong>
+Across all ten draws, the BF-adjusted null-weight change is smaller than
+0.009 in magnitude, lfdr MAE is below 0.009, and lfdr Spearman
+correlations are 0.9978–0.9998.</li>
+<li><strong>Full-data and thinned discovery counts are distinct
+quantities.</strong> The full FASH result is fixed at 1,177 genes. The
+ten thinned refits discover 42–70 genes on their much smaller,
+seed-specific testing universes.</li>
+</ol>
+<p>The strongest defensible conclusion is:</p>
+<blockquote>
+<p>The paper’s BF-adjusted FASH(1) prior and selected-pair lfdr values
+are robust to heavy thinning from 1,009,173 gene-variant pairs to one
+uniformly selected pair per gene. The corresponding raw empirical-Bayes
+prior is less robust to this change in unit composition.</p>
+</blockquote>
+<p>This supports the practical stability of the reported BF-adjusted
+fit. It does not establish that LD has no effect, because thinning also
+changes the gene-versus-pair weighting of the empirical
+distribution.</p>
+</div>
+<div id="limitations" class="section level2">
+<h2>Limitations</h2>
+<ul>
+<li>One variant per gene reduces same-gene tagging but does not
+eliminate LD between nearby variants assigned to different genes.</li>
+<li>There are 11–29 repeated cross-gene variant assignments per seed; no
+source variant is assigned to more than two genes.</li>
+<li>Pair-weighted and gene-weighted empirical distributions are
+different targets. A difference between fits cannot be attributed to LD
+alone.</li>
+<li>Ten deterministic random selections characterize
+representative-variant sensitivity but do not form a formal bootstrap
+confidence interval.</li>
+<li>Discovery overlap conditions on the same thinned universe and should
+not be interpreted as overlap with the complete million-pair discovery
+set.</li>
+<li>Cached likelihood reuse is exact because the beta estimates, SEs,
+basis, likelihood, PSD grid, and original <code>penalty = 10</code>
+choice are unchanged.</li>
+</ul>
+</div>
+<div id="source-provenance" class="section level2">
+<h2>Source provenance</h2>
+<p>The two full-fit files were treated as immutable. Their recorded
+sizes, modification times, and SHA-256 hashes are reported below and
+remained unchanged across the random refits. Routine page builds use
+only compact caches and do not open these large objects.</p>
+<pre class="r"><code>render_scrollable_table(
+  source_provenance_table,
+  align = &quot;lllrl&quot;,
+  minimum_width = &quot;1480px&quot;
+)</code></pre>
+<div class="one-gene-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1480px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Artifact
+</th>
+<th style="text-align:left;">
+File name
+</th>
+<th style="text-align:left;">
+Size (MB)
+</th>
+<th style="text-align:right;">
+Recorded mtime (UTC)
+</th>
+<th style="text-align:left;">
+SHA-256 verified
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Full raw FASH(1), penalty = 10
+</td>
+<td style="text-align:left;">
+fash_fit1_all.RData
+</td>
+<td style="text-align:left;">
+549.4
+</td>
+<td style="text-align:right;">
+2026-01-20 17:57:38 UTC
+</td>
+<td style="text-align:left;">
+9e9aaf8a405f7ca83439990656666035fc0a74bb1ae2858ace79944fac6ec929
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Full BF-adjusted FASH(1)
+</td>
+<td style="text-align:left;">
+fash_fit1_update.RData
+</td>
+<td style="text-align:left;">
+554.2
+</td>
+<td style="text-align:right;">
+2026-01-20 20:29:11 UTC
+</td>
+<td style="text-align:left;">
+3e3d6735b9da734a3ab16ed53713908c02d0af4e15a659760fc5f892ef64023b
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="reproducibility" class="section level2">
+<h2>Reproducibility</h2>
+<p>Routine builds read:</p>
+<p><span
+class="one-gene-inline-path"><code>output/revision_simulations/internal/one_variant_per_gene_refit_seed&lt;seed&gt;/</code></span></p>
+<p>and the combined <span
+class="one-gene-inline-path"><code>one_variant_per_gene_refit_seed_summary.csv</code></span>,
+plus <span
+class="one-gene-inline-path"><code>one_variant_per_gene_full_bf_discovery_summary.csv</code></span>
+and <span
+class="one-gene-inline-path"><code>one_variant_per_gene_variant_counts.csv</code></span>.
+They do not reload the full FASH objects or rerun the empirical-Bayes
+fits.</p>
+<p>To reproduce the analysis without overwriting the retained cache, use
+a new output prefix:</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/internal/one_variant_per_gene_refit/run_one_variant_per_gene_refit.R \
+  --seeds 12345,22345,32345,42345,52345,62345,72345,82345,92345,102345 \
+  --num-cores 8 \
+  --validation-units 24 \
+  --output-prefix one_variant_per_gene_refit_reproduction_seed \
+  --full-summary-file one_variant_per_gene_full_bf_discovery_summary_reproduction.csv \
+  --variant-count-file one_variant_per_gene_variant_counts_reproduction.csv</code></pre>
+<p>The focused computation and reporting tests are:</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/internal/one_variant_per_gene_refit/test_one_variant_per_gene_refit_helpers.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/one_variant_per_gene_refit/test_reporting.R</code></pre>
+<p>The page can be rebuilt from the retained caches with:</p>
+<pre class="bash"><code>Rscript --vanilla -e \
+  &#39;workflowr::wflow_build(
+    &quot;analysis/revision_internal_one_variant_per_gene_refit.rmd&quot;
+  )&#39;</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] workflowr_1.7.2
+
+loaded via a namespace (and not attached):
+ [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.1.4        compiler_4.5.1    
+ [5] promises_1.5.0     tidyselect_1.2.1   Rcpp_1.1.1-1.1     stringr_1.6.0     
+ [9] git2r_0.36.2       dichromat_2.0-0.1  callr_3.7.6        later_1.4.4       
+[13] jquerylib_0.1.4    scales_1.4.0       yaml_2.3.12        fastmap_1.2.0     
+[17] ggplot2_4.0.1      R6_2.6.1           labeling_0.4.3     generics_0.1.4    
+[21] knitr_1.50         tibble_3.3.0       rprojroot_2.1.1    RColorBrewer_1.1-3
+[25] bslib_0.9.0        pillar_1.11.1      rlang_1.2.0        cachem_1.1.0      
+[29] stringi_1.8.7      httpuv_1.6.16      xfun_0.55          S7_0.2.1          
+[33] getPass_0.2-4      fs_1.6.6           sass_0.4.10        otel_0.2.0        
+[37] cli_3.6.6          withr_3.0.2        magrittr_2.0.5     ps_1.9.1          
+[41] grid_4.5.1         digest_0.6.39      processx_3.8.6     rstudioapi_0.17.1 
+[45] lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5     glue_1.8.1        
+[49] farver_2.1.2       whisker_0.4.1      rmarkdown_2.30     httr_1.4.7        
+[53] tools_4.5.1        pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

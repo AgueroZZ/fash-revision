@@ -1,0 +1,2182 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-09" />
+
+<title>Revision Real-data Analysis R6: enhancer enrichment of FASH dynamic eQTLs</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Revision Real-data Analysis R6: enhancer
+enrichment of FASH dynamic eQTLs</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-09</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-10
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/revision_simulations/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/revision_simulations/
+
+Untracked files:
+    Untracked:  Rplots.pdf
+    Untracked:  analysis/revision_balanced_variant_thinning.rmd
+    Untracked:  analysis/revision_combined_spiky_genotype_simulation.rmd
+    Untracked:  analysis/revision_correlated_error_simulation.rmd
+    Untracked:  analysis/revision_enhancer_enrichment.rmd
+    Untracked:  analysis/revision_functional_testing_simulation.rmd
+    Untracked:  analysis/revision_genotype_level_simulation.rmd
+    Untracked:  analysis/revision_internal_baseline_ld_variant_enrichment.rmd
+    Untracked:  analysis/revision_internal_correlated_likelihood_sensitivity.rmd
+    Untracked:  analysis/revision_internal_fash_cl_variant_enrichment_comparison.rmd
+    Untracked:  analysis/revision_internal_mashr_mean_z_null_correlation.rmd
+    Untracked:  analysis/revision_internal_observational_null_set_pilot.rmd
+    Untracked:  analysis/revision_internal_one_variant_per_gene_refit.rmd
+    Untracked:  analysis/revision_internal_real_genotype_simulation.rmd
+    Untracked:  analysis/revision_internal_targeted_broad_calibration.rmd
+    Untracked:  analysis/revision_internal_variant_annotation_enrichment.rmd
+    Untracked:  analysis/revision_internal_zero_intercept_correlation.rmd
+    Untracked:  analysis/revision_ld_tagging_switch_example.rmd
+    Untracked:  code/00_eQTLs_CL.R
+    Untracked:  code/01_fash_CL.R
+    Untracked:  code/01_fash_CL.sbatch
+    Untracked:  code/09_penalty_sensitivity.R
+    Untracked:  code/09_penalty_sensitivity.sbatch
+    Untracked:  code/revision_simulations/
+    Untracked:  fash_prior_comparison_order1_after.pdf
+    Untracked:  fash_prior_comparison_order1_after.png
+    Untracked:  fash_prior_comparison_order1_before.pdf
+    Untracked:  fash_prior_comparison_order1_before.png
+    Untracked:  fash_prior_comparison_order2_after.pdf
+    Untracked:  fash_prior_comparison_order2_after.png
+    Untracked:  fash_prior_comparison_order2_before.pdf
+    Untracked:  fash_prior_comparison_order2_before.png
+
+Unstaged changes:
+    Modified:   .gitignore
+    Modified:   analysis/appendixB.rmd
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Modified:   code/README.md
+    Modified:   output/toy_example/toy_example_11.pdf
+    Modified:   output/toy_example/toy_example_12.pdf
+    Modified:   output/toy_example/toy_example_21.pdf
+    Modified:   output/toy_example/toy_example_22.pdf
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style>
+.fash-strober-key-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.fash-strober-caution {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #cc7a00;
+  border-radius: 4px;
+  background: #fff8ec;
+  color: #563a0c;
+}
+.fash-strober-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.fash-strober-table-scroll table {
+  margin-bottom: 1em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+<div id="the-question" class="section level2">
+<h2>The question</h2>
+<p>Do the gene-variant pairs that FASH discovers, and Strober’s linear
+and quadratic/nonlinear analyses do not, carry independent regulatory
+evidence?</p>
+<table>
+<thead>
+<tr class="header">
+<th>Section</th>
+<th>What is being tested</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>FASH versus Strober linear versus Strober quadratic/nonlinear</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>FASH discoveries at variants Strober never discovered</td>
+</tr>
+</tbody>
+</table>
+<p>Both figures show the same two selection strategies side by side:
+<strong>all discovered variants</strong> and <strong>one lead variant
+per gene</strong>. FASH uses cumulative lfdr at FDR 0.05 after the BF
+correction; Strober uses its reported eFDR 0.05. The existing Strober
+<code>non_linear_dynamic_eqtls_5_pc.txt</code> result is labelled
+quadratic/nonlinear throughout.</p>
+<p><strong>FASH-only, variant level:</strong> an rsID is not FASH-only
+if it appears in <em>any</em> Strober linear or quadratic discovery,
+regardless of which gene it was paired with. This is the conservative
+reading of “new evidence”, because an enhancer annotation is a property
+of a variant rather than of a pair. For the lead column, the per-gene
+lowest-lfdr variant is chosen <strong>first</strong> and the exclusion
+applied afterwards, so every variant shown is genuinely FASH’s top call
+for its gene; a gene whose best variant Strober also found drops out
+rather than falling back to a weaker one.</p>
+</div>
+<div id="discovery-set-construction" class="section level2">
+<h2>Discovery-set construction</h2>
+<pre class="r"><code>render_scrollable_table(
+  discovery_table,
+  align = &quot;rlllrrr&quot;,
+  minimum_width = &quot;1120px&quot;
+)</code></pre>
+<div class="fash-strober-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1120px;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Section
+</th>
+<th style="text-align:left;">
+Set ID
+</th>
+<th style="text-align:left;">
+Method
+</th>
+<th style="text-align:left;">
+Selection strategy
+</th>
+<th style="text-align:right;">
+Gene-variant pairs
+</th>
+<th style="text-align:right;">
+Unique variants
+</th>
+<th style="text-align:right;">
+Unique genes
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+current_all
+</td>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+9205
+</td>
+<td style="text-align:right;">
+9139
+</td>
+<td style="text-align:right;">
+1177
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+current_lead
+</td>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+1177
+</td>
+<td style="text-align:right;">
+1170
+</td>
+<td style="text-align:right;">
+1177
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+linear_all
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+5404
+</td>
+<td style="text-align:right;">
+5387
+</td>
+<td style="text-align:right;">
+550
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+linear_lead
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+550
+</td>
+<td style="text-align:right;">
+548
+</td>
+<td style="text-align:right;">
+550
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+quadratic_all
+</td>
+<td style="text-align:left;">
+Strober quadratic/nonlinear
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+6824
+</td>
+<td style="text-align:right;">
+6797
+</td>
+<td style="text-align:right;">
+693
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+quadratic_lead
+</td>
+<td style="text-align:left;">
+Strober quadratic/nonlinear
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+693
+</td>
+<td style="text-align:right;">
+690
+</td>
+<td style="text-align:right;">
+693
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+current_only_all
+</td>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+8033
+</td>
+<td style="text-align:right;">
+7972
+</td>
+<td style="text-align:right;">
+1116
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+current_only_lead
+</td>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+1036
+</td>
+<td style="text-align:right;">
+1030
+</td>
+<td style="text-align:right;">
+1036
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Of the 9,139 variants FASH discovers, 1,167 were also discovered by
+Strober linear or quadratic/nonlinear and are removed, leaving 7,972
+that only FASH found.</p>
+<details>
+<summary>
+<strong>Annotation coverage for all eight sets</strong>
+</summary>
+<pre class="r"><code>render_scrollable_table(
+  coverage_table,
+  align = &quot;llllrrr&quot;,
+  minimum_width = &quot;1240px&quot;
+)</code></pre>
+<div class="fash-strober-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1240px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Annotation system
+</th>
+<th style="text-align:left;">
+Set ID
+</th>
+<th style="text-align:left;">
+Method
+</th>
+<th style="text-align:left;">
+Selection strategy
+</th>
+<th style="text-align:right;">
+Original variants
+</th>
+<th style="text-align:right;">
+Covered variants
+</th>
+<th style="text-align:right;">
+Coverage
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Custom regulatory
+</td>
+<td style="text-align:left;">
+current_all
+</td>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+9139
+</td>
+<td style="text-align:right;">
+9139
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+baselineLD v2.2
+</td>
+<td style="text-align:left;">
+current_all
+</td>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+9139
+</td>
+<td style="text-align:right;">
+7075
+</td>
+<td style="text-align:right;">
+77.4%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Custom regulatory
+</td>
+<td style="text-align:left;">
+current_lead
+</td>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+1170
+</td>
+<td style="text-align:right;">
+1170
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+baselineLD v2.2
+</td>
+<td style="text-align:left;">
+current_lead
+</td>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+1170
+</td>
+<td style="text-align:right;">
+918
+</td>
+<td style="text-align:right;">
+78.5%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Custom regulatory
+</td>
+<td style="text-align:left;">
+linear_all
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+5387
+</td>
+<td style="text-align:right;">
+5387
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+baselineLD v2.2
+</td>
+<td style="text-align:left;">
+linear_all
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+5387
+</td>
+<td style="text-align:right;">
+3976
+</td>
+<td style="text-align:right;">
+73.8%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Custom regulatory
+</td>
+<td style="text-align:left;">
+linear_lead
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+548
+</td>
+<td style="text-align:right;">
+548
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+baselineLD v2.2
+</td>
+<td style="text-align:left;">
+linear_lead
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+548
+</td>
+<td style="text-align:right;">
+429
+</td>
+<td style="text-align:right;">
+78.3%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Custom regulatory
+</td>
+<td style="text-align:left;">
+quadratic_all
+</td>
+<td style="text-align:left;">
+Strober quadratic/nonlinear
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+6797
+</td>
+<td style="text-align:right;">
+6797
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+baselineLD v2.2
+</td>
+<td style="text-align:left;">
+quadratic_all
+</td>
+<td style="text-align:left;">
+Strober quadratic/nonlinear
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+6797
+</td>
+<td style="text-align:right;">
+5056
+</td>
+<td style="text-align:right;">
+74.4%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Custom regulatory
+</td>
+<td style="text-align:left;">
+quadratic_lead
+</td>
+<td style="text-align:left;">
+Strober quadratic/nonlinear
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+690
+</td>
+<td style="text-align:right;">
+690
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+baselineLD v2.2
+</td>
+<td style="text-align:left;">
+quadratic_lead
+</td>
+<td style="text-align:left;">
+Strober quadratic/nonlinear
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+690
+</td>
+<td style="text-align:right;">
+525
+</td>
+<td style="text-align:right;">
+76.1%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Custom regulatory
+</td>
+<td style="text-align:left;">
+current_only_all
+</td>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+7972
+</td>
+<td style="text-align:right;">
+7972
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+baselineLD v2.2
+</td>
+<td style="text-align:left;">
+current_only_all
+</td>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+7972
+</td>
+<td style="text-align:right;">
+6114
+</td>
+<td style="text-align:right;">
+76.7%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Custom regulatory
+</td>
+<td style="text-align:left;">
+current_only_lead
+</td>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+1030
+</td>
+<td style="text-align:right;">
+1030
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+baselineLD v2.2
+</td>
+<td style="text-align:left;">
+current_only_lead
+</td>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+1030
+</td>
+<td style="text-align:right;">
+806
+</td>
+<td style="text-align:right;">
+78.3%
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</details>
+</div>
+<div id="section-1-fash-versus-strober" class="section level2">
+<h2>Section 1: FASH versus Strober</h2>
+<pre class="r"><code>plot_method_comparison(&quot;Current FASH&quot;)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_enhancer_enrichment.rmd/section1-1.png" alt="Figure 1. Enhancer enrichment for current FASH, Strober linear, and Strober quadratic/nonlinear. Intervals are delete-one-autosome 95% intervals; filled points mark nominal p below 0.05 without multiplicity correction. Chevrons mark intervals extending beyond the plotted range; exact bounds are returned by compute_enrichment()." width="2070" />
+<p class="caption">
+Figure 1. Enhancer enrichment for current FASH, Strober linear, and
+Strober quadratic/nonlinear. Intervals are delete-one-autosome 95%
+intervals; filled points mark nominal p below 0.05 without multiplicity
+correction. Chevrons mark intervals extending beyond the plotted range;
+exact bounds are returned by compute_enrichment().
+</p>
+</div>
+<p>Under lead-per-gene selection the ordering reverses at the E013
+mesoderm enhancer, where FASH holds the strongest estimate of the three
+methods: 1.38-fold (95% CI 1.09-1.74, nominal p = 0.0064, 93/1,170
+variants), against 1.18-fold for Strober linear and 1.25-fold for
+Strober quadratic.</p>
+</div>
+<div id="section-2-variants-strober-never-discovered"
+class="section level2">
+<h2>Section 2: variants Strober never discovered</h2>
+<p>The grey series repeats the unfiltered FASH set from Section 1 so the
+effect of the exclusion is directly visible.</p>
+<pre class="r"><code>plot_fash_only()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_enhancer_enrichment.rmd/section2-1.png" alt="Figure 2. Enhancer enrichment for FASH discoveries at variants absent from both Strober analyses, against the unfiltered FASH reference. Chevrons mark intervals extending beyond the plotted range; exact bounds are returned by compute_enrichment()." width="2070" />
+<p class="caption">
+Figure 2. Enhancer enrichment for FASH discoveries at variants absent
+from both Strober analyses, against the unfiltered FASH reference.
+Chevrons mark intervals extending beyond the plotted range; exact bounds
+are returned by compute_enrichment().
+</p>
+</div>
+<p><strong>All variants</strong> (7,972 variants): every FASH discovery
+at a variant Strober never found. Here no enhancer annotation reaches
+nominal p &lt; 0.05.</p>
+<p><strong>One lead variant per gene</strong> (1,030 variants): FASH’s
+lowest-lfdr variant for each gene, keeping only those Strober never
+found. A gene whose best variant Strober also discovered drops out
+rather than falling back to a weaker one, so 1,036 of FASH’s 1,177 genes
+survive. Here the enriched annotations are Enhancer (Hoffman)
+(baselineLD v2.2) at 1.36-fold, 95% CI 1.12-1.65, p = 0.002, 94/806
+variants; E013 enhancer (mesoderm) (Custom regulatory) at 1.30-fold, 95%
+CI 1.06-1.59, p = 0.01, 77/1,030 variants.</p>
+<div class="fash-strober-caution">
+<p><strong>Exploratory, uncorrected.</strong> Fold enrichment, 95%
+intervals, and nominal p-values are reported for 69 estimable enhancer
+estimates across 8 variant sets and two annotation systems, with no
+multiplicity adjustment; the p-values are descriptive. The two
+annotation systems evaluate the same discoveries and are not independent
+replications. Each set has its own matched controls and the sets differ
+in size and membership, so a larger estimate for one method is not a
+formal test that it outperforms another - in particular, Strober’s
+higher all-variant enrichment must not be read that way.</p>
+</div>
+<div class="fash-strober-key-result">
+<p><strong>Readout.</strong> FASH discoveries at variants Strober never
+found are enriched for mesoderm enhancers when one lead variant per gene
+is taken, and indistinguishable from the null when every discovered
+variant is counted. E013 is the hESC-derived CD56+ mesoderm enhancer
+set, the transitional state of this iPSC-to-cardiomyocyte
+differentiation, between the E020 starting state and the E095 terminal
+state. That observation was made after seeing the results and is not a
+pre-specified hypothesis.</p>
+</div>
+</div>
+<div id="methods" class="section level2">
+<h2>Methods</h2>
+<p>Enough detail to reimplement the analysis from scratch. The <a
+href="#how-the-enrichment-is-computed">How the enrichment is
+computed</a> section below shows the same thing as four lines of
+code.</p>
+<div id="annotation-provenance" class="section level3">
+<h3>Annotation provenance</h3>
+<pre class="r"><code>render_scrollable_table(
+  provenance_table,
+  align = &quot;llllllll&quot;,
+  minimum_width = &quot;1560px&quot;,
+  escape = FALSE
+)</code></pre>
+<div class="fash-strober-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1560px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Annotation system
+</th>
+<th style="text-align:left;">
+Annotation
+</th>
+<th style="text-align:left;">
+Source
+</th>
+<th style="text-align:left;">
+Accession or record
+</th>
+<th style="text-align:left;">
+Genome build
+</th>
+<th style="text-align:left;">
+Repository
+</th>
+<th style="text-align:left;">
+Download
+</th>
+<th style="text-align:left;">
+Retrieved from
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Custom regulatory
+</td>
+<td style="text-align:left;">
+ENCODE cCRE enhancer-like
+</td>
+<td style="text-align:left;">
+ENCODE candidate cis-regulatory elements (cell-type agnostic)
+</td>
+<td style="text-align:left;">
+ENCFF788SJC
+</td>
+<td style="text-align:left;">
+hg19
+</td>
+<td style="text-align:left;">
+encodeproject.org
+</td>
+<td style="text-align:left;">
+<a href="https://www.encodeproject.org/files/ENCFF788SJC/@@download/ENCFF788SJC.bed.gz" target="_blank" rel="noopener">ENCFF788SJC.bed.gz</a>
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Custom regulatory
+</td>
+<td style="text-align:left;">
+Roadmap E020 iPS-20b: Enhancer
+</td>
+<td style="text-align:left;">
+NIH Roadmap 15-state ChromHMM coreMarks, iPS-20b
+</td>
+<td style="text-align:left;">
+E020
+</td>
+<td style="text-align:left;">
+hg19
+</td>
+<td style="text-align:left;">
+egg2.wustl.edu/roadmap
+</td>
+<td style="text-align:left;">
+<a href="https://egg2.wustl.edu/roadmap/data/byFileType/chromhmmSegmentations/ChmmModels/coreMarks/jointModel/final/E020_15_coreMarks_mnemonics.bed.gz" target="_blank" rel="noopener">E020_15_coreMarks_mnemonics.bed.gz</a>
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Custom regulatory
+</td>
+<td style="text-align:left;">
+Roadmap E013 hESC-derived CD56+ mesoderm: Enhancer
+</td>
+<td style="text-align:left;">
+NIH Roadmap 15-state ChromHMM coreMarks, hESC-derived CD56+ mesoderm
+</td>
+<td style="text-align:left;">
+E013
+</td>
+<td style="text-align:left;">
+hg19
+</td>
+<td style="text-align:left;">
+egg2.wustl.edu/roadmap
+</td>
+<td style="text-align:left;">
+<a href="https://egg2.wustl.edu/roadmap/data/byFileType/chromhmmSegmentations/ChmmModels/coreMarks/jointModel/final/E013_15_coreMarks_mnemonics.bed.gz" target="_blank" rel="noopener">E013_15_coreMarks_mnemonics.bed.gz</a>
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Custom regulatory
+</td>
+<td style="text-align:left;">
+Roadmap E095 left ventricle: Enhancer
+</td>
+<td style="text-align:left;">
+NIH Roadmap 15-state ChromHMM coreMarks, left ventricle
+</td>
+<td style="text-align:left;">
+E095
+</td>
+<td style="text-align:left;">
+hg19
+</td>
+<td style="text-align:left;">
+egg2.wustl.edu/roadmap
+</td>
+<td style="text-align:left;">
+<a href="https://egg2.wustl.edu/roadmap/data/byFileType/chromhmmSegmentations/ChmmModels/coreMarks/jointModel/final/E095_15_coreMarks_mnemonics.bed.gz" target="_blank" rel="noopener">E095_15_coreMarks_mnemonics.bed.gz</a>
+</td>
+<td style="text-align:left;">
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+baselineLD v2.2
+</td>
+<td style="text-align:left;">
+Enhancer_Andersson
+</td>
+<td style="text-align:left;">
+baselineLD v2.2 binary annotation columns
+</td>
+<td style="text-align:left;">
+Zenodo 10515792
+</td>
+<td style="text-align:left;">
+GRCh37/hg19
+</td>
+<td style="text-align:left;">
+zenodo.org (retrieved from Song Lab mirror)
+</td>
+<td style="text-align:left;">
+<a href="https://zenodo.org/records/10515792" target="_blank" rel="noopener">baselineLD.{1..22}.annot.gz</a>
+</td>
+<td style="text-align:left;">
+<a href="https://huggingface.co/datasets/songlab/ldsc/tree/main/baselineLD_v2.2" target="_blank" rel="noopener">Song
+Lab mirror</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+baselineLD v2.2
+</td>
+<td style="text-align:left;">
+Enhancer_Hoffman
+</td>
+<td style="text-align:left;">
+baselineLD v2.2 binary annotation columns
+</td>
+<td style="text-align:left;">
+Zenodo 10515792
+</td>
+<td style="text-align:left;">
+GRCh37/hg19
+</td>
+<td style="text-align:left;">
+zenodo.org (retrieved from Song Lab mirror)
+</td>
+<td style="text-align:left;">
+<a href="https://zenodo.org/records/10515792" target="_blank" rel="noopener">baselineLD.{1..22}.annot.gz</a>
+</td>
+<td style="text-align:left;">
+<a href="https://huggingface.co/datasets/songlab/ldsc/tree/main/baselineLD_v2.2" target="_blank" rel="noopener">Song
+Lab mirror</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+baselineLD v2.2
+</td>
+<td style="text-align:left;">
+WeakEnhancer_Hoffman
+</td>
+<td style="text-align:left;">
+baselineLD v2.2 binary annotation columns
+</td>
+<td style="text-align:left;">
+Zenodo 10515792
+</td>
+<td style="text-align:left;">
+GRCh37/hg19
+</td>
+<td style="text-align:left;">
+zenodo.org (retrieved from Song Lab mirror)
+</td>
+<td style="text-align:left;">
+<a href="https://zenodo.org/records/10515792" target="_blank" rel="noopener">baselineLD.{1..22}.annot.gz</a>
+</td>
+<td style="text-align:left;">
+<a href="https://huggingface.co/datasets/songlab/ldsc/tree/main/baselineLD_v2.2" target="_blank" rel="noopener">Song
+Lab mirror</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+baselineLD v2.2
+</td>
+<td style="text-align:left;">
+SuperEnhancer_Hnisz
+</td>
+<td style="text-align:left;">
+baselineLD v2.2 binary annotation columns
+</td>
+<td style="text-align:left;">
+Zenodo 10515792
+</td>
+<td style="text-align:left;">
+GRCh37/hg19
+</td>
+<td style="text-align:left;">
+zenodo.org (retrieved from Song Lab mirror)
+</td>
+<td style="text-align:left;">
+<a href="https://zenodo.org/records/10515792" target="_blank" rel="noopener">baselineLD.{1..22}.annot.gz</a>
+</td>
+<td style="text-align:left;">
+<a href="https://huggingface.co/datasets/songlab/ldsc/tree/main/baselineLD_v2.2" target="_blank" rel="noopener">Song
+Lab mirror</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+baselineLD v2.2
+</td>
+<td style="text-align:left;">
+Human_Enhancer_Villar
+</td>
+<td style="text-align:left;">
+baselineLD v2.2 binary annotation columns
+</td>
+<td style="text-align:left;">
+Zenodo 10515792
+</td>
+<td style="text-align:left;">
+GRCh37/hg19
+</td>
+<td style="text-align:left;">
+zenodo.org (retrieved from Song Lab mirror)
+</td>
+<td style="text-align:left;">
+<a href="https://zenodo.org/records/10515792" target="_blank" rel="noopener">baselineLD.{1..22}.annot.gz</a>
+</td>
+<td style="text-align:left;">
+<a href="https://huggingface.co/datasets/songlab/ldsc/tree/main/baselineLD_v2.2" target="_blank" rel="noopener">Song
+Lab mirror</a>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="how-the-custom-annotation-matrix-was-built"
+class="section level3">
+<h3>How the custom annotation matrix was built</h3>
+<ol style="list-style-type: decimal">
+<li><strong>Variant universe.</strong> All variants tested in the study
+that lie on an autosome, have a finite cohort MAF, participate in at
+least one tested gene-variant pair, and have a computable local variant
+density: 745,867 variants. Everything downstream is defined on this set,
+so no external reference panel enters.</li>
+<li><strong>Sources.</strong> The five files in the table above, each
+checksummed on download.</li>
+<li><strong>Interval construction.</strong>
+<ul>
+<li><em>GENCODE v19</em>: <code>gene</code> and <code>exon</code>
+records only. Gene body is the <code>gene</code> interval; exons are
+reduced to merge overlapping transcripts; <strong>introns are
+<code>setdiff(gene body, exon)</code></strong>; promoters are TSS ± 2
+kb; <strong>intergenic is the complement of gene body</strong>, not an
+interval set.</li>
+<li><em>ENCODE cCRE</em>: the class is decoded from the RGB field of the
+BED file, not from a name column - <code>255,0,0</code> promoter-like,
+<code>255,205,0</code> <strong>enhancer-like</strong>,
+<code>0,176,240</code> CTCF-only. An unrecognised RGB is a hard
+error.</li>
+<li><em>Roadmap</em>: the 15 ChromHMM states are collapsed to 7
+categories. <strong>Enhancer is states 6 and 7</strong> (genic enhancers
+and enhancers). States 1-2 are Active TSS, 3-5 Transcribed, 8-9
+Heterochromatin/repeats, 10-12 Bivalent/poised, 13-14
+Polycomb-repressed, 15 Quiescent. An unrecognised state is a hard
+error.</li>
+</ul></li>
+<li><strong>Coordinate conversion.</strong> BED files are 0-based
+half-open and GTF is 1-based closed, so BED starts are incremented by
+one before use.</li>
+<li><strong>Overlap.</strong> Each variant is treated as a single-base
+interval and intersected against every annotation with
+<code>GenomicRanges::findOverlaps</code>, giving a 745,867 × 29 logical
+matrix. Four of those 29 columns are the pre-specified custom
+enhancers.</li>
+</ol>
+<p>baselineLD v2.2 is used as published: its rows are the 1000G Phase 3
+<strong>EUR</strong> SNP list, which is why only 557,405 of the 745,867
+tested variants have a row. The enhancer <em>definitions</em> in both
+systems are ancestry-free genomic intervals; only baselineLD’s variant
+coverage is ancestry-dependent.</p>
+</div>
+<div id="matched-controls" class="section level3">
+<h3>Matched controls</h3>
+<p>For each discovery set, every selected variant is matched to 5
+non-selected tested variants drawn from the same stratum. Strata are the
+interaction of chromosome with decile bins of cohort MAF, log10 minimum
+target-gene TSS distance, log1p local tested-variant count within 1 Mb,
+and a coarsened tested-gene count (1, 2, 3-4, 5+). Matching is repeated
+over 100 fixed seeds beginning at 20,260,807, and control counts are
+pooled across seeds. For the baselineLD system both the selected set and
+the control pool are first restricted to baselineLD-covered variants, so
+numerator and denominator stay on the same footing.</p>
+</div>
+<div id="enrichment-and-interval" class="section level3">
+<h3>Enrichment and interval</h3>
+<p>With <span class="math inline">\(a\)</span> selected variants
+overlapping an annotation out of <span
+class="math inline">\(n_{\text{sel}}\)</span>, and <span
+class="math inline">\(b\)</span> control overlaps out of <span
+class="math inline">\(n_{\text{ctrl}}\)</span> pooled across seeds:</p>
+<p><span class="math display">\[\hat{\theta} =
+\log_2\!\left[\frac{a/n_{\text{sel}}}{b/n_{\text{ctrl}}}\right]\]</span></p>
+<p>Uncertainty is a delete-one-chromosome block jackknife. For each
+autosome <span class="math inline">\(c\)</span>, recompute <span
+class="math inline">\(\hat{\theta}_{(c)}\)</span> with every variant on
+<span class="math inline">\(c\)</span> removed from both the selected
+and the control counts, then</p>
+<p><span class="math display">\[\mathrm{se} =
+\sqrt{\frac{m-1}{m}\sum_{c}\left(\hat{\theta}_{(c)} -
+\bar{\theta}\right)^2},
+\qquad m = 22\]</span></p>
+<p>The reported interval is <span class="math inline">\(\hat{\theta} \pm
+1.96\,\mathrm{se}\)</span> on the log2 scale, displayed as folds; the
+nominal p-value is <span
+class="math inline">\(2\Phi(-|\hat{\theta}/\mathrm{se}|)\)</span>.
+Chromosome blocks absorb within-chromosome correlation, which is why
+these p-values are orders of magnitude more conservative than a Fisher
+test that assumes independent variants. An estimate is reported only
+when both the selected and the control overlap reach 10.</p>
+<div class="fash-strober-caution">
+<p><strong>Known limitations of the interval.</strong> Only 22 jackknife
+blocks, so the standard error is itself noisy and the normal quantile is
+optimistic in the tails. Chromosomes differ greatly in size while the
+standard delete-one formula assumes equal blocks. The Monte Carlo
+variability of the 100 matching seeds is not propagated; controls are
+pooled and treated as fixed. The interval is symmetric in log2 and
+therefore asymmetric in fold space.</p>
+</div>
+</div>
+</div>
+<div id="how-the-enrichment-is-computed" class="section level2">
+<h2>How the enrichment is computed</h2>
+<p>Stripped of bookkeeping, the analysis is three objects and one
+function. The module <a
+href="https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R"><code>enrichment_api.R</code></a>
+is written to make that visible:</p>
+<pre class="r"><code>source(&quot;code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R&quot;)
+
+# 1. ANNOTATIONS - which variants belong to which group
+annotations &lt;- load_annotation_groups(&quot;custom&quot;)   # or &quot;baselineld&quot;
+
+# 2. INPUT - a variant set to test, and the background of all tested variants
+background &lt;- load_background()                   # 745,867 tested variants
+sets       &lt;- load_variant_sets()                 # the eight published sets
+
+# 3. OUTPUT - one enrichment score per set per annotation group
+compute_enrichment(sets[&quot;current_only_lead&quot;], background, annotations)</code></pre>
+<p><code>compute_enrichment()</code> takes <strong>any</strong> named
+list of variant vectors, so swapping in your own sets needs no other
+change:</p>
+<pre class="r"><code>my_sets &lt;- list(
+  my_hits     = readLines(&quot;my_variants.txt&quot;),
+  fash_only   = sets$current_only_lead,
+  strober_lin = sets$linear_lead
+)
+compute_enrichment(my_sets, background, annotations)</code></pre>
+<div id="the-two-control-choices" class="section level3">
+<h3>The two control choices</h3>
+<p>The same function answers the question two ways, and the difference
+is the whole reason the matching machinery exists:</p>
+<pre class="r"><code># Plain over-representation: rate in the set / rate in the background.
+compute_enrichment(sets[&quot;current_all&quot;], background, annotations,
+                   controls = &quot;background&quot;)
+
+# Matched: each selected variant is compared against comparable variants drawn
+# from the background, so the comparison is not confounded.
+compute_enrichment(sets[&quot;current_all&quot;], background, annotations,
+                   controls = &quot;matched&quot;)</code></pre>
+<p>Discovered variants are systematically higher-MAF and closer to a TSS
+than the average tested variant, and enhancers are themselves
+TSS-proximal, so the plain comparison attributes some purely positional
+signal to biology. For FASH’s all-variant set at the E095 enhancer the
+plain fold is 1.22 with a Fisher p of 2e-08, while the matched fold is
+1.13 at p = 0.16. Every headline number on this page uses
+<code>controls = "matched"</code>.</p>
+</div>
+<div id="available-annotation-groups" class="section level3">
+<h3>Available annotation groups</h3>
+<p>The pre-specified enhancer panel is the default, but both systems
+carry more:</p>
+<pre class="r"><code>list_annotation_groups(&quot;custom&quot;)      # 29 groups: GENCODE, ENCODE cCRE, Roadmap
+list_annotation_groups(&quot;baselineld&quot;)  # 83 binary baselineLD v2.2 annotations
+
+load_annotation_groups(&quot;custom&quot;, groups = &quot;GENCODE promoter +/-2 kb&quot;)</code></pre>
+</div>
+<div id="checking-the-interface-against-this-page"
+class="section level3">
+<h3>Checking the interface against this page</h3>
+<p><code>enrichment_api.R</code> is a readable front end to the same
+audited matching engine the analysis uses, so it can drift. This check
+recomputes all eight published sets through
+<code>compute_enrichment()</code> and diffs them against the estimates
+shown above:</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R \
+  --verify</code></pre>
+</div>
+<div id="rebuilding-the-annotation-matrix-from-source"
+class="section level3">
+<h3>Rebuilding the annotation matrix from source</h3>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/internal/variant_annotation_enrichment/download_variant_annotations.R
+Rscript --vanilla \
+  code/revision_simulations/internal/variant_annotation_enrichment/run_variant_annotation_enrichment.R</code></pre>
+<p>The first downloads and checksums the five annotation sources; the
+second rebuilds the variant universe and the 29-column annotation matrix
+from them. Intermediate data stays under <code>output/</code>, which is
+not tracked in git - the repository carries code, not data.</p>
+<details>
+<summary>
+<strong>Retained input provenance</strong>
+</summary>
+<pre class="r"><code>render_scrollable_table(
+  input_provenance,
+  align = &quot;lrrl&quot;,
+  minimum_width = &quot;1360px&quot;
+)</code></pre>
+<div class="fash-strober-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1360px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+path
+</th>
+<th style="text-align:right;">
+byte_size
+</th>
+<th style="text-align:right;">
+md5
+</th>
+<th style="text-align:left;">
+modified_at
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/dynamic_eQTL_real/fash_fit1_update.RData
+</td>
+<td style="text-align:right;">
+581122554
+</td>
+<td style="text-align:right;">
+af46b39a04b241cf1e6116a645dbcc3e
+</td>
+<td style="text-align:left;">
+2026-01-20 20:29:11 UTC
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/data/dynamic_eQTL_real/strober_linear/linear_dynamic_eqtls_5_pc.txt
+</td>
+<td style="text-align:right;">
+63118432
+</td>
+<td style="text-align:right;">
+0046a033a3c6e2e6096c3551702353da
+</td>
+<td style="text-align:left;">
+2019-03-12 17:12:30 UTC
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/data/dynamic_eQTL_real/strober_nonlinear/non_linear_dynamic_eqtls_5_pc.txt
+</td>
+<td style="text-align:right;">
+63148959
+</td>
+<td style="text-align:right;">
+dd38af583983ab6a670ac1ffa773bdee
+</td>
+<td style="text-align:left;">
+2019-03-12 17:12:38 UTC
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/revision_simulations/internal/variant_annotation_enrichment/variant_matching_covariates.rds
+</td>
+<td style="text-align:right;">
+19645476
+</td>
+<td style="text-align:right;">
+66ae877fa1e335392dd29e6c2be25295
+</td>
+<td style="text-align:left;">
+2026-08-07 20:42:40 UTC
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/revision_simulations/internal/variant_annotation_enrichment/variant_annotation_matrix.rds
+</td>
+<td style="text-align:right;">
+5549354
+</td>
+<td style="text-align:right;">
+9bcddaa32023a2f3c7c8affedc8add14
+</td>
+<td style="text-align:left;">
+2026-08-07 20:42:41 UTC
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/revision_simulations/internal/baseline_ld_variant_enrichment/baseline_ld_binary_annotation_matrix.rds
+</td>
+<td style="text-align:right;">
+7542970
+</td>
+<td style="text-align:right;">
+82e6af8db64d9c6a4fac263a6d3d6f78
+</td>
+<td style="text-align:left;">
+2026-08-07 21:51:39 UTC
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/code/revision_simulations/internal/fash_strober_enhancer_comparison/fash_strober_enhancer_helpers.R
+</td>
+<td style="text-align:right;">
+8561
+</td>
+<td style="text-align:right;">
+8100838dab3748b03e88dfd3abe20a2a
+</td>
+<td style="text-align:left;">
+2026-08-10 04:41:45 UTC
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/code/revision_simulations/internal/fash_strober_enhancer_comparison/run_fash_strober_enhancer_comparison.R
+</td>
+<td style="text-align:right;">
+22905
+</td>
+<td style="text-align:right;">
+05c790cfb885f43e10ee06e1dec612c6
+</td>
+<td style="text-align:left;">
+2026-08-10 04:41:45 UTC
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/code/revision_simulations/internal/variant_annotation_enrichment/variant_annotation_enrichment_helpers.R
+</td>
+<td style="text-align:right;">
+42396
+</td>
+<td style="text-align:right;">
+afd317f14ace80ff04c545b9c35da74f
+</td>
+<td style="text-align:left;">
+2026-08-09 16:39:27 UTC
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</details>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] en_CA/en_CA/en_CA/C/en_CA/en_CA
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+ [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.1.4        compiler_4.5.1    
+ [5] promises_1.5.0     tidyselect_1.2.1   Rcpp_1.1.1-1.1     stringr_1.6.0     
+ [9] git2r_0.36.2       dichromat_2.0-0.1  later_1.4.4        jquerylib_0.1.4   
+[13] scales_1.4.0       yaml_2.3.12        fastmap_1.2.0      ggplot2_4.0.1     
+[17] R6_2.6.1           labeling_0.4.3     generics_0.1.4     workflowr_1.7.2   
+[21] knitr_1.50         tibble_3.3.0       rprojroot_2.1.1    bslib_0.9.0       
+[25] pillar_1.11.1      RColorBrewer_1.1-3 rlang_1.2.0        cachem_1.1.0      
+[29] stringi_1.8.7      httpuv_1.6.16      xfun_0.55          S7_0.2.1          
+[33] fs_1.6.6           sass_0.4.10        otel_0.2.0         cli_3.6.6         
+[37] withr_3.0.2        magrittr_2.0.5     digest_0.6.39      grid_4.5.1        
+[41] rstudioapi_0.17.1  lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5    
+[45] glue_1.8.1         farver_2.1.2       rmarkdown_2.30     tools_4.5.1       
+[49] pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

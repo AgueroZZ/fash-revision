@@ -1,0 +1,457 @@
+---
+title: "Internal pilot: Set A trajectories and covariance estimators"
+author: "Ziang Zhang"
+date: "2026-08-07"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 10,
+  fig.height = 5.8,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(
+  "code/revision_simulations/r4_correlated_errors/real_data_correlation_helpers.R"
+)
+source(
+  paste0(
+    "code/revision_simulations/internal/covariance_estimation/",
+    "observational_null_set_helpers.R"
+  )
+)
+source(
+  paste0(
+    "code/revision_simulations/internal/covariance_estimation/",
+    "observational_null_set_reporting.R"
+  )
+)
+```
+
+<style>
+.null-pilot-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.null-pilot-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.null-pilot-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.null-pilot-table-scroll table {
+  margin-bottom: 1em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+</style>
+
+<div class="null-pilot-banner">
+<strong>Internal small-scale pilot.</strong> This page is not linked from the
+workflowr homepage, reviewer-facing R4 page, manuscript, or response letter.
+It does not use the donor-permutation covariance estimate, and it does not
+modify any existing R4 analysis or cache.
+</div>
+
+## Question and short answer
+
+For the 200-pair Set A pilot, what do the selected fitted trajectories actually
+look like, and how different is the empirical covariance after within-unit
+centering from the pairwise-difference estimate?
+
+<div class="null-pilot-result">
+<strong>Answer.</strong> The difference is not slight. The pairwise-difference
+lag-1 covariance is
+`r format_decimal(subset(set_a_key_lag_table, Estimator == "Pairwise difference" & Lag == 1)$Covariance, 3)`,
+whereas the raw within-unit centered covariance is
+`r format_decimal(subset(set_a_key_lag_table, Estimator == "Within-unit centered covariance" & Lag == 1)$Covariance, 3)`.
+At lag 15 the estimates are
+`r format_decimal(subset(set_a_key_lag_table, Estimator == "Pairwise difference" & Lag == 15)$Covariance, 3)`
+and
+`r format_decimal(subset(set_a_key_lag_table, Estimator == "Within-unit centered covariance" & Lag == 15)$Covariance, 3)`,
+respectively. Thus within-unit centering removes most of the persistent positive
+component and produces negative mean covariance at longer lags. The two
+procedures should not be treated as approximately interchangeable estimates of
+the same matrix without an explicit centering correction.
+</div>
+
+This is still an observational null-enrichment exercise. A gene with no FASH
+dynamic discovery is not known to be a true dynamic null, and the trajectory
+gallery below is included specifically to audit that concern.
+
+## Set A design
+
+The analysis starts from the complete BF-adjusted FASH(1) fit with
+`r format_integer(pilot_configuration$n_fash_pairs)` gene-variant pairs from
+`r format_integer(pilot_configuration$n_genes)` genes. Set A excludes every
+gene with at least one FASH dynamic discovery under the same cumulative-lfdr
+FDR rule at alpha 0.05 as the real-data analysis.
+
+```{r selection-table, results='asis'}
+render_scrollable_table(
+  selection_table,
+  align = "llrrrr",
+  minimum_width = "1120px",
+  digits = 0L
+)
+```
+
+For each eligible gene, candidate variants are restricted to variants tested
+with only that one gene in the complete FASH catalog. A fixed random score then
+chooses one variant per gene and 200 genes. The score does not use beta
+estimates, standard errors, lfdr values, p-values, or eFDR values. There are no
+duplicated genes or variants in Set A.
+
+```{r discovery-table, results='asis'}
+render_scrollable_table(
+  discovery_table,
+  align = "lr",
+  minimum_width = "720px",
+  digits = 4L
+)
+```
+
+The selected pairs were not required to have high individual lfdr values.
+Their lfdr distribution is shown as a selection audit.
+
+```{r lfdr-summary, results='asis'}
+render_scrollable_table(
+  selection_lfdr_summary,
+  align = "lrrrrrr",
+  minimum_width = "920px",
+  digits = 4L
+)
+```
+
+## Set A trajectory gallery {.tabset .tabset-pills}
+
+The 200 selected units are ranked from highest to lowest BF-adjusted lfdr and
+split into four equal groups. Each page shows a fixed-random sample of 25 units
+from one group: page 1 is sampled from ranks 1--50 and page 4 from ranks
+151--200. Blue points and lines are fitted $\widehat\beta_j(t)$ values, grey
+bars are plus or minus one adjusted SE, and the orange dashed line is the
+inverse-variance weighted constant fit. Each panel has its own y-axis, so the
+gallery is intended for shape inspection rather than cross-panel amplitude
+comparison.
+
+### Page 1: highest-lfdr quartile
+
+```{r set-a-gallery-1, fig.width=13, fig.height=13, fig.cap="Twenty-five fixed-random Set A units from the highest BF-adjusted-lfdr quartile."}
+plot_set_a_gallery_page(1L)
+```
+
+```{r set-a-gallery-table-1, results='asis'}
+render_scrollable_table(
+  set_a_gallery_table(1L),
+  align = "rrllrr",
+  minimum_width = "960px",
+  digits = 4L
+)
+```
+
+### Page 2: second lfdr quartile
+
+```{r set-a-gallery-2, fig.width=13, fig.height=13, fig.cap="Twenty-five fixed-random Set A units from the second BF-adjusted-lfdr quartile."}
+plot_set_a_gallery_page(2L)
+```
+
+```{r set-a-gallery-table-2, results='asis'}
+render_scrollable_table(
+  set_a_gallery_table(2L),
+  align = "rrllrr",
+  minimum_width = "960px",
+  digits = 4L
+)
+```
+
+### Page 3: third lfdr quartile
+
+```{r set-a-gallery-3, fig.width=13, fig.height=13, fig.cap="Twenty-five fixed-random Set A units from the third BF-adjusted-lfdr quartile."}
+plot_set_a_gallery_page(3L)
+```
+
+```{r set-a-gallery-table-3, results='asis'}
+render_scrollable_table(
+  set_a_gallery_table(3L),
+  align = "rrllrr",
+  minimum_width = "960px",
+  digits = 4L
+)
+```
+
+### Page 4: lowest-lfdr quartile
+
+```{r set-a-gallery-4, fig.width=13, fig.height=13, fig.cap="Twenty-five fixed-random Set A units from the lowest BF-adjusted-lfdr quartile."}
+plot_set_a_gallery_page(4L)
+```
+
+```{r set-a-gallery-table-4, results='asis'}
+render_scrollable_table(
+  set_a_gallery_table(4L),
+  align = "rrllrr",
+  minimum_width = "960px",
+  digits = 4L
+)
+```
+
+On visual inspection, the highest-lfdr page contains many trajectories that
+are compatible with noisy fluctuations relative to their SE bars, but it is
+not uniformly featureless. The lower-lfdr pages contain several visibly
+structured, monotone, or endpoint-driven trajectories; some of the most abrupt
+patterns also have very large SEs. This reinforces the intended interpretation:
+Set A is null-enriched, not an observed collection of true constant-effect
+nulls.
+
+## Two Set A estimators
+
+Write the fitted time-specific effect estimate as
+
+$$
+\widehat\beta_j(t)=\beta_j(t)+s_j(t)\varepsilon_j(t),
+\qquad
+\operatorname{Cov}\{\varepsilon_j(t),\varepsilon_j(s)\}=C_{ts}.
+$$
+
+For Set A, the working dynamic null is $\beta_j(t)=\mu_j$. With
+
+$$
+x_{j,ts}=\frac{2s_{jt}s_{js}}{s_{jt}^2+s_{js}^2},
+\qquad
+q_{j,ts}=\frac{
+\{\widehat\beta_j(t)-\widehat\beta_j(s)\}^2
+}{s_{jt}^2+s_{js}^2},
+$$
+
+the constant $\mu_j$ cancels and
+$E(1-q_{j,ts})=x_{j,ts}C_{ts}$. The pairwise estimate is
+
+$$
+\widehat C_{ts}^{\mathrm{pair}}
+=\frac{\sum_jx_{j,ts}(1-q_{j,ts})}{\sum_jx_{j,ts}^2},
+\qquad \widehat C_{tt}^{\mathrm{pair}}=1.
+$$
+
+The within-unit method first estimates and removes a weighted constant,
+
+$$
+\widehat\mu_j=
+\frac{\sum_t\widehat\beta_j(t)/s_j^2(t)}
+{\sum_t1/s_j^2(t)},
+\qquad
+r_j(t)=\frac{\widehat\beta_j(t)-\widehat\mu_j}{s_j(t)},
+$$
+
+and then computes the raw empirical second-moment matrix
+
+$$
+\widehat C^{\mathrm{center}}
+=\frac{1}{M}\sum_{j=1}^M r_jr_j^T.
+$$
+
+This second matrix is intentionally not rescaled to unit diagonal. The
+correlation matrix of the columns of $r$ is also shown separately, but it is
+not called a covariance estimate.
+
+The centering transformation changes the estimand. If
+$D_j=\operatorname{diag}\{s_j(t)\}$ and $w_j$ is the normalized
+inverse-variance weight vector, then under a constant true effect
+
+$$
+r_j=A_j\varepsilon_j,
+\qquad
+A_j=D_j^{-1}(I-\mathbf 1w_j^T)D_j,
+$$
+
+so $E(r_jr_j^T)=A_j C A_j^T$, not $C$. This operation can remove a common
+residual mode as well as the unknown intercept. The discrepancy therefore need
+not equal a small universal negative offset.
+
+All matrices below are raw. No nearest-positive-definite projection was
+applied.
+
+## Set A covariance comparison
+
+```{r set-a-matrix-comparison, fig.width=12, fig.height=4.4, fig.cap="Set A raw matrix estimates. Pairwise covariance has a fixed unit diagonal; centered covariance retains its empirical diagonal; centered correlation rescales that same centered residual matrix to unit diagonal."}
+plot_set_a_matrix_comparison()
+```
+
+Both covariance matrices happen to be positive definite in this pilot, although
+positive definiteness was not imposed.
+
+```{r set-a-centered-diagnostics, results='asis'}
+render_scrollable_table(
+  set_a_centered_diagnostic_table,
+  align = "llrrrrrrrr",
+  minimum_width = "1220px",
+  digits = 4L
+)
+```
+
+The off-diagonal patterns are ordered similarly, but their levels differ
+substantially: their entrywise Pearson correlation is
+`r format_decimal(set_a_method_agreement$Value[1], 3)`, while the mean
+centered-minus-pairwise difference is
+`r format_decimal(set_a_method_agreement$Value[2], 3)`.
+
+```{r set-a-entry-agreement, fig.width=7.4, fig.height=6.4, fig.cap="Off-diagonal Set A covariance entries. Color denotes time lag; the dashed line is equality."}
+plot_set_a_covariance_entry_agreement()
+```
+
+```{r set-a-agreement-table, results='asis'}
+render_scrollable_table(
+  set_a_method_agreement,
+  align = "lr",
+  minimum_width = "760px",
+  digits = 4L
+)
+```
+
+## Set A lag covariance and variogram
+
+For either raw covariance matrix, the lag-$h$ semivariogram is
+
+$$
+\widehat\gamma(h)
+=\frac{1}{16-h}\sum_{t=0}^{15-h}
+\frac{\widehat C_{tt}+\widehat C_{t+h,t+h}
+-2\widehat C_{t,t+h}}{2}.
+$$
+
+The shaded bands are percentile 95% intervals from the same 200 gene-level
+bootstrap resamples for both estimators.
+
+```{r set-a-lag-covariance, fig.width=10, fig.height=6, fig.cap="Set A lag-averaged standardized covariance with paired gene-bootstrap 95% intervals."}
+plot_set_a_covariance_comparison()
+```
+
+```{r set-a-variogram, fig.width=10, fig.height=6, fig.cap="Set A semivariograms with paired gene-bootstrap 95% intervals. The centered variogram uses the empirical centered diagonal rather than one minus centered covariance."}
+plot_set_a_variogram_comparison()
+```
+
+The variograms look closer than the covariance curves because the centered
+matrix also has a smaller diagonal: its mean diagonal is
+`r format_decimal(mean(diag(set_a_centered_covariance)), 3)`, rather than one.
+The centered variogram therefore combines a lower diagonal with lower
+off-diagonal covariance; it is not $1$ minus the orange covariance curve.
+
+```{r set-a-key-lag-table, results='asis'}
+render_scrollable_table(
+  set_a_key_lag_table,
+  align = "lrrrrrrrr",
+  minimum_width = "1160px",
+  digits = 4L
+)
+```
+
+For reference only, rescaling the centered residual columns to unit variance
+gives the following lag-averaged correlations. This rescaling does not undo the
+centering projection.
+
+```{r set-a-centered-correlation-table, results='asis'}
+render_scrollable_table(
+  set_a_centered_correlation_table,
+  align = "rrr",
+  minimum_width = "720px",
+  digits = 4L
+)
+```
+
+## Legacy Set B context (not interpreted as harmonized evidence)
+
+<div class="null-pilot-banner">
+Set B was constructed from existing time-specific eQTL tables that used three
+time-specific PCs. The current FASH workflow uses five time-specific PCs. Set B
+is retained here only to preserve the earlier pilot record; it is not used as
+primary evidence until the time-specific screen is rerun under the matched
+five-PC workflow.
+</div>
+
+```{r standardized-covariance-heatmaps, fig.width=12, fig.height=4.3, fig.cap="Earlier pilot context: Set A pairwise and legacy non-harmonized Set B estimates."}
+plot_standardized_covariance_heatmaps()
+```
+
+```{r legacy-variograms, fig.width=10, fig.height=6, fig.cap="Earlier pilot lag semivariograms. Set B remains visible only as legacy non-harmonized context."}
+plot_variograms()
+```
+
+```{r legacy-lag-covariances, fig.width=10, fig.height=6, fig.cap="Earlier pilot lag-averaged standardized covariance."}
+plot_lag_covariances()
+```
+
+```{r legacy-set-b-agreement, fig.width=7.4, fig.height=6.4, fig.cap="Earlier Set B direct-versus-pairwise comparison; not interpreted as harmonized evidence."}
+plot_set_b_estimator_agreement()
+```
+
+## Interpretation and limitations
+
+1. The gallery is an audit of the selected observations, not a proof that Set A
+   contains only true dynamic nulls. Nondiscovery can include weak or
+   underpowered dynamic effects.
+
+2. Within-unit centering does not merely introduce a small generic negative
+   correlation. It applies a unit-specific projection because the adjusted SEs
+   differ across time and units. In these data, that projection removes most of
+   the persistent positive component estimated by pairwise differences.
+
+3. The two covariance profiles are therefore evidence about estimator
+   sensitivity, not two nearly identical confirmations of one residual matrix.
+   The pairwise result could reflect genuine residual covariance, violations of
+   the constant-effect null among selected units, or both.
+
+4. This remains a 200-pair internal pilot. No result on this page has been
+   moved into R4, the manuscript, or the response letter.
+
+## Reproduction
+
+```{bash run-observational-null-set-pilot, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/covariance_estimation/run_observational_null_set_pilot.R \
+  --pilot-size 200 \
+  --bootstrap-reps 200 \
+  --selection-seed 20260806 \
+  --bootstrap-seed 20260816 \
+  --output-id observational_null_set_pilot
+```
+
+```{bash test-observational-null-set-pilot, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/covariance_estimation/test_observational_null_set_helpers.R
+```
+
+```{bash build-observational-null-set-pilot-page, eval=FALSE}
+Rscript --vanilla -e \
+  'workflowr::wflow_build("analysis/revision_internal_observational_null_set_pilot.rmd")'
+```

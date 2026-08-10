@@ -1,0 +1,570 @@
+---
+title: "Internal experiment: R1 with real-genotype locus blocks"
+author: "Ziang Zhang"
+date: "2026-08-06"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 9,
+  fig.height = 6.5,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source("code/revision_simulations/shared/simulation_functions.R")
+source(
+  "code/revision_simulations/internal/r1_real_genotype/reporting.R"
+)
+```
+
+<style>
+.r1-real-internal-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.r1-real-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.r1-real-table-scroll table {
+  margin-bottom: 1em;
+}
+.r1-real-inline-path {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+</style>
+
+<div class="r1-real-internal-banner">
+<strong>Internal experimental page.</strong> This analysis is not linked from
+the workflowr homepage and does not replace the retained
+<a href="revision_genotype_level_simulation.html">R1 random B-spline page</a>.
+It changes only the genotype source; the current R1 page, driver, and cache are
+unchanged.
+</div>
+
+## Overview
+
+The retained R1 experiment independently simulates each genotype column from a
+Binomial distribution. This internal variant asks what happens when those
+columns are instead sampled from the YRI genotype dosages used in the paper.
+For each Monte Carlo seed, it samples 20 paper gene loci and one
+position-contiguous block of 50 common variants per locus, giving the same
+$J=1000$ genotype columns and $N=19$ donors as R1. The purpose is to retain
+observed dosage distributions and local linkage disequilibrium (LD) while
+leaving the R1 expression truth and fitting pipeline fixed.
+
+For donor $i$, synthetic gene-variant unit $j$, and time $t$, the model remains
+
+$$
+Y_{ijt} = \alpha_{jt} + G_{ij}\beta_j(t) +
+X_i^T\gamma_{jt} + \epsilon_{ijt},
+\qquad \epsilon_{ijt} \sim N(0,1),
+$$
+
+but $G_{ij}$ is now a real YRI dosage rather than a Binomial draw. As in R1,
+the current simulation sets $\alpha_{jt}=0$, includes an intercept in every
+fitted regression, uses five standardized PC-like covariates, and generates
+the covariate effects and expression errors independently.
+
+## Real-genotype sampling
+
+### Inputs and provenance
+
+The genotype source is the 19-sample dosage field (`DS`) in the paper VCF. The
+candidate universe is defined by the named gene-variant pairs in the paper's
+`eqtl_summary.rds`. The report validates the cached file names, sizes, and MD5
+checksums against the simulation configuration; routine page builds do not
+open either raw input.
+
+```{r input-provenance-table, results='asis'}
+render_scrollable_table(
+  input_provenance_table,
+  align = "llrll",
+  minimum_width = "980px"
+)
+```
+
+The VCF sample order is:
+
+`r paste(expected_sample_ids, collapse = ", ")`.
+
+The single VCF pass requested and matched
+`r format(extraction_summary$requested_variants, big.mark = ",")` candidate
+variants. All were finite, biallelic, polymorphic, and above the observed MAF
+threshold after matching.
+
+```{r extraction-table, results='asis'}
+render_scrollable_table(
+  extraction_table,
+  align = "lr",
+  minimum_width = "620px"
+)
+```
+
+### Sampling design
+
+For each seed, genes with at least 80 paper gene-variant pairs are randomly
+prioritized. The union of the first 120 candidate genes per seed is extracted
+in one VCF pass. Dosage MAF is calculated as
+
+$$
+\widehat{\mathrm{MAF}}_v=
+\min\!\left\{
+\frac{1}{2N}\sum_{i=1}^{N}G_{iv},
+1-\frac{1}{2N}\sum_{i=1}^{N}G_{iv}
+\right\},
+$$
+
+and variants with observed MAF below 0.10 are excluded. The first 20 priority
+genes with at least 50 retained variants are selected. Within each gene, the
+variants are ordered by chromosome, position, and variant ID, and one random
+contiguous 50-variant window is sampled.
+
+```{r real-genotype-sampling-code, eval=FALSE}
+pair_ids <- names(readRDS(
+  "output/dynamic_eQTL_real/eqtl_summary.rds"
+))
+
+real_source <- prepare_real_genotype_source(
+  pair_ids = pair_ids,
+  vcf_path = "../genotype-data/YRI_genotype.vcf.gz",
+  seed_list = c(12345, 22345, 32345, 42345, 52345),
+  n_loci = 20,
+  variants_per_locus = 50,
+  candidate_genes_per_seed = 120,
+  minimum_raw_variants = 80,
+  maf_min = 0.10
+)
+real_sample <- sample_real_genotype_blocks(real_source, seed = 12345)
+G <- real_sample$G
+```
+
+```{r sampling-design-table, results='asis'}
+render_scrollable_table(
+  sampling_design_table,
+  align = "ll",
+  minimum_width = "760px"
+)
+```
+
+The observed MAF across the 5,000 sampled columns ranges from
+`r format_decimal(maf_range[1])` to `r format_decimal(maf_range[2])`.
+Across the 100 seed-by-block selections there are 98 unique genes. The two
+repeats below are independent-seed random coincidences and were retained rather
+than resampled.
+
+```{r repeated-loci-table, results='asis'}
+render_scrollable_table(
+  repeated_loci_table,
+  align = "llr",
+  minimum_width = "680px"
+)
+```
+
+## LD diagnostics
+
+The seed-12345 heatmap shows the signed correlation among all 1,000 dosage
+columns. White block boundaries mark the 20 sampled loci. Strong diagonal
+blocks are the local LD structure this experiment was designed to preserve.
+
+```{r real-genotype-ld-heatmap, fig.width=9.5, fig.height=8.3}
+plot_real_genotype_ld_heatmap()
+```
+
+Within each seed, all within-locus variant pairs are summarized. As a negative
+control, the same number of variant pairs is sampled deterministically across
+different loci. This is a design diagnostic, not a population-level estimate
+of LD decay.
+
+```{r ld-seed-table, results='asis'}
+render_scrollable_table(
+  ld_seed_table,
+  align = "rrrrrrr",
+  minimum_width = "1180px"
+)
+```
+
+```{r ld-summary-table, results='asis'}
+render_scrollable_table(
+  ld_summary_table,
+  align = "lr",
+  minimum_width = "760px"
+)
+```
+
+Across the five samples, the mean pooled within-locus median absolute
+correlation is `r format_decimal(mean_within_ld)`, compared with
+`r format_decimal(mean_across_ld)` for matched across-locus pairs. The average
+within-minus-across gap is `r format_decimal(mean_ld_gap)`, and
+`r format_decimal(100 * mean_high_ld_fraction, 1)`% of within-locus pairs have
+$|r|\geq 0.8$.
+
+```{r real-genotype-ld-distribution, fig.width=9, fig.height=6.2}
+plot_real_genotype_ld_distribution()
+```
+
+These checks establish that the sampled genotype matrices contain substantial
+local LD. They do not establish that the synthetic expression outcomes have
+all dependence structures present in the paper data; that distinction is
+addressed in the limitations below.
+
+## R1 expression truth and inference
+
+Only the genotype source changes. Each dataset still has 19 donors, 16 time
+points, 1,000 gene-variant units, and five covariates. The exact truth mixture
+is:
+
+- 200 dynamic eQTLs with random cubic B-spline effects;
+- 400 non-dynamic eQTLs with constant effects drawn from $N(0,1)$;
+- 400 zero-effect variants.
+
+For a dynamic unit,
+
+$$
+\beta_j(t)=\mu_j+h_j(t),
+\qquad
+\mu_j\sim N(0,1),
+\qquad
+h_j(t)=\sum_{k=1}^{6}b_{jk}B_k(t),
+\qquad
+b_{jk}\stackrel{\mathrm{iid}}{\sim}N(0,1).
+$$
+
+The time-varying deviation $h_j(t)$ is centered over the 16 observed times and
+scaled to have maximum absolute value 2. The independent main effect $\mu_j$
+is then added, so the dynamic trajectory is not constrained to average zero.
+The true dynamic-null proportion remains $\pi_0=0.8$.
+
+```{r real-genotype-r1-engine, eval=FALSE}
+out <- run_genotype_level_bspline_eqtl_simulation(
+  G = real_sample$G,
+  time_grid = 0:15,
+  n_covariates = 5,
+  class_probs = c(
+    dynamic_bspline = 0.20,
+    constant = 0.40,
+    zero = 0.40
+  ),
+  expression_noise_sd = 1,
+  covariate_effect_sd = 0.5,
+  intercept_sd = 0,
+  dynamic_amplitude = 2,
+  bspline_df = 6,
+  bspline_coefficient_sd = 1,
+  constant_sd = 1,
+  dynamic_main_effect_sd = 1,
+  alpha = 0.05,
+  seed = 12345,
+  num_basis = 20,
+  num_cores = 4,
+  exact_class_counts = TRUE,
+  apply_t_se_correction = TRUE,
+  scenario = "r1_real_genotype_locus_blocks_random_bspline",
+  save_outputs = FALSE,
+  verbose = FALSE
+)
+```
+
+At every time point, the genetic effect and its standard error are estimated
+from `Y ~ G + PC1 + PC2 + PC3 + PC4 + PC5`. The t-statistic standard-error
+correction is identical to R1 and uses
+
+$$
+\mathrm{df}=19-7=12,
+$$
+
+corresponding to the intercept, genotype, and five covariates. Every fitted
+design in the cache has rank 7.
+
+```{r real-genotype-r1-fits, eval=FALSE}
+eqtl_summary <- estimate_eqtl_summaries_from_genotypes(
+  G = real_sample$G,
+  expression = expression_sim$expression,
+  covariates = covariates,
+  apply_t_se_correction = TRUE
+)
+datasets <- make_fash_datasets_from_eqtl_summary(
+  beta_hat = eqtl_summary$beta_hat,
+  se = eqtl_summary$se,
+  true_beta = effect_sim$beta_matrix,
+  time_grid = 0:15,
+  unit_info = effect_sim$unit_info,
+  scenario = "r1_real_genotype_locus_blocks_random_bspline"
+)
+
+fash_iwp1_raw <- fashr::fash(
+  Y = "y",
+  smooth_var = "x",
+  S = "sd",
+  data_list = datasets,
+  order = 1,
+  grid = default_revision_grid(),
+  num_basis = 20,
+  penalty = 10,
+  num_cores = 4,
+  verbose = FALSE
+)
+fash_iwp1_bf <- fashr::BF_update(fash_iwp1_raw, plot = FALSE)
+
+fash_linear_raw <- fit_simplified_fash(
+  datasets = datasets,
+  sigma_beta = 1,
+  estimate_sigma = FALSE,
+  scale_time = TRUE
+)
+fash_linear_bf <- BF_update_simplified_fash(fash_linear_raw)
+```
+
+The reported curves and tables average five independent genotype samples and
+expression simulations with seeds `12345`, `22345`, `32345`, `42345`, and
+`52345`. The complete seed-12345 object is used only for representative
+trajectories.
+
+## Example simulated eQTLs
+
+The panels show three zero-effect units, three constant eQTLs, and three random
+B-spline dynamic eQTLs. Points are per-time genetic effect estimates, bars show
+two corrected standard errors, and red lines are the true effects.
+
+```{r example-trajectories, fig.width=13, fig.height=11}
+plot_genotype_eqtl_examples(
+  out,
+  classes = c("zero", "constant", "dynamic_bspline"),
+  n_per_class = 3,
+  seed = 1,
+  true_curve_n = 500
+)
+```
+
+## Comparison 1: IWP versus linear FASH
+
+This comparison changes only the alternative prior. `FASH-IWP1` uses the
+first-order IWP alternative. `FASH-linear` uses the simplified alternative
+$\beta(t)=\beta t$ with fixed $\sigma_\beta=1$. Both raw and BF-corrected fits
+are included.
+
+### Estimated dynamic-null proportion
+
+The table reports the fitted prior weight on each method's constant component.
+The true dynamic-null proportion is $\pi_0=0.8$.
+
+```{r pi0-table, results='asis'}
+render_scrollable_table(
+  pi0_table,
+  align = "lll",
+  minimum_width = "720px"
+)
+```
+
+### Results at alpha 0.05
+
+```{r fash-alpha-table, results='asis'}
+render_scrollable_table(
+  fash_table,
+  align = "lrrr",
+  minimum_width = "1020px"
+)
+```
+
+### Power as a function of alpha
+
+```{r fash-power}
+plot_mc_alpha_curves(
+  fash_alpha,
+  metric = "power",
+  title = "Real-genotype R1: IWP versus linear FASH power",
+  subtitle = "Five seeds; 20 paper loci x 50 variants; N = 19, J = 1000",
+  style_profile = "combined"
+)
+```
+
+### Empirical FDR as a function of alpha
+
+```{r fash-fdr}
+plot_mc_alpha_curves(
+  fash_alpha,
+  metric = "fdr",
+  title = "Real-genotype R1: IWP versus linear FASH empirical FDR",
+  subtitle = "Five seeds; 20 paper loci x 50 variants; N = 19, J = 1000",
+  legend_position = "topleft",
+  style_profile = "combined"
+)
+```
+
+At $\alpha=0.05$, IWP-Raw and IWP-BF have mean power
+`r format_decimal(get_mc_metric(fash_alpha_005, "FASH-IWP1-Raw", "mean_power"))`
+and
+`r format_decimal(get_mc_metric(fash_alpha_005, "FASH-IWP1-BF", "mean_power"))`,
+compared with
+`r format_decimal(get_mc_metric(fash_alpha_005, "FASH-linear-Raw", "mean_power"))`
+and
+`r format_decimal(get_mc_metric(fash_alpha_005, "FASH-linear-BF", "mean_power"))`
+for the corresponding linear fits. The IWP empirical FDR estimates are
+`r fash_iwp_raw_fdr_interval` for Raw and
+`r fash_iwp_bf_fdr_interval`
+for BF. In these five samples, the nonlinear IWP alternative retains the same
+substantial power advantage over the linear alternative seen in R1, while BF
+is more conservative.
+
+## Comparison 2: IWP FASH versus direct interaction tests
+
+The direct baselines fit individual-level expression using linear or
+linear-plus-quadratic genotype-by-time interactions and use permutation-based
+eFDR. As in R1, the direct eFDR calculation is supplied with the true
+$\pi_0=0.8$ and uses 100 donor-level permutations per replicate.
+
+```{r real-genotype-direct-efdr, eval=FALSE}
+out <- add_direct_interaction_efdr_results_to_genotype_output(
+  out = out,
+  n_permutations = 100,
+  alpha = 0.05,
+  seed = seed + 10000L,
+  lambda = 0.5,
+  pi0_method = "conservative",
+  true_pi0 = 0.8,
+  include_true_pi0 = TRUE,
+  permute_covariates_with_expression = TRUE,
+  num_cores = 4,
+  overwrite = TRUE,
+  verbose = FALSE
+)
+```
+
+### Results at alpha 0.05
+
+```{r direct-alpha-table, results='asis'}
+render_scrollable_table(
+  direct_table,
+  align = "lrrr",
+  minimum_width = "1060px"
+)
+```
+
+### Power as a function of alpha
+
+```{r direct-power}
+plot_mc_alpha_curves(
+  direct_alpha,
+  metric = "power",
+  title = "Real-genotype R1: IWP FASH versus direct interaction power",
+  subtitle = "Five seeds; direct eFDR uses true pi0 = 0.8 and B = 100 permutations",
+  style_profile = "combined"
+)
+```
+
+### Empirical FDR as a function of alpha
+
+```{r direct-fdr}
+plot_mc_alpha_curves(
+  direct_alpha,
+  metric = "fdr",
+  title = "Real-genotype R1: IWP FASH versus direct interaction empirical FDR",
+  subtitle = "Five seeds; direct eFDR uses true pi0 = 0.8 and B = 100 permutations",
+  legend_position = "bottomright",
+  style_profile = "combined"
+)
+```
+
+At $\alpha=0.05$, IWP-BF has mean power
+`r format_decimal(direct_iwp_bf_power)`, compared with
+`r format_decimal(direct_linear_power)` for the direct linear test and
+`r format_decimal(direct_quadratic_power)` for the direct quadratic test.
+Their respective mean empirical FDR estimates are
+`r format_decimal(direct_iwp_bf_fdr)`,
+`r format_decimal(direct_linear_fdr)`, and
+`r format_decimal(direct_quadratic_fdr)`.
+
+## Internal interpretation
+
+This five-seed pilot supports a focused conclusion. Replacing independent
+Binomial genotype columns with common YRI dosages sampled in local blocks does
+not change the qualitative R1 method ordering: IWP FASH remains more powerful
+than linear FASH and the direct interaction baselines for the broad random
+B-spline truth used here. The BF-updated IWP fit has mean power 0.902 and mean
+empirical FDR 0.025 at $\alpha=0.05$.
+
+The LD diagnostic confirms that the external genotype matrices contain the
+intended local dependence: within-locus median $|r|$ exceeds its matched
+across-locus reference in every seed. This supports the narrow claim that the
+regressions use real dosage and local-LD patterns. With only five Monte Carlo
+replicates, the intervals describe Monte Carlo variation in this pilot and do
+not justify a general claim for other populations, MAF filters, locus widths,
+or LD architectures.
+
+## Important limitation: genotype-only substitution
+
+This page implements the selected genotype-only design. Although each block
+contains 50 real variants from one paper gene locus, the simulation creates a
+separate synthetic expression outcome for every gene-variant unit. The 50
+variants in a block therefore do **not** test the same realized expression
+vector for that gene. Expression errors and effect trajectories are generated
+independently across units, exactly as in R1.
+
+Consequently, this experiment preserves the real genotype dosage distribution
+and local LD in $G$, but it does not reproduce shared-expression dependence,
+tag-SNP competition, or correlated summary statistics created when many SNPs
+are tested against one observed gene-expression outcome. A separate
+shared-expression simulation would be required to study those features. The
+results here should be interpreted as a real-design-matrix sensitivity check,
+not as a full reconstruction of the paper's multi-SNP-per-gene analysis.
+
+## Reproducibility
+
+Routine builds read the completed cache at
+
+```text
+output/revision_simulations/internal/r1_real_genotype_locus_blocks_pilot5/
+```
+
+and do not scan the VCF, reload the paper pair universe, or rerun the
+simulation. The sampling helper, driver, and cache-validation code are in
+<code class="r1-real-inline-path">code/revision_simulations/internal/r1_real_genotype/</code>.
+
+The full five-seed cache can be regenerated with:
+
+```{bash regenerate-real-genotype-r1-cache, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/r1_real_genotype/run_real_genotype_mc_replication.R \
+  --n-loci 20 \
+  --variants-per-locus 50 \
+  --maf-min 0.10 \
+  --candidate-genes-per-seed 120 \
+  --minimum-raw-variants 80 \
+  --n-covariates 5 \
+  --noise-sd 1 \
+  --dynamic-main-effect-sd 1 \
+  --efdr-permutations 100 \
+  --seed-list 12345,22345,32345,42345,52345 \
+  --output-id r1_real_genotype_locus_blocks_pilot5 \
+  --num-cores 4
+```
+
+The deterministic sampling tests can be rerun with:
+
+```{bash test-real-genotype-r1-sampling, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/r1_real_genotype/test_real_genotype_sampling.R
+```

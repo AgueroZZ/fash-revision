@@ -1,0 +1,4248 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-07" />
+
+<title>Internal pilot: Set A trajectories and covariance estimators</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Internal pilot: Set A trajectories and
+covariance estimators</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-07</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-07
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/revision_simulations/
+
+Untracked files:
+    Untracked:  Rplots.pdf
+    Untracked:  analysis/revision_combined_spiky_genotype_simulation.rmd
+    Untracked:  analysis/revision_correlated_error_simulation.rmd
+    Untracked:  analysis/revision_functional_testing_simulation.rmd
+    Untracked:  analysis/revision_genotype_level_simulation.rmd
+    Untracked:  analysis/revision_internal_observational_null_set_pilot.rmd
+    Untracked:  analysis/revision_internal_one_variant_per_gene_refit.rmd
+    Untracked:  analysis/revision_internal_real_genotype_simulation.rmd
+    Untracked:  analysis/revision_internal_targeted_broad_calibration.rmd
+    Untracked:  analysis/revision_internal_zero_intercept_correlation.rmd
+    Untracked:  analysis/revision_ld_tagging_switch_example.rmd
+    Untracked:  code/00_eQTLs_CL.R
+    Untracked:  code/01_fash_CL.R
+    Untracked:  code/01_fash_CL.sbatch
+    Untracked:  code/09_penalty_sensitivity.R
+    Untracked:  code/09_penalty_sensitivity.sbatch
+    Untracked:  code/revision_simulations/
+    Untracked:  fash_prior_comparison_order1_after.pdf
+    Untracked:  fash_prior_comparison_order1_after.png
+    Untracked:  fash_prior_comparison_order1_before.pdf
+    Untracked:  fash_prior_comparison_order1_before.png
+    Untracked:  fash_prior_comparison_order2_after.pdf
+    Untracked:  fash_prior_comparison_order2_after.png
+    Untracked:  fash_prior_comparison_order2_before.pdf
+    Untracked:  fash_prior_comparison_order2_before.png
+
+Unstaged changes:
+    Modified:   .gitignore
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Modified:   code/README.md
+    Modified:   output/toy_example/toy_example_11.pdf
+    Modified:   output/toy_example/toy_example_12.pdf
+    Modified:   output/toy_example/toy_example_21.pdf
+    Modified:   output/toy_example/toy_example_22.pdf
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style>
+.null-pilot-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.null-pilot-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.null-pilot-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.null-pilot-table-scroll table {
+  margin-bottom: 1em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+</style>
+<div class="null-pilot-banner">
+<p><strong>Internal small-scale pilot.</strong> This page is not linked
+from the workflowr homepage, reviewer-facing R4 page, manuscript, or
+response letter. It does not use the donor-permutation covariance
+estimate, and it does not modify any existing R4 analysis or cache.</p>
+</div>
+<div id="question-and-short-answer" class="section level2">
+<h2>Question and short answer</h2>
+<p>For the 200-pair Set A pilot, what do the selected fitted
+trajectories actually look like, and how different is the empirical
+covariance after within-unit centering from the pairwise-difference
+estimate?</p>
+<div class="null-pilot-result">
+<p><strong>Answer.</strong> The difference is not slight. The
+pairwise-difference lag-1 covariance is 0.547, whereas the raw
+within-unit centered covariance is 0.164. At lag 15 the estimates are
+0.169 and -0.114, respectively. Thus within-unit centering removes most
+of the persistent positive component and produces negative mean
+covariance at longer lags. The two procedures should not be treated as
+approximately interchangeable estimates of the same matrix without an
+explicit centering correction.</p>
+</div>
+<p>This is still an observational null-enrichment exercise. A gene with
+no FASH dynamic discovery is not known to be a true dynamic null, and
+the trajectory gallery below is included specifically to audit that
+concern.</p>
+</div>
+<div id="set-a-design" class="section level2">
+<h2>Set A design</h2>
+<p>The analysis starts from the complete BF-adjusted FASH(1) fit with
+1,009,173 gene-variant pairs from 6,362 genes. Set A excludes every gene
+with at least one FASH dynamic discovery under the same cumulative-lfdr
+FDR rule at alpha 0.05 as the real-data analysis.</p>
+<pre class="r"><code>render_scrollable_table(
+  selection_table,
+  align = &quot;llrrrr&quot;,
+  minimum_width = &quot;1120px&quot;,
+  digits = 0L
+)</code></pre>
+<div class="null-pilot-table-scroll" style="min-width:1120px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Set
+</th>
+<th style="text-align:left;">
+Definition
+</th>
+<th style="text-align:right;">
+Eligible genes
+</th>
+<th style="text-align:right;">
+Eligible genes with a gene-unique variant
+</th>
+<th style="text-align:right;">
+Selected pairs
+</th>
+<th style="text-align:right;">
+Candidate pairs
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+A: no FASH dynamic discovery
+</td>
+<td style="text-align:left;">
+No gene-level BF-adjusted FASH dynamic discovery at cumulative-lfdr FDR
+0.05
+</td>
+<td style="text-align:right;">
+5185
+</td>
+<td style="text-align:right;">
+3931
+</td>
+<td style="text-align:right;">
+200
+</td>
+<td style="text-align:right;">
+436965
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B: no dynamic or time-specific discovery
+</td>
+<td style="text-align:left;">
+Set A plus no gene-level time-specific eQTL discovery at eFDR 0.05 on
+any of 16 days
+</td>
+<td style="text-align:right;">
+4569
+</td>
+<td style="text-align:right;">
+3478
+</td>
+<td style="text-align:right;">
+200
+</td>
+<td style="text-align:right;">
+375693
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>For each eligible gene, candidate variants are restricted to variants
+tested with only that one gene in the complete FASH catalog. A fixed
+random score then chooses one variant per gene and 200 genes. The score
+does not use beta estimates, standard errors, lfdr values, p-values, or
+eFDR values. There are no duplicated genes or variants in Set A.</p>
+<pre class="r"><code>render_scrollable_table(
+  discovery_table,
+  align = &quot;lr&quot;,
+  minimum_width = &quot;720px&quot;,
+  digits = 4L
+)</code></pre>
+<div class="null-pilot-table-scroll" style="min-width:720px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Quantity
+</th>
+<th style="text-align:right;">
+Value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+All tested FASH pairs
+</td>
+<td style="text-align:right;">
+1,009,173
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+All tested genes
+</td>
+<td style="text-align:right;">
+6,362
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH dynamic-discovered pairs
+</td>
+<td style="text-align:right;">
+9,205
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH dynamic-discovered genes
+</td>
+<td style="text-align:right;">
+1,177
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Largest selected dynamic lfdr
+</td>
+<td style="text-align:right;">
+0.1475
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Genes discovered at one or more individual days
+</td>
+<td style="text-align:right;">
+801
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The selected pairs were not required to have high individual lfdr
+values. Their lfdr distribution is shown as a selection audit.</p>
+<pre class="r"><code>render_scrollable_table(
+  selection_lfdr_summary,
+  align = &quot;lrrrrrr&quot;,
+  minimum_width = &quot;920px&quot;,
+  digits = 4L
+)</code></pre>
+<div class="null-pilot-table-scroll" style="min-width:920px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Set
+</th>
+<th style="text-align:right;">
+Minimum
+</th>
+<th style="text-align:right;">
+First quartile
+</th>
+<th style="text-align:right;">
+Median
+</th>
+<th style="text-align:right;">
+Mean
+</th>
+<th style="text-align:right;">
+Third quartile
+</th>
+<th style="text-align:right;">
+Maximum
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+A: no FASH dynamic discovery
+</td>
+<td style="text-align:right;">
+0.517
+</td>
+<td style="text-align:right;">
+0.9297
+</td>
+<td style="text-align:right;">
+0.9407
+</td>
+<td style="text-align:right;">
+0.9256
+</td>
+<td style="text-align:right;">
+0.9502
+</td>
+<td style="text-align:right;">
+0.9985
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+B: no dynamic or time-specific discovery
+</td>
+<td style="text-align:right;">
+0.517
+</td>
+<td style="text-align:right;">
+0.9355
+</td>
+<td style="text-align:right;">
+0.9414
+</td>
+<td style="text-align:right;">
+0.9266
+</td>
+<td style="text-align:right;">
+0.9502
+</td>
+<td style="text-align:right;">
+0.9985
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="set-a-trajectory-gallery"
+class="section level2 tabset tabset-pills">
+<h2 class="tabset tabset-pills">Set A trajectory gallery</h2>
+<p>The 200 selected units are ranked from highest to lowest BF-adjusted
+lfdr and split into four equal groups. Each page shows a fixed-random
+sample of 25 units from one group: page 1 is sampled from ranks 1–50 and
+page 4 from ranks 151–200. Blue points and lines are fitted <span
+class="math inline">\(\widehat\beta_j(t)\)</span> values, grey bars are
+plus or minus one adjusted SE, and the orange dashed line is the
+inverse-variance weighted constant fit. Each panel has its own y-axis,
+so the gallery is intended for shape inspection rather than cross-panel
+amplitude comparison.</p>
+<div id="page-1-highest-lfdr-quartile" class="section level3">
+<h3>Page 1: highest-lfdr quartile</h3>
+<pre class="r"><code>plot_set_a_gallery_page(1L)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_observational_null_set_pilot.rmd/set-a-gallery-1-1.png" alt="Twenty-five fixed-random Set A units from the highest BF-adjusted-lfdr quartile." width="2340" />
+<p class="caption">
+Twenty-five fixed-random Set A units from the highest BF-adjusted-lfdr
+quartile.
+</p>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  set_a_gallery_table(1L),
+  align = &quot;rrllrr&quot;,
+  minimum_width = &quot;960px&quot;,
+  digits = 4L
+)</code></pre>
+<div class="null-pilot-table-scroll" style="min-width:960px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:right;">
+Panel
+</th>
+<th style="text-align:right;">
+Set A lfdr rank
+</th>
+<th style="text-align:left;">
+Gene
+</th>
+<th style="text-align:left;">
+Variant
+</th>
+<th style="text-align:right;">
+BF-adjusted lfdr
+</th>
+<th style="text-align:right;">
+Weighted constant estimate
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+ENSG00000187664
+</td>
+<td style="text-align:left;">
+rs10403273
+</td>
+<td style="text-align:right;">
+0.9985
+</td>
+<td style="text-align:right;">
+-0.0044
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+ENSG00000162804
+</td>
+<td style="text-align:left;">
+rs2108486
+</td>
+<td style="text-align:right;">
+0.9876
+</td>
+<td style="text-align:right;">
+-0.0294
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:left;">
+ENSG00000155858
+</td>
+<td style="text-align:left;">
+rs10462912
+</td>
+<td style="text-align:right;">
+0.9700
+</td>
+<td style="text-align:right;">
+0.0003
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+ENSG00000128585
+</td>
+<td style="text-align:left;">
+rs6467349
+</td>
+<td style="text-align:right;">
+0.9688
+</td>
+<td style="text-align:right;">
+0.0100
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:left;">
+ENSG00000168724
+</td>
+<td style="text-align:left;">
+rs7710189
+</td>
+<td style="text-align:right;">
+0.9680
+</td>
+<td style="text-align:right;">
+0.0505
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:left;">
+ENSG00000196428
+</td>
+<td style="text-align:left;">
+rs12493146
+</td>
+<td style="text-align:right;">
+0.9654
+</td>
+<td style="text-align:right;">
+-0.0350
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:left;">
+ENSG00000119414
+</td>
+<td style="text-align:left;">
+rs6744
+</td>
+<td style="text-align:right;">
+0.9652
+</td>
+<td style="text-align:right;">
+0.1501
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:left;">
+ENSG00000100580
+</td>
+<td style="text-align:left;">
+rs76054277
+</td>
+<td style="text-align:right;">
+0.9650
+</td>
+<td style="text-align:right;">
+0.0610
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:left;">
+ENSG00000162885
+</td>
+<td style="text-align:left;">
+rs10754681
+</td>
+<td style="text-align:right;">
+0.9631
+</td>
+<td style="text-align:right;">
+-0.1542
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:left;">
+ENSG00000122507
+</td>
+<td style="text-align:left;">
+rs10281469
+</td>
+<td style="text-align:right;">
+0.9620
+</td>
+<td style="text-align:right;">
+-0.2498
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:left;">
+ENSG00000165891
+</td>
+<td style="text-align:left;">
+rs310816
+</td>
+<td style="text-align:right;">
+0.9601
+</td>
+<td style="text-align:right;">
+0.0961
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:left;">
+ENSG00000155755
+</td>
+<td style="text-align:left;">
+rs10192420
+</td>
+<td style="text-align:right;">
+0.9584
+</td>
+<td style="text-align:right;">
+0.1345
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:left;">
+ENSG00000196814
+</td>
+<td style="text-align:left;">
+rs1888158
+</td>
+<td style="text-align:right;">
+0.9575
+</td>
+<td style="text-align:right;">
+0.0796
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+27
+</td>
+<td style="text-align:left;">
+ENSG00000198498
+</td>
+<td style="text-align:left;">
+rs3797016
+</td>
+<td style="text-align:right;">
+0.9563
+</td>
+<td style="text-align:right;">
+0.3741
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+28
+</td>
+<td style="text-align:left;">
+ENSG00000112874
+</td>
+<td style="text-align:left;">
+rs1152156
+</td>
+<td style="text-align:right;">
+0.9561
+</td>
+<td style="text-align:right;">
+-0.1238
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+29
+</td>
+<td style="text-align:left;">
+ENSG00000120526
+</td>
+<td style="text-align:left;">
+rs2926233
+</td>
+<td style="text-align:right;">
+0.9557
+</td>
+<td style="text-align:right;">
+0.0414
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:left;">
+ENSG00000023516
+</td>
+<td style="text-align:left;">
+rs1349225
+</td>
+<td style="text-align:right;">
+0.9555
+</td>
+<td style="text-align:right;">
+0.1000
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:left;">
+ENSG00000169926
+</td>
+<td style="text-align:left;">
+rs60877973
+</td>
+<td style="text-align:right;">
+0.9553
+</td>
+<td style="text-align:right;">
+0.0404
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+32
+</td>
+<td style="text-align:left;">
+ENSG00000168827
+</td>
+<td style="text-align:left;">
+rs16829290
+</td>
+<td style="text-align:right;">
+0.9553
+</td>
+<td style="text-align:right;">
+0.3787
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+33
+</td>
+<td style="text-align:left;">
+ENSG00000135870
+</td>
+<td style="text-align:left;">
+rs74910722
+</td>
+<td style="text-align:right;">
+0.9553
+</td>
+<td style="text-align:right;">
+-0.3018
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+35
+</td>
+<td style="text-align:left;">
+ENSG00000142208
+</td>
+<td style="text-align:left;">
+rs74090040
+</td>
+<td style="text-align:right;">
+0.9536
+</td>
+<td style="text-align:right;">
+0.4602
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+40
+</td>
+<td style="text-align:left;">
+ENSG00000111725
+</td>
+<td style="text-align:left;">
+rs7138756
+</td>
+<td style="text-align:right;">
+0.9529
+</td>
+<td style="text-align:right;">
+0.0455
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+46
+</td>
+<td style="text-align:left;">
+ENSG00000101773
+</td>
+<td style="text-align:left;">
+rs8086945
+</td>
+<td style="text-align:right;">
+0.9512
+</td>
+<td style="text-align:right;">
+0.0056
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+48
+</td>
+<td style="text-align:left;">
+ENSG00000198876
+</td>
+<td style="text-align:left;">
+rs7875653
+</td>
+<td style="text-align:right;">
+0.9510
+</td>
+<td style="text-align:right;">
+0.4213
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:left;">
+ENSG00000154309
+</td>
+<td style="text-align:left;">
+rs4424514
+</td>
+<td style="text-align:right;">
+0.9503
+</td>
+<td style="text-align:right;">
+0.3372
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="page-2-second-lfdr-quartile" class="section level3">
+<h3>Page 2: second lfdr quartile</h3>
+<pre class="r"><code>plot_set_a_gallery_page(2L)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_observational_null_set_pilot.rmd/set-a-gallery-2-1.png" alt="Twenty-five fixed-random Set A units from the second BF-adjusted-lfdr quartile." width="2340" />
+<p class="caption">
+Twenty-five fixed-random Set A units from the second BF-adjusted-lfdr
+quartile.
+</p>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  set_a_gallery_table(2L),
+  align = &quot;rrllrr&quot;,
+  minimum_width = &quot;960px&quot;,
+  digits = 4L
+)</code></pre>
+<div class="null-pilot-table-scroll" style="min-width:960px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+Panel
+</th>
+<th style="text-align:right;">
+Set A lfdr rank
+</th>
+<th style="text-align:left;">
+Gene
+</th>
+<th style="text-align:left;">
+Variant
+</th>
+<th style="text-align:right;">
+BF-adjusted lfdr
+</th>
+<th style="text-align:right;">
+Weighted constant estimate
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+26
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+51
+</td>
+<td style="text-align:left;">
+ENSG00000113194
+</td>
+<td style="text-align:left;">
+rs2963686
+</td>
+<td style="text-align:right;">
+0.9502
+</td>
+<td style="text-align:right;">
+0.0126
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+27
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+53
+</td>
+<td style="text-align:left;">
+ENSG00000022277
+</td>
+<td style="text-align:left;">
+rs6099175
+</td>
+<td style="text-align:right;">
+0.9502
+</td>
+<td style="text-align:right;">
+-0.0777
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+28
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+56
+</td>
+<td style="text-align:left;">
+ENSG00000196591
+</td>
+<td style="text-align:left;">
+rs7740376
+</td>
+<td style="text-align:right;">
+0.9491
+</td>
+<td style="text-align:right;">
+0.0858
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+29
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+57
+</td>
+<td style="text-align:left;">
+ENSG00000250067
+</td>
+<td style="text-align:left;">
+rs2099334
+</td>
+<td style="text-align:right;">
+0.9489
+</td>
+<td style="text-align:right;">
+-0.3919
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+30
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+62
+</td>
+<td style="text-align:left;">
+ENSG00000100575
+</td>
+<td style="text-align:left;">
+rs1743721
+</td>
+<td style="text-align:right;">
+0.9469
+</td>
+<td style="text-align:right;">
+-0.5962
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+31
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+63
+</td>
+<td style="text-align:left;">
+ENSG00000250317
+</td>
+<td style="text-align:left;">
+rs6448406
+</td>
+<td style="text-align:right;">
+0.9466
+</td>
+<td style="text-align:right;">
+0.8382
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+32
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+65
+</td>
+<td style="text-align:left;">
+ENSG00000125877
+</td>
+<td style="text-align:left;">
+rs113139885
+</td>
+<td style="text-align:right;">
+0.9461
+</td>
+<td style="text-align:right;">
+-0.9143
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+33
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+68
+</td>
+<td style="text-align:left;">
+ENSG00000023228
+</td>
+<td style="text-align:left;">
+rs10170850
+</td>
+<td style="text-align:right;">
+0.9458
+</td>
+<td style="text-align:right;">
+-0.3085
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+34
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+70
+</td>
+<td style="text-align:left;">
+ENSG00000113649
+</td>
+<td style="text-align:left;">
+rs56771518
+</td>
+<td style="text-align:right;">
+0.9454
+</td>
+<td style="text-align:right;">
+0.6562
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+35
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+72
+</td>
+<td style="text-align:left;">
+ENSG00000101557
+</td>
+<td style="text-align:left;">
+rs77935765
+</td>
+<td style="text-align:right;">
+0.9450
+</td>
+<td style="text-align:right;">
+-0.5209
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+36
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+73
+</td>
+<td style="text-align:left;">
+ENSG00000189241
+</td>
+<td style="text-align:left;">
+rs9488892
+</td>
+<td style="text-align:right;">
+0.9450
+</td>
+<td style="text-align:right;">
+-0.0676
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+37
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+75
+</td>
+<td style="text-align:left;">
+ENSG00000130787
+</td>
+<td style="text-align:left;">
+rs897386
+</td>
+<td style="text-align:right;">
+0.9448
+</td>
+<td style="text-align:right;">
+-0.2468
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+38
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+76
+</td>
+<td style="text-align:left;">
+ENSG00000013573
+</td>
+<td style="text-align:left;">
+rs2287463
+</td>
+<td style="text-align:right;">
+0.9443
+</td>
+<td style="text-align:right;">
+-0.6445
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+39
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+78
+</td>
+<td style="text-align:left;">
+ENSG00000180190
+</td>
+<td style="text-align:left;">
+rs6989235
+</td>
+<td style="text-align:right;">
+0.9440
+</td>
+<td style="text-align:right;">
+-0.3394
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+40
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+79
+</td>
+<td style="text-align:left;">
+ENSG00000138668
+</td>
+<td style="text-align:left;">
+rs10213418
+</td>
+<td style="text-align:right;">
+0.9436
+</td>
+<td style="text-align:right;">
+0.7904
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+41
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+80
+</td>
+<td style="text-align:left;">
+ENSG00000054983
+</td>
+<td style="text-align:left;">
+rs11851130
+</td>
+<td style="text-align:right;">
+0.9434
+</td>
+<td style="text-align:right;">
+-0.2786
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+42
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+82
+</td>
+<td style="text-align:left;">
+ENSG00000166557
+</td>
+<td style="text-align:left;">
+rs3901663
+</td>
+<td style="text-align:right;">
+0.9434
+</td>
+<td style="text-align:right;">
+-0.5079
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+43
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+86
+</td>
+<td style="text-align:left;">
+ENSG00000197461
+</td>
+<td style="text-align:left;">
+rs78522909
+</td>
+<td style="text-align:right;">
+0.9429
+</td>
+<td style="text-align:right;">
+-0.4703
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+44
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+88
+</td>
+<td style="text-align:left;">
+ENSG00000109861
+</td>
+<td style="text-align:left;">
+rs11019541
+</td>
+<td style="text-align:right;">
+0.9428
+</td>
+<td style="text-align:right;">
+0.6943
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+45
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+89
+</td>
+<td style="text-align:left;">
+ENSG00000149177
+</td>
+<td style="text-align:left;">
+rs1228022
+</td>
+<td style="text-align:right;">
+0.9426
+</td>
+<td style="text-align:right;">
+0.0029
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+46
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+91
+</td>
+<td style="text-align:left;">
+ENSG00000154096
+</td>
+<td style="text-align:left;">
+rs10736497
+</td>
+<td style="text-align:right;">
+0.9424
+</td>
+<td style="text-align:right;">
+-0.1004
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+47
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+92
+</td>
+<td style="text-align:left;">
+ENSG00000136813
+</td>
+<td style="text-align:left;">
+rs7036399
+</td>
+<td style="text-align:right;">
+0.9423
+</td>
+<td style="text-align:right;">
+-0.0310
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+48
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+96
+</td>
+<td style="text-align:left;">
+ENSG00000132824
+</td>
+<td style="text-align:left;">
+rs73909537
+</td>
+<td style="text-align:right;">
+0.9419
+</td>
+<td style="text-align:right;">
+1.0954
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+49
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+98
+</td>
+<td style="text-align:left;">
+ENSG00000119280
+</td>
+<td style="text-align:left;">
+rs3748771
+</td>
+<td style="text-align:right;">
+0.9414
+</td>
+<td style="text-align:right;">
+0.7139
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+50
+</td>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:right;">
+100
+</td>
+<td style="text-align:left;">
+ENSG00000106799
+</td>
+<td style="text-align:left;">
+rs4563947
+</td>
+<td style="text-align:right;">
+0.9407
+</td>
+<td style="text-align:right;">
+-0.4073
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="page-3-third-lfdr-quartile" class="section level3">
+<h3>Page 3: third lfdr quartile</h3>
+<pre class="r"><code>plot_set_a_gallery_page(3L)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_observational_null_set_pilot.rmd/set-a-gallery-3-1.png" alt="Twenty-five fixed-random Set A units from the third BF-adjusted-lfdr quartile." width="2340" />
+<p class="caption">
+Twenty-five fixed-random Set A units from the third BF-adjusted-lfdr
+quartile.
+</p>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  set_a_gallery_table(3L),
+  align = &quot;rrllrr&quot;,
+  minimum_width = &quot;960px&quot;,
+  digits = 4L
+)</code></pre>
+<div class="null-pilot-table-scroll" style="min-width:960px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+Panel
+</th>
+<th style="text-align:right;">
+Set A lfdr rank
+</th>
+<th style="text-align:left;">
+Gene
+</th>
+<th style="text-align:left;">
+Variant
+</th>
+<th style="text-align:right;">
+BF-adjusted lfdr
+</th>
+<th style="text-align:right;">
+Weighted constant estimate
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+51
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+102
+</td>
+<td style="text-align:left;">
+ENSG00000100889
+</td>
+<td style="text-align:left;">
+rs11158525
+</td>
+<td style="text-align:right;">
+0.9404
+</td>
+<td style="text-align:right;">
+-0.9033
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+52
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+103
+</td>
+<td style="text-align:left;">
+ENSG00000189067
+</td>
+<td style="text-align:left;">
+rs35866618
+</td>
+<td style="text-align:right;">
+0.9403
+</td>
+<td style="text-align:right;">
+0.8593
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+53
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+108
+</td>
+<td style="text-align:left;">
+ENSG00000196950
+</td>
+<td style="text-align:left;">
+rs7579393
+</td>
+<td style="text-align:right;">
+0.9392
+</td>
+<td style="text-align:right;">
+-3.9957
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+54
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+109
+</td>
+<td style="text-align:left;">
+ENSG00000185650
+</td>
+<td style="text-align:left;">
+rs4902654
+</td>
+<td style="text-align:right;">
+0.9389
+</td>
+<td style="text-align:right;">
+-0.8735
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+55
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+110
+</td>
+<td style="text-align:left;">
+ENSG00000114784
+</td>
+<td style="text-align:left;">
+rs13323163
+</td>
+<td style="text-align:right;">
+0.9387
+</td>
+<td style="text-align:right;">
+0.7845
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+56
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+112
+</td>
+<td style="text-align:left;">
+ENSG00000177733
+</td>
+<td style="text-align:left;">
+rs7709766
+</td>
+<td style="text-align:right;">
+0.9385
+</td>
+<td style="text-align:right;">
+2.6514
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+57
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+114
+</td>
+<td style="text-align:left;">
+ENSG00000101444
+</td>
+<td style="text-align:left;">
+rs819169
+</td>
+<td style="text-align:right;">
+0.9385
+</td>
+<td style="text-align:right;">
+6.7019
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+58
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+115
+</td>
+<td style="text-align:left;">
+ENSG00000117289
+</td>
+<td style="text-align:left;">
+rs833941
+</td>
+<td style="text-align:right;">
+0.9384
+</td>
+<td style="text-align:right;">
+1.3343
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+59
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+119
+</td>
+<td style="text-align:left;">
+ENSG00000166598
+</td>
+<td style="text-align:left;">
+rs73177921
+</td>
+<td style="text-align:right;">
+0.9381
+</td>
+<td style="text-align:right;">
+9.4548
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+60
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+120
+</td>
+<td style="text-align:left;">
+ENSG00000089327
+</td>
+<td style="text-align:left;">
+rs10419422
+</td>
+<td style="text-align:right;">
+0.9379
+</td>
+<td style="text-align:right;">
+0.5294
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+61
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+121
+</td>
+<td style="text-align:left;">
+ENSG00000130294
+</td>
+<td style="text-align:left;">
+rs74000029
+</td>
+<td style="text-align:right;">
+0.9379
+</td>
+<td style="text-align:right;">
+1.3132
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+62
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+122
+</td>
+<td style="text-align:left;">
+ENSG00000143401
+</td>
+<td style="text-align:left;">
+rs7551023
+</td>
+<td style="text-align:right;">
+0.9379
+</td>
+<td style="text-align:right;">
+-2.0828
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+63
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+130
+</td>
+<td style="text-align:left;">
+ENSG00000110987
+</td>
+<td style="text-align:left;">
+rs1169096
+</td>
+<td style="text-align:right;">
+0.9375
+</td>
+<td style="text-align:right;">
+0.2290
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+64
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+132
+</td>
+<td style="text-align:left;">
+ENSG00000197965
+</td>
+<td style="text-align:left;">
+rs73033850
+</td>
+<td style="text-align:right;">
+0.9373
+</td>
+<td style="text-align:right;">
+0.1257
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+65
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+133
+</td>
+<td style="text-align:left;">
+ENSG00000105220
+</td>
+<td style="text-align:left;">
+rs1669265
+</td>
+<td style="text-align:right;">
+0.9372
+</td>
+<td style="text-align:right;">
+0.2276
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+66
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+135
+</td>
+<td style="text-align:left;">
+ENSG00000112531
+</td>
+<td style="text-align:left;">
+rs2759385
+</td>
+<td style="text-align:right;">
+0.9371
+</td>
+<td style="text-align:right;">
+0.3525
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+67
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+138
+</td>
+<td style="text-align:left;">
+ENSG00000139514
+</td>
+<td style="text-align:left;">
+rs7981502
+</td>
+<td style="text-align:right;">
+0.9367
+</td>
+<td style="text-align:right;">
+0.5836
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+68
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+139
+</td>
+<td style="text-align:left;">
+ENSG00000134970
+</td>
+<td style="text-align:left;">
+rs1834890
+</td>
+<td style="text-align:right;">
+0.9364
+</td>
+<td style="text-align:right;">
+-2.3744
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+69
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+140
+</td>
+<td style="text-align:left;">
+ENSG00000162522
+</td>
+<td style="text-align:left;">
+rs74869827
+</td>
+<td style="text-align:right;">
+0.9363
+</td>
+<td style="text-align:right;">
+0.2423
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+70
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+141
+</td>
+<td style="text-align:left;">
+ENSG00000131016
+</td>
+<td style="text-align:left;">
+rs144740033
+</td>
+<td style="text-align:right;">
+0.9359
+</td>
+<td style="text-align:right;">
+-0.8807
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+71
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+144
+</td>
+<td style="text-align:left;">
+ENSG00000198189
+</td>
+<td style="text-align:left;">
+rs77741265
+</td>
+<td style="text-align:right;">
+0.9355
+</td>
+<td style="text-align:right;">
+0.5027
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+72
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+145
+</td>
+<td style="text-align:left;">
+ENSG00000178209
+</td>
+<td style="text-align:left;">
+rs56034811
+</td>
+<td style="text-align:right;">
+0.9354
+</td>
+<td style="text-align:right;">
+-0.4800
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+73
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+146
+</td>
+<td style="text-align:left;">
+ENSG00000103264
+</td>
+<td style="text-align:left;">
+rs12918379
+</td>
+<td style="text-align:right;">
+0.9347
+</td>
+<td style="text-align:right;">
+0.0256
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+74
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+147
+</td>
+<td style="text-align:left;">
+ENSG00000091483
+</td>
+<td style="text-align:left;">
+rs3014572
+</td>
+<td style="text-align:right;">
+0.9340
+</td>
+<td style="text-align:right;">
+-3.2270
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+75
+</td>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:right;">
+148
+</td>
+<td style="text-align:left;">
+ENSG00000198301
+</td>
+<td style="text-align:left;">
+rs12509255
+</td>
+<td style="text-align:right;">
+0.9315
+</td>
+<td style="text-align:right;">
+-0.1079
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="page-4-lowest-lfdr-quartile" class="section level3">
+<h3>Page 4: lowest-lfdr quartile</h3>
+<pre class="r"><code>plot_set_a_gallery_page(4L)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_observational_null_set_pilot.rmd/set-a-gallery-4-1.png" alt="Twenty-five fixed-random Set A units from the lowest BF-adjusted-lfdr quartile." width="2340" />
+<p class="caption">
+Twenty-five fixed-random Set A units from the lowest BF-adjusted-lfdr
+quartile.
+</p>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  set_a_gallery_table(4L),
+  align = &quot;rrllrr&quot;,
+  minimum_width = &quot;960px&quot;,
+  digits = 4L
+)</code></pre>
+<div class="null-pilot-table-scroll" style="min-width:960px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+Panel
+</th>
+<th style="text-align:right;">
+Set A lfdr rank
+</th>
+<th style="text-align:left;">
+Gene
+</th>
+<th style="text-align:left;">
+Variant
+</th>
+<th style="text-align:right;">
+BF-adjusted lfdr
+</th>
+<th style="text-align:right;">
+Weighted constant estimate
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+76
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+151
+</td>
+<td style="text-align:left;">
+ENSG00000115020
+</td>
+<td style="text-align:left;">
+rs138105985
+</td>
+<td style="text-align:right;">
+0.9290
+</td>
+<td style="text-align:right;">
+0.1534
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+77
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+152
+</td>
+<td style="text-align:left;">
+ENSG00000112419
+</td>
+<td style="text-align:left;">
+rs35317420
+</td>
+<td style="text-align:right;">
+0.9288
+</td>
+<td style="text-align:right;">
+0.1586
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+78
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+154
+</td>
+<td style="text-align:left;">
+ENSG00000170312
+</td>
+<td style="text-align:left;">
+rs2456775
+</td>
+<td style="text-align:right;">
+0.9284
+</td>
+<td style="text-align:right;">
+0.4357
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+79
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+156
+</td>
+<td style="text-align:left;">
+ENSG00000163374
+</td>
+<td style="text-align:left;">
+rs41264969
+</td>
+<td style="text-align:right;">
+0.9277
+</td>
+<td style="text-align:right;">
+-1.0864
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+80
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+159
+</td>
+<td style="text-align:left;">
+ENSG00000139146
+</td>
+<td style="text-align:left;">
+rs150550616
+</td>
+<td style="text-align:right;">
+0.9264
+</td>
+<td style="text-align:right;">
+0.7000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+81
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+160
+</td>
+<td style="text-align:left;">
+ENSG00000137075
+</td>
+<td style="text-align:left;">
+rs78401067
+</td>
+<td style="text-align:right;">
+0.9264
+</td>
+<td style="text-align:right;">
+-0.6685
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+82
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+162
+</td>
+<td style="text-align:left;">
+ENSG00000047932
+</td>
+<td style="text-align:left;">
+rs35237407
+</td>
+<td style="text-align:right;">
+0.9260
+</td>
+<td style="text-align:right;">
+-3.6698
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+83
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+163
+</td>
+<td style="text-align:left;">
+ENSG00000133606
+</td>
+<td style="text-align:left;">
+rs34984111
+</td>
+<td style="text-align:right;">
+0.9259
+</td>
+<td style="text-align:right;">
+-0.7105
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+84
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+165
+</td>
+<td style="text-align:left;">
+ENSG00000133835
+</td>
+<td style="text-align:left;">
+rs2075698
+</td>
+<td style="text-align:right;">
+0.9250
+</td>
+<td style="text-align:right;">
+0.9052
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+85
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+166
+</td>
+<td style="text-align:left;">
+ENSG00000172354
+</td>
+<td style="text-align:left;">
+rs7385804
+</td>
+<td style="text-align:right;">
+0.9221
+</td>
+<td style="text-align:right;">
+-2.7480
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+86
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+170
+</td>
+<td style="text-align:left;">
+ENSG00000124225
+</td>
+<td style="text-align:left;">
+rs157092
+</td>
+<td style="text-align:right;">
+0.9179
+</td>
+<td style="text-align:right;">
+-0.0669
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+87
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+171
+</td>
+<td style="text-align:left;">
+ENSG00000154803
+</td>
+<td style="text-align:left;">
+rs9652821
+</td>
+<td style="text-align:right;">
+0.9156
+</td>
+<td style="text-align:right;">
+0.0778
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+88
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+174
+</td>
+<td style="text-align:left;">
+ENSG00000087502
+</td>
+<td style="text-align:left;">
+rs11831164
+</td>
+<td style="text-align:right;">
+0.9140
+</td>
+<td style="text-align:right;">
+-0.3040
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+89
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+176
+</td>
+<td style="text-align:left;">
+ENSG00000146278
+</td>
+<td style="text-align:left;">
+rs693932
+</td>
+<td style="text-align:right;">
+0.9103
+</td>
+<td style="text-align:right;">
+0.3420
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+90
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+177
+</td>
+<td style="text-align:left;">
+ENSG00000056097
+</td>
+<td style="text-align:left;">
+rs113107593
+</td>
+<td style="text-align:right;">
+0.9096
+</td>
+<td style="text-align:right;">
+-0.4275
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+91
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+178
+</td>
+<td style="text-align:left;">
+ENSG00000166801
+</td>
+<td style="text-align:left;">
+rs11229861
+</td>
+<td style="text-align:right;">
+0.9075
+</td>
+<td style="text-align:right;">
+0.0248
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+92
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+179
+</td>
+<td style="text-align:left;">
+ENSG00000106948
+</td>
+<td style="text-align:left;">
+rs10817601
+</td>
+<td style="text-align:right;">
+0.9017
+</td>
+<td style="text-align:right;">
+0.1327
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+93
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+180
+</td>
+<td style="text-align:left;">
+ENSG00000120662
+</td>
+<td style="text-align:left;">
+rs7983176
+</td>
+<td style="text-align:right;">
+0.8961
+</td>
+<td style="text-align:right;">
+-0.0666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+94
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+184
+</td>
+<td style="text-align:left;">
+ENSG00000177370
+</td>
+<td style="text-align:left;">
+rs4968149
+</td>
+<td style="text-align:right;">
+0.8736
+</td>
+<td style="text-align:right;">
+0.1807
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+95
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+187
+</td>
+<td style="text-align:left;">
+ENSG00000088854
+</td>
+<td style="text-align:left;">
+rs112936328
+</td>
+<td style="text-align:right;">
+0.8632
+</td>
+<td style="text-align:right;">
+-0.1014
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+96
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+190
+</td>
+<td style="text-align:left;">
+ENSG00000184489
+</td>
+<td style="text-align:left;">
+rs7465449
+</td>
+<td style="text-align:right;">
+0.8262
+</td>
+<td style="text-align:right;">
+-0.1337
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+97
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+191
+</td>
+<td style="text-align:left;">
+ENSG00000157326
+</td>
+<td style="text-align:left;">
+rs9323424
+</td>
+<td style="text-align:right;">
+0.7983
+</td>
+<td style="text-align:right;">
+-1.8952
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+98
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+193
+</td>
+<td style="text-align:left;">
+ENSG00000162434
+</td>
+<td style="text-align:left;">
+rs144756108
+</td>
+<td style="text-align:right;">
+0.7505
+</td>
+<td style="text-align:right;">
+0.4974
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+99
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+194
+</td>
+<td style="text-align:left;">
+ENSG00000160199
+</td>
+<td style="text-align:left;">
+rs8133215
+</td>
+<td style="text-align:right;">
+0.7292
+</td>
+<td style="text-align:right;">
+0.0364
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+100
+</td>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:right;">
+195
+</td>
+<td style="text-align:left;">
+ENSG00000189007
+</td>
+<td style="text-align:left;">
+rs7761741
+</td>
+<td style="text-align:right;">
+0.7253
+</td>
+<td style="text-align:right;">
+-0.0274
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>On visual inspection, the highest-lfdr page contains many
+trajectories that are compatible with noisy fluctuations relative to
+their SE bars, but it is not uniformly featureless. The lower-lfdr pages
+contain several visibly structured, monotone, or endpoint-driven
+trajectories; some of the most abrupt patterns also have very large SEs.
+This reinforces the intended interpretation: Set A is null-enriched, not
+an observed collection of true constant-effect nulls.</p>
+</div>
+</div>
+<div id="two-set-a-estimators" class="section level2">
+<h2>Two Set A estimators</h2>
+<p>Write the fitted time-specific effect estimate as</p>
+<p><span class="math display">\[
+\widehat\beta_j(t)=\beta_j(t)+s_j(t)\varepsilon_j(t),
+\qquad
+\operatorname{Cov}\{\varepsilon_j(t),\varepsilon_j(s)\}=C_{ts}.
+\]</span></p>
+<p>For Set A, the working dynamic null is <span
+class="math inline">\(\beta_j(t)=\mu_j\)</span>. With</p>
+<p><span class="math display">\[
+x_{j,ts}=\frac{2s_{jt}s_{js}}{s_{jt}^2+s_{js}^2},
+\qquad
+q_{j,ts}=\frac{
+\{\widehat\beta_j(t)-\widehat\beta_j(s)\}^2
+}{s_{jt}^2+s_{js}^2},
+\]</span></p>
+<p>the constant <span class="math inline">\(\mu_j\)</span> cancels and
+<span class="math inline">\(E(1-q_{j,ts})=x_{j,ts}C_{ts}\)</span>. The
+pairwise estimate is</p>
+<p><span class="math display">\[
+\widehat C_{ts}^{\mathrm{pair}}
+=\frac{\sum_jx_{j,ts}(1-q_{j,ts})}{\sum_jx_{j,ts}^2},
+\qquad \widehat C_{tt}^{\mathrm{pair}}=1.
+\]</span></p>
+<p>The within-unit method first estimates and removes a weighted
+constant,</p>
+<p><span class="math display">\[
+\widehat\mu_j=
+\frac{\sum_t\widehat\beta_j(t)/s_j^2(t)}
+{\sum_t1/s_j^2(t)},
+\qquad
+r_j(t)=\frac{\widehat\beta_j(t)-\widehat\mu_j}{s_j(t)},
+\]</span></p>
+<p>and then computes the raw empirical second-moment matrix</p>
+<p><span class="math display">\[
+\widehat C^{\mathrm{center}}
+=\frac{1}{M}\sum_{j=1}^M r_jr_j^T.
+\]</span></p>
+<p>This second matrix is intentionally not rescaled to unit diagonal.
+The correlation matrix of the columns of <span
+class="math inline">\(r\)</span> is also shown separately, but it is not
+called a covariance estimate.</p>
+<p>The centering transformation changes the estimand. If <span
+class="math inline">\(D_j=\operatorname{diag}\{s_j(t)\}\)</span> and
+<span class="math inline">\(w_j\)</span> is the normalized
+inverse-variance weight vector, then under a constant true effect</p>
+<p><span class="math display">\[
+r_j=A_j\varepsilon_j,
+\qquad
+A_j=D_j^{-1}(I-\mathbf 1w_j^T)D_j,
+\]</span></p>
+<p>so <span class="math inline">\(E(r_jr_j^T)=A_j C A_j^T\)</span>, not
+<span class="math inline">\(C\)</span>. This operation can remove a
+common residual mode as well as the unknown intercept. The discrepancy
+therefore need not equal a small universal negative offset.</p>
+<p>All matrices below are raw. No nearest-positive-definite projection
+was applied.</p>
+</div>
+<div id="set-a-covariance-comparison" class="section level2">
+<h2>Set A covariance comparison</h2>
+<pre class="r"><code>plot_set_a_matrix_comparison()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_observational_null_set_pilot.rmd/set-a-matrix-comparison-1.png" alt="Set A raw matrix estimates. Pairwise covariance has a fixed unit diagonal; centered covariance retains its empirical diagonal; centered correlation rescales that same centered residual matrix to unit diagonal." width="2160" />
+<p class="caption">
+Set A raw matrix estimates. Pairwise covariance has a fixed unit
+diagonal; centered covariance retains its empirical diagonal; centered
+correlation rescales that same centered residual matrix to unit
+diagonal.
+</p>
+</div>
+<p>Both covariance matrices happen to be positive definite in this
+pilot, although positive definiteness was not imposed.</p>
+<pre class="r"><code>render_scrollable_table(
+  set_a_centered_diagnostic_table,
+  align = &quot;llrrrrrrrr&quot;,
+  minimum_width = &quot;1220px&quot;,
+  digits = 4L
+)</code></pre>
+<div class="null-pilot-table-scroll" style="min-width:1220px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Set
+</th>
+<th style="text-align:left;">
+Estimator
+</th>
+<th style="text-align:right;">
+Minimum eigenvalue
+</th>
+<th style="text-align:right;">
+Maximum eigenvalue
+</th>
+<th style="text-align:right;">
+Negative eigenvalues
+</th>
+<th style="text-align:right;">
+Minimum diagonal
+</th>
+<th style="text-align:right;">
+Maximum diagonal
+</th>
+<th style="text-align:right;">
+Mean off-diagonal
+</th>
+<th style="text-align:right;">
+Minimum off-diagonal
+</th>
+<th style="text-align:right;">
+Maximum off-diagonal
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+A: no FASH dynamic discovery
+</td>
+<td style="text-align:left;">
+Pairwise difference
+</td>
+<td style="text-align:right;">
+0.1879
+</td>
+<td style="text-align:right;">
+6.6036
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1.000
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+0.3549
+</td>
+<td style="text-align:right;">
+-0.0056
+</td>
+<td style="text-align:right;">
+0.7136
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+A: no FASH dynamic discovery
+</td>
+<td style="text-align:left;">
+Within-unit centered covariance
+</td>
+<td style="text-align:right;">
+0.1814
+</td>
+<td style="text-align:right;">
+2.2265
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.512
+</td>
+<td style="text-align:right;">
+0.8848
+</td>
+<td style="text-align:right;">
+-0.0272
+</td>
+<td style="text-align:right;">
+-0.2612
+</td>
+<td style="text-align:right;">
+0.2572
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The off-diagonal patterns are ordered similarly, but their levels
+differ substantially: their entrywise Pearson correlation is 0.863,
+while the mean centered-minus-pairwise difference is -0.382.</p>
+<pre class="r"><code>plot_set_a_covariance_entry_agreement()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_observational_null_set_pilot.rmd/set-a-entry-agreement-1.png" alt="Off-diagonal Set A covariance entries. Color denotes time lag; the dashed line is equality." width="1332" />
+<p class="caption">
+Off-diagonal Set A covariance entries. Color denotes time lag; the
+dashed line is equality.
+</p>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  set_a_method_agreement,
+  align = &quot;lr&quot;,
+  minimum_width = &quot;760px&quot;,
+  digits = 4L
+)</code></pre>
+<div class="null-pilot-table-scroll" style="min-width:760px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Quantity
+</th>
+<th style="text-align:right;">
+Value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Off-diagonal Pearson correlation
+</td>
+<td style="text-align:right;">
+0.8631
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mean centered-minus-pairwise difference
+</td>
+<td style="text-align:right;">
+-0.3821
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Off-diagonal mean absolute difference
+</td>
+<td style="text-align:right;">
+0.3821
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Off-diagonal root mean squared difference
+</td>
+<td style="text-align:right;">
+0.3911
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Off-diagonal maximum absolute difference
+</td>
+<td style="text-align:right;">
+0.5223
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Maximum absolute lag-averaged covariance difference
+</td>
+<td style="text-align:right;">
+0.4049
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="set-a-lag-covariance-and-variogram" class="section level2">
+<h2>Set A lag covariance and variogram</h2>
+<p>For either raw covariance matrix, the lag-<span
+class="math inline">\(h\)</span> semivariogram is</p>
+<p><span class="math display">\[
+\widehat\gamma(h)
+=\frac{1}{16-h}\sum_{t=0}^{15-h}
+\frac{\widehat C_{tt}+\widehat C_{t+h,t+h}
+-2\widehat C_{t,t+h}}{2}.
+\]</span></p>
+<p>The shaded bands are percentile 95% intervals from the same 200
+gene-level bootstrap resamples for both estimators.</p>
+<pre class="r"><code>plot_set_a_covariance_comparison()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_observational_null_set_pilot.rmd/set-a-lag-covariance-1.png" alt="Set A lag-averaged standardized covariance with paired gene-bootstrap 95% intervals." width="1800" />
+<p class="caption">
+Set A lag-averaged standardized covariance with paired gene-bootstrap
+95% intervals.
+</p>
+</div>
+<pre class="r"><code>plot_set_a_variogram_comparison()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_observational_null_set_pilot.rmd/set-a-variogram-1.png" alt="Set A semivariograms with paired gene-bootstrap 95% intervals. The centered variogram uses the empirical centered diagonal rather than one minus centered covariance." width="1800" />
+<p class="caption">
+Set A semivariograms with paired gene-bootstrap 95% intervals. The
+centered variogram uses the empirical centered diagonal rather than one
+minus centered covariance.
+</p>
+</div>
+<p>The variograms look closer than the covariance curves because the
+centered matrix also has a smaller diagonal: its mean diagonal is 0.657,
+rather than one. The centered variogram therefore combines a lower
+diagonal with lower off-diagonal covariance; it is not <span
+class="math inline">\(1\)</span> minus the orange covariance curve.</p>
+<pre class="r"><code>render_scrollable_table(
+  set_a_key_lag_table,
+  align = &quot;lrrrrrrrr&quot;,
+  minimum_width = &quot;1160px&quot;,
+  digits = 4L
+)</code></pre>
+<div class="null-pilot-table-scroll" style="min-width:1160px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+Estimator
+</th>
+<th style="text-align:right;">
+Lag
+</th>
+<th style="text-align:right;">
+Covariance
+</th>
+<th style="text-align:right;">
+Covariance 2.5%
+</th>
+<th style="text-align:right;">
+Covariance 97.5%
+</th>
+<th style="text-align:right;">
+Semivariogram
+</th>
+<th style="text-align:right;">
+Semivariogram 2.5%
+</th>
+<th style="text-align:right;">
+Semivariogram 97.5%
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+Pairwise difference
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.5475
+</td>
+<td style="text-align:right;">
+0.5170
+</td>
+<td style="text-align:right;">
+0.5769
+</td>
+<td style="text-align:right;">
+0.4525
+</td>
+<td style="text-align:right;">
+0.4231
+</td>
+<td style="text-align:right;">
+0.4830
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:left;">
+Pairwise difference
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0.3699
+</td>
+<td style="text-align:right;">
+0.3300
+</td>
+<td style="text-align:right;">
+0.4279
+</td>
+<td style="text-align:right;">
+0.6301
+</td>
+<td style="text-align:right;">
+0.5721
+</td>
+<td style="text-align:right;">
+0.6700
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+10
+</td>
+<td style="text-align:left;">
+Pairwise difference
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0.2414
+</td>
+<td style="text-align:right;">
+0.1576
+</td>
+<td style="text-align:right;">
+0.3336
+</td>
+<td style="text-align:right;">
+0.7586
+</td>
+<td style="text-align:right;">
+0.6664
+</td>
+<td style="text-align:right;">
+0.8424
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+15
+</td>
+<td style="text-align:left;">
+Pairwise difference
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+0.1689
+</td>
+<td style="text-align:right;">
+-0.0009
+</td>
+<td style="text-align:right;">
+0.3305
+</td>
+<td style="text-align:right;">
+0.8311
+</td>
+<td style="text-align:right;">
+0.6695
+</td>
+<td style="text-align:right;">
+1.0009
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+16
+</td>
+<td style="text-align:left;">
+Within-unit centered covariance
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.1637
+</td>
+<td style="text-align:right;">
+0.1338
+</td>
+<td style="text-align:right;">
+0.1945
+</td>
+<td style="text-align:right;">
+0.4852
+</td>
+<td style="text-align:right;">
+0.4574
+</td>
+<td style="text-align:right;">
+0.5164
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+20
+</td>
+<td style="text-align:left;">
+Within-unit centered covariance
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+-0.0335
+</td>
+<td style="text-align:right;">
+-0.0591
+</td>
+<td style="text-align:right;">
+-0.0074
+</td>
+<td style="text-align:right;">
+0.6729
+</td>
+<td style="text-align:right;">
+0.6195
+</td>
+<td style="text-align:right;">
+0.7109
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+25
+</td>
+<td style="text-align:left;">
+Within-unit centered covariance
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+-0.1222
+</td>
+<td style="text-align:right;">
+-0.1589
+</td>
+<td style="text-align:right;">
+-0.0738
+</td>
+<td style="text-align:right;">
+0.8082
+</td>
+<td style="text-align:right;">
+0.7355
+</td>
+<td style="text-align:right;">
+0.8806
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+30
+</td>
+<td style="text-align:left;">
+Within-unit centered covariance
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+-0.1140
+</td>
+<td style="text-align:right;">
+-0.1955
+</td>
+<td style="text-align:right;">
+-0.0120
+</td>
+<td style="text-align:right;">
+0.8957
+</td>
+<td style="text-align:right;">
+0.7446
+</td>
+<td style="text-align:right;">
+1.0382
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>For reference only, rescaling the centered residual columns to unit
+variance gives the following lag-averaged correlations. This rescaling
+does not undo the centering projection.</p>
+<pre class="r"><code>render_scrollable_table(
+  set_a_centered_correlation_table,
+  align = &quot;rrr&quot;,
+  minimum_width = &quot;720px&quot;,
+  digits = 4L
+)</code></pre>
+<div class="null-pilot-table-scroll" style="min-width:720px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:right;">
+Lag
+</th>
+<th style="text-align:right;">
+Centered correlation
+</th>
+<th style="text-align:right;">
+Correlation-scale semivariogram
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.2569
+</td>
+<td style="text-align:right;">
+0.7431
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+-0.0508
+</td>
+<td style="text-align:right;">
+1.0508
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+-0.1791
+</td>
+<td style="text-align:right;">
+1.1791
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+-0.1470
+</td>
+<td style="text-align:right;">
+1.1470
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="legacy-set-b-context-not-interpreted-as-harmonized-evidence"
+class="section level2">
+<h2>Legacy Set B context (not interpreted as harmonized evidence)</h2>
+<div class="null-pilot-banner">
+<p>Set B was constructed from existing time-specific eQTL tables that
+used three time-specific PCs. The current FASH workflow uses five
+time-specific PCs. Set B is retained here only to preserve the earlier
+pilot record; it is not used as primary evidence until the time-specific
+screen is rerun under the matched five-PC workflow.</p>
+</div>
+<pre class="r"><code>plot_standardized_covariance_heatmaps()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_observational_null_set_pilot.rmd/standardized-covariance-heatmaps-1.png" alt="Earlier pilot context: Set A pairwise and legacy non-harmonized Set B estimates." width="2160" />
+<p class="caption">
+Earlier pilot context: Set A pairwise and legacy non-harmonized Set B
+estimates.
+</p>
+</div>
+<pre class="r"><code>plot_variograms()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_observational_null_set_pilot.rmd/legacy-variograms-1.png" alt="Earlier pilot lag semivariograms. Set B remains visible only as legacy non-harmonized context." width="1800" />
+<p class="caption">
+Earlier pilot lag semivariograms. Set B remains visible only as legacy
+non-harmonized context.
+</p>
+</div>
+<pre class="r"><code>plot_lag_covariances()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_observational_null_set_pilot.rmd/legacy-lag-covariances-1.png" alt="Earlier pilot lag-averaged standardized covariance." width="1800" />
+<p class="caption">
+Earlier pilot lag-averaged standardized covariance.
+</p>
+</div>
+<pre class="r"><code>plot_set_b_estimator_agreement()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_observational_null_set_pilot.rmd/legacy-set-b-agreement-1.png" alt="Earlier Set B direct-versus-pairwise comparison; not interpreted as harmonized evidence." width="1332" />
+<p class="caption">
+Earlier Set B direct-versus-pairwise comparison; not interpreted as
+harmonized evidence.
+</p>
+</div>
+</div>
+<div id="interpretation-and-limitations" class="section level2">
+<h2>Interpretation and limitations</h2>
+<ol style="list-style-type: decimal">
+<li><p>The gallery is an audit of the selected observations, not a proof
+that Set A contains only true dynamic nulls. Nondiscovery can include
+weak or underpowered dynamic effects.</p></li>
+<li><p>Within-unit centering does not merely introduce a small generic
+negative correlation. It applies a unit-specific projection because the
+adjusted SEs differ across time and units. In these data, that
+projection removes most of the persistent positive component estimated
+by pairwise differences.</p></li>
+<li><p>The two covariance profiles are therefore evidence about
+estimator sensitivity, not two nearly identical confirmations of one
+residual matrix. The pairwise result could reflect genuine residual
+covariance, violations of the constant-effect null among selected units,
+or both.</p></li>
+<li><p>This remains a 200-pair internal pilot. No result on this page
+has been moved into R4, the manuscript, or the response letter.</p></li>
+</ol>
+</div>
+<div id="reproduction" class="section level2">
+<h2>Reproduction</h2>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/internal/covariance_estimation/run_observational_null_set_pilot.R \
+  --pilot-size 200 \
+  --bootstrap-reps 200 \
+  --selection-seed 20260806 \
+  --bootstrap-seed 20260816 \
+  --output-id observational_null_set_pilot</code></pre>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/internal/covariance_estimation/test_observational_null_set_helpers.R</code></pre>
+<pre class="bash"><code>Rscript --vanilla -e \
+  &#39;workflowr::wflow_build(&quot;analysis/revision_internal_observational_null_set_pilot.rmd&quot;)&#39;</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] workflowr_1.7.2
+
+loaded via a namespace (and not attached):
+ [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.1.4        compiler_4.5.1    
+ [5] promises_1.5.0     tidyselect_1.2.1   Rcpp_1.1.1-1.1     stringr_1.6.0     
+ [9] git2r_0.36.2       dichromat_2.0-0.1  callr_3.7.6        later_1.4.4       
+[13] jquerylib_0.1.4    scales_1.4.0       yaml_2.3.12        fastmap_1.2.0     
+[17] ggplot2_4.0.1      R6_2.6.1           labeling_0.4.3     generics_0.1.4    
+[21] knitr_1.50         tibble_3.3.0       rprojroot_2.1.1    RColorBrewer_1.1-3
+[25] bslib_0.9.0        pillar_1.11.1      rlang_1.2.0        cachem_1.1.0      
+[29] stringi_1.8.7      httpuv_1.6.16      xfun_0.55          S7_0.2.1          
+[33] getPass_0.2-4      fs_1.6.6           sass_0.4.10        otel_0.2.0        
+[37] viridisLite_0.4.2  cli_3.6.6          withr_3.0.2        magrittr_2.0.5    
+[41] ps_1.9.1           grid_4.5.1         digest_0.6.39      processx_3.8.6    
+[45] rstudioapi_0.17.1  lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5    
+[49] glue_1.8.1         farver_2.1.2       whisker_0.4.1      rmarkdown_2.30    
+[53] httr_1.4.7         tools_4.5.1        pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

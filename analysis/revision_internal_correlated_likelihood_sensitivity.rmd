@@ -1,0 +1,449 @@
+---
+title: "Internal sensitivity analysis: correlated FASH likelihoods"
+author: "Ziang Zhang"
+date: "2026-08-07"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 10,
+  fig.height = 5.8,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(paste0(
+  "code/revision_simulations/internal/correlated_likelihood_sensitivity/",
+  "reporting.R"
+))
+```
+
+<style>
+.correlated-likelihood-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.correlated-likelihood-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.correlated-likelihood-caution {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #d55e00;
+  border-radius: 4px;
+  background: #fff4ec;
+  color: #59331e;
+}
+.correlated-likelihood-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.correlated-likelihood-table-scroll table {
+  margin-bottom: 1em;
+}
+.correlated-likelihood-inline-path {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+</style>
+
+<div class="correlated-likelihood-banner">
+<strong>Internal sensitivity page.</strong> This page is intentionally
+unlinked. It does not modify or replace the R4 analysis, the covariance-screen
+page, the existing one-variant-per-gene page, the manuscript, or the response
+letter.
+</div>
+
+## Question and answer
+
+On the exact one-random-variant-per-gene subset used to estimate the two
+empirical time-correlation matrices, how much does the FASH result change if
+the likelihood uses either matrix instead of conditionally independent time
+points?
+
+The three raw fits are:
+
+1. **Diagonal SE:** the current conditional-independence likelihood;
+2. **C1:** the empirical z-score correlation from the
+   `r format_integer(c1_estimating_pairs)` Screen-1 pairs satisfying
+   $\max_t |z_j(t)|<2$;
+3. **C2:** the empirical z-score correlation from the
+   `r format_integer(c2_estimating_pairs)` more selective Screen-2 pairs also
+   satisfying $|\sqrt{16}\,\overline z_j|<2$.
+
+All three fits use the same `r format_integer(expected_n_units)` gene--variant
+pairs, one pair per gene; the same beta estimates, adjusted standard errors,
+time grid, PSD grid, basis settings, and `penalty = 10`; and differ only in the
+likelihood error correlation.
+
+<div class="correlated-likelihood-result">
+<strong>Main numerical result.</strong> The sensitivity is large. The raw
+diagonal fit estimates $\widehat\pi_0=
+`r format_decimal(raw_diagonal_pi0, 4)`$ and makes
+`r format_integer(raw_diagonal_calls)` cumulative-lfdr calls at
+$\alpha=0.05$. C1 raises $\widehat\pi_0$ to
+`r format_decimal(raw_c1_pi0, 4)` and makes no calls; C2 estimates
+$\widehat\pi_0=`r format_decimal(raw_c2_pi0, 4)`$, assigns lfdr 1 to every
+unit, and also makes no calls. After BF adjustment, the diagonal fit has
+$\widehat\pi_0=`r format_decimal(bf_diagonal_pi0, 4)`$ and
+`r format_integer(bf_diagonal_calls)` calls, whereas C1 has
+$\widehat\pi_0=`r format_decimal(bf_c1_pi0, 4)`$ and no calls.
+</div>
+
+<div class="correlated-likelihood-caution">
+<strong>C2 BF result is unavailable, not an all-null BF-adjusted fit.</strong>
+The raw C2 fit assigns exactly zero total prior mass to all non-null
+components. `BF_update()` requires a conditional mixture over those non-null
+components, so its normalization is undefined. The attempted update and its
+warning are retained in the audit cache, but the returned unchanged raw object
+is deliberately not reported as a successful BF-adjusted result.
+</div>
+
+This experiment therefore does **not** support a robustness claim with respect
+to C1 or C2. It shows strong sensitivity if either empirical matrix is treated
+as the true residual correlation. It also does not establish that C1 or C2 is
+the true residual correlation: both are estimated from selected z-score
+trajectories in the same observed data and can retain biological signal or
+selection-induced structure.
+
+## Fixed thinning and empirical correlation inputs
+
+The thinning was performed before either screen by drawing one tested variant
+uniformly within each gene with seed `r configuration$thinning_seed`. The
+retained universe has exactly `r format_integer(configuration$n_genes)` unique
+genes and `r format_integer(configuration$n_units)` unique gene--variant pairs.
+Thus the comparison changes neither the units nor their order.
+
+C1 and C2 below are the original empirical correlation matrices. Both are
+positive definite without nearest-PD projection.
+
+```{r correlation-diagnostics, results='asis'}
+render_scrollable_table(
+  correlation_diagnostics_display,
+  align = "lrrrr",
+  minimum_width = "940px"
+)
+```
+
+```{r correlation-heatmaps, fig.width=11.5, fig.height=5.4, fig.cap="The two empirical z-score correlation matrices supplied to the sensitivity fits. Both panels use the same off-diagonal color scale."}
+plot_correlation_heatmaps()
+```
+
+The matrices are not external controls and are not estimated from independent
+replicate data. C1 uses a conventional mashr-style maximum-z screen. C2
+additionally screens the independence-scaled mean z score. The extra C2 rule
+removes obvious common effects, but it also conditions on a function of the
+same time trajectory whose correlation is being estimated.
+
+## Likelihood construction
+
+Let $\widehat{\boldsymbol\beta}_j$ denote the 16-vector of estimated effects
+for unit $j$, and let
+
+$$
+D_j=\operatorname{diag}(s_{j1},\ldots,s_{j,16})
+$$
+
+contain its time-specific adjusted standard errors. For a shared correlation
+matrix $C$, the sensitivity likelihood uses
+
+$$
+\widehat{\boldsymbol\beta}_j\mid\boldsymbol\beta_j
+\sim N\!\left(\boldsymbol\beta_j,\;D_j C D_j\right),
+$$
+
+or equivalently the unit-specific precision
+
+$$
+\Omega_j
+=\left(D_j C D_j\right)^{-1}
+=D_j^{-1}C^{-1}D_j^{-1}.
+$$
+
+The implementation passes this complete $\Omega_j$ to `fashr`. Passing only
+$C^{-1}$ would incorrectly discard the fact that standard errors vary across
+units and time points.
+
+```{r precision-construction, eval=FALSE}
+correlation_precision <- solve(C)
+
+omega <- lapply(seq_len(nrow(adjusted_se)), function(j) {
+  inverse_se <- 1 / adjusted_se[j, ]
+  correlation_precision * tcrossprod(inverse_se)
+})
+
+correlated_fit <- fashr::fash(
+  data = data_list,
+  Omega = omega,
+  likelihood = "gaussian",
+  num_basis = 20,
+  betaprec = 0,
+  order = 1,
+  pred_step = 1,
+  psd_grid = psd_grid,
+  penalty = 10
+)
+```
+
+### Identity-path validation
+
+Before either correlated fit was run, 24 real-data units were evaluated twice:
+once using the ordinary diagonal-SE path and once using the full-precision path
+with $C=I$. The complete 52-component likelihood rows were compared after
+subtracting each row's null-component log likelihood, because a component-free
+row constant cannot affect empirical-Bayes weights or posterior probabilities.
+
+```{r identity-validation, results='asis'}
+render_scrollable_table(
+  identity_validation_display,
+  align = "rrrr",
+  minimum_width = "980px"
+)
+```
+
+The agreement is at floating-point precision, confirming that the correlated
+route reduces to the existing diagonal likelihood when $C=I$.
+
+## Fitted results
+
+```{r method-stage-summary, results='asis'}
+render_scrollable_table(
+  method_stage_summary_display,
+  align = "llllrrrr",
+  minimum_width = "1320px"
+)
+```
+
+The diagonal raw fit reuses the exact selected likelihood rows from the current
+full-data FASH object and re-estimates the mixture on the thinned universe.
+The C1 and C2 likelihoods must be recomputed because their precision matrices
+are non-diagonal. Their elapsed times were approximately 26 and 36 minutes,
+respectively.
+
+## Prior-weight sensitivity
+
+```{r prior-weight-curves, fig.width=11.5, fig.height=5.5, fig.cap="Estimated prior weights on the common FASH PSD grid. The horizontal axis shows the square root of the PSD-grid value. C2 has no BF-adjusted curve because its raw non-null prior mass is exactly zero."}
+plot_prior_weights()
+```
+
+```{r prior-pairwise-metrics, results='asis'}
+render_scrollable_table(
+  prior_pairwise_metrics_display,
+  align = "llrrrr",
+  minimum_width = "1160px"
+)
+```
+
+At the raw stage, the total-variation distance between the diagonal prior and
+either correlated prior is about 0.517. C1 and C2 themselves are much closer:
+their prior total-variation distance is about 0.010 because both concentrate
+almost all mass at the null. BF adjustment reduces the diagonal-versus-C1
+prior total variation to about 0.063, but does not make the two fitted
+analyses equivalent.
+
+## Unit-level lfdr sensitivity
+
+```{r lfdr-comparison-scatterplots, fig.width=11.5, fig.height=10.2, fig.cap="Paired unit-level lfdr values. Each panel uses exactly the same 6,362 gene-variant pairs. C2 raw lfdr is identically 1; C2 BF is unavailable."}
+plot_lfdr_comparisons()
+```
+
+```{r lfdr-pairwise-metrics, results='asis'}
+render_scrollable_table(
+  lfdr_pairwise_metrics_display,
+  align = "llrrrrrrrr",
+  minimum_width = "1660px"
+)
+```
+
+For raw diagonal versus C1, the lfdr Spearman correlation is 0.773 but the
+mean absolute difference is 0.508: ranking is partly retained while absolute
+calibration shifts sharply toward the null. Because C2 raw lfdr is constant at
+1, Pearson and Spearman correlations with C2 are undefined rather than zero.
+
+After BF adjustment, diagonal versus C1 has Spearman correlation 0.789 and
+mean absolute difference 0.089. Thus BF adjustment substantially reduces the
+average lfdr displacement, but it does not restore the diagonal discoveries:
+C1 still makes no calls at the same cumulative-lfdr threshold.
+
+```{r lfdr-difference-distributions, fig.width=11.5, fig.height=9.2, fig.cap="Distributions of paired lfdr differences. Positive values mean that the correlated-likelihood method assigns greater posterior null probability than the reference method."}
+plot_lfdr_difference_distributions()
+```
+
+### Most discrepant units
+
+The following table shows the five largest absolute lfdr changes for each
+available pairwise comparison. These are paired changes, not a comparison of
+different sampled variants.
+
+```{r top-lfdr-discrepancies, results='asis'}
+render_scrollable_table(
+  top_discrepancy_display,
+  align = "llrllrrr",
+  minimum_width = "1460px"
+)
+```
+
+## Discovery consequences
+
+```{r discovery-counts, fig.width=10.8, fig.height=5.3, fig.cap="Numbers of cumulative-lfdr discoveries at alpha 0.05 on the fixed thinned universe. The C2 BF result is unavailable and is labeled accordingly."}
+plot_discovery_counts()
+```
+
+The raw diagonal analysis calls 268 of the 6,362 pairs. Both correlated raw
+fits call none. The BF-adjusted diagonal analysis calls 57, whereas the
+available BF-adjusted C1 analysis calls none. Therefore the discovery-set
+Jaccard is zero for every diagonal-versus-correlated comparison with an
+available result. C1 and C2 raw both make no calls, so their empty-set Jaccard
+is defined as one by the analysis code.
+
+## Why the C2 BF update is unavailable
+
+```{r bf-update-status, results='asis'}
+render_scrollable_table(
+  bf_update_status_display,
+  align = "lrll",
+  minimum_width = "1220px"
+)
+```
+
+`BF_update()` first needs a conditional distribution over the alternative
+components, obtained by normalizing their fitted raw prior weights. For C2,
+
+$$
+\sum_{k:\,\mathrm{PSD}_k>0}\widehat\pi_k=0,
+$$
+
+so this normalization is $0/0$. The package warning is therefore a consequence
+of an undefined conditional alternative mixture, not evidence that the raw C2
+object was successfully BF-adjusted.
+
+For the diagonal and C1 fits, row-centering the likelihood before the update
+is numerically safe and reproduces the original successful updates extremely
+closely: their maximum lfdr differences are
+`r paste(format_scientific(bf_rebuild_validation$lfdr_maximum_difference),
+collapse = " and ")`, respectively. The final cache stores only these two
+successful BF-adjusted fits.
+
+## Interpretation
+
+The direct empirical finding is clear:
+
+> Conditional on treating C1 or C2 as the likelihood's residual correlation,
+> the fitted null weight, unit-level lfdr calibration, and discovery set change
+> substantially relative to the diagonal analysis. BF adjustment attenuates
+> the average diagonal-versus-C1 lfdr difference, but it does not recover any
+> C1 discoveries.
+
+The causal interpretation is not clear. A null residual-correlation matrix is
+supposed to describe cross-time dependence in estimation noise conditional on
+the true trajectory. C1 and C2 are instead empirical correlations of selected
+observed z-score vectors. Even after one-variant-per-gene thinning and
+null-like screening, those vectors may contain constant or dynamic effects,
+gene-specific artifacts, and structure induced by selecting on the same z
+scores. Supplying such a matrix to the likelihood can make smooth trajectories
+look more compatible with noise and can absorb signal into the null model.
+
+Accordingly, this page should be read as a **stress test of two plausible but
+not identified covariance inputs**, not as evidence that either correlated fit
+is better calibrated than the diagonal fit.
+
+## Limitations
+
+- C1 and C2 are estimated from the same thinned data to which they are later
+  applied; there is no independent covariance-estimation sample.
+- The maximum-z and mean-z screens do not guarantee that every retained pair
+  has a zero true trajectory.
+- One variant per gene avoids repeated variants within a gene but does not
+  remove LD between variants assigned to different genes.
+- Correlation is assumed shared across genes, while adjusted marginal standard
+  errors remain unit- and time-specific through $D_j$.
+- This experiment compares three likelihood assumptions at one fixed thinning
+  seed. It does not propagate uncertainty in the estimated C1 or C2 matrices.
+- C2 BF adjustment is mathematically undefined for the fitted raw prior, so no
+  valid three-way BF comparison exists for this run.
+
+## Source provenance
+
+The analysis cache records immutable input metadata and SHA-256 hashes. Routine
+page builds validate these recorded values and current file sizes but do not
+reload the two full FASH objects.
+
+```{r source-provenance, results='asis'}
+render_scrollable_table(
+  source_provenance_display,
+  align = "llrl",
+  minimum_width = "1760px"
+)
+```
+
+## Reproducibility
+
+Routine builds read only:
+
+<span class="correlated-likelihood-inline-path">`output/revision_simulations/internal/correlated_likelihood_sensitivity/`</span>
+
+To rerun the full likelihood analysis without overwriting the retained cache,
+use a new output ID. On the current machine the two correlated fits together
+required about 62 minutes with eight cores.
+
+```{bash regenerate-correlated-likelihood-sensitivity, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/correlated_likelihood_sensitivity/run_correlated_likelihood_sensitivity.R \
+  --num-cores 8 \
+  --validation-units 24 \
+  --thinning-seed 20260811 \
+  --output-id correlated_likelihood_sensitivity_reproduction
+```
+
+The focused tests are:
+
+```{bash test-correlated-likelihood-sensitivity, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/correlated_likelihood_sensitivity/test_correlated_likelihood_helpers.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/correlated_likelihood_sensitivity/test_reporting.R
+```
+
+The internal page can be rebuilt from the retained cache with:
+
+```{bash rebuild-correlated-likelihood-page, eval=FALSE}
+Rscript --vanilla -e \
+  'workflowr::wflow_build(
+    "analysis/revision_internal_correlated_likelihood_sensitivity.rmd"
+  )'
+```

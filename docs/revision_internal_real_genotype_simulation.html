@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-06" />
+
+<title>Internal experiment: R1 with real-genotype locus blocks</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Internal experiment: R1 with real-genotype
+locus blocks</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-06</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-06
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/revision_simulations/
+
+Untracked files:
+    Untracked:  Rplots.pdf
+    Untracked:  analysis/revision_combined_spiky_genotype_simulation.rmd
+    Untracked:  analysis/revision_correlated_error_simulation.rmd
+    Untracked:  analysis/revision_functional_testing_simulation.rmd
+    Untracked:  analysis/revision_genotype_level_simulation.rmd
+    Untracked:  analysis/revision_internal_real_genotype_simulation.rmd
+    Untracked:  analysis/revision_internal_targeted_broad_calibration.rmd
+    Untracked:  analysis/revision_internal_zero_intercept_correlation.rmd
+    Untracked:  analysis/revision_ld_tagging_switch_example.rmd
+    Untracked:  code/00_eQTLs_CL.R
+    Untracked:  code/01_fash_CL.R
+    Untracked:  code/01_fash_CL.sbatch
+    Untracked:  code/09_penalty_sensitivity.R
+    Untracked:  code/09_penalty_sensitivity.sbatch
+    Untracked:  code/revision_simulations/
+    Untracked:  fash_prior_comparison_order1_after.pdf
+    Untracked:  fash_prior_comparison_order1_after.png
+    Untracked:  fash_prior_comparison_order1_before.pdf
+    Untracked:  fash_prior_comparison_order1_before.png
+    Untracked:  fash_prior_comparison_order2_after.pdf
+    Untracked:  fash_prior_comparison_order2_after.png
+    Untracked:  fash_prior_comparison_order2_before.pdf
+    Untracked:  fash_prior_comparison_order2_before.png
+
+Unstaged changes:
+    Modified:   .gitignore
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Modified:   code/README.md
+    Modified:   output/toy_example/toy_example_11.pdf
+    Modified:   output/toy_example/toy_example_12.pdf
+    Modified:   output/toy_example/toy_example_21.pdf
+    Modified:   output/toy_example/toy_example_22.pdf
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style>
+.r1-real-internal-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.r1-real-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.r1-real-table-scroll table {
+  margin-bottom: 1em;
+}
+.r1-real-inline-path {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+</style>
+<div class="r1-real-internal-banner">
+<p><strong>Internal experimental page.</strong> This analysis is not
+linked from the workflowr homepage and does not replace the retained
+<a href="revision_genotype_level_simulation.html">R1 random B-spline
+page</a>. It changes only the genotype source; the current R1 page,
+driver, and cache are unchanged.</p>
+</div>
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>The retained R1 experiment independently simulates each genotype
+column from a Binomial distribution. This internal variant asks what
+happens when those columns are instead sampled from the YRI genotype
+dosages used in the paper. For each Monte Carlo seed, it samples 20
+paper gene loci and one position-contiguous block of 50 common variants
+per locus, giving the same <span class="math inline">\(J=1000\)</span>
+genotype columns and <span class="math inline">\(N=19\)</span> donors as
+R1. The purpose is to retain observed dosage distributions and local
+linkage disequilibrium (LD) while leaving the R1 expression truth and
+fitting pipeline fixed.</p>
+<p>For donor <span class="math inline">\(i\)</span>, synthetic
+gene-variant unit <span class="math inline">\(j\)</span>, and time <span
+class="math inline">\(t\)</span>, the model remains</p>
+<p><span class="math display">\[
+Y_{ijt} = \alpha_{jt} + G_{ij}\beta_j(t) +
+X_i^T\gamma_{jt} + \epsilon_{ijt},
+\qquad \epsilon_{ijt} \sim N(0,1),
+\]</span></p>
+<p>but <span class="math inline">\(G_{ij}\)</span> is now a real YRI
+dosage rather than a Binomial draw. As in R1, the current simulation
+sets <span class="math inline">\(\alpha_{jt}=0\)</span>, includes an
+intercept in every fitted regression, uses five standardized PC-like
+covariates, and generates the covariate effects and expression errors
+independently.</p>
+</div>
+<div id="real-genotype-sampling" class="section level2">
+<h2>Real-genotype sampling</h2>
+<div id="inputs-and-provenance" class="section level3">
+<h3>Inputs and provenance</h3>
+<p>The genotype source is the 19-sample dosage field (<code>DS</code>)
+in the paper VCF. The candidate universe is defined by the named
+gene-variant pairs in the paper’s <code>eqtl_summary.rds</code>. The
+report validates the cached file names, sizes, and MD5 checksums against
+the simulation configuration; routine page builds do not open either raw
+input.</p>
+<pre class="r"><code>render_scrollable_table(
+  input_provenance_table,
+  align = &quot;llrll&quot;,
+  minimum_width = &quot;980px&quot;
+)</code></pre>
+<div class="r1-real-table-scroll">
+<table class="table table-striped table-hover" style="min-width:980px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Artifact
+</th>
+<th style="text-align:left;">
+File
+</th>
+<th style="text-align:right;">
+Size (MiB)
+</th>
+<th style="text-align:left;">
+Modified (UTC)
+</th>
+<th style="text-align:left;">
+MD5
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+YRI genotype VCF
+</td>
+<td style="text-align:left;">
+YRI_genotype.vcf.gz
+</td>
+<td style="text-align:right;">
+112.6
+</td>
+<td style="text-align:left;">
+2026-08-03 23:27:59 UTC
+</td>
+<td style="text-align:left;">
+4f9eb383ce3512d867b42ab806d451a8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Paper gene-variant summary
+</td>
+<td style="text-align:left;">
+eqtl_summary.rds
+</td>
+<td style="text-align:right;">
+89.3
+</td>
+<td style="text-align:left;">
+2026-02-02 22:11:23 UTC
+</td>
+<td style="text-align:left;">
+23e7f6a0093309059424207872dfa1e0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The VCF sample order is:</p>
+<p>18489, 18499, 18505, 18508, 18511, 18517, 18520, 18858, 18870, 18907,
+18912, 19093, 19108, 19159, 19190, 19209, 18855, 19127, 19193.</p>
+<p>The single VCF pass requested and matched 94,496 candidate variants.
+All were finite, biallelic, polymorphic, and above the observed MAF
+threshold after matching.</p>
+<pre class="r"><code>render_scrollable_table(
+  extraction_table,
+  align = &quot;lr&quot;,
+  minimum_width = &quot;620px&quot;
+)</code></pre>
+<div class="r1-real-table-scroll">
+<table class="table table-striped table-hover" style="min-width:620px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Metric
+</th>
+<th style="text-align:right;">
+Value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Requested candidate variants
+</td>
+<td style="text-align:right;">
+94,496
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Matched VCF variants
+</td>
+<td style="text-align:right;">
+94,496
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Retained common polymorphic variants
+</td>
+<td style="text-align:right;">
+94,496
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Candidate genes represented
+</td>
+<td style="text-align:right;">
+576
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="sampling-design" class="section level3">
+<h3>Sampling design</h3>
+<p>For each seed, genes with at least 80 paper gene-variant pairs are
+randomly prioritized. The union of the first 120 candidate genes per
+seed is extracted in one VCF pass. Dosage MAF is calculated as</p>
+<p><span class="math display">\[
+\widehat{\mathrm{MAF}}_v=
+\min\!\left\{
+\frac{1}{2N}\sum_{i=1}^{N}G_{iv},
+1-\frac{1}{2N}\sum_{i=1}^{N}G_{iv}
+\right\},
+\]</span></p>
+<p>and variants with observed MAF below 0.10 are excluded. The first 20
+priority genes with at least 50 retained variants are selected. Within
+each gene, the variants are ordered by chromosome, position, and variant
+ID, and one random contiguous 50-variant window is sampled.</p>
+<pre class="r"><code>pair_ids &lt;- names(readRDS(
+  &quot;output/dynamic_eQTL_real/eqtl_summary.rds&quot;
+))
+
+real_source &lt;- prepare_real_genotype_source(
+  pair_ids = pair_ids,
+  vcf_path = &quot;../genotype-data/YRI_genotype.vcf.gz&quot;,
+  seed_list = c(12345, 22345, 32345, 42345, 52345),
+  n_loci = 20,
+  variants_per_locus = 50,
+  candidate_genes_per_seed = 120,
+  minimum_raw_variants = 80,
+  maf_min = 0.10
+)
+real_sample &lt;- sample_real_genotype_blocks(real_source, seed = 12345)
+G &lt;- real_sample$G</code></pre>
+<pre class="r"><code>render_scrollable_table(
+  sampling_design_table,
+  align = &quot;ll&quot;,
+  minimum_width = &quot;760px&quot;
+)</code></pre>
+<div class="r1-real-table-scroll">
+<table class="table table-striped table-hover" style="min-width:760px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Setting
+</th>
+<th style="text-align:left;">
+Value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Donors
+</td>
+<td style="text-align:left;">
+19
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Time points
+</td>
+<td style="text-align:left;">
+16 (0 through 15)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Locus blocks per seed
+</td>
+<td style="text-align:left;">
+20
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Position-contiguous variants per block
+</td>
+<td style="text-align:left;">
+50
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Real genotype columns per seed
+</td>
+<td style="text-align:left;">
+1,000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Observed MAF threshold
+</td>
+<td style="text-align:left;">
+at least 0.10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Monte Carlo seeds
+</td>
+<td style="text-align:left;">
+12345, 22345, 32345, 42345, 52345
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Unique loci across 100 seed-by-block selections
+</td>
+<td style="text-align:left;">
+98 (two loci were each selected in two independent seeds)
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The observed MAF across the 5,000 sampled columns ranges from 0.100
+to 0.500. Across the 100 seed-by-block selections there are 98 unique
+genes. The two repeats below are independent-seed random coincidences
+and were retained rather than resampled.</p>
+<pre class="r"><code>render_scrollable_table(
+  repeated_loci_table,
+  align = &quot;llr&quot;,
+  minimum_width = &quot;680px&quot;
+)</code></pre>
+<div class="r1-real-table-scroll">
+<table class="table table-striped table-hover" style="min-width:680px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Locus
+</th>
+<th style="text-align:left;">
+Seeds
+</th>
+<th style="text-align:right;">
+Selections across five seeds
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+ENSG00000100027
+</td>
+<td style="text-align:left;">
+42345, 52345
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ENSG00000115170
+</td>
+<td style="text-align:left;">
+22345, 32345
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="ld-diagnostics" class="section level2">
+<h2>LD diagnostics</h2>
+<p>The seed-12345 heatmap shows the signed correlation among all 1,000
+dosage columns. White block boundaries mark the 20 sampled loci. Strong
+diagonal blocks are the local LD structure this experiment was designed
+to preserve.</p>
+<pre class="r"><code>plot_real_genotype_ld_heatmap()</code></pre>
+<p><img src="figure/revision_internal_real_genotype_simulation.rmd/real-genotype-ld-heatmap-1.png" width="1710" style="display: block; margin: auto;" /></p>
+<p>Within each seed, all within-locus variant pairs are summarized. As a
+negative control, the same number of variant pairs is sampled
+deterministically across different loci. This is a design diagnostic,
+not a population-level estimate of LD decay.</p>
+<pre class="r"><code>render_scrollable_table(
+  ld_seed_table,
+  align = &quot;rrrrrrr&quot;,
+  minimum_width = &quot;1180px&quot;
+)</code></pre>
+<div class="r1-real-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1180px;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Seed
+</th>
+<th style="text-align:right;">
+Median locus span (kb)
+</th>
+<th style="text-align:right;">
+Within-locus median |r|
+</th>
+<th style="text-align:right;">
+Pairs with |r| &gt;= 0.8
+</th>
+<th style="text-align:right;">
+Mean adjacent |r|
+</th>
+<th style="text-align:right;">
+Matched across-locus median |r|
+</th>
+<th style="text-align:right;">
+Within-minus-across
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+12345
+</td>
+<td style="text-align:right;">
+34.3
+</td>
+<td style="text-align:right;">
+0.430
+</td>
+<td style="text-align:right;">
+21.6%
+</td>
+<td style="text-align:right;">
+0.597
+</td>
+<td style="text-align:right;">
+0.166
+</td>
+<td style="text-align:right;">
+0.264
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+22345
+</td>
+<td style="text-align:right;">
+30.2
+</td>
+<td style="text-align:right;">
+0.410
+</td>
+<td style="text-align:right;">
+16.2%
+</td>
+<td style="text-align:right;">
+0.555
+</td>
+<td style="text-align:right;">
+0.161
+</td>
+<td style="text-align:right;">
+0.249
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+32345
+</td>
+<td style="text-align:right;">
+28.7
+</td>
+<td style="text-align:right;">
+0.452
+</td>
+<td style="text-align:right;">
+20.6%
+</td>
+<td style="text-align:right;">
+0.584
+</td>
+<td style="text-align:right;">
+0.162
+</td>
+<td style="text-align:right;">
+0.290
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+42345
+</td>
+<td style="text-align:right;">
+34.1
+</td>
+<td style="text-align:right;">
+0.414
+</td>
+<td style="text-align:right;">
+19.3%
+</td>
+<td style="text-align:right;">
+0.571
+</td>
+<td style="text-align:right;">
+0.160
+</td>
+<td style="text-align:right;">
+0.254
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+52345
+</td>
+<td style="text-align:right;">
+30.0
+</td>
+<td style="text-align:right;">
+0.425
+</td>
+<td style="text-align:right;">
+21.3%
+</td>
+<td style="text-align:right;">
+0.582
+</td>
+<td style="text-align:right;">
+0.164
+</td>
+<td style="text-align:right;">
+0.261
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  ld_summary_table,
+  align = &quot;lr&quot;,
+  minimum_width = &quot;760px&quot;
+)</code></pre>
+<div class="r1-real-table-scroll">
+<table class="table table-striped table-hover" style="min-width:760px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Diagnostic
+</th>
+<th style="text-align:right;">
+Value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Mean pooled within-locus median |r|
+</td>
+<td style="text-align:right;">
+0.426
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mean matched across-locus median |r|
+</td>
+<td style="text-align:right;">
+0.163
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mean within-minus-across median |r|
+</td>
+<td style="text-align:right;">
+0.264
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mean fraction of within-locus pairs with |r| &gt;= 0.8
+</td>
+<td style="text-align:right;">
+19.8%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mean seed-specific median locus span
+</td>
+<td style="text-align:right;">
+31.5 kb
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Across the five samples, the mean pooled within-locus median absolute
+correlation is 0.426, compared with 0.163 for matched across-locus
+pairs. The average within-minus-across gap is 0.264, and 19.8% of
+within-locus pairs have <span class="math inline">\(|r|\geq
+0.8\)</span>.</p>
+<pre class="r"><code>plot_real_genotype_ld_distribution()</code></pre>
+<p><img src="figure/revision_internal_real_genotype_simulation.rmd/real-genotype-ld-distribution-1.png" width="1620" style="display: block; margin: auto;" /></p>
+<p>These checks establish that the sampled genotype matrices contain
+substantial local LD. They do not establish that the synthetic
+expression outcomes have all dependence structures present in the paper
+data; that distinction is addressed in the limitations below.</p>
+</div>
+<div id="r1-expression-truth-and-inference" class="section level2">
+<h2>R1 expression truth and inference</h2>
+<p>Only the genotype source changes. Each dataset still has 19 donors,
+16 time points, 1,000 gene-variant units, and five covariates. The exact
+truth mixture is:</p>
+<ul>
+<li>200 dynamic eQTLs with random cubic B-spline effects;</li>
+<li>400 non-dynamic eQTLs with constant effects drawn from <span
+class="math inline">\(N(0,1)\)</span>;</li>
+<li>400 zero-effect variants.</li>
+</ul>
+<p>For a dynamic unit,</p>
+<p><span class="math display">\[
+\beta_j(t)=\mu_j+h_j(t),
+\qquad
+\mu_j\sim N(0,1),
+\qquad
+h_j(t)=\sum_{k=1}^{6}b_{jk}B_k(t),
+\qquad
+b_{jk}\stackrel{\mathrm{iid}}{\sim}N(0,1).
+\]</span></p>
+<p>The time-varying deviation <span
+class="math inline">\(h_j(t)\)</span> is centered over the 16 observed
+times and scaled to have maximum absolute value 2. The independent main
+effect <span class="math inline">\(\mu_j\)</span> is then added, so the
+dynamic trajectory is not constrained to average zero. The true
+dynamic-null proportion remains <span
+class="math inline">\(\pi_0=0.8\)</span>.</p>
+<pre class="r"><code>out &lt;- run_genotype_level_bspline_eqtl_simulation(
+  G = real_sample$G,
+  time_grid = 0:15,
+  n_covariates = 5,
+  class_probs = c(
+    dynamic_bspline = 0.20,
+    constant = 0.40,
+    zero = 0.40
+  ),
+  expression_noise_sd = 1,
+  covariate_effect_sd = 0.5,
+  intercept_sd = 0,
+  dynamic_amplitude = 2,
+  bspline_df = 6,
+  bspline_coefficient_sd = 1,
+  constant_sd = 1,
+  dynamic_main_effect_sd = 1,
+  alpha = 0.05,
+  seed = 12345,
+  num_basis = 20,
+  num_cores = 4,
+  exact_class_counts = TRUE,
+  apply_t_se_correction = TRUE,
+  scenario = &quot;r1_real_genotype_locus_blocks_random_bspline&quot;,
+  save_outputs = FALSE,
+  verbose = FALSE
+)</code></pre>
+<p>At every time point, the genetic effect and its standard error are
+estimated from <code>Y ~ G + PC1 + PC2 + PC3 + PC4 + PC5</code>. The
+t-statistic standard-error correction is identical to R1 and uses</p>
+<p><span class="math display">\[
+\mathrm{df}=19-7=12,
+\]</span></p>
+<p>corresponding to the intercept, genotype, and five covariates. Every
+fitted design in the cache has rank 7.</p>
+<pre class="r"><code>eqtl_summary &lt;- estimate_eqtl_summaries_from_genotypes(
+  G = real_sample$G,
+  expression = expression_sim$expression,
+  covariates = covariates,
+  apply_t_se_correction = TRUE
+)
+datasets &lt;- make_fash_datasets_from_eqtl_summary(
+  beta_hat = eqtl_summary$beta_hat,
+  se = eqtl_summary$se,
+  true_beta = effect_sim$beta_matrix,
+  time_grid = 0:15,
+  unit_info = effect_sim$unit_info,
+  scenario = &quot;r1_real_genotype_locus_blocks_random_bspline&quot;
+)
+
+fash_iwp1_raw &lt;- fashr::fash(
+  Y = &quot;y&quot;,
+  smooth_var = &quot;x&quot;,
+  S = &quot;sd&quot;,
+  data_list = datasets,
+  order = 1,
+  grid = default_revision_grid(),
+  num_basis = 20,
+  penalty = 10,
+  num_cores = 4,
+  verbose = FALSE
+)
+fash_iwp1_bf &lt;- fashr::BF_update(fash_iwp1_raw, plot = FALSE)
+
+fash_linear_raw &lt;- fit_simplified_fash(
+  datasets = datasets,
+  sigma_beta = 1,
+  estimate_sigma = FALSE,
+  scale_time = TRUE
+)
+fash_linear_bf &lt;- BF_update_simplified_fash(fash_linear_raw)</code></pre>
+<p>The reported curves and tables average five independent genotype
+samples and expression simulations with seeds <code>12345</code>,
+<code>22345</code>, <code>32345</code>, <code>42345</code>, and
+<code>52345</code>. The complete seed-12345 object is used only for
+representative trajectories.</p>
+</div>
+<div id="example-simulated-eqtls" class="section level2">
+<h2>Example simulated eQTLs</h2>
+<p>The panels show three zero-effect units, three constant eQTLs, and
+three random B-spline dynamic eQTLs. Points are per-time genetic effect
+estimates, bars show two corrected standard errors, and red lines are
+the true effects.</p>
+<pre class="r"><code>plot_genotype_eqtl_examples(
+  out,
+  classes = c(&quot;zero&quot;, &quot;constant&quot;, &quot;dynamic_bspline&quot;),
+  n_per_class = 3,
+  seed = 1,
+  true_curve_n = 500
+)</code></pre>
+<p><img src="figure/revision_internal_real_genotype_simulation.rmd/example-trajectories-1.png" width="2340" style="display: block; margin: auto;" /></p>
+</div>
+<div id="comparison-1-iwp-versus-linear-fash" class="section level2">
+<h2>Comparison 1: IWP versus linear FASH</h2>
+<p>This comparison changes only the alternative prior.
+<code>FASH-IWP1</code> uses the first-order IWP alternative.
+<code>FASH-linear</code> uses the simplified alternative <span
+class="math inline">\(\beta(t)=\beta t\)</span> with fixed <span
+class="math inline">\(\sigma_\beta=1\)</span>. Both raw and BF-corrected
+fits are included.</p>
+<div id="estimated-dynamic-null-proportion" class="section level3">
+<h3>Estimated dynamic-null proportion</h3>
+<p>The table reports the fitted prior weight on each method’s constant
+component. The true dynamic-null proportion is <span
+class="math inline">\(\pi_0=0.8\)</span>.</p>
+<pre class="r"><code>render_scrollable_table(
+  pi0_table,
+  align = &quot;lll&quot;,
+  minimum_width = &quot;720px&quot;
+)</code></pre>
+<div class="r1-real-table-scroll">
+<table class="table table-striped table-hover" style="min-width:720px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Method
+</th>
+<th style="text-align:left;">
+Fit
+</th>
+<th style="text-align:left;">
+Mean estimated pi0 (95% MC CI)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+FASH-IWP1
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+0.769 [0.748, 0.790]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-IWP1
+</td>
+<td style="text-align:left;">
+BF-corrected
+</td>
+<td style="text-align:left;">
+0.834 [0.832, 0.836]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+0.691 [0.676, 0.706]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+BF-corrected
+</td>
+<td style="text-align:left;">
+0.903 [0.894, 0.911]
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="results-at-alpha-0.05" class="section level3">
+<h3>Results at alpha 0.05</h3>
+<pre class="r"><code>render_scrollable_table(
+  fash_table,
+  align = &quot;lrrr&quot;,
+  minimum_width = &quot;1020px&quot;
+)</code></pre>
+<div class="r1-real-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1020px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Method
+</th>
+<th style="text-align:right;">
+Mean discoveries
+</th>
+<th style="text-align:right;">
+Power (95% MC CI)
+</th>
+<th style="text-align:right;">
+Empirical FDR: E[FDP] (95% MC CI)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+FASH-IWP1-Raw
+</td>
+<td style="text-align:right;">
+198.8
+</td>
+<td style="text-align:right;">
+0.934 [0.926, 0.942]
+</td>
+<td style="text-align:right;">
+0.060 [0.051, 0.070]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-IWP1-BF
+</td>
+<td style="text-align:right;">
+185.0
+</td>
+<td style="text-align:right;">
+0.902 [0.882, 0.922]
+</td>
+<td style="text-align:right;">
+0.025 [0.008, 0.042]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear-Raw
+</td>
+<td style="text-align:right;">
+122.4
+</td>
+<td style="text-align:right;">
+0.557 [0.499, 0.615]
+</td>
+<td style="text-align:right;">
+0.090 [0.069, 0.111]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear-BF
+</td>
+<td style="text-align:right;">
+98.4
+</td>
+<td style="text-align:right;">
+0.477 [0.407, 0.547]
+</td>
+<td style="text-align:right;">
+0.031 [0.000, 0.065]
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="power-as-a-function-of-alpha" class="section level3">
+<h3>Power as a function of alpha</h3>
+<pre class="r"><code>plot_mc_alpha_curves(
+  fash_alpha,
+  metric = &quot;power&quot;,
+  title = &quot;Real-genotype R1: IWP versus linear FASH power&quot;,
+  subtitle = &quot;Five seeds; 20 paper loci x 50 variants; N = 19, J = 1000&quot;,
+  style_profile = &quot;combined&quot;
+)</code></pre>
+<p><img src="figure/revision_internal_real_genotype_simulation.rmd/fash-power-1.png" width="1620" style="display: block; margin: auto;" /></p>
+</div>
+<div id="empirical-fdr-as-a-function-of-alpha" class="section level3">
+<h3>Empirical FDR as a function of alpha</h3>
+<pre class="r"><code>plot_mc_alpha_curves(
+  fash_alpha,
+  metric = &quot;fdr&quot;,
+  title = &quot;Real-genotype R1: IWP versus linear FASH empirical FDR&quot;,
+  subtitle = &quot;Five seeds; 20 paper loci x 50 variants; N = 19, J = 1000&quot;,
+  legend_position = &quot;topleft&quot;,
+  style_profile = &quot;combined&quot;
+)</code></pre>
+<p><img src="figure/revision_internal_real_genotype_simulation.rmd/fash-fdr-1.png" width="1620" style="display: block; margin: auto;" /></p>
+<p>At <span class="math inline">\(\alpha=0.05\)</span>, IWP-Raw and
+IWP-BF have mean power 0.934 and 0.902, compared with 0.557 and 0.477
+for the corresponding linear fits. The IWP empirical FDR estimates are
+0.060 [0.051, 0.070] for Raw and 0.025 [0.008, 0.042] for BF. In these
+five samples, the nonlinear IWP alternative retains the same substantial
+power advantage over the linear alternative seen in R1, while BF is more
+conservative.</p>
+</div>
+</div>
+<div id="comparison-2-iwp-fash-versus-direct-interaction-tests"
+class="section level2">
+<h2>Comparison 2: IWP FASH versus direct interaction tests</h2>
+<p>The direct baselines fit individual-level expression using linear or
+linear-plus-quadratic genotype-by-time interactions and use
+permutation-based eFDR. As in R1, the direct eFDR calculation is
+supplied with the true <span class="math inline">\(\pi_0=0.8\)</span>
+and uses 100 donor-level permutations per replicate.</p>
+<pre class="r"><code>out &lt;- add_direct_interaction_efdr_results_to_genotype_output(
+  out = out,
+  n_permutations = 100,
+  alpha = 0.05,
+  seed = seed + 10000L,
+  lambda = 0.5,
+  pi0_method = &quot;conservative&quot;,
+  true_pi0 = 0.8,
+  include_true_pi0 = TRUE,
+  permute_covariates_with_expression = TRUE,
+  num_cores = 4,
+  overwrite = TRUE,
+  verbose = FALSE
+)</code></pre>
+<div id="results-at-alpha-0.05-1" class="section level3">
+<h3>Results at alpha 0.05</h3>
+<pre class="r"><code>render_scrollable_table(
+  direct_table,
+  align = &quot;lrrr&quot;,
+  minimum_width = &quot;1060px&quot;
+)</code></pre>
+<div class="r1-real-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1060px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Method
+</th>
+<th style="text-align:right;">
+Mean discoveries
+</th>
+<th style="text-align:right;">
+Power (95% MC CI)
+</th>
+<th style="text-align:right;">
+Empirical FDR: E[FDP] (95% MC CI)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+FASH-IWP1-Raw
+</td>
+<td style="text-align:right;">
+198.8
+</td>
+<td style="text-align:right;">
+0.934 [0.926, 0.942]
+</td>
+<td style="text-align:right;">
+0.060 [0.051, 0.070]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-IWP1-BF
+</td>
+<td style="text-align:right;">
+185.0
+</td>
+<td style="text-align:right;">
+0.902 [0.882, 0.922]
+</td>
+<td style="text-align:right;">
+0.025 [0.008, 0.042]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Direct-linear-LRT-eFDR-true-pi0
+</td>
+<td style="text-align:right;">
+105.2
+</td>
+<td style="text-align:right;">
+0.517 [0.463, 0.571]
+</td>
+<td style="text-align:right;">
+0.016 [0.000, 0.037]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Direct-quadratic-LRT-eFDR-true-pi0
+</td>
+<td style="text-align:right;">
+156.0
+</td>
+<td style="text-align:right;">
+0.774 [0.727, 0.821]
+</td>
+<td style="text-align:right;">
+0.008 [0.000, 0.017]
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="power-as-a-function-of-alpha-1" class="section level3">
+<h3>Power as a function of alpha</h3>
+<pre class="r"><code>plot_mc_alpha_curves(
+  direct_alpha,
+  metric = &quot;power&quot;,
+  title = &quot;Real-genotype R1: IWP FASH versus direct interaction power&quot;,
+  subtitle = &quot;Five seeds; direct eFDR uses true pi0 = 0.8 and B = 100 permutations&quot;,
+  style_profile = &quot;combined&quot;
+)</code></pre>
+<p><img src="figure/revision_internal_real_genotype_simulation.rmd/direct-power-1.png" width="1620" style="display: block; margin: auto;" /></p>
+</div>
+<div id="empirical-fdr-as-a-function-of-alpha-1" class="section level3">
+<h3>Empirical FDR as a function of alpha</h3>
+<pre class="r"><code>plot_mc_alpha_curves(
+  direct_alpha,
+  metric = &quot;fdr&quot;,
+  title = &quot;Real-genotype R1: IWP FASH versus direct interaction empirical FDR&quot;,
+  subtitle = &quot;Five seeds; direct eFDR uses true pi0 = 0.8 and B = 100 permutations&quot;,
+  legend_position = &quot;bottomright&quot;,
+  style_profile = &quot;combined&quot;
+)</code></pre>
+<p><img src="figure/revision_internal_real_genotype_simulation.rmd/direct-fdr-1.png" width="1620" style="display: block; margin: auto;" /></p>
+<p>At <span class="math inline">\(\alpha=0.05\)</span>, IWP-BF has mean
+power 0.902, compared with 0.517 for the direct linear test and 0.774
+for the direct quadratic test. Their respective mean empirical FDR
+estimates are 0.025, 0.016, and 0.008.</p>
+</div>
+</div>
+<div id="internal-interpretation" class="section level2">
+<h2>Internal interpretation</h2>
+<p>This five-seed pilot supports a focused conclusion. Replacing
+independent Binomial genotype columns with common YRI dosages sampled in
+local blocks does not change the qualitative R1 method ordering: IWP
+FASH remains more powerful than linear FASH and the direct interaction
+baselines for the broad random B-spline truth used here. The BF-updated
+IWP fit has mean power 0.902 and mean empirical FDR 0.025 at <span
+class="math inline">\(\alpha=0.05\)</span>.</p>
+<p>The LD diagnostic confirms that the external genotype matrices
+contain the intended local dependence: within-locus median <span
+class="math inline">\(|r|\)</span> exceeds its matched across-locus
+reference in every seed. This supports the narrow claim that the
+regressions use real dosage and local-LD patterns. With only five Monte
+Carlo replicates, the intervals describe Monte Carlo variation in this
+pilot and do not justify a general claim for other populations, MAF
+filters, locus widths, or LD architectures.</p>
+</div>
+<div id="important-limitation-genotype-only-substitution"
+class="section level2">
+<h2>Important limitation: genotype-only substitution</h2>
+<p>This page implements the selected genotype-only design. Although each
+block contains 50 real variants from one paper gene locus, the
+simulation creates a separate synthetic expression outcome for every
+gene-variant unit. The 50 variants in a block therefore do
+<strong>not</strong> test the same realized expression vector for that
+gene. Expression errors and effect trajectories are generated
+independently across units, exactly as in R1.</p>
+<p>Consequently, this experiment preserves the real genotype dosage
+distribution and local LD in <span class="math inline">\(G\)</span>, but
+it does not reproduce shared-expression dependence, tag-SNP competition,
+or correlated summary statistics created when many SNPs are tested
+against one observed gene-expression outcome. A separate
+shared-expression simulation would be required to study those features.
+The results here should be interpreted as a real-design-matrix
+sensitivity check, not as a full reconstruction of the paper’s
+multi-SNP-per-gene analysis.</p>
+</div>
+<div id="reproducibility" class="section level2">
+<h2>Reproducibility</h2>
+<p>Routine builds read the completed cache at</p>
+<pre class="text"><code>output/revision_simulations/internal/r1_real_genotype_locus_blocks_pilot5/</code></pre>
+<p>and do not scan the VCF, reload the paper pair universe, or rerun the
+simulation. The sampling helper, driver, and cache-validation code are
+in
+<code class="r1-real-inline-path">code/revision_simulations/internal/r1_real_genotype/</code>.</p>
+<p>The full five-seed cache can be regenerated with:</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/internal/r1_real_genotype/run_real_genotype_mc_replication.R \
+  --n-loci 20 \
+  --variants-per-locus 50 \
+  --maf-min 0.10 \
+  --candidate-genes-per-seed 120 \
+  --minimum-raw-variants 80 \
+  --n-covariates 5 \
+  --noise-sd 1 \
+  --dynamic-main-effect-sd 1 \
+  --efdr-permutations 100 \
+  --seed-list 12345,22345,32345,42345,52345 \
+  --output-id r1_real_genotype_locus_blocks_pilot5 \
+  --num-cores 4</code></pre>
+<p>The deterministic sampling tests can be rerun with:</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/internal/r1_real_genotype/test_real_genotype_sampling.R</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] workflowr_1.7.2
+
+loaded via a namespace (and not attached):
+ [1] vctrs_0.7.3       httr_1.4.7        cli_3.6.6         knitr_1.50       
+ [5] rlang_1.2.0       xfun_0.55         stringi_1.8.7     otel_0.2.0       
+ [9] processx_3.8.6    promises_1.5.0    jsonlite_2.0.0    glue_1.8.1       
+[13] rprojroot_2.1.1   git2r_0.36.2      htmltools_0.5.9   httpuv_1.6.16    
+[17] ps_1.9.1          sass_0.4.10       rmarkdown_2.30    jquerylib_0.1.4  
+[21] tibble_3.3.0      evaluate_1.0.5    fastmap_1.2.0     yaml_2.3.12      
+[25] lifecycle_1.0.5   whisker_0.4.1     stringr_1.6.0     compiler_4.5.1   
+[29] fs_1.6.6          pkgconfig_2.0.3   Rcpp_1.1.1-1.1    rstudioapi_0.17.1
+[33] later_1.4.4       digest_0.6.39     R6_2.6.1          pillar_1.11.1    
+[37] callr_3.7.6       magrittr_2.0.5    bslib_0.9.0       tools_4.5.1      
+[41] cachem_1.1.0      getPass_0.2-4    </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

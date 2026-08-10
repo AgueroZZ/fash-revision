@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-07-30" />
+
+<title>Revision Simulation R3: functional testing under broad and transient effects</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Revision Simulation R3: functional testing
+under broad and transient effects</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-07-30</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-07
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/revision_simulations/
+
+Untracked files:
+    Untracked:  Rplots.pdf
+    Untracked:  analysis/revision_balanced_variant_thinning.rmd
+    Untracked:  analysis/revision_combined_spiky_genotype_simulation.rmd
+    Untracked:  analysis/revision_correlated_error_simulation.rmd
+    Untracked:  analysis/revision_functional_testing_simulation.rmd
+    Untracked:  analysis/revision_genotype_level_simulation.rmd
+    Untracked:  analysis/revision_internal_observational_null_set_pilot.rmd
+    Untracked:  analysis/revision_internal_one_variant_per_gene_refit.rmd
+    Untracked:  analysis/revision_internal_real_genotype_simulation.rmd
+    Untracked:  analysis/revision_internal_targeted_broad_calibration.rmd
+    Untracked:  analysis/revision_internal_zero_intercept_correlation.rmd
+    Untracked:  analysis/revision_ld_tagging_switch_example.rmd
+    Untracked:  code/00_eQTLs_CL.R
+    Untracked:  code/01_fash_CL.R
+    Untracked:  code/01_fash_CL.sbatch
+    Untracked:  code/09_penalty_sensitivity.R
+    Untracked:  code/09_penalty_sensitivity.sbatch
+    Untracked:  code/revision_simulations/
+    Untracked:  fash_prior_comparison_order1_after.pdf
+    Untracked:  fash_prior_comparison_order1_after.png
+    Untracked:  fash_prior_comparison_order1_before.pdf
+    Untracked:  fash_prior_comparison_order1_before.png
+    Untracked:  fash_prior_comparison_order2_after.pdf
+    Untracked:  fash_prior_comparison_order2_after.png
+    Untracked:  fash_prior_comparison_order2_before.pdf
+    Untracked:  fash_prior_comparison_order2_before.png
+
+Unstaged changes:
+    Modified:   .gitignore
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Modified:   code/README.md
+    Modified:   output/toy_example/toy_example_11.pdf
+    Modified:   output/toy_example/toy_example_12.pdf
+    Modified:   output/toy_example/toy_example_21.pdf
+    Modified:   output/toy_example/toy_example_22.pdf
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>This simulation evaluates FASH functional testing after global
+dynamic-eQTL discovery. It uses two non-IWP truth mechanisms matched on
+sample size, variant classes, genetic main effects, functional labels,
+and analysis.</p>
+<p>For donor <span class="math inline">\(i\)</span>, variant <span
+class="math inline">\(j\)</span>, and time <span
+class="math inline">\(t\)</span>,</p>
+<p><span class="math display">\[
+Y_{ijt} = \alpha_{jt} + G_{ij}\beta_j(t) +
+X_i^T\gamma_{jt} + \epsilon_{ijt},
+\qquad \epsilon_{ijt}\sim N(0,1).
+\]</span></p>
+<p>For each variant, the minor-allele frequency is drawn from <span
+class="math inline">\(p_j\sim\mathrm{Uniform}(0.1,0.5)\)</span> and
+<span class="math inline">\(G_{ij}\sim\mathrm{Binomial}(2,p_j)\)</span>;
+monomorphic draws are repeated. The five columns of <span
+class="math inline">\(X\)</span> are generated independently from <span
+class="math inline">\(N(0,1)\)</span> and standardized across donors.
+Independently for each covariate, variant, and time, <span
+class="math inline">\(\gamma_{kjt}\sim N(0,0.5^2)\)</span>. The current
+simulation sets <span class="math inline">\(\alpha_{jt}=0\)</span>; each
+fitted regression still includes an intercept. Genotype, covariate,
+covariate-effect, and noise draws are mutually independent.</p>
+<pre class="r"><code>seed &lt;- 12345
+component_seeds &lt;- revision_component_seeds(seed)
+
+genotype_sim &lt;- simulate_genotype_matrix(
+  n_donors = 19,
+  n_variants = 1000,
+  maf_range = c(0.1, 0.5),
+  seed = component_seeds[[&quot;genotype&quot;]]
+)
+covariates &lt;- simulate_covariate_matrix(
+  n_donors = 19,
+  n_covariates = 5,
+  seed = component_seeds[[&quot;covariates&quot;]]
+)</code></pre>
+<p>Each replicate contains <code>19</code> donors, <code>16</code> time
+points, five PC-like covariates, <code>200</code> dynamic eQTLs,
+<code>400</code> constant eQTLs, and <code>400</code> zero-effect
+variants. For every dynamic candidate,</p>
+<p><span class="math display">\[
+\beta_j(t)=\mu_j+h_j(t),
+\qquad \mu_j\sim N(0,1).
+\]</span></p>
+<p>The dynamic eQTLs are balanced as evenly as possible across six
+preassigned truth cells: early, middle, or late crossed with switch or
+non-switch. Each candidate draws a new <span
+class="math inline">\(\mu_j\)</span> from <span
+class="math inline">\(N(0,1)\)</span>; rejection sampling retains it
+only when the final trajectory <span
+class="math inline">\(\mu_j+h_j(t)\)</span> satisfies its assigned
+cell.</p>
+<div id="r3a-broad-random-b-spline-effects" class="section level3">
+<h3>R3A: broad random B-spline effects</h3>
+<p>The deviation <span class="math inline">\(h_j(t)\)</span> is a cubic
+B-spline with six iid <span class="math inline">\(N(0,1)\)</span>
+coefficients. It is centered over the 16 observed times and scaled to
+maximum absolute value <code>2</code> before adding <span
+class="math inline">\(\mu_j\)</span>.</p>
+</div>
+<div id="r3b-compact-raised-cosine-effects" class="section level3">
+<h3>R3B: compact raised-cosine effects</h3>
+<p>The deviation <span class="math inline">\(h_j(t)\)</span> contains
+one, two, or three compact raised-cosine peaks with half-width
+<code>1.5</code>. Peak locations vary within the early, middle, and late
+windows, secondary amplitudes are random, and the deviation is scaled to
+centered RMS <code>0.9</code> before adding <span
+class="math inline">\(\mu_j\)</span>.</p>
+</div>
+<div id="truth-definitions" class="section level3">
+<h3>Truth definitions</h3>
+<p>Early, middle, and late use the same max-contrast functionals as the
+manuscript. The target contrast must be at least <code>0.1</code>, and
+the two non-target contrasts must be at most <code>-0.1</code>.</p>
+<p>For the switch threshold <span
+class="math inline">\(c=0.25\)</span>,</p>
+<p><span class="math display">\[
+T_{\mathrm{switch}}\{\beta\}
+=
+\min\left[
+\max_t\{\beta(t):\beta(t)&gt;0\},
+\max_t\{|\beta(t)|:\beta(t)&lt;0\}
+\right]-c.
+\]</span></p>
+<p>A switch truth must have <span
+class="math inline">\(T_{\mathrm{switch}}\geq 0.1\)</span>;
+equivalently, it has both a positive and a negative effect of magnitude
+at least <code>0.35</code>. A non-switch truth remains the same sign
+over the full dense grid. Writing <span
+class="math inline">\(R_j=\max_t\beta_j(t)-\min_t\beta_j(t)\)</span>,
+its clearance from zero must satisfy</p>
+<p><span class="math display">\[
+\min_t|\beta_j(t)|\geq\max(0.1,\,0.1R_j).
+\]</span></p>
+<p>Thus, a larger-amplitude non-switch curve must remain proportionally
+farther from zero. These margins make the simulation labels
+unambiguous.</p>
+<pre class="r"><code>truth_mechanism &lt;- &quot;random_bspline&quot; # Use &quot;raised_cosine&quot; for R3B.
+scenario &lt;- paste0(
+  if (truth_mechanism == &quot;random_bspline&quot;) &quot;r3a_&quot; else &quot;r3b_&quot;,
+  &quot;matched_functional_&quot;,
+  truth_mechanism,
+  &quot;_relative_clearance_main_effect&quot;
+)
+time_grid &lt;- 0:15
+evaluation_grid &lt;- seq(0, 15, by = 0.1)
+class_probs &lt;- c(
+  dynamic_bspline = 0.20,
+  constant = 0.40,
+  zero = 0.40
+)
+
+effect_sim &lt;- simulate_matched_functional_effect_set(
+  n_variants = 1000,
+  truth_mechanism = truth_mechanism,
+  time_grid = time_grid,
+  evaluation_grid = evaluation_grid,
+  class_probs = class_probs,
+  dynamic_main_effect_sd = 1,
+  constant_sd = 1,
+  bspline_amplitude = 2,
+  bspline_df = 6,
+  bspline_coefficient_sd = 1,
+  cosine_width_half = 1.5,
+  cosine_spike_counts = 1:3,
+  cosine_relative_amplitude_range = c(0.35, 0.75),
+  cosine_target_centered_rms = 0.9,
+  switch_threshold = 0.25,
+  location_truth_margin = 0.10,
+  switch_truth_margin = 0.10,
+  non_switch_min_abs = 0.10,
+  non_switch_min_range_fraction = 0.10,
+  exact_class_counts = TRUE,
+  seed = seed,
+  class_seed = component_seeds[[&quot;classes&quot;]],
+  constant_seed = component_seeds[[&quot;constant_effects&quot;]],
+  shape_seed = component_seeds[[&quot;functional_truth&quot;]],
+  scenario = scenario
+)
+expression_sim &lt;- simulate_eqtl_expression_from_genotypes(
+  G = genotype_sim$G,
+  beta_matrix = effect_sim$beta_matrix,
+  time_grid = time_grid,
+  covariates = covariates,
+  expression_noise_sd = 1,
+  covariate_effect_sd = 0.5,
+  intercept_sd = 0,
+  seed = component_seeds[[&quot;expression&quot;]]
+)</code></pre>
+<p>At each observed time, the genetic effect and standard error are
+estimated from <code>Y ~ G + PC1 + PC2 + PC3 + PC4 + PC5</code>. The
+t-statistic correction uses <code>df = 19 - 7 = 12</code>; FASH is fit
+to these estimates and corrected standard errors.</p>
+</div>
+</div>
+<div id="example-truth-curves" class="section level2">
+<h2>Example truth curves</h2>
+<p>Two examples are shown for each of the six functional truth cells.
+Points and bars are the per-time estimates and two corrected standard
+errors used by FASH; orange lines are the continuous truths. Shading
+marks the target timing window.</p>
+<div id="r3a-examples" class="section level3">
+<h3>R3A examples</h3>
+<pre class="r"><code>plot_truth_examples(
+  example_curves$random_bspline,
+  mechanism_labels[[&quot;random_bspline&quot;]]
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_functional_testing_simulation.rmd/r3a-examples-1.png" alt="Figure R3.1: Representative broad random B-spline truth curves for each functional target and timing cell. Points and bars show estimated effects and two corrected standard errors, orange lines are continuous truths, and shading marks the target timing window." width="1980" />
+<p class="caption">
+Figure R3.1: Representative broad random B-spline truth curves for each
+functional target and timing cell. Points and bars show estimated
+effects and two corrected standard errors, orange lines are continuous
+truths, and shading marks the target timing window.
+</p>
+</div>
+</div>
+<div id="r3b-examples" class="section level3">
+<h3>R3B examples</h3>
+<pre class="r"><code>plot_truth_examples(
+  example_curves$raised_cosine,
+  mechanism_labels[[&quot;raised_cosine&quot;]]
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_functional_testing_simulation.rmd/r3b-examples-1.png" alt="Figure R3.2: Representative compact raised-cosine truth curves for each functional target and timing cell. Points and bars show estimated effects and two corrected standard errors, orange lines are continuous truths, and shading marks the target timing window." width="1980" />
+<p class="caption">
+Figure R3.2: Representative compact raised-cosine truth curves for each
+functional target and timing cell. Points and bars show estimated
+effects and two corrected standard errors, orange lines are continuous
+truths, and shading marks the target timing window.
+</p>
+</div>
+</div>
+</div>
+<div id="inference-procedure" class="section level2">
+<h2>Inference procedure</h2>
+<p>At each nominal level <span class="math inline">\(\alpha\)</span>,
+the same procedure is applied to <code>FASH-IWP1-Raw</code> and
+<code>FASH-IWP1-BF</code>:</p>
+<ol style="list-style-type: decimal">
+<li>Apply global dynamic-eQTL FDR control at level <span
+class="math inline">\(\alpha\)</span>.</li>
+<li>For each dynamically selected variant, evaluate the early, middle,
+late, and switch functionals using posterior samples.</li>
+<li>Rank functional lfsr values and call variants whose cumulative FSR
+is at most <span class="math inline">\(\alpha\)</span>.</li>
+</ol>
+<p>Power is the fraction of true positive functionals that are called.
+Empirical FSR is the fraction of functional calls whose known true
+functional is non-positive. The figures report five-seed Monte Carlo
+means and 95% t-based intervals across the full alpha grid.</p>
+<pre class="r"><code>out &lt;- run_genotype_level_dynamic_eqtl_simulation(
+  G = genotype_sim$G,
+  time_grid = time_grid,
+  covariates = covariates,
+  class_probs = class_probs,
+  maf_range = c(0.1, 0.5),
+  expression_noise_sd = 1,
+  covariate_effect_sd = 0.5,
+  intercept_sd = 0,
+  dynamic_main_effect_sd = 1,
+  alpha = 0.05,
+  seed = seed,
+  num_cores = 4,
+  num_basis = 20,
+  scenario = scenario,
+  save_outputs = FALSE,
+  effect_sim = effect_sim,
+  expression_sim = expression_sim
+)
+
+true_functionals &lt;- effect_sim$true_functionals[
+  out$unit_info$variant_id,
+  c(&quot;early&quot;, &quot;middle&quot;, &quot;late&quot;, &quot;switch&quot;),
+  drop = FALSE
+]
+true_dynamic &lt;- out$unit_info$effect_class == &quot;dynamic_bspline&quot;
+
+raw_results &lt;- evaluate_fash_functional_testing(
+  fit = out$fash_fits$fash_iwp1_raw,
+  true_functionals = true_functionals,
+  evaluation_grid = evaluation_grid,
+  alpha_grid = seq(0.005, 0.20, by = 0.005),
+  method = &quot;FASH-IWP1-Raw&quot;,
+  switch_threshold = 0.25,
+  true_dynamic = true_dynamic,
+  num_cores = 4,
+  seed = component_seeds[[&quot;functional_posterior&quot;]]
+)
+bf_results &lt;- evaluate_fash_functional_testing(
+  fit = out$fash_fits$fash_iwp1_bf,
+  true_functionals = true_functionals,
+  evaluation_grid = evaluation_grid,
+  alpha_grid = seq(0.005, 0.20, by = 0.005),
+  method = &quot;FASH-IWP1-BF&quot;,
+  switch_threshold = 0.25,
+  true_dynamic = true_dynamic,
+  num_cores = 4,
+  seed = component_seeds[[&quot;functional_posterior&quot;]] + 100L
+)</code></pre>
+</div>
+<div id="r3a-broad-random-b-spline-results" class="section level2">
+<h2>R3A: broad random B-spline results</h2>
+<div id="results-at-alpha-0.05" class="section level3">
+<h3>Results at alpha 0.05</h3>
+<pre class="r"><code>knitr::kable(
+  r3a_table,
+  align = &quot;l&quot;,
+  caption = paste(
+    &quot;Table R3.1: Functional-testing power and empirical false sign rate at&quot;,
+    &quot;alpha 0.05 under broad random B-spline truth.&quot;
+  )
+)</code></pre>
+<table style="width:100%;">
+<caption>Table R3.1: Functional-testing power and empirical false sign
+rate at alpha 0.05 under broad random B-spline truth.</caption>
+<colgroup>
+<col width="8%" />
+<col width="17%" />
+<col width="13%" />
+<col width="26%" />
+<col width="32%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Target</th>
+<th align="left">Method</th>
+<th align="left">Mean calls</th>
+<th align="left">Power (95% MC CI)</th>
+<th align="left">Empirical FSR (95% MC CI)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Early</td>
+<td align="left">FASH-IWP1-Raw</td>
+<td align="left">14.2</td>
+<td align="left">0.212 [0.089, 0.334]</td>
+<td align="left">0.000 [0.000, 0.000]</td>
+</tr>
+<tr class="even">
+<td align="left">Early</td>
+<td align="left">FASH-IWP1-BF</td>
+<td align="left">12.0</td>
+<td align="left">0.179 [0.086, 0.273]</td>
+<td align="left">0.000 [0.000, 0.000]</td>
+</tr>
+<tr class="odd">
+<td align="left">Middle</td>
+<td align="left">FASH-IWP1-Raw</td>
+<td align="left">40.6</td>
+<td align="left">0.600 [0.480, 0.720]</td>
+<td align="left">0.009 [0.000, 0.024]</td>
+</tr>
+<tr class="even">
+<td align="left">Middle</td>
+<td align="left">FASH-IWP1-BF</td>
+<td align="left">39.6</td>
+<td align="left">0.585 [0.468, 0.702]</td>
+<td align="left">0.009 [0.000, 0.024]</td>
+</tr>
+<tr class="odd">
+<td align="left">Late</td>
+<td align="left">FASH-IWP1-Raw</td>
+<td align="left">16.8</td>
+<td align="left">0.255 [0.156, 0.354]</td>
+<td align="left">0.000 [0.000, 0.000]</td>
+</tr>
+<tr class="even">
+<td align="left">Late</td>
+<td align="left">FASH-IWP1-BF</td>
+<td align="left">15.4</td>
+<td align="left">0.233 [0.155, 0.312]</td>
+<td align="left">0.000 [0.000, 0.000]</td>
+</tr>
+<tr class="odd">
+<td align="left">Switch</td>
+<td align="left">FASH-IWP1-Raw</td>
+<td align="left">93.4</td>
+<td align="left">0.891 [0.820, 0.962]</td>
+<td align="left">0.036 [0.017, 0.056]</td>
+</tr>
+<tr class="even">
+<td align="left">Switch</td>
+<td align="left">FASH-IWP1-BF</td>
+<td align="left">88.4</td>
+<td align="left">0.857 [0.791, 0.923]</td>
+<td align="left">0.020 [0.000, 0.044]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="power-as-a-function-of-alpha" class="section level3">
+<h3>Power as a function of alpha</h3>
+<pre class="r"><code>plot_mc_functional_curve_grid(
+  mc_curve = r3a_alpha,
+  metric = &quot;power&quot;,
+  title = &quot;Functional-testing power: broad random B-spline truth&quot;
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_functional_testing_simulation.rmd/r3a-power-1.png" alt="Figure R3.3: Monte Carlo functional-testing power under broad random B-spline truth. Panels identify early, middle, late, and switch targets; curves identify raw and BF-updated FASH in the in-figure legend, with 95% intervals across five seeds." width="1800" />
+<p class="caption">
+Figure R3.3: Monte Carlo functional-testing power under broad random
+B-spline truth. Panels identify early, middle, late, and switch targets;
+curves identify raw and BF-updated FASH in the in-figure legend, with
+95% intervals across five seeds.
+</p>
+</div>
+</div>
+<div id="empirical-fsr-as-a-function-of-alpha" class="section level3">
+<h3>Empirical FSR as a function of alpha</h3>
+<pre class="r"><code>plot_mc_functional_curve_grid(
+  mc_curve = r3a_alpha,
+  metric = &quot;empirical_fsr&quot;,
+  title = &quot;Empirical FSR: broad random B-spline truth&quot;
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_functional_testing_simulation.rmd/r3a-fsr-1.png" alt="Figure R3.4: Monte Carlo empirical false sign rate under broad random B-spline truth. Panels identify functional targets, curves identify raw and BF-updated FASH, and the diagonal reference denotes nominal alpha." width="1800" />
+<p class="caption">
+Figure R3.4: Monte Carlo empirical false sign rate under broad random
+B-spline truth. Panels identify functional targets, curves identify raw
+and BF-updated FASH, and the diagonal reference denotes nominal alpha.
+</p>
+</div>
+</div>
+</div>
+<div id="r3b-compact-raised-cosine-results" class="section level2">
+<h2>R3B: compact raised-cosine results</h2>
+<div id="results-at-alpha-0.05-1" class="section level3">
+<h3>Results at alpha 0.05</h3>
+<pre class="r"><code>knitr::kable(
+  r3b_table,
+  align = &quot;l&quot;,
+  caption = paste(
+    &quot;Table R3.2: Functional-testing power and empirical false sign rate at&quot;,
+    &quot;alpha 0.05 under compact raised-cosine truth.&quot;
+  )
+)</code></pre>
+<table style="width:100%;">
+<caption>Table R3.2: Functional-testing power and empirical false sign
+rate at alpha 0.05 under compact raised-cosine truth.</caption>
+<colgroup>
+<col width="8%" />
+<col width="17%" />
+<col width="13%" />
+<col width="26%" />
+<col width="32%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Target</th>
+<th align="left">Method</th>
+<th align="left">Mean calls</th>
+<th align="left">Power (95% MC CI)</th>
+<th align="left">Empirical FSR (95% MC CI)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Early</td>
+<td align="left">FASH-IWP1-Raw</td>
+<td align="left">2.0</td>
+<td align="left">0.030 [0.001, 0.059]</td>
+<td align="left">0.000 [0.000, 0.000]</td>
+</tr>
+<tr class="even">
+<td align="left">Early</td>
+<td align="left">FASH-IWP1-BF</td>
+<td align="left">1.6</td>
+<td align="left">0.024 [0.003, 0.045]</td>
+<td align="left">0.000 [0.000, 0.000]</td>
+</tr>
+<tr class="odd">
+<td align="left">Middle</td>
+<td align="left">FASH-IWP1-Raw</td>
+<td align="left">5.0</td>
+<td align="left">0.072 [0.047, 0.096]</td>
+<td align="left">0.040 [0.000, 0.151]</td>
+</tr>
+<tr class="even">
+<td align="left">Middle</td>
+<td align="left">FASH-IWP1-BF</td>
+<td align="left">4.0</td>
+<td align="left">0.060 [0.033, 0.086]</td>
+<td align="left">0.000 [0.000, 0.000]</td>
+</tr>
+<tr class="odd">
+<td align="left">Late</td>
+<td align="left">FASH-IWP1-Raw</td>
+<td align="left">1.0</td>
+<td align="left">0.015 [0.000, 0.034]</td>
+<td align="left">0.000 [0.000, 0.000]</td>
+</tr>
+<tr class="even">
+<td align="left">Late</td>
+<td align="left">FASH-IWP1-BF</td>
+<td align="left">0.6</td>
+<td align="left">0.009 [0.000, 0.026]</td>
+<td align="left">0.000 [0.000, 0.000]</td>
+</tr>
+<tr class="odd">
+<td align="left">Switch</td>
+<td align="left">FASH-IWP1-Raw</td>
+<td align="left">65.0</td>
+<td align="left">0.620 [0.545, 0.694]</td>
+<td align="left">0.037 [0.014, 0.060]</td>
+</tr>
+<tr class="even">
+<td align="left">Switch</td>
+<td align="left">FASH-IWP1-BF</td>
+<td align="left">52.4</td>
+<td align="left">0.511 [0.430, 0.592]</td>
+<td align="left">0.015 [0.004, 0.026]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="power-as-a-function-of-alpha-1" class="section level3">
+<h3>Power as a function of alpha</h3>
+<pre class="r"><code>plot_mc_functional_curve_grid(
+  mc_curve = r3b_alpha,
+  metric = &quot;power&quot;,
+  title = &quot;Functional-testing power: compact raised-cosine truth&quot;
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_functional_testing_simulation.rmd/r3b-power-1.png" alt="Figure R3.5: Monte Carlo functional-testing power under compact raised-cosine truth. Panels identify early, middle, late, and switch targets; curves identify raw and BF-updated FASH in the in-figure legend, with 95% intervals across five seeds." width="1800" />
+<p class="caption">
+Figure R3.5: Monte Carlo functional-testing power under compact
+raised-cosine truth. Panels identify early, middle, late, and switch
+targets; curves identify raw and BF-updated FASH in the in-figure
+legend, with 95% intervals across five seeds.
+</p>
+</div>
+</div>
+<div id="empirical-fsr-as-a-function-of-alpha-1" class="section level3">
+<h3>Empirical FSR as a function of alpha</h3>
+<pre class="r"><code>plot_mc_functional_curve_grid(
+  mc_curve = r3b_alpha,
+  metric = &quot;empirical_fsr&quot;,
+  title = &quot;Empirical FSR: compact raised-cosine truth&quot;
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_functional_testing_simulation.rmd/r3b-fsr-1.png" alt="Figure R3.6: Monte Carlo empirical false sign rate under compact raised-cosine truth. Panels identify functional targets, curves identify raw and BF-updated FASH, and the diagonal reference denotes nominal alpha." width="1800" />
+<p class="caption">
+Figure R3.6: Monte Carlo empirical false sign rate under compact
+raised-cosine truth. Panels identify functional targets, curves identify
+raw and BF-updated FASH, and the diagonal reference denotes nominal
+alpha.
+</p>
+</div>
+</div>
+</div>
+<div id="dynamic-null-proportion" class="section level2">
+<h2>Dynamic-null proportion</h2>
+<p>The first-stage dynamic-null proportion is <span
+class="math inline">\(\pi_0=0.8\)</span>. The table reports the fitted
+constant-component weights for the raw and BF-adjusted IWP fits.</p>
+<pre class="r"><code>knitr::kable(
+  pi0_table,
+  align = &quot;l&quot;,
+  caption = paste(
+    &quot;Table R3.3: Estimated first-stage dynamic-null proportions for raw and&quot;,
+    &quot;BF-updated IWP FASH under both functional truth mechanisms.&quot;
+  )
+)</code></pre>
+<table>
+<caption>Table R3.3: Estimated first-stage dynamic-null proportions for
+raw and BF-updated IWP FASH under both functional truth
+mechanisms.</caption>
+<colgroup>
+<col width="38%" />
+<col width="18%" />
+<col width="43%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Mechanism</th>
+<th align="left">Fit</th>
+<th align="left">Mean estimated pi0 (95% MC CI)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">R3A: broad random B-spline</td>
+<td align="left">Raw</td>
+<td align="left">0.800 [0.797, 0.803]</td>
+</tr>
+<tr class="even">
+<td align="left">R3A: broad random B-spline</td>
+<td align="left">BF-corrected</td>
+<td align="left">0.846 [0.842, 0.850]</td>
+</tr>
+<tr class="odd">
+<td align="left">R3B: compact raised cosine</td>
+<td align="left">Raw</td>
+<td align="left">0.801 [0.755, 0.847]</td>
+</tr>
+<tr class="even">
+<td align="left">R3B: compact raised cosine</td>
+<td align="left">BF-corrected</td>
+<td align="left">0.914 [0.910, 0.918]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="interpretation" class="section level2">
+<h2>Interpretation</h2>
+<p>For R3A, BF-updated FASH has mean empirical FSR 0.020 or lower for
+all four targets at <span class="math inline">\(\alpha=0.05\)</span>.
+Its switch power is 0.857.</p>
+<p>For the more localized R3B trajectories, BF-updated FASH makes few
+timing calls and no false timing calls in these five replicates. Its
+switch power is 0.511, but its mean switch FSR is 0.015 at nominal <span
+class="math inline">\(\alpha=0.05\)</span>. In this five-seed pilot, the
+scale-relative clearance condition separates switch and non-switch
+truths in both mechanisms without removing the compact transient
+behavior. These results support functional testing for the stated
+margin-separated designs; they do not imply that BF adjustment alone
+guarantees FSR control for every functional hypothesis or every truth
+geometry.</p>
+</div>
+<div id="reproducibility" class="section level2">
+<h2>Reproducibility</h2>
+<p>The <a
+href="https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R">R3
+simulation driver</a> uses the <a
+href="https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/shared/simulation_functions.R">shared
+simulation functions</a>. The page-specific cache validation and
+formatting are in <a
+href="https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r3_functional_testing/reporting.R">R3
+reporting code</a>. The following command regenerates the paired
+five-seed cache. It is shown for reproducibility but is intentionally
+not evaluated during workflowr builds; the table and figure chunks above
+read the saved cache.</p>
+<p>The paired five-seed cache can be regenerated with:</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R \
+  --J 1000 \
+  --n-donors 19 \
+  --n-covariates 5 \
+  --noise-sd 1 \
+  --dynamic-main-effect-sd 1 \
+  --truth-mechanisms random_bspline,raised_cosine \
+  --seed-list 12345,22345,32345,42345,52345 \
+  --output-id r3_matched_functional_relative_clearance_main_effect_pilot5 \
+  --num-cores 4</code></pre>
+<p>Cached replicate metrics, call-level diagnostics, examples,
+summaries, and figures are stored under:</p>
+<pre class="text"><code>output/revision_simulations/mc/r3_matched_functional_relative_clearance_main_effect_pilot5/</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] workflowr_1.7.2
+
+loaded via a namespace (and not attached):
+ [1] vctrs_0.7.3       httr_1.4.7        cli_3.6.6         knitr_1.50       
+ [5] rlang_1.2.0       xfun_0.55         stringi_1.8.7     otel_0.2.0       
+ [9] processx_3.8.6    promises_1.5.0    jsonlite_2.0.0    glue_1.8.1       
+[13] rprojroot_2.1.1   git2r_0.36.2      htmltools_0.5.9   httpuv_1.6.16    
+[17] ps_1.9.1          sass_0.4.10       rmarkdown_2.30    jquerylib_0.1.4  
+[21] tibble_3.3.0      evaluate_1.0.5    fastmap_1.2.0     yaml_2.3.12      
+[25] lifecycle_1.0.5   whisker_0.4.1     stringr_1.6.0     compiler_4.5.1   
+[29] fs_1.6.6          pkgconfig_2.0.3   Rcpp_1.1.1-1.1    rstudioapi_0.17.1
+[33] later_1.4.4       digest_0.6.39     R6_2.6.1          pillar_1.11.1    
+[37] callr_3.7.6       magrittr_2.0.5    bslib_0.9.0       tools_4.5.1      
+[41] cachem_1.1.0      getPass_0.2-4    </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

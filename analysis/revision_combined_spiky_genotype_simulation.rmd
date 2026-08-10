@@ -1,0 +1,471 @@
+---
+title: "Revision Simulation R2: genotype-level eQTLs with spiky transient effects"
+author: "Ziang Zhang"
+date: "2026-07-30"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 9,
+  fig.height = 6.5,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source("code/revision_simulations/shared/simulation_functions.R")
+source("code/revision_simulations/r2_spiky_transient/reporting.R")
+```
+
+## Overview
+
+This genotype-level simulation evaluates dynamic-eQTL detection when the true
+effects are continuous but sharply localized and are not generated from the
+IWP prior used by FASH. It uses the same individual-level pipeline as the
+[broad random B-spline simulation](revision_genotype_level_simulation.html).
+
+For donor $i$, variant $j$, and time $t$,
+
+$$
+Y_{ijt} = \alpha_{jt} + G_{ij}\beta_j(t) +
+X_i^T\gamma_{jt} + \epsilon_{ijt},
+\qquad \epsilon_{ijt} \sim N(0,1).
+$$
+
+For each variant, the minor-allele frequency is drawn from
+$p_j\sim\mathrm{Uniform}(0.1,0.5)$ and
+$G_{ij}\sim\mathrm{Binomial}(2,p_j)$; monomorphic draws are repeated.
+The five columns of $X$ are generated independently from $N(0,1)$ and
+standardized across donors. Independently for each covariate, variant, and
+time, $\gamma_{kjt}\sim N(0,0.5^2)$. The current simulation sets
+$\alpha_{jt}=0$; each fitted regression still includes an intercept. Genotype,
+covariate, covariate-effect, and noise draws are mutually independent.
+
+```{r r2-simulate-genotypes-and-covariates, eval=FALSE}
+seed <- 12345
+component_seeds <- revision_component_seeds(seed)
+
+genotype_sim <- simulate_genotype_matrix(
+  n_donors = 19,
+  n_variants = 1000,
+  maf_range = c(0.1, 0.5),
+  seed = component_seeds[["genotype"]]
+)
+covariates <- simulate_covariate_matrix(
+  n_donors = 19,
+  n_covariates = 5,
+  seed = component_seeds[["covariates"]]
+)
+```
+
+Each replicate has `19` donors, `16` time points, `1000` variants, and five
+PC-like covariates. There are `200` dynamic eQTLs, `400` constant eQTLs with
+effects drawn from $N(0,1)$, and `400` zero-effect variants. Therefore, the
+true dynamic-null proportion is $\pi_0=0.8$.
+
+For a dynamic eQTL,
+
+$$
+\beta_j(t) = \mu_j + h_j(t),
+\qquad \mu_j \sim N(0,1),
+$$
+
+where $h_j(t)$ is a sum of one, two, or three compact raised-cosine peaks,
+
+$$
+h(t;c,w)=
+\frac{1+\cos\{\pi(t-c)/w\}}{2}
+\mathbf{1}(|t-c|\leq w),
+\qquad w=1.5.
+$$
+
+The largest peak is placed at a random location in an early, middle, or late
+window. Additional peaks, when present, occur in different windows and have
+random amplitudes between `35%` and `75%` of the primary peak. Multi-peak
+curves include both same-sign and alternating-sign patterns. The deviation
+$h_j$ is not mean-centered; it is scaled to centered RMS `0.9`, and the
+independent genetic main effect $\mu_j$ remains as the background effect
+outside the compact supports.
+
+```{r r2-simulate-effects-and-expression, eval=FALSE}
+class_probs <- c(
+  dynamic_bspline = 0.20,
+  constant = 0.40,
+  zero = 0.40
+)
+shape_cell_probs <- c(
+  k1__spiky__single = 1 / 3,
+  `k2__spiky__same-sign` = 1 / 6,
+  `k2__spiky__alternating-sign` = 1 / 6,
+  `k3__spiky__same-sign` = 1 / 6,
+  `k3__spiky__alternating-sign` = 1 / 6
+)
+evaluation_grid <- seq(0, 15, by = 0.1)
+
+effect_sim <- simulate_raised_cosine_multipeak_effect_set(
+  n_variants = 1000,
+  time_grid = 0:15,
+  evaluation_grid = evaluation_grid,
+  class_probs = class_probs,
+  width_levels = c(spiky = 1.5),
+  spike_counts = 1:3,
+  shape_cell_probs = shape_cell_probs,
+  primary_time_groups = c("early", "middle", "late"),
+  relative_amplitude_range = c(0.35, 0.75),
+  center_by_observed_mean = FALSE,
+  validate_functional_labels = FALSE,
+  switch_threshold = 0.25,
+  target_centered_rms = 0.9,
+  baseline_sd = 1,
+  constant_sd = 1,
+  dynamic_baseline_sd = 1,
+  exact_class_counts = TRUE,
+  seed = seed,
+  class_seed = component_seeds[["classes"]],
+  constant_seed = component_seeds[["constant_effects"]],
+  shape_seed = component_seeds[["functional_truth"]],
+  scenario = "r2_genotype_timed_cosine_one_two_three_peak_main_effect_dynamic_eqtl"
+)
+expression_sim <- simulate_eqtl_expression_from_genotypes(
+  G = genotype_sim$G,
+  beta_matrix = effect_sim$beta_matrix,
+  time_grid = 0:15,
+  covariates = covariates,
+  expression_noise_sd = 1,
+  covariate_effect_sd = 0.5,
+  intercept_sd = 0,
+  seed = component_seeds[["expression"]]
+)
+```
+
+The `200` dynamic variants are approximately balanced across one, two, and
+three peaks. Alternating peak signs describe geometry only; this page tests
+global dynamic eQTL status and does not equate an alternating pattern with the
+manuscript's switch functional. Functional testing is evaluated separately.
+
+### Dynamic shape and timing allocation
+
+```{r allocation-table}
+knitr::kable(
+  allocation_table,
+  align = "l",
+  caption = paste(
+    "Table R2.1: Allocation of dynamic eQTLs across peak counts, sign",
+    "patterns, and primary timing windows in the spiky simulation."
+  )
+)
+```
+
+At each time, effects and standard errors are estimated with
+`Y ~ G + PC1 + PC2 + PC3 + PC4 + PC5`. The t-statistic correction uses
+`df = 19 - 7 = 12`. FASH receives only these per-time estimates and corrected
+standard errors. The direct interaction tests use the full individual-level
+data.
+
+```{r r2-estimate-and-fit-fash, eval=FALSE}
+eqtl_summary <- estimate_eqtl_summaries_from_genotypes(
+  G = genotype_sim$G,
+  expression = expression_sim$expression,
+  covariates = covariates,
+  apply_t_se_correction = TRUE
+)
+datasets <- make_fash_datasets_from_eqtl_summary(
+  beta_hat = eqtl_summary$beta_hat,
+  se = eqtl_summary$se,
+  true_beta = effect_sim$beta_matrix,
+  time_grid = 0:15,
+  unit_info = effect_sim$unit_info,
+  scenario = "r2_genotype_timed_cosine_one_two_three_peak_main_effect_dynamic_eqtl"
+)
+
+fash_iwp1_raw <- fashr::fash(
+  Y = "y",
+  smooth_var = "x",
+  S = "sd",
+  data_list = datasets,
+  order = 1,
+  grid = default_revision_grid(),
+  num_basis = 20,
+  penalty = 10,
+  num_cores = 4,
+  verbose = FALSE
+)
+fash_iwp1_bf <- fashr::BF_update(fash_iwp1_raw, plot = FALSE)
+
+linear_sigma_grid <- exp(seq(log(0.05), log(5), length.out = 25))
+fash_linear_raw <- fit_simplified_fash(
+  datasets = datasets,
+  estimate_sigma = TRUE,
+  sigma_beta_grid = linear_sigma_grid,
+  scale_time = TRUE
+)
+fash_linear_bf <- BF_update_simplified_fash(fash_linear_raw)
+```
+
+All tables and curves below average five independently simulated datasets with
+seeds `12345`, `22345`, `32345`, `42345`, and `52345`. The seed-12345 full fit
+is used only for representative trajectories.
+
+## Example simulated eQTLs
+
+The first figure shows zero-effect and constant dynamic-null examples. Points
+are per-time effect estimates, bars show two corrected standard errors, and
+the colored line is the true effect.
+
+```{r null-examples, fig.width=10, fig.height=5.2, fig.cap="Figure R2.1: Representative zero-effect and constant-effect dynamic-null eQTLs from seed 12345. Points are estimated genetic effects, vertical bars span two corrected standard errors, and colored curves are the true effects."}
+plot_genotype_eqtl_examples(
+  out,
+  classes = c("zero", "constant"),
+  n_per_class = 3,
+  seed = 1,
+  true_curve_n = 500
+)
+```
+
+The second figure shows one representative from each available
+shape-by-primary-window cell. Truth curves are drawn on a dense time grid so
+that compact peaks between the 16 observed time points remain visible.
+
+```{r dynamic-examples, fig.width=12, fig.height=18, fig.cap="Figure R2.2: Representative compact dynamic eQTLs across peak-count, sign-pattern, and primary-window cells. Points and error bars show the 16 estimated effects and two corrected standard errors; colored dense curves show the continuous truths."}
+plot_cosine_peak_cell_examples(
+  out,
+  seed = 1,
+  include_time_groups = TRUE
+)
+```
+
+## Comparison 1: IWP versus linear FASH
+
+`FASH-IWP1` uses the first-order IWP alternative. `FASH-linear` uses a
+constant-versus-linear model on time scaled to $[0,1]$: its alternative adds a
+slope $b\sim N(0,\sigma_\beta^2)$ to the unrestricted intercept. Within each
+seed, the fit profiles $\pi_0$ separately at each of 25 log-spaced candidate
+values of $\sigma_\beta$ from `0.05` to `5`, then selects the pair with the
+largest marginal likelihood. The BF adjustment updates the mixture weight
+while holding the selected $\sigma_\beta$ fixed. Across the five seeds, the
+selected slope SD has mean
+`r format_decimal(linear_sigma_summary$mean_selected_sigma)` and observed range
+[`r format_decimal(linear_sigma_summary$min_selected_sigma)`,
+`r format_decimal(linear_sigma_summary$max_selected_sigma)`]. Both raw and
+BF-corrected fits use the same summary statistics and discovery rule.
+
+### Estimated dynamic-null proportion
+
+```{r pi0-table}
+knitr::kable(
+  pi0_table,
+  align = "l",
+  caption = paste(
+    "Table R2.2: Estimated dynamic-null proportions and selected linear slab",
+    "scales across five spiky-effect simulation replicates."
+  )
+)
+```
+
+### Results at alpha 0.05
+
+```{r fash-table}
+knitr::kable(
+  fash_table,
+  align = "l",
+  caption = paste(
+    "Table R2.3: Monte Carlo power and empirical FDR at alpha 0.05 for IWP",
+    "and linear FASH under compact spiky effects."
+  )
+)
+```
+
+### Power as a function of alpha
+
+```{r fash-power, fig.cap="Figure R2.3: Monte Carlo power across nominal alpha for IWP and linear FASH under compact one-, two-, and three-peak effects. Curves identify raw and BF-updated methods in the in-figure legend; uncertainty summarizes five seeds."}
+plot_mc_alpha_curves(
+  fash_alpha,
+  metric = "power",
+  title = "IWP versus linear FASH: Monte Carlo power",
+  subtitle = "Five seeds; compact one-, two-, and three-peak effects",
+  style_profile = "combined"
+)
+```
+
+### Empirical FDR as a function of alpha
+
+```{r fash-fdr, fig.cap="Figure R2.4: Monte Carlo empirical FDR across nominal alpha for IWP and linear FASH under compact spiky effects. Curves identify methods in the in-figure legend, and the diagonal reference marks nominal calibration."}
+plot_mc_alpha_curves(
+  fash_alpha,
+  metric = "fdr",
+  title = "IWP versus linear FASH: Monte Carlo empirical FDR",
+  subtitle = "Five seeds; compact one-, two-, and three-peak effects",
+  legend_position = "topleft",
+  style_profile = "combined"
+)
+```
+
+At $\alpha=0.05$, IWP-BF has mean power
+`r format_decimal(metric_at(fash_alpha_005, "FASH-IWP1-BF", "mean_power"))`,
+compared with
+`r format_decimal(metric_at(fash_alpha_005, "FASH-linear-BF", "mean_power"))`
+for linear-BF. Their empirical FDR estimates are
+`r format_decimal(metric_at(fash_alpha_005, "FASH-IWP1-BF", "mean_fdr"))`
+and
+`r format_decimal(metric_at(fash_alpha_005, "FASH-linear-BF", "mean_fdr"))`.
+
+## Comparison 2: IWP FASH versus direct interaction tests
+
+The direct linear LRT tests a linear genotype-by-time interaction. The direct
+quadratic LRT jointly tests linear and quadratic interaction terms. Their
+permutation eFDR calculations use `B=100` donor-level permutations and are
+supplied with the true $\pi_0=0.8$, deliberately removing null-proportion
+estimation uncertainty from the direct baselines.
+
+```{r r2-direct-interaction-efdr, eval=FALSE}
+out <- add_direct_interaction_efdr_results_to_genotype_output(
+  out = out,
+  n_permutations = 100,
+  alpha = 0.05,
+  seed = component_seeds[["permutations"]],
+  lambda = 0.5,
+  pi0_method = "conservative",
+  true_pi0 = 0.8,
+  include_true_pi0 = TRUE,
+  permute_covariates_with_expression = TRUE,
+  num_cores = 4,
+  overwrite = TRUE,
+  verbose = FALSE
+)
+```
+
+### Results at alpha 0.05
+
+```{r direct-table}
+knitr::kable(
+  direct_table,
+  align = "l",
+  caption = paste(
+    "Table R2.4: Monte Carlo power and empirical FDR at alpha 0.05 for IWP",
+    "FASH and direct interaction tests under compact spiky effects."
+  )
+)
+```
+
+### Power as a function of alpha
+
+```{r direct-power, fig.cap="Figure R2.5: Monte Carlo power across nominal alpha for IWP FASH and direct linear or quadratic interaction tests under compact spiky effects. The in-figure legend identifies methods; direct-test eFDR uses the true pi0 and 100 permutations."}
+plot_mc_alpha_curves(
+  direct_alpha,
+  metric = "power",
+  title = "IWP FASH versus direct interaction: Monte Carlo power",
+  subtitle = "Five seeds; direct eFDR uses true pi0 = 0.8 and B = 100",
+  style_profile = "combined"
+)
+```
+
+### Empirical FDR as a function of alpha
+
+```{r direct-fdr, fig.cap="Figure R2.6: Monte Carlo empirical FDR across nominal alpha for IWP FASH and direct interaction tests under compact spiky effects. The in-figure legend identifies methods, and the diagonal reference marks nominal calibration."}
+plot_mc_alpha_curves(
+  direct_alpha,
+  metric = "fdr",
+  title = "IWP FASH versus direct interaction: Monte Carlo empirical FDR",
+  subtitle = "Five seeds; direct eFDR uses true pi0 = 0.8 and B = 100",
+  legend_position = "bottomleft",
+  style_profile = "combined"
+)
+```
+
+At $\alpha=0.05$, mean power is
+`r format_decimal(metric_at(direct_alpha_005, "FASH-IWP1-BF", "mean_power"))`
+for IWP-BF,
+`r format_decimal(metric_at(direct_alpha_005, "Direct-linear-LRT-eFDR-true-pi0", "mean_power"))`
+for direct linear, and
+`r format_decimal(metric_at(direct_alpha_005, "Direct-quadratic-LRT-eFDR-true-pi0", "mean_power"))`
+for direct quadratic. The corresponding empirical FDR estimates are
+`r format_decimal(metric_at(direct_alpha_005, "FASH-IWP1-BF", "mean_fdr"))`,
+`r format_decimal(metric_at(direct_alpha_005, "Direct-linear-LRT-eFDR-true-pi0", "mean_fdr"))`,
+and
+`r format_decimal(metric_at(direct_alpha_005, "Direct-quadratic-LRT-eFDR-true-pi0", "mean_fdr"))`.
+
+## Power by number of peaks
+
+The global discovery threshold is fitted once across all `1000` variants.
+Power is then summarized within the true one-, two-, and three-peak dynamic
+subgroups; no subgroup-specific threshold is estimated.
+
+### Results at alpha 0.05
+
+```{r peak-table}
+knitr::kable(
+  peak_table,
+  align = "l",
+  caption = paste(
+    "Table R2.5: Monte Carlo power at alpha 0.05 stratified by the true",
+    "number of compact peaks; all calls use the same global threshold."
+  )
+)
+```
+
+### Power as a function of alpha
+
+```{r peak-power, fig.width=10, fig.height=6, fig.cap="Figure R2.7: Monte Carlo discovery power across nominal alpha, stratified by one-, two-, and three-peak truth. Panels denote peak count, curves identify methods in the in-figure legend, and the FDR threshold is fitted globally before subgrouping."}
+plot_mc_shape_power_grid(
+  peak_alpha[peak_alpha$method %in% peak_methods, ],
+  shape_order = c("1-peak", "2-peak", "3-peak"),
+  title = "Power by number of compact peaks",
+  subtitle = "Five seeds; global FDR threshold applied before subgrouping",
+  style_profile = "combined",
+  width = 2600
+)
+```
+
+## Interpretation
+
+For continuous but compact transient effects, IWP-BF is more powerful than
+linear-BF while maintaining comparable or lower empirical FDR. Relative to
+the direct baselines, the table and peak-stratified analysis show how
+performance changes as the trajectory contains one, two, or three localized
+features. The direct methods are given the true null proportion, whereas FASH
+estimates its mixture weights from the summary statistics.
+
+## Reproducibility
+
+The
+[R2 simulation driver](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R)
+uses the
+[shared simulation functions](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/shared/simulation_functions.R).
+The page-specific cache validation and formatting are in
+[R2 reporting code](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r2_spiky_transient/reporting.R).
+The following command regenerates the full five-seed cache. It is shown for
+reproducibility but is intentionally not evaluated during workflowr builds;
+the table and figure chunks above read the saved cache.
+
+The full five-seed cache can be regenerated with:
+
+```{bash regenerate-r2-cache, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R \
+  --J 1000 \
+  --n-donors 19 \
+  --n-covariates 5 \
+  --noise-sd 1 \
+  --dynamic-main-effect-sd 1 \
+  --width-half 1.5 \
+  --target-centered-rms 0.9 \
+  --efdr-permutations 100 \
+  --seed-list 12345,22345,32345,42345,52345 \
+  --output-id r2_timed_cosine_one_two_three_peak_main_effect_profile_sigma_pilot5 \
+  --num-cores 4
+```
+
+Cached replicate metrics, summaries, plots, and the seed-12345 full fit are
+stored under:
+
+```text
+output/revision_simulations/mc/r2_timed_cosine_one_two_three_peak_main_effect_profile_sigma_pilot5/
+```

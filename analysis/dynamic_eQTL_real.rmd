@@ -328,6 +328,12 @@ We will directly load the fitted FASH models from the output directory.
 load(file.path(result_dir, "fash_fit1_all.RData"))
 ```
 
+```{r}
+# # The version using CL-based PCs
+# load(file.path(result_dir, "fash_fit1_all_CL.RData"))
+# fash_fit1_update <- BF_update(fash_fit1, plot = FALSE)
+```
+
 We will load the datasets from the fitted FASH object:
 
 ```{r}
@@ -390,7 +396,70 @@ save(fash_fit1_update, file = paste0(result_dir, "/fash_fit1_update.RData"))
 load(file.path(result_dir, "fash_fit1_update.RData"))
 ```
 
+
+
 The conservative estimate is `r fash_fit1_update$prior_weights$prior_weight[1]`, which is much more realistic.
+
+
+```{r}
+set.seed(123)
+g_after <- visualize_fash_prior(fash_fit1_update, M = 5000)
+g_before <- visualize_fash_prior(fash_fit1, M = 5000)
+
+# keep both figure between -10 to 10
+g_after <- g_after + ylim(-10,10) + ggtitle("After BF update")
+g_before <- g_before + ylim(-10,10) + ggtitle("Before BF update")
+
+g_after <- g_after + 
+  coord_cartesian(ylim = c(-5,5)) + 
+  ggtitle("Constant baseline model: after BF update") +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 12),
+    legend.text = element_text(size = 12),
+    axis.text = element_text(size = 12)
+  ) + 
+    scale_colour_discrete(
+    labels = function(x) sprintf("%.3f", as.numeric(x))  
+  ) +
+  scale_linetype_discrete(
+    labels = function(x) sprintf("%.3f", as.numeric(x))
+  )
+  
+g_before <- g_before + 
+  coord_cartesian(ylim = c(-5,5)) + 
+  ggtitle("Constant baseline model: before BF update") +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 12),
+    legend.text = element_text(size = 12),
+    axis.text = element_text(size = 12)
+  ) + 
+    scale_colour_discrete(
+    labels = function(x) sprintf("%.3f", as.numeric(x))  
+  ) +
+  scale_linetype_discrete(
+    labels = function(x) sprintf("%.3f", as.numeric(x))
+  )
+
+ggsave(filename = paste0(result_dir, "/fash_prior_comparison_order1_before.png"),
+       plot = g_before,
+       width = 8, height = 6)
+
+ggsave(filename = paste0(result_dir, "/fash_prior_comparison_order1_before.pdf"),
+       plot = g_before,
+       width = 8, height = 6)
+
+ggsave(filename = paste0(result_dir, "/fash_prior_comparison_order1_after.png"),
+       plot = g_after,
+       width = 8, height = 6)
+
+ggsave(filename = paste0(result_dir, "/fash_prior_comparison_order1_after.pdf"),
+       plot = g_after,
+       width = 8, height = 6)
+```
+
+
 
 (ii): Instead of looking at the FDR which is based on the estimated $\pi_0$, we can use the minimum local false sign rate ($\text{min-lfsr}_i$) to measure significance:
 $$
@@ -1230,7 +1299,7 @@ Among the genes highlighted by FASH that are classified as early dynamic eQTLs:
 ```{r}
 result <- enrich_set(genes_selected = early_genes, background_gene = all_genes)
 result@result %>% 
-  filter(pvalue < 0.05) %>%
+  # filter(pvalue < 0.05) %>%
   dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)
 ```
 
@@ -1260,3 +1329,45 @@ result@result %>%
   filter(pvalue < 0.05) %>%
   dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)
 ```
+
+Summarize all the result into a table:
+
+```{r eval=FALSE}
+result_fash <- enrich_set(genes_selected = genes_highlighted1, background_gene = all_genes)
+result_fash_table <- result_fash@result %>% 
+  dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)
+
+result_early <- enrich_set(genes_selected = early_genes, background_gene = all_genes)
+result_early_table <- result_early@result %>% 
+  dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)
+
+result_middle <- enrich_set(genes_selected = middle_genes, background_gene = all_genes)
+result_middle_table <- result_middle@result %>% 
+  dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)
+
+result_late <- enrich_set(genes_selected = late_genes, background_gene = all_genes)
+result_late_table <- result_late@result %>% 
+  dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)
+
+result_switch <- enrich_set(genes_selected = switch_genes, background_gene = all_genes)
+result_switch_table <- result_switch@result %>% 
+  dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)
+
+result_all <- rbind(
+  result_fash_table %>% mutate(Category = "All dynamic eQTLs"),
+  result_early_table %>% mutate(Category = "Early dynamic eQTLs"),
+  result_middle_table %>% mutate(Category = "Middle dynamic eQTLs"),
+  result_late_table %>% mutate(Category = "Late dynamic eQTLs"),
+  result_switch_table %>% mutate(Category = "Switch dynamic eQTLs")
+) %>%
+  dplyr::select(Category, everything())
+
+save(result_all, file = file.path(result_dir, "gene_set_enrichment_results.RData"))
+```
+
+
+
+
+
+
+

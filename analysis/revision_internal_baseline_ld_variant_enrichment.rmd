@@ -1,0 +1,335 @@
+---
+title: "Internal analysis: baselineLD functional enrichment of FASH variants"
+author: "Ziang Zhang"
+date: "2026-08-07"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 10,
+  fig.height = 7.2,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(
+  "code/revision_simulations/internal/baseline_ld_variant_enrichment/reporting.R"
+)
+```
+
+<style>
+.baseline-ld-internal-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.baseline-ld-key-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.baseline-ld-caution {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #cc7a00;
+  border-radius: 4px;
+  background: #fff8ec;
+  color: #563a0c;
+}
+.baseline-ld-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.baseline-ld-table-scroll table {
+  margin-bottom: 1em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+
+<div class="baseline-ld-internal-banner">
+<strong>Internal exploratory page.</strong> This page is intentionally absent
+from the workflowr homepage, navigation, manuscript, response letter, and the
+first internal annotation-enrichment page. It reads completed retained caches
+and does not modify existing FASH results.
+</div>
+
+## Question and provisional answer
+
+This analysis asks whether FASH discoveries are enriched in the standardized
+functional categories distributed with baselineLD v2.2. It examines the three
+sets requested for this follow-up:
+
+1. all FASH discoveries;
+2. one top FASH variant per discovered gene; and
+3. variants participating in gene-variant pairs discovered by FASH but by
+   neither Strober linear nor Strober nonlinear.
+
+<div class="baseline-ld-key-result">
+<strong>Provisional readout.</strong>
+`r provisional_answer`
+`r lead_answer`
+`r fash_only_answer`
+</div>
+
+The one-lead enhancer estimate is the most interesting hint in this analysis,
+but the current result does not support a thresholded claim that FASH variants
+are broadly enriched in baselineLD functional categories.
+
+## Data source and analysis scale
+
+The canonical source is the
+[S-LDSC reference-files record on Zenodo](https://zenodo.org/records/10515792),
+specifically `1000G_Phase3_baselineLD_v2.2_ldscores.tgz`. That archive contains
+both annotation files and precomputed annotation-specific LD scores. This page
+uses the chromosome-specific `.annot.gz` columns as variant annotations; it
+does **not** run S-LDSC or interpret the result as partitioned heritability.
+
+The Zenodo archive was slow to transfer during this interactive run. The same
+22 chromosome annotation files were therefore retrieved individually from the
+Song Lab mirror, with exact byte sizes and SHA256 hashes recorded. LD-score,
+PLINK, log, and count files were not downloaded.
+
+```{r runtime-table, results='asis'}
+render_scrollable_table(
+  runtime_table,
+  align = "lrl",
+  minimum_width = "760px"
+)
+```
+
+```{r resource-table, results='asis'}
+render_scrollable_table(
+  resource_table,
+  align = "lr",
+  minimum_width = "700px"
+)
+```
+
+The annotation-only download was `r format_decimal(lookup_resource("Downloaded annotation MiB"), 1L)`
+MiB and completed in approximately 47 seconds. Annotation parsing and
+subsetting took `r format_decimal(lookup_runtime("annotation_parse_and_subset"), 1L)`
+seconds; the 100-seed matched analysis took
+`r format_decimal(lookup_runtime("matched_enrichment"), 1L)` seconds. The full
+analysis through cache assembly took
+`r format_decimal(lookup_runtime("analysis_through_cache_assembly"), 1L)`
+seconds. The retained annotation matrix occupied approximately
+`r format_decimal(lookup_resource("Binary annotation matrix bytes in R") / 1024^2, 1L)`
+MiB in R. This is a routine laptop-scale analysis rather than a cluster-scale
+job.
+
+## Discovery sets
+
+FASH calls use cumulative-lfdr FDR at 0.05 after the BF update. Strober linear
+and nonlinear calls use their reported eFDR at 0.05. The first and third sets
+are collapsed to unique rsIDs before enrichment so that a variant is not
+counted repeatedly merely because it was tested against several genes.
+
+```{r pair-summary, results='asis'}
+render_scrollable_table(
+  pair_summary_table,
+  align = "lrrrrr",
+  minimum_width = "900px"
+)
+```
+
+The FASH-only set begins with 8,062 exact gene-variant pairs, representing
+8,001 unique variants and 1,119 genes. A variant is retained if it participates
+in at least one FASH-only pair; the same variant may still participate in a
+different pair shared with a Strober method.
+
+## Coverage in the baselineLD reference
+
+The 1000G EUR baselineLD annotation universe does not contain every variant in
+the YRI study VCF. The matched universe and all three discovery sets were
+therefore restricted to rsIDs present in baselineLD before controls were
+sampled.
+
+```{r coverage-table, results='asis'}
+render_scrollable_table(
+  coverage_table,
+  align = "lrrrr",
+  minimum_width = "860px"
+)
+```
+
+The tested background coverage is
+`r format_percent(coverage_by_set$coverage_proportion[coverage_by_set$discovery_set == "tested_variant_universe"])`.
+Coverage is modestly higher for each FASH set, by 2.0--3.7 percentage points,
+but remains inside the pre-specified 10-point imbalance boundary. Matching is
+performed anew within the covered universe.
+
+## Core functional-annotation enrichment
+
+Each selected variant is matched to five non-selected tested variants on
+chromosome, cohort MAF, minimum distance to a tested target-gene TSS, local
+tested-variant density within +/-1 Mb, and the number of tested genes. Matching
+is repeated over 100 fixed seeds. Points pool matched controls across seeds;
+intervals are delete-one-autosome jackknife 95% intervals. Filled points would
+mark within-set BH q below 0.05 across all 83 analyzed binary annotations.
+
+```{r core-enrichment, fig.width=10.5, fig.height=11.2, fig.cap="Figure 1. baselineLD v2.2 functional-annotation enrichment for all FASH discoveries, one FASH lead variant per gene, and variants participating in exact FASH-only gene-variant pairs. Enrichment is relative to matched variants from the baselineLD-covered tested universe. Error bars are delete-one-chromosome 95% intervals."}
+plot_core_enrichment()
+```
+
+No point is filled because no annotation passed the within-set BH threshold.
+Three aspects are worth distinguishing:
+
+- **All FASH discoveries:** the estimates for promoter, DHS, histone marks,
+  and Hoffman enhancer are generally close to one. The lowest adjusted
+  q-value occurs for a non-core ancient-sequence-age enhancer category, at
+  `r format_decimal(all_fash_top$enrichment, 2L)`-fold and
+  q = `r format_decimal(all_fash_top$q_value_within_set, 3L)`.
+- **One lead variant per gene:** Hoffman enhancer is
+  `r format_decimal(lead_enhancer$enrichment, 2L)`-fold, with a fold-scale 95%
+  interval of `r format_decimal(2^lead_enhancer$ci_lower, 2L)`--`r format_decimal(2^lead_enhancer$ci_upper, 2L)`
+  and q = `r format_decimal(lead_enhancer$q_value_within_set, 3L)`. This is a
+  suggestive sensitivity result, not a thresholded discovery.
+- **FASH-only pairs:** after exact pair subtraction and unique-variant
+  collapse, no baselineLD category passes BH q below 0.05. The result therefore
+  does not show a broad functional-enrichment advantage unique to FASH.
+
+### Exact core estimates
+
+```{r core-numeric-table, results='asis'}
+render_scrollable_table(
+  core_numeric_table,
+  digits = 4L,
+  minimum_width = "1380px"
+)
+```
+
+<details>
+<summary><strong>Complete results for all 83 binary annotations</strong></summary>
+
+```{r full-results-table, results='asis'}
+render_scrollable_table(
+  full_results_table,
+  digits = 5L,
+  minimum_width = "1480px"
+)
+```
+
+</details>
+
+## Matching diagnostics
+
+```{r matching-balance, fig.width=10.2, fig.height=5.6, fig.cap="Figure 2. Matching balance over 100 deterministic seeds. Boxes summarize standardized mean differences between each FASH set and its matched controls; dotted lines at +/-0.1 are visual references."}
+plot_matching_balance()
+```
+
+The maximum absolute standardized mean difference over every set, seed, and
+matching covariate is
+`r format_decimal(lookup_resource("Maximum absolute matching SMD"), 4L)`.
+No matching pool crosses chromosome or cohort-MAF bins.
+
+## Annotation schema
+
+The baselineLD files contain 97 annotation columns in addition to chromosome,
+position, rsID, and genetic-map position. On chromosome 1, 84 annotation
+columns are binary and 13 are continuous. The constant `base` column is removed,
+leaving 83 binary annotations for enrichment. Flanking-500 and MAF-bin columns
+remain in the complete table but are not included in Figure 1.
+
+Continuous quantities are documented below but deliberately not converted to
+binary categories. A separate matched continuous-score analysis would require
+a distinct estimand and multiplicity plan.
+
+```{r continuous-annotation-table, results='asis'}
+render_scrollable_table(
+  continuous_annotation_table,
+  digits = 5L,
+  minimum_width = "760px"
+)
+```
+
+## Interpretation boundaries
+
+<div class="baseline-ld-caution">
+<strong>What this page does not establish.</strong> baselineLD v2.2 is built
+around a 1000G EUR reference, whereas the study cohort is YRI. Restricting both
+selected variants and controls to the covered rsID universe avoids treating
+missing annotation as absence, but it does not make the reference ancestry
+matched. The analysis uses raw annotation columns and therefore is not an
+S-LDSC heritability analysis. FASH-only status is exact at the gene-variant-pair
+level and is not LD-aware. Finally, annotation enrichment is evidence about a
+set, not proof that an individual selected variant is causal.
+</div>
+
+The present result is best treated as a standardized functional-annotation
+sensitivity analysis alongside, rather than instead of, the iPSC/mesoderm/cCRE
+analysis on the first internal page.
+
+## Reproduction
+
+```{bash, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/baseline_ld_variant_enrichment/download_baseline_ld_annotations.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/baseline_ld_variant_enrichment/test_baseline_ld_variant_enrichment_helpers.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/baseline_ld_variant_enrichment/run_baseline_ld_variant_enrichment.R
+
+Rscript --vanilla -e \
+  'workflowr::wflow_build("analysis/revision_internal_baseline_ld_variant_enrichment.rmd", local = TRUE)'
+```
+
+<details>
+<summary><strong>Validated download manifest</strong></summary>
+
+```{r download-manifest, results='asis'}
+render_scrollable_table(
+  download_table,
+  digits = 0L,
+  minimum_width = "1500px"
+)
+```
+
+</details>
+
+<details>
+<summary><strong>Input provenance</strong></summary>
+
+```{r input-provenance, results='asis'}
+render_scrollable_table(
+  provenance_table,
+  digits = 0L,
+  minimum_width = "1260px"
+)
+```
+
+</details>
+
+<details>
+<summary><strong>Session information</strong></summary>
+
+```{r session-info, echo=FALSE}
+cat(session_info_text)
+```
+
+</details>

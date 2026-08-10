@@ -1,0 +1,6 @@
+source_id,source_name,assembly,url,local_filename,expected_accession,expected_md5
+gencode_v19,GENCODE comprehensive gene annotation release 19,GRCh37,https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz,gencode.v19.annotation.gtf.gz,GENCODE19,
+encode_ccre_hg19,ENCODE cell-type-agnostic candidate cis-regulatory elements,hg19,https://www.encodeproject.org/files/ENCFF788SJC/@@download/ENCFF788SJC.bed.gz,ENCFF788SJC.bed.gz,ENCFF788SJC,1a972fc5f5cc7d31e0ddeda7a7b1ac26
+roadmap_e020,NIH Roadmap 15-state ChromHMM iPS-20b,hg19,https://egg2.wustl.edu/roadmap/data/byFileType/chromhmmSegmentations/ChmmModels/coreMarks/jointModel/final/E020_15_coreMarks_mnemonics.bed.gz,E020_15_coreMarks_mnemonics.bed.gz,E020,
+roadmap_e013,NIH Roadmap 15-state ChromHMM hESC-derived CD56+ mesoderm,hg19,https://egg2.wustl.edu/roadmap/data/byFileType/chromhmmSegmentations/ChmmModels/coreMarks/jointModel/final/E013_15_coreMarks_mnemonics.bed.gz,E013_15_coreMarks_mnemonics.bed.gz,E013,
+roadmap_e095,NIH Roadmap 15-state ChromHMM left ventricle,hg19,https://egg2.wustl.edu/roadmap/data/byFileType/chromhmmSegmentations/ChmmModels/coreMarks/jointModel/final/E095_15_coreMarks_mnemonics.bed.gz,E095_15_coreMarks_mnemonics.bed.gz,E095,

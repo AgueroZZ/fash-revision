@@ -192,7 +192,7 @@ pho_vec <- seq(0.05, 0.5, by = 0.01)
 
 result_all <- lapply(pho_vec, function(pho0){
   pho1 <- pho0 / 2
-  get_result_once(J = 300, pho0 = pho0, pho1 = pho1, sigma_vec = c(0.1, 0.3, 0.5), 
+  get_result_once(J = 1000, pho0 = pho0, pho1 = pho1, sigma_vec = c(0.1, 0.3, 0.5),
                   grid = sort(c(0, exp(-0.5*seq(0,10, by = 0.1)))),
                   penalty = 1, num_cores = 5,
                   num_basis = 20)
@@ -265,7 +265,7 @@ pho_vec <- seq(0.05, 0.5, by = 0.01)
 
 result_all <- lapply(pho_vec, function(pho0){
   pho1 <- pho0 / 2
-  get_result_once(J = 300, pho0 = pho0, pho1 = pho1, sigma_vec = c(0.1, 0.3, 0.5), 
+  get_result_once(J = 1000, pho0 = pho0, pho1 = pho1, sigma_vec = c(0.1, 0.3, 0.5),
                   grid = sort(c(0, exp(-0.5*seq(0,10, by = 0.2)))),
                   penalty = 1, num_cores = 5,
                   num_basis = 20)
@@ -324,7 +324,7 @@ dev.off()
 
 ## Focusing on one particular replication
 
-We will fix $\pi_0 = 0.2$ and $\pi_1 = 0.1$, and focus on one particular replication to illustrate the inference using FASH.
+We will fix $\rho_0 = 0.2$ and $\rho_1 = 0.1$ (the `pho0` and `pho1` arguments below), and focus on one particular replication to illustrate the inference using FASH. These are the proportions of *dynamic* and *nonlinear-dynamic* units, so the corresponding true null proportions are $\pi_0 = 1 - \rho_0 = 0.8$ when testing $S_0$ as constant functions (IWP$_1$) and $\pi_0 = 1 - \rho_1 = 0.9$ when testing $S_0$ as linear functions (IWP$_2$).
 
 ```{r}
 set.seed(12345)

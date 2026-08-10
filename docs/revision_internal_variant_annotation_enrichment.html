@@ -1,0 +1,3442 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-07" />
+
+<title>Internal analysis: functional annotation enrichment of FASH variants</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Internal analysis: functional annotation
+enrichment of FASH variants</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-07</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-07
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/revision_simulations/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/revision_simulations/
+
+Untracked files:
+    Untracked:  Rplots.pdf
+    Untracked:  analysis/revision_balanced_variant_thinning.rmd
+    Untracked:  analysis/revision_combined_spiky_genotype_simulation.rmd
+    Untracked:  analysis/revision_correlated_error_simulation.rmd
+    Untracked:  analysis/revision_functional_testing_simulation.rmd
+    Untracked:  analysis/revision_genotype_level_simulation.rmd
+    Untracked:  analysis/revision_internal_mashr_mean_z_null_correlation.rmd
+    Untracked:  analysis/revision_internal_observational_null_set_pilot.rmd
+    Untracked:  analysis/revision_internal_one_variant_per_gene_refit.rmd
+    Untracked:  analysis/revision_internal_real_genotype_simulation.rmd
+    Untracked:  analysis/revision_internal_targeted_broad_calibration.rmd
+    Untracked:  analysis/revision_internal_variant_annotation_enrichment.rmd
+    Untracked:  analysis/revision_internal_zero_intercept_correlation.rmd
+    Untracked:  analysis/revision_ld_tagging_switch_example.rmd
+    Untracked:  code/00_eQTLs_CL.R
+    Untracked:  code/01_fash_CL.R
+    Untracked:  code/01_fash_CL.sbatch
+    Untracked:  code/09_penalty_sensitivity.R
+    Untracked:  code/09_penalty_sensitivity.sbatch
+    Untracked:  code/revision_simulations/
+    Untracked:  fash_prior_comparison_order1_after.pdf
+    Untracked:  fash_prior_comparison_order1_after.png
+    Untracked:  fash_prior_comparison_order1_before.pdf
+    Untracked:  fash_prior_comparison_order1_before.png
+    Untracked:  fash_prior_comparison_order2_after.pdf
+    Untracked:  fash_prior_comparison_order2_after.png
+    Untracked:  fash_prior_comparison_order2_before.pdf
+    Untracked:  fash_prior_comparison_order2_before.png
+
+Unstaged changes:
+    Modified:   .gitignore
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Modified:   code/README.md
+    Modified:   output/toy_example/toy_example_11.pdf
+    Modified:   output/toy_example/toy_example_12.pdf
+    Modified:   output/toy_example/toy_example_21.pdf
+    Modified:   output/toy_example/toy_example_22.pdf
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style>
+.variant-enrichment-internal-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.variant-enrichment-key-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.variant-enrichment-caution {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #cc7a00;
+  border-radius: 4px;
+  background: #fff8ec;
+  color: #563a0c;
+}
+.variant-enrichment-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.variant-enrichment-table-scroll table {
+  margin-bottom: 1em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+<div class="variant-enrichment-internal-banner">
+<p><strong>Internal exploratory page.</strong> This page is
+intentionally absent from the workflowr homepage, navigation,
+manuscript, and response letter. It reads completed retained caches and
+does not modify any existing FASH result.</p>
+</div>
+<div id="question-and-provisional-answer" class="section level2">
+<h2>Question and provisional answer</h2>
+<p>This analysis asks two related questions:</p>
+<ol style="list-style-type: decimal">
+<li>Are <strong>all BF-adjusted FASH dynamic-eQTL variant
+discoveries</strong> enriched in regulatory annotations relative to
+comparable tested variants?</li>
+<li>After removing variants that are identical to, or tagged by, a
+Strober discovery, do the remaining <strong>FASH-specific
+discoveries</strong> retain evidence of enrichment?</li>
+</ol>
+<p>The first question is the more stable primary analysis. The second is
+more diagnostic: method-specific labels can change when nearby variants
+tag the same association signal.</p>
+<div class="variant-enrichment-key-result">
+<p><strong>Provisional readout.</strong> The all-FASH discovery set has
+no positive core-regulatory category with panel-level BH q &lt; 0.05.
+The LD-aware FASH-specific discovery set has no positive core-regulatory
+category with panel-level BH q &lt; 0.05. Across the broader displayed
+annotations, the LD-aware FASH-specific set has 1 positive category with
+panel-level BH q &lt; 0.05: Intron (1.08x, 95% interval 1.03x to 1.14x,
+q = 0.048). For comparison, the primary Strober-nonlinear set is
+positively enriched in 1 of the seven core-regulatory categories; the
+largest estimate is Enhancer-like cCRE (1.15x, 95% interval 1.06x to
+1.25x). The exact-ID definition leaves 7,972 FASH-specific variants; the
+within-study LD-aware definition leaves 7,808.</p>
+</div>
+<p>The result is evidence about <strong>functional
+plausibility</strong>, not proof that an individual variant is causal
+and not an independent validation of FASH’s FDR.</p>
+</div>
+<div id="variant-sets" class="section level2">
+<h2>Variant sets</h2>
+<p>The unit throughout is a unique rsID. FASH calls use cumulative lfdr
+FDR at 0.05 after the paper’s BF update. Strober linear and nonlinear
+calls use their reported eFDR at 0.05. All controls come from variants
+tested by all three methods and present in the study VCF.</p>
+<pre class="r"><code>render_scrollable_table(
+  discovery_summary,
+  align = &quot;lr&quot;,
+  minimum_width = &quot;620px&quot;
+)</code></pre>
+<div class="variant-enrichment-table-scroll">
+<table class="table table-striped table-hover" style="min-width:620px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+quantity
+</th>
+<th style="text-align:right;">
+value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Tested pairs
+</td>
+<td style="text-align:right;">
+1009173
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tested unique variants
+</td>
+<td style="text-align:right;">
+745867
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Eligible matched universe
+</td>
+<td style="text-align:right;">
+745867
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH pairs
+</td>
+<td style="text-align:right;">
+9205
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH unique variants
+</td>
+<td style="text-align:right;">
+9139
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH genes
+</td>
+<td style="text-align:right;">
+1177
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Strober linear pairs
+</td>
+<td style="text-align:right;">
+5404
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Strober linear unique variants
+</td>
+<td style="text-align:right;">
+5387
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Strober nonlinear pairs
+</td>
+<td style="text-align:right;">
+6824
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Strober nonlinear unique variants
+</td>
+<td style="text-align:right;">
+6797
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Strober union unique variants
+</td>
+<td style="text-align:right;">
+7927
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Exact FASH-Strober overlap
+</td>
+<td style="text-align:right;">
+1167
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Exact FASH-specific variants
+</td>
+<td style="text-align:right;">
+7972
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LD-aware FASH-specific variants
+</td>
+<td style="text-align:right;">
+7808
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Exact Strober-specific variants
+</td>
+<td style="text-align:right;">
+6760
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LD-aware Strober-specific variants
+</td>
+<td style="text-align:right;">
+6573
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K
+</td>
+<td style="text-align:right;">
+5387
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The primary sets contain 9,139 FASH variants, 5,387 Strober-linear
+variants, and 6,797 Strober-nonlinear variants. The union of the two
+Strober sets has 7,927 variants.</p>
+</div>
+<div id="primary-enrichment-result" class="section level2">
+<h2>Primary enrichment result</h2>
+<p>Each discovered variant is matched to five non-discovered tested
+variants on chromosome, cohort MAF, minimum distance to a tested
+target-gene TSS, local tested-variant density within +/-1 Mb, and the
+number of tested genes. Matching is repeated for 100 fixed seeds. Points
+pool the matched controls across seeds; intervals are
+delete-one-autosome jackknife 95% intervals. Filled points have BH q
+below 0.05 within the displayed analysis panel. Categories with fewer
+than 10 overlaps in either the discovery set or pooled controls are
+retained as missing estimates rather than extrapolated from very sparse
+counts.</p>
+<pre class="r"><code>plot_primary_enrichment()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_variant_annotation_enrichment.rmd/primary-enrichment-1.png" alt="Figure 1. Functional-annotation enrichment for FASH, Strober linear, and Strober nonlinear variant discoveries at their reported 0.05 thresholds. Enrichment is relative to matched variants from the common tested universe. Error bars are delete-one-chromosome 95% intervals." width="1728" />
+<p class="caption">
+Figure 1. Functional-annotation enrichment for FASH, Strober linear, and
+Strober nonlinear variant discoveries at their reported 0.05 thresholds.
+Enrichment is relative to matched variants from the common tested
+universe. Error bars are delete-one-chromosome 95% intervals.
+</p>
+</div>
+<p>The plot includes gene architecture from <a
+href="https://www.gencodegenes.org/human/release_19.html">GENCODE
+v19</a>, the cell-type-agnostic hg19 ENCODE cCRE registry <a
+href="https://www.encodeproject.org/files/ENCFF788SJC/">ENCFF788SJC</a>,
+and Roadmap 15-state ChromHMM annotations for iPS-20b (E020),
+hESC-derived CD56+ mesoderm (E013), and left ventricle (E095). These
+tissues provide an iPSC-centered comparison and two
+differentiation-relevant references; they are not exact matches to every
+sampled time point.</p>
+</div>
+<div id="are-fash-only-discoveries-enriched" class="section level2">
+<h2>Are FASH-only discoveries enriched?</h2>
+<p>An rsID-only comparison classifies 7,972 variants as FASH-specific.
+This can overstate specificity when FASH and Strober select different
+variants in the same LD block. The sensitivity analysis therefore also
+removes a FASH variant when a Strober-union variant lies within 1 Mb and
+has dosage r<sup>2</sup> ≥ 0.8 in the 19 study donors.</p>
+<pre class="r"><code>plot_specific_enrichment()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_variant_annotation_enrichment.rmd/specific-enrichment-1.png" alt="Figure 2. Functional-annotation enrichment for exact-ID-specific and LD-aware-specific FASH and Strober variants. The LD-aware definition uses dosage correlation in the 19 study donors and is therefore an approximate sensitivity analysis." width="1728" />
+<p class="caption">
+Figure 2. Functional-annotation enrichment for exact-ID-specific and
+LD-aware-specific FASH and Strober variants. The LD-aware definition
+uses dosage correlation in the 19 study donors and is therefore an
+approximate sensitivity analysis.
+</p>
+</div>
+<div class="variant-enrichment-caution">
+<p><strong>Interpretation boundary.</strong> With only 19 donors, sample
+dosage correlations are noisy. The LD-aware panel is useful for checking
+whether an exact-ID result is obviously driven by neighboring tags, but
+it is not a high-resolution fine-mapping analysis. A reference-panel LD
+analysis would be a sensible follow-up if this result becomes
+manuscript-facing.</p>
+</div>
+<p>The table below gives the FASH estimates for intronic overlap and the
+seven core regulatory categories. Intronic overlap is included because
+it is the strongest positive FASH-specific result, although it is not
+equivalent to active regulatory annotation.</p>
+<pre class="r"><code>render_scrollable_table(
+  key_result_table,
+  digits = 4L,
+  align = &quot;rlrrrrr&quot;,
+  minimum_width = &quot;1050px&quot;
+)</code></pre>
+<div class="variant-enrichment-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1050px;">
+<thead>
+<tr>
+<th style="text-align:right;">
+Set
+</th>
+<th style="text-align:left;">
+Variants
+</th>
+<th style="text-align:right;">
+Annotation
+</th>
+<th style="text-align:right;">
+Fold enrichment
+</th>
+<th style="text-align:right;">
+95% CI lower
+</th>
+<th style="text-align:right;">
+95% CI upper
+</th>
+<th style="text-align:right;">
+Panel BH q
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+FASH
+</td>
+<td style="text-align:left;">
+9139
+</td>
+<td style="text-align:right;">
+Promoter (+/-2 kb)
+</td>
+<td style="text-align:right;">
+1.0047
+</td>
+<td style="text-align:right;">
+0.9408
+</td>
+<td style="text-align:right;">
+1.0730
+</td>
+<td style="text-align:right;">
+0.9585
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH
+</td>
+<td style="text-align:left;">
+9139
+</td>
+<td style="text-align:right;">
+Intron
+</td>
+<td style="text-align:right;">
+1.0667
+</td>
+<td style="text-align:right;">
+1.0071
+</td>
+<td style="text-align:right;">
+1.1299
+</td>
+<td style="text-align:right;">
+0.1575
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH
+</td>
+<td style="text-align:left;">
+9139
+</td>
+<td style="text-align:right;">
+Promoter-like cCRE
+</td>
+<td style="text-align:right;">
+1.0870
+</td>
+<td style="text-align:right;">
+0.9639
+</td>
+<td style="text-align:right;">
+1.2258
+</td>
+<td style="text-align:right;">
+0.5051
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH
+</td>
+<td style="text-align:left;">
+9139
+</td>
+<td style="text-align:right;">
+Enhancer-like cCRE
+</td>
+<td style="text-align:right;">
+0.9769
+</td>
+<td style="text-align:right;">
+0.9175
+</td>
+<td style="text-align:right;">
+1.0400
+</td>
+<td style="text-align:right;">
+0.8529
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH
+</td>
+<td style="text-align:left;">
+9139
+</td>
+<td style="text-align:right;">
+E020 active TSS
+</td>
+<td style="text-align:right;">
+0.9106
+</td>
+<td style="text-align:right;">
+0.7774
+</td>
+<td style="text-align:right;">
+1.0667
+</td>
+<td style="text-align:right;">
+0.5809
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH
+</td>
+<td style="text-align:left;">
+9139
+</td>
+<td style="text-align:right;">
+E020 enhancer
+</td>
+<td style="text-align:right;">
+0.8659
+</td>
+<td style="text-align:right;">
+0.6651
+</td>
+<td style="text-align:right;">
+1.1275
+</td>
+<td style="text-align:right;">
+0.6376
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH
+</td>
+<td style="text-align:left;">
+9139
+</td>
+<td style="text-align:right;">
+E013 active TSS
+</td>
+<td style="text-align:right;">
+1.0150
+</td>
+<td style="text-align:right;">
+0.9034
+</td>
+<td style="text-align:right;">
+1.1403
+</td>
+<td style="text-align:right;">
+0.9458
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH
+</td>
+<td style="text-align:left;">
+9139
+</td>
+<td style="text-align:right;">
+E013 enhancer
+</td>
+<td style="text-align:right;">
+0.9804
+</td>
+<td style="text-align:right;">
+0.7820
+</td>
+<td style="text-align:right;">
+1.2292
+</td>
+<td style="text-align:right;">
+0.9585
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH exact-specific
+</td>
+<td style="text-align:left;">
+7972
+</td>
+<td style="text-align:right;">
+Promoter (+/-2 kb)
+</td>
+<td style="text-align:right;">
+0.9846
+</td>
+<td style="text-align:right;">
+0.9165
+</td>
+<td style="text-align:right;">
+1.0577
+</td>
+<td style="text-align:right;">
+0.8945
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH exact-specific
+</td>
+<td style="text-align:left;">
+7972
+</td>
+<td style="text-align:right;">
+Intron
+</td>
+<td style="text-align:right;">
+1.0773
+</td>
+<td style="text-align:right;">
+1.0250
+</td>
+<td style="text-align:right;">
+1.1322
+</td>
+<td style="text-align:right;">
+0.0480
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH exact-specific
+</td>
+<td style="text-align:left;">
+7972
+</td>
+<td style="text-align:right;">
+Promoter-like cCRE
+</td>
+<td style="text-align:right;">
+1.0503
+</td>
+<td style="text-align:right;">
+0.9353
+</td>
+<td style="text-align:right;">
+1.1794
+</td>
+<td style="text-align:right;">
+0.7421
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH exact-specific
+</td>
+<td style="text-align:left;">
+7972
+</td>
+<td style="text-align:right;">
+Enhancer-like cCRE
+</td>
+<td style="text-align:right;">
+0.9684
+</td>
+<td style="text-align:right;">
+0.9025
+</td>
+<td style="text-align:right;">
+1.0392
+</td>
+<td style="text-align:right;">
+0.7421
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH exact-specific
+</td>
+<td style="text-align:left;">
+7972
+</td>
+<td style="text-align:right;">
+E020 active TSS
+</td>
+<td style="text-align:right;">
+0.8849
+</td>
+<td style="text-align:right;">
+0.7442
+</td>
+<td style="text-align:right;">
+1.0521
+</td>
+<td style="text-align:right;">
+0.5413
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH exact-specific
+</td>
+<td style="text-align:left;">
+7972
+</td>
+<td style="text-align:right;">
+E020 enhancer
+</td>
+<td style="text-align:right;">
+0.8490
+</td>
+<td style="text-align:right;">
+0.6507
+</td>
+<td style="text-align:right;">
+1.1077
+</td>
+<td style="text-align:right;">
+0.5888
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH exact-specific
+</td>
+<td style="text-align:left;">
+7972
+</td>
+<td style="text-align:right;">
+E013 active TSS
+</td>
+<td style="text-align:right;">
+0.9325
+</td>
+<td style="text-align:right;">
+0.8447
+</td>
+<td style="text-align:right;">
+1.0295
+</td>
+<td style="text-align:right;">
+0.5413
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH exact-specific
+</td>
+<td style="text-align:left;">
+7972
+</td>
+<td style="text-align:right;">
+E013 enhancer
+</td>
+<td style="text-align:right;">
+0.9685
+</td>
+<td style="text-align:right;">
+0.7724
+</td>
+<td style="text-align:right;">
+1.2144
+</td>
+<td style="text-align:right;">
+0.9399
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH LD-specific
+</td>
+<td style="text-align:left;">
+7808
+</td>
+<td style="text-align:right;">
+Promoter (+/-2 kb)
+</td>
+<td style="text-align:right;">
+0.9976
+</td>
+<td style="text-align:right;">
+0.9316
+</td>
+<td style="text-align:right;">
+1.0683
+</td>
+<td style="text-align:right;">
+0.9628
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH LD-specific
+</td>
+<td style="text-align:left;">
+7808
+</td>
+<td style="text-align:right;">
+Intron
+</td>
+<td style="text-align:right;">
+1.0792
+</td>
+<td style="text-align:right;">
+1.0260
+</td>
+<td style="text-align:right;">
+1.1351
+</td>
+<td style="text-align:right;">
+0.0480
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH LD-specific
+</td>
+<td style="text-align:left;">
+7808
+</td>
+<td style="text-align:right;">
+Promoter-like cCRE
+</td>
+<td style="text-align:right;">
+1.0648
+</td>
+<td style="text-align:right;">
+0.9474
+</td>
+<td style="text-align:right;">
+1.1968
+</td>
+<td style="text-align:right;">
+0.6536
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH LD-specific
+</td>
+<td style="text-align:left;">
+7808
+</td>
+<td style="text-align:right;">
+Enhancer-like cCRE
+</td>
+<td style="text-align:right;">
+0.9608
+</td>
+<td style="text-align:right;">
+0.8949
+</td>
+<td style="text-align:right;">
+1.0316
+</td>
+<td style="text-align:right;">
+0.6164
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH LD-specific
+</td>
+<td style="text-align:left;">
+7808
+</td>
+<td style="text-align:right;">
+E020 active TSS
+</td>
+<td style="text-align:right;">
+0.8804
+</td>
+<td style="text-align:right;">
+0.7409
+</td>
+<td style="text-align:right;">
+1.0463
+</td>
+<td style="text-align:right;">
+0.5115
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH LD-specific
+</td>
+<td style="text-align:left;">
+7808
+</td>
+<td style="text-align:right;">
+E020 enhancer
+</td>
+<td style="text-align:right;">
+0.8524
+</td>
+<td style="text-align:right;">
+0.6558
+</td>
+<td style="text-align:right;">
+1.1079
+</td>
+<td style="text-align:right;">
+0.5888
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH LD-specific
+</td>
+<td style="text-align:left;">
+7808
+</td>
+<td style="text-align:right;">
+E013 active TSS
+</td>
+<td style="text-align:right;">
+0.9410
+</td>
+<td style="text-align:right;">
+0.8556
+</td>
+<td style="text-align:right;">
+1.0348
+</td>
+<td style="text-align:right;">
+0.5888
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+FASH LD-specific
+</td>
+<td style="text-align:left;">
+7808
+</td>
+<td style="text-align:right;">
+E013 enhancer
+</td>
+<td style="text-align:right;">
+0.9554
+</td>
+<td style="text-align:right;">
+0.7676
+</td>
+<td style="text-align:right;">
+1.1891
+</td>
+<td style="text-align:right;">
+0.8945
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="unequal-set-size-and-repeated-locus-sensitivities"
+class="section level2">
+<h2>Unequal set size and repeated-locus sensitivities</h2>
+<p>Two additional analyses probe design choices that can make one method
+appear more enriched than another:</p>
+<ul>
+<li><strong>Equal top-K:</strong> retain the top 5,387 unique variants
+for each method, where K is the size of the smallest primary discovery
+set.</li>
+<li><strong>One lead variant per discovered gene:</strong> retain the
+lowest-lfdr FASH variant or lowest-p-value Strober variant per
+discovered gene.</li>
+</ul>
+<pre class="r"><code>plot_design_sensitivities()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_variant_annotation_enrichment.rmd/design-sensitivities-1.png" alt="Figure 3. Equal-top-K and one-lead-variant-per-gene sensitivity analyses for core regulatory annotations. These panels test whether unequal discovery counts or repeated nearby discoveries dominate the primary comparison." width="1728" />
+<p class="caption">
+Figure 3. Equal-top-K and one-lead-variant-per-gene sensitivity analyses
+for core regulatory annotations. These panels test whether unequal
+discovery counts or repeated nearby discoveries dominate the primary
+comparison.
+</p>
+</div>
+<p>These are sensitivity estimands, not replacements for the
+reported-threshold analysis. In particular, top-K changes the
+significance criterion, while one lead variant per gene changes both
+locus weighting and the number of variants.</p>
+</div>
+<div id="matching-diagnostics" class="section level2">
+<h2>Matching diagnostics</h2>
+<p>The standardized mean differences below compare each discovery set
+with its matched controls for every seed. Dotted lines mark +/-0.1 as a
+visual reference, not a formal acceptance threshold.</p>
+<pre class="r"><code>plot_matching_balance()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_variant_annotation_enrichment.rmd/matching-balance-plot-1.png" alt="Figure 4. Matching balance over 100 deterministic seeds. Boxes summarize standardized mean differences between discovered variants and their matched controls." width="1836" />
+<p class="caption">
+Figure 4. Matching balance over 100 deterministic seeds. Boxes summarize
+standardized mean differences between discovered variants and their
+matched controls.
+</p>
+</div>
+<details>
+<summary>
+<strong>Maximum absolute standardized differences</strong>
+</summary>
+<pre class="r"><code>render_scrollable_table(
+  matching_balance_summary,
+  digits = 4L,
+  align = &quot;lllr&quot;,
+  minimum_width = &quot;880px&quot;
+)</code></pre>
+<div class="variant-enrichment-table-scroll">
+<table class="table table-striped table-hover" style="min-width:880px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Panel
+</th>
+<th style="text-align:left;">
+Set
+</th>
+<th style="text-align:left;">
+Covariate
+</th>
+<th style="text-align:right;">
+Maximum absolute SMD
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:left;">
+local_tested_variant_count_1mb
+</td>
+<td style="text-align:right;">
+0.0100
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:left;">
+minimum_target_tss_distance
+</td>
+<td style="text-align:right;">
+0.0038
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:left;">
+minor_allele_frequency
+</td>
+<td style="text-align:right;">
+0.0067
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:left;">
+n_tested_genes
+</td>
+<td style="text-align:right;">
+0.0065
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+n_tested_genes
+</td>
+<td style="text-align:right;">
+0.0068
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+local_tested_variant_count_1mb
+</td>
+<td style="text-align:right;">
+0.0114
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+minimum_target_tss_distance
+</td>
+<td style="text-align:right;">
+0.0035
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+minor_allele_frequency
+</td>
+<td style="text-align:right;">
+0.0047
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:left;">
+minor_allele_frequency
+</td>
+<td style="text-align:right;">
+0.0029
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:left;">
+n_tested_genes
+</td>
+<td style="text-align:right;">
+0.0042
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:left;">
+local_tested_variant_count_1mb
+</td>
+<td style="text-align:right;">
+0.0126
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:left;">
+minimum_target_tss_distance
+</td>
+<td style="text-align:right;">
+0.0032
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:left;">
+minimum_target_tss_distance
+</td>
+<td style="text-align:right;">
+0.0112
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:left;">
+minor_allele_frequency
+</td>
+<td style="text-align:right;">
+0.0088
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:left;">
+n_tested_genes
+</td>
+<td style="text-align:right;">
+0.0067
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:left;">
+local_tested_variant_count_1mb
+</td>
+<td style="text-align:right;">
+0.0130
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+local_tested_variant_count_1mb
+</td>
+<td style="text-align:right;">
+0.0216
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+minimum_target_tss_distance
+</td>
+<td style="text-align:right;">
+0.0075
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+minor_allele_frequency
+</td>
+<td style="text-align:right;">
+0.0074
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+n_tested_genes
+</td>
+<td style="text-align:right;">
+0.0151
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:left;">
+n_tested_genes
+</td>
+<td style="text-align:right;">
+0.0118
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:left;">
+local_tested_variant_count_1mb
+</td>
+<td style="text-align:right;">
+0.0110
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:left;">
+minimum_target_tss_distance
+</td>
+<td style="text-align:right;">
+0.0046
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:left;">
+minor_allele_frequency
+</td>
+<td style="text-align:right;">
+0.0053
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:left;">
+minor_allele_frequency
+</td>
+<td style="text-align:right;">
+0.0028
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:left;">
+n_tested_genes
+</td>
+<td style="text-align:right;">
+0.0038
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:left;">
+local_tested_variant_count_1mb
+</td>
+<td style="text-align:right;">
+0.0040
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:left;">
+minimum_target_tss_distance
+</td>
+<td style="text-align:right;">
+0.0020
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+minimum_target_tss_distance
+</td>
+<td style="text-align:right;">
+0.0035
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+minor_allele_frequency
+</td>
+<td style="text-align:right;">
+0.0047
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+n_tested_genes
+</td>
+<td style="text-align:right;">
+0.0068
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:left;">
+local_tested_variant_count_1mb
+</td>
+<td style="text-align:right;">
+0.0114
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:left;">
+local_tested_variant_count_1mb
+</td>
+<td style="text-align:right;">
+0.0083
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:left;">
+minimum_target_tss_distance
+</td>
+<td style="text-align:right;">
+0.0023
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:left;">
+minor_allele_frequency
+</td>
+<td style="text-align:right;">
+0.0026
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:left;">
+n_tested_genes
+</td>
+<td style="text-align:right;">
+0.0027
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+FASH exact-specific
+</td>
+<td style="text-align:left;">
+n_tested_genes
+</td>
+<td style="text-align:right;">
+0.0018
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+FASH exact-specific
+</td>
+<td style="text-align:left;">
+local_tested_variant_count_1mb
+</td>
+<td style="text-align:right;">
+0.0049
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+FASH exact-specific
+</td>
+<td style="text-align:left;">
+minimum_target_tss_distance
+</td>
+<td style="text-align:right;">
+0.0016
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+FASH exact-specific
+</td>
+<td style="text-align:left;">
+minor_allele_frequency
+</td>
+<td style="text-align:right;">
+0.0053
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+FASH LD-specific
+</td>
+<td style="text-align:left;">
+minor_allele_frequency
+</td>
+<td style="text-align:right;">
+0.0041
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+FASH LD-specific
+</td>
+<td style="text-align:left;">
+n_tested_genes
+</td>
+<td style="text-align:right;">
+0.0025
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+FASH LD-specific
+</td>
+<td style="text-align:left;">
+local_tested_variant_count_1mb
+</td>
+<td style="text-align:right;">
+0.0060
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+FASH LD-specific
+</td>
+<td style="text-align:left;">
+minimum_target_tss_distance
+</td>
+<td style="text-align:right;">
+0.0017
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+Strober exact-specific
+</td>
+<td style="text-align:left;">
+minimum_target_tss_distance
+</td>
+<td style="text-align:right;">
+0.0037
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+Strober exact-specific
+</td>
+<td style="text-align:left;">
+minor_allele_frequency
+</td>
+<td style="text-align:right;">
+0.0019
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+Strober exact-specific
+</td>
+<td style="text-align:left;">
+n_tested_genes
+</td>
+<td style="text-align:right;">
+0.0049
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+Strober exact-specific
+</td>
+<td style="text-align:left;">
+local_tested_variant_count_1mb
+</td>
+<td style="text-align:right;">
+0.0056
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+Strober LD-specific
+</td>
+<td style="text-align:left;">
+local_tested_variant_count_1mb
+</td>
+<td style="text-align:right;">
+0.0051
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+Strober LD-specific
+</td>
+<td style="text-align:left;">
+minimum_target_tss_distance
+</td>
+<td style="text-align:right;">
+0.0038
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+Strober LD-specific
+</td>
+<td style="text-align:left;">
+minor_allele_frequency
+</td>
+<td style="text-align:right;">
+0.0022
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+Strober LD-specific
+</td>
+<td style="text-align:left;">
+n_tested_genes
+</td>
+<td style="text-align:right;">
+0.0084
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</details>
+<p>Matching starts with the full coarsened stratum. If no control is
+available, it drops local-density bin, then target-distance bin, and
+finally chooses from the nearest standardized covariate profiles within
+the same chromosome and MAF bin. Chromosome and MAF bin are never
+relaxed.</p>
+<details>
+<summary>
+<strong>Matching relaxation audit</strong>
+</summary>
+<pre class="r"><code>render_scrollable_table(
+  relaxation_summary,
+  digits = 4L,
+  align = &quot;llrrr&quot;,
+  minimum_width = &quot;820px&quot;
+)</code></pre>
+<div class="variant-enrichment-table-scroll">
+<table class="table table-striped table-hover" style="min-width:820px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Panel
+</th>
+<th style="text-align:left;">
+Set
+</th>
+<th style="text-align:right;">
+Relaxation level
+</th>
+<th style="text-align:right;">
+Variants
+</th>
+<th style="text-align:right;">
+Proportion
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+8800
+</td>
+<td style="text-align:right;">
+0.9629
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+327
+</td>
+<td style="text-align:right;">
+0.0358
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0.0013
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5150
+</td>
+<td style="text-align:right;">
+0.9560
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+226
+</td>
+<td style="text-align:right;">
+0.0420
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0.0019
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.0002
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+6546
+</td>
+<td style="text-align:right;">
+0.9631
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+239
+</td>
+<td style="text-align:right;">
+0.0352
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+0.0016
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primary reported-threshold sets
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+FASH exact-specific
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+7705
+</td>
+<td style="text-align:right;">
+0.9665
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+FASH exact-specific
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+255
+</td>
+<td style="text-align:right;">
+0.0320
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+FASH exact-specific
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0.0015
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+FASH LD-specific
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+7542
+</td>
+<td style="text-align:right;">
+0.9659
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+FASH LD-specific
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+255
+</td>
+<td style="text-align:right;">
+0.0327
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+FASH LD-specific
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+0.0014
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+Strober exact-specific
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+6539
+</td>
+<td style="text-align:right;">
+0.9673
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+Strober exact-specific
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+208
+</td>
+<td style="text-align:right;">
+0.0308
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+Strober exact-specific
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0.0018
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+Strober exact-specific
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.0001
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+Strober LD-specific
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+6360
+</td>
+<td style="text-align:right;">
+0.9676
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+Strober LD-specific
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+200
+</td>
+<td style="text-align:right;">
+0.0304
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+Strober LD-specific
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0.0018
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Method-specific sensitivity
+</td>
+<td style="text-align:left;">
+Strober LD-specific
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.0002
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5201
+</td>
+<td style="text-align:right;">
+0.9655
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+177
+</td>
+<td style="text-align:right;">
+0.0329
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0.0017
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5150
+</td>
+<td style="text-align:right;">
+0.9560
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+226
+</td>
+<td style="text-align:right;">
+0.0420
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0.0019
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.0002
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5182
+</td>
+<td style="text-align:right;">
+0.9619
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+195
+</td>
+<td style="text-align:right;">
+0.0362
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0.0017
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Equal top-K sensitivity
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.0002
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1146
+</td>
+<td style="text-align:right;">
+0.9795
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+0.0197
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+FASH
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.0009
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+529
+</td>
+<td style="text-align:right;">
+0.9653
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+Strober linear
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+0.0347
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+668
+</td>
+<td style="text-align:right;">
+0.9681
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:left;">
+Strober nonlinear
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+0.0319
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</details>
+</div>
+<div id="annotation-provenance" class="section level2">
+<h2>Annotation provenance</h2>
+<p>All coordinates use GRCh37/hg19; no lift-over is performed. The
+downloaded files and observed checksums are retained in the analysis
+cache.</p>
+<pre class="r"><code>render_scrollable_table(
+  source_table,
+  digits = 4L,
+  align = &quot;llllrr&quot;,
+  minimum_width = &quot;1180px&quot;
+)</code></pre>
+<div class="variant-enrichment-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1180px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Source ID
+</th>
+<th style="text-align:left;">
+Source
+</th>
+<th style="text-align:left;">
+Assembly
+</th>
+<th style="text-align:left;">
+Accession
+</th>
+<th style="text-align:right;">
+Bytes
+</th>
+<th style="text-align:right;">
+MD5
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+gencode_v19
+</td>
+<td style="text-align:left;">
+GENCODE comprehensive gene annotation release 19
+</td>
+<td style="text-align:left;">
+GRCh37
+</td>
+<td style="text-align:left;">
+GENCODE19
+</td>
+<td style="text-align:right;">
+37991892
+</td>
+<td style="text-align:right;">
+bd83e28270e595d3bde6bfcb21c9748f
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+encode_ccre_hg19
+</td>
+<td style="text-align:left;">
+ENCODE cell-type-agnostic candidate cis-regulatory elements
+</td>
+<td style="text-align:left;">
+hg19
+</td>
+<td style="text-align:left;">
+ENCFF788SJC
+</td>
+<td style="text-align:right;">
+18053388
+</td>
+<td style="text-align:right;">
+1a972fc5f5cc7d31e0ddeda7a7b1ac26
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+roadmap_e020
+</td>
+<td style="text-align:left;">
+NIH Roadmap 15-state ChromHMM iPS-20b
+</td>
+<td style="text-align:left;">
+hg19
+</td>
+<td style="text-align:left;">
+E020
+</td>
+<td style="text-align:right;">
+2873029
+</td>
+<td style="text-align:right;">
+cedf4fff2f7342ea9cb5bbc9456d1597
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+roadmap_e013
+</td>
+<td style="text-align:left;">
+NIH Roadmap 15-state ChromHMM hESC-derived CD56+ mesoderm
+</td>
+<td style="text-align:left;">
+hg19
+</td>
+<td style="text-align:left;">
+E013
+</td>
+<td style="text-align:right;">
+2483570
+</td>
+<td style="text-align:right;">
+640532177fa816c5032f300d45cca3c9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+roadmap_e095
+</td>
+<td style="text-align:left;">
+NIH Roadmap 15-state ChromHMM left ventricle
+</td>
+<td style="text-align:left;">
+hg19
+</td>
+<td style="text-align:left;">
+E095
+</td>
+<td style="text-align:right;">
+2732556
+</td>
+<td style="text-align:right;">
+d7c6b90285e032eebbd9c3b6a0b444a6
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The Roadmap state labels follow the official <a
+href="https://egg2.wustl.edu/roadmap/web_portal/chr_state_learning.html">15-state
+core-mark model</a> and are collapsed into active TSS, enhancer,
+transcribed, bivalent/poised, Polycomb-repressed,
+heterochromatin/repeats, and quiescent categories. The full set of
+collapsed states is retained in the cache even though the main figures
+focus on regulatory categories.</p>
+</div>
+<div id="limitations-and-next-decision" class="section level2">
+<h2>Limitations and next decision</h2>
+<ul>
+<li>Functional overlap is not causal fine-mapping; linked variants can
+share an annotation signal.</li>
+<li>The control design addresses measured
+chromosome/MAF/distance/density/gene- multiplicity differences, but
+unmeasured discovery-process differences can remain.</li>
+<li>ENCODE cCREs are cell-type agnostic, and the three Roadmap
+epigenomes are biologically motivated references rather than exact
+time-resolved matches.</li>
+<li>Panel-level q-values are descriptive because annotation categories
+overlap and the discovery sets were generated from the same tested
+universe.</li>
+</ul>
+<p>In this run, all-FASH and LD-aware FASH-specific variants agree in
+showing no clear positive enrichment in the core promoter/cCRE/iPSC
+regulatory annotations. The mild intronic result is too indirect to
+support a claim that FASH uniquely recovers more functional variants,
+especially because the Strober nonlinear sets show the clearer enhancer
+pattern. The current evidence therefore argues for keeping this analysis
+internal. If the question remains important, the next useful step is a
+deliberately chosen time-resolved iPSC/cardiomyocyte regulatory atlas
+plus reference-panel LD, not promotion of the present result to the
+manuscript.</p>
+</div>
+<div id="reproduction" class="section level2">
+<h2>Reproduction</h2>
+<p>The page reads only retained caches. Recreate them from the fixed
+FASH fit, Strober tables, study VCF, and versioned annotations with:</p>
+<pre class="r"><code>Rscript --vanilla code/revision_simulations/internal/variant_annotation_enrichment/run_variant_annotation_enrichment.R</code></pre>
+<p>The cache was generated at 2026-08-07 20:42:34 UTC. The full command,
+input checksums, session information, per-seed balance summaries,
+enrichment tables, and LD classifications are retained under
+<code>output/revision_simulations/internal/variant_annotation_enrichment/</code>.</p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+ [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.1.4        compiler_4.5.1    
+ [5] promises_1.5.0     tidyselect_1.2.1   Rcpp_1.1.1-1.1     stringr_1.6.0     
+ [9] git2r_0.36.2       dichromat_2.0-0.1  later_1.4.4        jquerylib_0.1.4   
+[13] scales_1.4.0       yaml_2.3.12        fastmap_1.2.0      ggplot2_4.0.1     
+[17] R6_2.6.1           labeling_0.4.3     generics_0.1.4     workflowr_1.7.2   
+[21] knitr_1.50         tibble_3.3.0       rprojroot_2.1.1    bslib_0.9.0       
+[25] pillar_1.11.1      RColorBrewer_1.1-3 rlang_1.2.0        cachem_1.1.0      
+[29] stringi_1.8.7      httpuv_1.6.16      xfun_0.55          S7_0.2.1          
+[33] fs_1.6.6           sass_0.4.10        otel_0.2.0         cli_3.6.6         
+[37] withr_3.0.2        magrittr_2.0.5     digest_0.6.39      grid_4.5.1        
+[41] rstudioapi_0.17.1  lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5    
+[45] glue_1.8.1         farver_2.1.2       rmarkdown_2.30     tools_4.5.1       
+[49] pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

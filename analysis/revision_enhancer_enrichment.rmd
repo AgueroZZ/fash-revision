@@ -1,0 +1,384 @@
+---
+title: "Revision Real-data Analysis R6: enhancer enrichment of FASH dynamic eQTLs"
+author: "Ziang Zhang"
+date: "2026-08-09"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+    toc: true
+    toc_depth: 2
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 11,
+  fig.height = 8.4,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(file.path(
+  "code",
+  "revision_simulations",
+  "internal",
+  "fash_strober_enhancer_comparison",
+  "reporting.R"
+))
+```
+
+<style>
+.fash-strober-key-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.fash-strober-caution {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #cc7a00;
+  border-radius: 4px;
+  background: #fff8ec;
+  color: #563a0c;
+}
+.fash-strober-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.fash-strober-table-scroll table {
+  margin-bottom: 1em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+
+## The question
+
+Do the gene-variant pairs that FASH discovers, and Strober's linear and
+quadratic/nonlinear analyses do not, carry independent regulatory evidence?
+
+| Section | What is being tested |
+|---|---|
+| 1 | FASH versus Strober linear versus Strober quadratic/nonlinear |
+| 2 | FASH discoveries at variants Strober never discovered |
+
+Both figures show the same two selection strategies side by side: **all
+discovered variants** and **one lead variant per gene**. FASH uses cumulative
+lfdr at FDR 0.05 after the BF correction; Strober uses its reported eFDR 0.05.
+The existing Strober `non_linear_dynamic_eqtls_5_pc.txt` result is labelled
+quadratic/nonlinear throughout.
+
+**FASH-only, variant level:** an rsID is not FASH-only if it appears in *any*
+Strober linear or quadratic discovery, regardless of which gene it was paired
+with. This is the conservative reading of "new evidence", because an enhancer
+annotation is a property of a variant rather than of a pair. For the lead
+column, the per-gene lowest-lfdr variant is chosen **first** and the exclusion
+applied afterwards, so every variant shown is genuinely FASH's top call for its
+gene; a gene whose best variant Strober also found drops out rather than falling
+back to a weaker one.
+
+## Discovery-set construction
+
+```{r discovery-table, results='asis'}
+render_scrollable_table(
+  discovery_table,
+  align = "rlllrrr",
+  minimum_width = "1120px"
+)
+```
+
+Of the
+`r format_integer(strict_exclusivity_audit$original_variant_count[1])`
+variants FASH discovers,
+`r format_integer(strict_exclusivity_audit$excluded_variant_count[1])`
+were also discovered by Strober linear or quadratic/nonlinear and are removed,
+leaving `r format_integer(strict_exclusivity_audit$fash_only_variant_count[1])`
+that only FASH found.
+
+<details>
+<summary><strong>Annotation coverage for all eight sets</strong></summary>
+
+```{r coverage-table, results='asis'}
+render_scrollable_table(
+  coverage_table,
+  align = "llllrrr",
+  minimum_width = "1240px"
+)
+```
+
+</details>
+
+## Section 1: FASH versus Strober
+
+```{r section1, fig.width=11.5, fig.height=8.8, fig.cap="Figure 1. Enhancer enrichment for current FASH, Strober linear, and Strober quadratic/nonlinear. Intervals are delete-one-autosome 95% intervals; filled points mark nominal p below 0.05 without multiplicity correction. Chevrons mark intervals extending beyond the plotted range; exact bounds are returned by compute_enrichment()."}
+plot_method_comparison("Current FASH")
+```
+
+Under lead-per-gene selection the ordering reverses at the
+E013 mesoderm enhancer, where FASH holds the strongest estimate of the three
+methods: `r describe_estimate("Custom regulatory", "current_lead", e013)`,
+against `r format_decimal(enhancer_lookup("Custom regulatory", "linear_lead", e013)$enrichment, 2L)`-fold
+for Strober linear and
+`r format_decimal(enhancer_lookup("Custom regulatory", "quadratic_lead", e013)$enrichment, 2L)`-fold
+for Strober quadratic.
+
+## Section 2: variants Strober never discovered
+
+The grey series repeats the unfiltered FASH set from Section 1 so the effect of
+the exclusion is directly visible.
+
+```{r section2, fig.width=11.5, fig.height=8.8, fig.cap="Figure 2. Enhancer enrichment for FASH discoveries at variants absent from both Strober analyses, against the unfiltered FASH reference. Chevrons mark intervals extending beyond the plotted range; exact bounds are returned by compute_enrichment()."}
+plot_fash_only()
+```
+
+**All variants** (`r set_size("current_only_all")` variants): every FASH
+discovery at a variant Strober never found. Here
+`r describe_significant("current_only_all")`.
+
+**One lead variant per gene** (`r set_size("current_only_lead")` variants):
+FASH's lowest-lfdr variant for each gene, keeping only those Strober never
+found. A gene whose best variant Strober also discovered drops out rather than
+falling back to a weaker one, so
+`r format_integer(strict_exclusivity_audit$fash_only_lead_gene_count[1])` of
+FASH's `r format_integer(lead_gene_count)` genes survive. Here the enriched
+annotations are `r describe_significant("current_only_lead")`.
+
+<div class="fash-strober-caution">
+<strong>Exploratory, uncorrected.</strong> Fold enrichment, 95% intervals, and
+nominal p-values are reported for
+`r format_integer(n_enhancer_tests)` estimable enhancer estimates across
+`r length(expected_sets)` variant sets and two annotation systems, with no
+multiplicity adjustment; the p-values are descriptive. The two annotation
+systems evaluate the same discoveries and are not independent replications.
+Each set has its own matched controls and the sets differ in size and
+membership, so a larger estimate for one method is not a formal test that it
+outperforms another - in particular, Strober's higher all-variant enrichment
+must not be read that way.
+</div>
+
+<div class="fash-strober-key-result">
+<strong>Readout.</strong> FASH discoveries at variants Strober never found are
+enriched for mesoderm enhancers when one lead variant per gene is taken, and
+indistinguishable from the null when every discovered variant is counted. E013
+is the hESC-derived CD56+ mesoderm enhancer set, the transitional state of this
+iPSC-to-cardiomyocyte differentiation, between the E020 starting state and the
+E095 terminal state. That observation was made after seeing the results and is
+not a pre-specified hypothesis.
+</div>
+
+## Methods
+
+Enough detail to reimplement the analysis from scratch. The
+[How the enrichment is computed](#how-the-enrichment-is-computed) section below
+shows the same thing as four lines of code.
+
+### Annotation provenance
+
+```{r provenance-table, results='asis'}
+render_scrollable_table(
+  provenance_table,
+  align = "llllllll",
+  minimum_width = "1560px",
+  escape = FALSE
+)
+```
+
+### How the custom annotation matrix was built
+
+1. **Variant universe.** All variants tested in the study that lie on an
+   autosome, have a finite cohort MAF, participate in at least one tested
+   gene-variant pair, and have a computable local variant density:
+   `r format_integer(745867)` variants. Everything downstream is defined on this
+   set, so no external reference panel enters.
+2. **Sources.** The five files in the table above, each checksummed on download.
+3. **Interval construction.**
+   - *GENCODE v19*: `gene` and `exon` records only. Gene body is the `gene`
+     interval; exons are reduced to merge overlapping transcripts; **introns are
+     `setdiff(gene body, exon)`**; promoters are TSS &plusmn; 2 kb; **intergenic
+     is the complement of gene body**, not an interval set.
+   - *ENCODE cCRE*: the class is decoded from the RGB field of the BED file, not
+     from a name column - `255,0,0` promoter-like, `255,205,0` **enhancer-like**,
+     `0,176,240` CTCF-only. An unrecognised RGB is a hard error.
+   - *Roadmap*: the 15 ChromHMM states are collapsed to 7 categories. **Enhancer
+     is states 6 and 7** (genic enhancers and enhancers). States 1-2 are Active
+     TSS, 3-5 Transcribed, 8-9 Heterochromatin/repeats, 10-12 Bivalent/poised,
+     13-14 Polycomb-repressed, 15 Quiescent. An unrecognised state is a hard
+     error.
+4. **Coordinate conversion.** BED files are 0-based half-open and GTF is 1-based
+   closed, so BED starts are incremented by one before use.
+5. **Overlap.** Each variant is treated as a single-base interval and
+   intersected against every annotation with `GenomicRanges::findOverlaps`,
+   giving a `r format_integer(745867)` &times; 29 logical matrix. Four of those
+   29 columns are the pre-specified custom enhancers.
+
+baselineLD v2.2 is used as published: its rows are the 1000G Phase 3 **EUR** SNP
+list, which is why only
+`r format_integer(coverage_by_set$covered_variant_count[coverage_by_set$annotation_system == "baselineLD v2.2" & coverage_by_set$discovery_set == "current_all"][1] * 0 + 557405)`
+of the `r format_integer(745867)` tested variants have a row. The enhancer
+*definitions* in both systems are ancestry-free genomic intervals; only
+baselineLD's variant coverage is ancestry-dependent.
+
+### Matched controls
+
+For each discovery set, every selected variant is matched to
+`r configuration$controls_per_variant` non-selected tested variants drawn from
+the same stratum. Strata are the interaction of chromosome with decile bins of
+cohort MAF, log10 minimum target-gene TSS distance, log1p local tested-variant
+count within 1 Mb, and a coarsened tested-gene count (1, 2, 3-4, 5+). Matching
+is repeated over `r configuration$matching_seed_count` fixed seeds beginning at
+`r format_integer(min(configuration$matching_seeds))`, and control counts are
+pooled across seeds. For the baselineLD system both the selected set and the
+control pool are first restricted to baselineLD-covered variants, so numerator
+and denominator stay on the same footing.
+
+### Enrichment and interval
+
+With $a$ selected variants overlapping an annotation out of $n_{\text{sel}}$,
+and $b$ control overlaps out of $n_{\text{ctrl}}$ pooled across seeds:
+
+$$\hat{\theta} = \log_2\!\left[\frac{a/n_{\text{sel}}}{b/n_{\text{ctrl}}}\right]$$
+
+Uncertainty is a delete-one-chromosome block jackknife. For each autosome $c$,
+recompute $\hat{\theta}_{(c)}$ with every variant on $c$ removed from both the
+selected and the control counts, then
+
+$$\mathrm{se} = \sqrt{\frac{m-1}{m}\sum_{c}\left(\hat{\theta}_{(c)} - \bar{\theta}\right)^2},
+\qquad m = 22$$
+
+The reported interval is $\hat{\theta} \pm 1.96\,\mathrm{se}$ on the log2 scale,
+displayed as folds; the nominal p-value is $2\Phi(-|\hat{\theta}/\mathrm{se}|)$.
+Chromosome blocks absorb within-chromosome correlation, which is why these
+p-values are orders of magnitude more conservative than a Fisher test that
+assumes independent variants. An estimate is reported only when both the
+selected and the control overlap reach 10.
+
+<div class="fash-strober-caution">
+<strong>Known limitations of the interval.</strong> Only 22 jackknife blocks, so
+the standard error is itself noisy and the normal quantile is optimistic in the
+tails. Chromosomes differ greatly in size while the standard delete-one formula
+assumes equal blocks. The Monte Carlo variability of the
+`r configuration$matching_seed_count` matching seeds is not propagated; controls
+are pooled and treated as fixed. The interval is symmetric in log2 and therefore
+asymmetric in fold space.
+</div>
+
+## How the enrichment is computed
+
+Stripped of bookkeeping, the analysis is three objects and one function. The
+module [`enrichment_api.R`](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R)
+is written to make that visible:
+
+```{r api-demo, eval=FALSE}
+source("code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R")
+
+# 1. ANNOTATIONS - which variants belong to which group
+annotations <- load_annotation_groups("custom")   # or "baselineld"
+
+# 2. INPUT - a variant set to test, and the background of all tested variants
+background <- load_background()                   # 745,867 tested variants
+sets       <- load_variant_sets()                 # the eight published sets
+
+# 3. OUTPUT - one enrichment score per set per annotation group
+compute_enrichment(sets["current_only_lead"], background, annotations)
+```
+
+`compute_enrichment()` takes **any** named list of variant vectors, so swapping
+in your own sets needs no other change:
+
+```{r api-own-sets, eval=FALSE}
+my_sets <- list(
+  my_hits     = readLines("my_variants.txt"),
+  fash_only   = sets$current_only_lead,
+  strober_lin = sets$linear_lead
+)
+compute_enrichment(my_sets, background, annotations)
+```
+
+### The two control choices
+
+The same function answers the question two ways, and the difference is the
+whole reason the matching machinery exists:
+
+```{r api-controls, eval=FALSE}
+# Plain over-representation: rate in the set / rate in the background.
+compute_enrichment(sets["current_all"], background, annotations,
+                   controls = "background")
+
+# Matched: each selected variant is compared against comparable variants drawn
+# from the background, so the comparison is not confounded.
+compute_enrichment(sets["current_all"], background, annotations,
+                   controls = "matched")
+```
+
+Discovered variants are systematically higher-MAF and closer to a TSS than the
+average tested variant, and enhancers are themselves TSS-proximal, so the plain
+comparison attributes some purely positional signal to biology. For FASH's
+all-variant set at the E095 enhancer the plain fold is 1.22 with a Fisher
+p of 2e-08, while the matched fold is 1.13 at p = 0.16. Every headline number on
+this page uses `controls = "matched"`.
+
+### Available annotation groups
+
+The pre-specified enhancer panel is the default, but both systems carry more:
+
+```{r api-groups, eval=FALSE}
+list_annotation_groups("custom")      # 29 groups: GENCODE, ENCODE cCRE, Roadmap
+list_annotation_groups("baselineld")  # 83 binary baselineLD v2.2 annotations
+
+load_annotation_groups("custom", groups = "GENCODE promoter +/-2 kb")
+```
+
+### Checking the interface against this page
+
+`enrichment_api.R` is a readable front end to the same audited matching engine
+the analysis uses, so it can drift. This check recomputes all eight published
+sets through `compute_enrichment()` and diffs them against the estimates shown
+above:
+
+```{bash api-verify, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R \
+  --verify
+```
+
+### Rebuilding the annotation matrix from source
+
+```{bash rebuild-annotations, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/variant_annotation_enrichment/download_variant_annotations.R
+Rscript --vanilla \
+  code/revision_simulations/internal/variant_annotation_enrichment/run_variant_annotation_enrichment.R
+```
+
+The first downloads and checksums the five annotation sources; the second
+rebuilds the variant universe and the 29-column annotation matrix from them.
+Intermediate data stays under `output/`, which is not tracked in git - the
+repository carries code, not data.
+
+<details>
+<summary><strong>Retained input provenance</strong></summary>
+
+```{r input-provenance-table, results='asis'}
+render_scrollable_table(
+  input_provenance,
+  align = "lrrl",
+  minimum_width = "1360px"
+)
+```
+
+</details>

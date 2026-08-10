@@ -1,0 +1,434 @@
+---
+title: "Internal exploration: mashr-style null-correlation screens"
+author: "Ziang Zhang"
+date: "2026-08-07"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 10,
+  fig.height = 5.8,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(
+  paste0(
+    "code/revision_simulations/internal/covariance_estimation/",
+    "mashr_mean_z_reporting.R"
+  )
+)
+```
+
+<style>
+.mean-z-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.mean-z-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.mean-z-caution {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #d55e00;
+  border-radius: 4px;
+  background: #fff4ec;
+  color: #59331e;
+}
+.mean-z-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.mean-z-table-scroll table {
+  margin-bottom: 1em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+</style>
+
+<div class="mean-z-banner">
+<strong>Internal exploratory analysis.</strong> This page is intentionally
+unlinked. It does not modify the reviewer-facing R4 page, manuscript, response
+letter, or any existing R4 cache.
+</div>
+
+## Question and answer
+
+After drawing one variant per gene before inspecting the outcomes, how do the
+following three screens compare?
+
+Screen 1 is the standard mashr-style maximum-z rule
+
+$$
+\max_t |z_j(t)| < 2
+$$
+
+and Screen 2 adds the proposed mean-Z rule
+
+$$
+\max_t |z_j(t)| < 2
+\quad\text{and}\quad
+|Z_{\mathrm{mean},j}| < 2,
+\qquad
+Z_{\mathrm{mean},j}=\sqrt{16}\,\overline z_j?
+$$
+
+Screen 3 instead starts from Screen 1 and removes pairs called significant by
+a mashr model fitted to all thinned pairs:
+
+$$
+\max_t |z_j(t)| < 2
+\quad\text{and}\quad
+\operatorname{lfdr}_{\mathrm{mashr},j}>0.05.
+$$
+
+Here the pair-level mashr lfdr is the posterior probability assigned to the
+exact all-zero effect component. Thus Screen 3 removes a pair only when mashr
+assigns posterior null probability at most 0.05.
+
+For each retained set, the empirical time correlation is estimated exactly as
+
+$$
+\widehat C=\operatorname{cor}(Z_{\mathcal N}),
+$$
+
+where rows are thinned gene--variant units and columns are the 16 time points.
+No trajectory is centered within a unit.
+
+<div class="mean-z-result">
+<strong>Result.</strong> Screen 1 retained `r format_integer(n_maximum)` of
+`r format_integer(n_candidates)` candidates. Screen 3 retained all
+`r format_integer(n_mashr)` of them: mashr called
+`r format_integer(mashr_mean_z_analysis$mashr_screen_summary$n_pair_lfdr_at_or_below_threshold)`
+pairs significant among the complete thinned set, but none of those pairs had
+passed Screen 1. The
+minimum mashr pair lfdr inside Screen 1 was
+`r format_decimal(mashr_mean_z_analysis$mashr_screen_summary$minimum_screen1_pair_lfdr, 3)`.
+Consequently, Screen 3 has exactly the same empirical correlation matrix,
+lag-correlation curve, and variogram as Screen 1.
+
+By contrast, Screen 2 retained `r format_integer(n_combined)`, removing
+`r format_integer(n_removed_by_mean_z)` units, or
+`r format_percent(fraction_removed_from_maximum)` of Screen 1. Its mean lag-1
+correlation is `r format_decimal(combined_lag[1], 3)`, compared with
+`r format_decimal(maximum_lag[1], 3)` under Screens 1 and 3; at lag 15 the
+corresponding values are `r format_decimal(combined_lag[15], 3)` and
+`r format_decimal(maximum_lag[15], 3)`.
+</div>
+
+The Screen-3 negative result matters: with this threshold and model, a mashr
+significance filter does not repair the constant-effect contamination that can
+remain after Screen 1. Screen 2 changes the estimate, but that still is not
+evidence that its estimate is automatically closer to the residual
+correlation. It selects directly on a common mode of the same vector whose
+correlation is being estimated.
+
+## Design
+
+The analysis starts from the complete BF-adjusted real-data FASH object with
+`r format_integer(mashr_mean_z_configuration$n_fash_pairs)` tested
+gene--variant pairs from `r format_integer(mashr_mean_z_configuration$n_genes)`
+genes. Using seed `r mashr_mean_z_configuration$thinning_seed`, it draws one
+variant uniformly within each gene before extracting beta estimates, adjusted
+standard errors, z scores, lfdr values, or any other outcome-derived quantity.
+All three screens are then applied to exactly the same
+`r format_integer(n_candidates)` thinned candidates.
+
+The second statistic uses the user-specified definition
+
+$$
+Z_{\mathrm{mean},j}=\sqrt{R}\,\overline z_j=4\overline z_j,
+\qquad R=16.
+$$
+
+Thus $|Z_{\mathrm{mean},j}|<2$ is equivalent to
+$|\overline z_j|<0.5$. The $\sqrt R$ scaling is calibrated when the 16
+coordinates are independent with unit variance. Because cross-time correlation
+is precisely the object under study, this page treats $Z_{\mathrm{mean}}$ as an
+independence-scaled sensitivity screen, not as a calibrated test statistic.
+
+For Screen 3, mashr is fitted once to the complete set of
+`r format_integer(n_candidates)` thinned pairs. The null correlation is
+estimated internally using
+`mashr::estimate_null_correlation_simple()` with its standard threshold 2.
+This function selects the Screen-1 rows and computes
+
+$$
+\widehat C_{\mathrm{mashr}}
+=\operatorname{cov2cor}\!\left\{
+  \operatorname{cov}\left(Z_{\mathcal N_1}\right)
+\right\}
+=\operatorname{cor}\left(Z_{\mathcal N_1}\right),
+$$
+
+where $\mathcal N_1$ is the Screen-1 set. Therefore mashr's estimated null
+correlation and the Screen-1 empirical correlation are the same estimator,
+not two independent estimates; their maximum numerical difference here is
+`r format(mashr_mean_z_configuration$mashr_null_correlation_maximum_difference, scientific = TRUE, digits = 3)`.
+The full mashr fit then uses the canonical identity, singleton, equal-effects,
+and simple-heterogeneity covariance families with a null-biased prior. Screen
+3 is applied only after this full-data fit.
+
+```{r selection-table, results='asis'}
+render_scrollable_table(
+  selection_table,
+  align = "lrrrrr",
+  minimum_width = "1160px",
+  digits = 3L
+)
+```
+
+```{r mashr-screen-summary-table, results='asis'}
+render_scrollable_table(
+  mashr_screen_summary_table,
+  align = "lr",
+  minimum_width = "720px",
+  digits = 6L
+)
+```
+
+The small time-column means in this table do not prove that individual units
+have zero constant effects. Positive and negative unit-specific intercepts can
+cancel in each column while still contributing a positive common covariance
+across time.
+
+## Empirical correlation matrices
+
+```{r correlation-heatmaps, fig.width=15, fig.height=5.7, fig.cap="Empirical z-score correlations under the three screens. All panels use the same off-diagonal scale; the unit diagonal is omitted to make the off-diagonal structure visible. Screens 1 and 3 are exactly identical."}
+plot_mashr_mean_z_heatmaps()
+```
+
+For the specific day-0/day-1 pair, the correlation is
+`r format_decimal(maximum_correlation[1, 2], 3)` under both Screens 1 and 3 and
+`r format_decimal(combined_correlation[1, 2], 3)` after adding the mean-Z
+screen. Screen 3 makes no entrywise change. Across all 120 off-diagonal
+entries, Screen 2 preserves much of the ordering but shifts almost every entry
+downward relative to Screens 1 and 3.
+
+```{r matrix-comparison-table, results='asis'}
+render_scrollable_table(
+  matrix_comparison_table,
+  align = "llrrrrr",
+  minimum_width = "1640px",
+  digits = 4L
+)
+```
+
+## Lag correlation and variogram
+
+Intervals are pointwise percentile 95% intervals from 1,000 gene-level
+bootstrap resamples within each retained set.
+
+```{r lag-correlation, fig.width=9.5, fig.height=5.8, fig.cap="Lag-averaged empirical correlations with pointwise gene-bootstrap 95% intervals."}
+plot_lag_correlation_comparison()
+```
+
+```{r variogram, fig.width=9.5, fig.height=5.8, fig.cap="Standardized semivariograms, defined as one minus the lag-averaged correlation, with pointwise gene-bootstrap 95% intervals."}
+plot_variogram_comparison()
+```
+
+```{r key-lag-table, results='asis'}
+render_scrollable_table(
+  key_lag_table,
+  align = "llrlrl",
+  minimum_width = "1160px",
+  digits = 3L
+)
+```
+
+Screens 1 and 3 have the same persistent positive component that decays from
+lag 1 to lag 15. The mean-Z restriction in Screen 2 weakens lag 1 and pushes
+the longer-lag average below zero. Therefore the apparent disappearance of
+long-range positive dependence is inseparable from the Screen-2 selection
+rule; the mashr significance filter in Screen 3 provides no change at all.
+
+## Why the mean-Z screen can induce negative correlation
+
+<div class="mean-z-caution">
+The stricter rule is not an outcome-neutral refinement. It conditions on the
+sum of the 16 coordinates. Even if a zero-effect vector originally had
+independent coordinates, forcing its mean toward zero makes a positive value at
+one time point more likely to be offset by negative values elsewhere.
+</div>
+
+The limiting calculation makes the mechanism transparent. If
+$z\sim N(0,I_R)$ and one conditions on the exact constraint
+$\mathbf 1^Tz=0$, then
+
+$$
+\operatorname{Cov}(z\mid\mathbf 1^Tz=0)
+=I_R-\frac{1}{R}\mathbf 1\mathbf 1^T.
+$$
+
+After rescaling to a correlation matrix, every off-diagonal entry is
+$-1/(R-1)$, which is approximately $-0.067$ for $R=16$. The actual screen is a
+band rather than an exact constraint, and the real coordinates are not
+independent, so this calculation is not a prediction of the observed matrix.
+It does show why negative long-lag entries can arise mechanically after
+screening on $|Z_{\mathrm{mean}}|$.
+
+Consequently, the comparison identifies a genuine sensitivity but does not by
+itself identify the true residual correlation. The maximum-only set may retain
+unit-specific constant effects; the combined set more aggressively removes
+that common direction but can bias the correlation downward through
+conditioning.
+
+## Audit of the motivating bad example
+
+The visually suspicious Screen-1 example identified in the first gallery is
+not removed by Screen 3. Its estimated effects are positive at every time
+point, with an inverse-variance-weighted constant effect near 1, yet its
+individual z scores all remain below 2. Mashr assigns it pair lfdr
+`r format_decimal(mashr_mean_z_analysis$bad_example_audit$mashr_pair_lfdr, 3)`,
+well above the 0.05 removal threshold. Screen 2 removes it because its
+$Z_{\mathrm{mean}}$ is `r format_decimal(mashr_mean_z_analysis$bad_example_audit$mean_z_score, 3)`.
+
+```{r bad-example-table, results='asis'}
+render_scrollable_table(
+  bad_example_table,
+  align = "lllrrrrrlll",
+  minimum_width = "1760px",
+  digits = 4L
+)
+```
+
+This demonstrates why the Screen-3 filter is not equivalent to controlling the
+common direction. The marginal z scores are deliberately bounded by Screen 1,
+and under the fitted mashr mixture the accumulated evidence for this smooth,
+moderate trajectory is not strong enough to make its posterior null
+probability at most 0.05.
+
+## Selected-unit audit {.tabset .tabset-pills}
+
+The three tabs show fixed random samples of 25 retained units. The first sample is
+drawn from the full maximum-z set; `r sum(get_gallery(maximum_filter_id)$metadata$passes_maximum_z_and_mean_z)`
+of its 25 units also pass the added mean-Z rule and the other
+`r sum(!get_gallery(maximum_filter_id)$metadata$passes_maximum_z_and_mean_z)`
+do not. The second sample is drawn independently from the combined set. The
+third sample is drawn independently from Screen 3. Screens 1 and 3 contain the
+same pairs, but their displayed samples use different fixed seeds, so their
+gallery panels need not match. Blue, orange, or green lines are z-score
+trajectories, gray lines mark zero and $\pm2$, and the green dashed line is the
+within-trajectory mean z. Full gene and variant identifiers are listed beneath
+each plot.
+
+### Screen 1: max|z(t)| < 2
+
+```{r maximum-z-gallery, fig.width=13, fig.height=13, fig.cap="Twenty-five fixed-random units selected under the maximum-z rule."}
+plot_gallery(maximum_filter_id)
+```
+
+```{r maximum-z-gallery-table, results='asis'}
+render_scrollable_table(
+  gallery_table(maximum_filter_id),
+  align = "rllrrrrll",
+  minimum_width = "1540px",
+  digits = 4L
+)
+```
+
+### Screen 2: max|z(t)| < 2 and |Z_mean| < 2
+
+```{r combined-gallery, fig.width=13, fig.height=13, fig.cap="Twenty-five fixed-random units selected after adding the mean-Z rule."}
+plot_gallery(combined_filter_id)
+```
+
+```{r combined-gallery-table, results='asis'}
+render_scrollable_table(
+  gallery_table(combined_filter_id),
+  align = "rllrrrrll",
+  minimum_width = "1540px",
+  digits = 4L
+)
+```
+
+### Screen 3: max|z(t)| < 2 and mashr pair lfdr > 0.05
+
+```{r mashr-gallery, fig.width=13, fig.height=13, fig.cap="Twenty-five fixed-random units selected after removing mashr discoveries from Screen 1. The retained set is exactly the Screen-1 set in this fit."}
+plot_gallery(mashr_filter_id)
+```
+
+```{r mashr-gallery-table, results='asis'}
+render_scrollable_table(
+  gallery_table(mashr_filter_id),
+  align = "rllrrrrll",
+  minimum_width = "1540px",
+  digits = 4L
+)
+```
+
+## Interpretation and limitations
+
+1. Letting mashr estimate its own null correlation does not provide an
+   independent validation of Screen 1: the standard estimator is exactly the
+   Screen-1 empirical z-score correlation.
+2. At pair lfdr 0.05, Screen 3 is redundant after Screen 1. It removes zero of
+   the `r format_integer(n_maximum)` Screen-1 pairs and leaves the suspicious
+   constant-effect example in the set.
+3. The proposed mean-Z criterion materially changes the estimated correlation,
+   despite using the same one-variant-per-gene thinning. It is the only tested
+   screen here that removes the motivating example.
+4. The Screen-2 matrix has a similar time-pattern ordering but a much lower
+   baseline. That is consistent with removing a broad common component, but
+   the rule also truncates that direction and can create negative dependence.
+5. None of the selected sets is known to contain only exact
+   zero-marginal-effect pairs. Screens 1 and 3 can retain constant-effect
+   heterogeneity, while Screen 2 can have selection-induced downward bias.
+6. These are empirical correlations of adjusted z scores, not beta-scale
+   covariance matrices and not identified gene-specific error covariances.
+
+The defensible conclusion is therefore twofold. First, the proposed mashr-lfdr
+filter does not improve the maximum-z set in this dataset. Second, the estimated
+residual-correlation level is sensitive to adding a mean-Z restriction, but
+that restriction has its own selection effect. This page should remain
+internal until the estimand and selection argument are settled.
+
+## Reproduction
+
+The cache contains the exact candidate z matrix, fitted beta estimates,
+adjusted standard errors, selected indices, all three complete empirical
+correlation matrices, the fitted mashr object and posterior weights, bootstrap
+intervals, gallery membership, input-file provenance, and CSV audit tables.
+
+```{r reproduction-command, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/covariance_estimation/run_mashr_mean_z_null_correlation.R
+
+workflowr::wflow_build(
+  "analysis/revision_internal_mashr_mean_z_null_correlation.rmd",
+  local = TRUE,
+  verbose = TRUE
+)
+```

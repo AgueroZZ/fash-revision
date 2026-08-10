@@ -1,0 +1,4075 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-07" />
+
+<title>Internal exploration: mashr-style null-correlation screens</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Internal exploration: mashr-style
+null-correlation screens</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-07</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-07
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    analysis/site_libs/
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/revision_simulations/
+
+Untracked files:
+    Untracked:  Rplots.pdf
+    Untracked:  analysis/revision_balanced_variant_thinning.rmd
+    Untracked:  analysis/revision_combined_spiky_genotype_simulation.rmd
+    Untracked:  analysis/revision_correlated_error_simulation.rmd
+    Untracked:  analysis/revision_functional_testing_simulation.rmd
+    Untracked:  analysis/revision_genotype_level_simulation.rmd
+    Untracked:  analysis/revision_internal_mashr_mean_z_null_correlation.rmd
+    Untracked:  analysis/revision_internal_observational_null_set_pilot.rmd
+    Untracked:  analysis/revision_internal_one_variant_per_gene_refit.rmd
+    Untracked:  analysis/revision_internal_real_genotype_simulation.rmd
+    Untracked:  analysis/revision_internal_targeted_broad_calibration.rmd
+    Untracked:  analysis/revision_internal_zero_intercept_correlation.rmd
+    Untracked:  analysis/revision_ld_tagging_switch_example.rmd
+    Untracked:  code/00_eQTLs_CL.R
+    Untracked:  code/01_fash_CL.R
+    Untracked:  code/01_fash_CL.sbatch
+    Untracked:  code/09_penalty_sensitivity.R
+    Untracked:  code/09_penalty_sensitivity.sbatch
+    Untracked:  code/revision_simulations/
+    Untracked:  fash_prior_comparison_order1_after.pdf
+    Untracked:  fash_prior_comparison_order1_after.png
+    Untracked:  fash_prior_comparison_order1_before.pdf
+    Untracked:  fash_prior_comparison_order1_before.png
+    Untracked:  fash_prior_comparison_order2_after.pdf
+    Untracked:  fash_prior_comparison_order2_after.png
+    Untracked:  fash_prior_comparison_order2_before.pdf
+    Untracked:  fash_prior_comparison_order2_before.png
+
+Unstaged changes:
+    Modified:   .gitignore
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Modified:   code/README.md
+    Modified:   output/toy_example/toy_example_11.pdf
+    Modified:   output/toy_example/toy_example_12.pdf
+    Modified:   output/toy_example/toy_example_21.pdf
+    Modified:   output/toy_example/toy_example_22.pdf
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style>
+.mean-z-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.mean-z-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.mean-z-caution {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #d55e00;
+  border-radius: 4px;
+  background: #fff4ec;
+  color: #59331e;
+}
+.mean-z-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.mean-z-table-scroll table {
+  margin-bottom: 1em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+</style>
+<div class="mean-z-banner">
+<p><strong>Internal exploratory analysis.</strong> This page is
+intentionally unlinked. It does not modify the reviewer-facing R4 page,
+manuscript, response letter, or any existing R4 cache.</p>
+</div>
+<div id="question-and-answer" class="section level2">
+<h2>Question and answer</h2>
+<p>After drawing one variant per gene before inspecting the outcomes,
+how do the following three screens compare?</p>
+<p>Screen 1 is the standard mashr-style maximum-z rule</p>
+<p><span class="math display">\[
+\max_t |z_j(t)| &lt; 2
+\]</span></p>
+<p>and Screen 2 adds the proposed mean-Z rule</p>
+<p><span class="math display">\[
+\max_t |z_j(t)| &lt; 2
+\quad\text{and}\quad
+|Z_{\mathrm{mean},j}| &lt; 2,
+\qquad
+Z_{\mathrm{mean},j}=\sqrt{16}\,\overline z_j?
+\]</span></p>
+<p>Screen 3 instead starts from Screen 1 and removes pairs called
+significant by a mashr model fitted to all thinned pairs:</p>
+<p><span class="math display">\[
+\max_t |z_j(t)| &lt; 2
+\quad\text{and}\quad
+\operatorname{lfdr}_{\mathrm{mashr},j}&gt;0.05.
+\]</span></p>
+<p>Here the pair-level mashr lfdr is the posterior probability assigned
+to the exact all-zero effect component. Thus Screen 3 removes a pair
+only when mashr assigns posterior null probability at most 0.05.</p>
+<p>For each retained set, the empirical time correlation is estimated
+exactly as</p>
+<p><span class="math display">\[
+\widehat C=\operatorname{cor}(Z_{\mathcal N}),
+\]</span></p>
+<p>where rows are thinned gene–variant units and columns are the 16 time
+points. No trajectory is centered within a unit.</p>
+<div class="mean-z-result">
+<p><strong>Result.</strong> Screen 1 retained 3,436 of 6,362 candidates.
+Screen 3 retained all 3,436 of them: mashr called 72 pairs significant
+among the complete thinned set, but none of those pairs had passed
+Screen 1. The minimum mashr pair lfdr inside Screen 1 was 0.109.
+Consequently, Screen 3 has exactly the same empirical correlation
+matrix, lag-correlation curve, and variogram as Screen 1.</p>
+<p>By contrast, Screen 2 retained 2,522, removing 914 units, or 26.6% of
+Screen 1. Its mean lag-1 correlation is 0.287, compared with 0.405 under
+Screens 1 and 3; at lag 15 the corresponding values are -0.080 and
+0.047.</p>
+</div>
+<p>The Screen-3 negative result matters: with this threshold and model,
+a mashr significance filter does not repair the constant-effect
+contamination that can remain after Screen 1. Screen 2 changes the
+estimate, but that still is not evidence that its estimate is
+automatically closer to the residual correlation. It selects directly on
+a common mode of the same vector whose correlation is being
+estimated.</p>
+</div>
+<div id="design" class="section level2">
+<h2>Design</h2>
+<p>The analysis starts from the complete BF-adjusted real-data FASH
+object with 1,009,173 tested gene–variant pairs from 6,362 genes. Using
+seed 20260811, it draws one variant uniformly within each gene before
+extracting beta estimates, adjusted standard errors, z scores, lfdr
+values, or any other outcome-derived quantity. All three screens are
+then applied to exactly the same 6,362 thinned candidates.</p>
+<p>The second statistic uses the user-specified definition</p>
+<p><span class="math display">\[
+Z_{\mathrm{mean},j}=\sqrt{R}\,\overline z_j=4\overline z_j,
+\qquad R=16.
+\]</span></p>
+<p>Thus <span class="math inline">\(|Z_{\mathrm{mean},j}|&lt;2\)</span>
+is equivalent to <span class="math inline">\(|\overline
+z_j|&lt;0.5\)</span>. The <span class="math inline">\(\sqrt R\)</span>
+scaling is calibrated when the 16 coordinates are independent with unit
+variance. Because cross-time correlation is precisely the object under
+study, this page treats <span
+class="math inline">\(Z_{\mathrm{mean}}\)</span> as an
+independence-scaled sensitivity screen, not as a calibrated test
+statistic.</p>
+<p>For Screen 3, mashr is fitted once to the complete set of 6,362
+thinned pairs. The null correlation is estimated internally using
+<code>mashr::estimate_null_correlation_simple()</code> with its standard
+threshold 2. This function selects the Screen-1 rows and computes</p>
+<p><span class="math display">\[
+\widehat C_{\mathrm{mashr}}
+=\operatorname{cov2cor}\!\left\{
+  \operatorname{cov}\left(Z_{\mathcal N_1}\right)
+\right\}
+=\operatorname{cor}\left(Z_{\mathcal N_1}\right),
+\]</span></p>
+<p>where <span class="math inline">\(\mathcal N_1\)</span> is the
+Screen-1 set. Therefore mashr’s estimated null correlation and the
+Screen-1 empirical correlation are the same estimator, not two
+independent estimates; their maximum numerical difference here is
+1.11e-16. The full mashr fit then uses the canonical identity,
+singleton, equal-effects, and simple-heterogeneity covariance families
+with a null-biased prior. Screen 3 is applied only after this full-data
+fit.</p>
+<pre class="r"><code>render_scrollable_table(
+  selection_table,
+  align = &quot;lrrrrr&quot;,
+  minimum_width = &quot;1160px&quot;,
+  digits = 3L
+)</code></pre>
+<div class="mean-z-table-scroll">
+<div style="min-width: 1160px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Screen
+</th>
+<th style="text-align:right;">
+Candidates
+</th>
+<th style="text-align:right;">
+Retained
+</th>
+<th style="text-align:right;">
+Fraction of candidates retained
+</th>
+<th style="text-align:right;">
+Maximum absolute time-column mean z
+</th>
+<th style="text-align:right;">
+Minimum mashr pair lfdr
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+3436
+</td>
+<td style="text-align:right;">
+0.540
+</td>
+<td style="text-align:right;">
+0.047
+</td>
+<td style="text-align:right;">
+0.109
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2 and |Z_mean| &lt; 2
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+2522
+</td>
+<td style="text-align:right;">
+0.396
+</td>
+<td style="text-align:right;">
+0.042
+</td>
+<td style="text-align:right;">
+0.109
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2 and mashr pair lfdr &gt; 0.05
+</td>
+<td style="text-align:right;">
+6362
+</td>
+<td style="text-align:right;">
+3436
+</td>
+<td style="text-align:right;">
+0.540
+</td>
+<td style="text-align:right;">
+0.047
+</td>
+<td style="text-align:right;">
+0.109
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  mashr_screen_summary_table,
+  align = &quot;lr&quot;,
+  minimum_width = &quot;720px&quot;,
+  digits = 6L
+)</code></pre>
+<div class="mean-z-table-scroll">
+<div style="min-width: 720px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Metric
+</th>
+<th style="text-align:right;">
+Value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+All thinned pairs
+</td>
+<td style="text-align:right;">
+6362.000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Screen 1 pairs
+</td>
+<td style="text-align:right;">
+3436.000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+All-pair mashr lfdr &lt;= 0.05
+</td>
+<td style="text-align:right;">
+72.000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Screen-1 mashr lfdr &lt;= 0.05
+</td>
+<td style="text-align:right;">
+0.000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Minimum Screen-1 mashr pair lfdr
+</td>
+<td style="text-align:right;">
+0.108677
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mashr fitted pi0
+</td>
+<td style="text-align:right;">
+0.441216
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Null-C versus Screen-1 maximum difference
+</td>
+<td style="text-align:right;">
+0.000000
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The small time-column means in this table do not prove that
+individual units have zero constant effects. Positive and negative
+unit-specific intercepts can cancel in each column while still
+contributing a positive common covariance across time.</p>
+</div>
+<div id="empirical-correlation-matrices" class="section level2">
+<h2>Empirical correlation matrices</h2>
+<pre class="r"><code>plot_mashr_mean_z_heatmaps()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_mashr_mean_z_null_correlation.rmd/correlation-heatmaps-1.png" alt="Empirical z-score correlations under the three screens. All panels use the same off-diagonal scale; the unit diagonal is omitted to make the off-diagonal structure visible. Screens 1 and 3 are exactly identical." width="2700" />
+<p class="caption">
+Empirical z-score correlations under the three screens. All panels use
+the same off-diagonal scale; the unit diagonal is omitted to make the
+off-diagonal structure visible. Screens 1 and 3 are exactly identical.
+</p>
+</div>
+<p>For the specific day-0/day-1 pair, the correlation is 0.297 under
+both Screens 1 and 3 and 0.221 after adding the mean-Z screen. Screen 3
+makes no entrywise change. Across all 120 off-diagonal entries, Screen 2
+preserves much of the ordering but shifts almost every entry downward
+relative to Screens 1 and 3.</p>
+<pre class="r"><code>render_scrollable_table(
+  matrix_comparison_table,
+  align = &quot;llrrrrr&quot;,
+  minimum_width = &quot;1640px&quot;,
+  digits = 4L
+)</code></pre>
+<div class="mean-z-table-scroll">
+<div style="min-width: 1640px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Reference
+</th>
+<th style="text-align:left;">
+Comparison
+</th>
+<th style="text-align:right;">
+Off-diagonal matrix correlation
+</th>
+<th style="text-align:right;">
+Mean comparison-minus-reference difference
+</th>
+<th style="text-align:right;">
+Mean absolute difference
+</th>
+<th style="text-align:right;">
+Maximum absolute difference
+</th>
+<th style="text-align:right;">
+Frobenius difference
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2
+</td>
+<td style="text-align:left;">
+max|z(t)| &lt; 2 and |Z_mean| &lt; 2
+</td>
+<td style="text-align:right;">
+0.9704
+</td>
+<td style="text-align:right;">
+-0.1624
+</td>
+<td style="text-align:right;">
+0.1624
+</td>
+<td style="text-align:right;">
+0.228
+</td>
+<td style="text-align:right;">
+2.5722
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2
+</td>
+<td style="text-align:left;">
+max|z(t)| &lt; 2 and mashr pair lfdr &gt; 0.05
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+<td style="text-align:right;">
+0.000
+</td>
+<td style="text-align:right;">
+0.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2 and |Z_mean| &lt; 2
+</td>
+<td style="text-align:left;">
+max|z(t)| &lt; 2 and mashr pair lfdr &gt; 0.05
+</td>
+<td style="text-align:right;">
+0.9704
+</td>
+<td style="text-align:right;">
+0.1624
+</td>
+<td style="text-align:right;">
+0.1624
+</td>
+<td style="text-align:right;">
+0.228
+</td>
+<td style="text-align:right;">
+2.5722
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="lag-correlation-and-variogram" class="section level2">
+<h2>Lag correlation and variogram</h2>
+<p>Intervals are pointwise percentile 95% intervals from 1,000
+gene-level bootstrap resamples within each retained set.</p>
+<pre class="r"><code>plot_lag_correlation_comparison()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_mashr_mean_z_null_correlation.rmd/lag-correlation-1.png" alt="Lag-averaged empirical correlations with pointwise gene-bootstrap 95% intervals." width="1710" />
+<p class="caption">
+Lag-averaged empirical correlations with pointwise gene-bootstrap 95%
+intervals.
+</p>
+</div>
+<pre class="r"><code>plot_variogram_comparison()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_mashr_mean_z_null_correlation.rmd/variogram-1.png" alt="Standardized semivariograms, defined as one minus the lag-averaged correlation, with pointwise gene-bootstrap 95% intervals." width="1710" />
+<p class="caption">
+Standardized semivariograms, defined as one minus the lag-averaged
+correlation, with pointwise gene-bootstrap 95% intervals.
+</p>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  key_lag_table,
+  align = &quot;llrlrl&quot;,
+  minimum_width = &quot;1160px&quot;,
+  digits = 3L
+)</code></pre>
+<div class="mean-z-table-scroll">
+<div style="min-width: 1160px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Screen
+</th>
+<th style="text-align:left;">
+Lag
+</th>
+<th style="text-align:right;">
+Correlation
+</th>
+<th style="text-align:left;">
+Correlation 95% interval
+</th>
+<th style="text-align:right;">
+Semivariogram
+</th>
+<th style="text-align:left;">
+Semivariogram 95% interval
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:right;">
+0.405
+</td>
+<td style="text-align:left;">
+[0.395, 0.415]
+</td>
+<td style="text-align:right;">
+0.595
+</td>
+<td style="text-align:left;">
+[0.585, 0.605]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2
+</td>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:right;">
+0.233
+</td>
+<td style="text-align:left;">
+[0.219, 0.247]
+</td>
+<td style="text-align:right;">
+0.767
+</td>
+<td style="text-align:left;">
+[0.753, 0.781]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2
+</td>
+<td style="text-align:left;">
+10
+</td>
+<td style="text-align:right;">
+0.109
+</td>
+<td style="text-align:left;">
+[0.093, 0.126]
+</td>
+<td style="text-align:right;">
+0.891
+</td>
+<td style="text-align:left;">
+[0.874, 0.907]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2
+</td>
+<td style="text-align:left;">
+15
+</td>
+<td style="text-align:right;">
+0.047
+</td>
+<td style="text-align:left;">
+[0.016, 0.084]
+</td>
+<td style="text-align:right;">
+0.953
+</td>
+<td style="text-align:left;">
+[0.916, 0.984]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2 and |Z_mean| &lt; 2
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:right;">
+0.287
+</td>
+<td style="text-align:left;">
+[0.275, 0.297]
+</td>
+<td style="text-align:right;">
+0.713
+</td>
+<td style="text-align:left;">
+[0.703, 0.725]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2 and |Z_mean| &lt; 2
+</td>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:right;">
+0.062
+</td>
+<td style="text-align:left;">
+[0.051, 0.073]
+</td>
+<td style="text-align:right;">
+0.938
+</td>
+<td style="text-align:left;">
+[0.927, 0.949]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2 and |Z_mean| &lt; 2
+</td>
+<td style="text-align:left;">
+10
+</td>
+<td style="text-align:right;">
+-0.075
+</td>
+<td style="text-align:left;">
+[-0.090, -0.058]
+</td>
+<td style="text-align:right;">
+1.075
+</td>
+<td style="text-align:left;">
+[1.058, 1.090]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2 and |Z_mean| &lt; 2
+</td>
+<td style="text-align:left;">
+15
+</td>
+<td style="text-align:right;">
+-0.080
+</td>
+<td style="text-align:left;">
+[-0.121, -0.041]
+</td>
+<td style="text-align:right;">
+1.080
+</td>
+<td style="text-align:left;">
+[1.041, 1.121]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2 and mashr pair lfdr &gt; 0.05
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:right;">
+0.405
+</td>
+<td style="text-align:left;">
+[0.395, 0.415]
+</td>
+<td style="text-align:right;">
+0.595
+</td>
+<td style="text-align:left;">
+[0.585, 0.605]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2 and mashr pair lfdr &gt; 0.05
+</td>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:right;">
+0.233
+</td>
+<td style="text-align:left;">
+[0.219, 0.247]
+</td>
+<td style="text-align:right;">
+0.767
+</td>
+<td style="text-align:left;">
+[0.753, 0.781]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2 and mashr pair lfdr &gt; 0.05
+</td>
+<td style="text-align:left;">
+10
+</td>
+<td style="text-align:right;">
+0.109
+</td>
+<td style="text-align:left;">
+[0.093, 0.126]
+</td>
+<td style="text-align:right;">
+0.891
+</td>
+<td style="text-align:left;">
+[0.874, 0.907]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max|z(t)| &lt; 2 and mashr pair lfdr &gt; 0.05
+</td>
+<td style="text-align:left;">
+15
+</td>
+<td style="text-align:right;">
+0.047
+</td>
+<td style="text-align:left;">
+[0.016, 0.084]
+</td>
+<td style="text-align:right;">
+0.953
+</td>
+<td style="text-align:left;">
+[0.916, 0.984]
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Screens 1 and 3 have the same persistent positive component that
+decays from lag 1 to lag 15. The mean-Z restriction in Screen 2 weakens
+lag 1 and pushes the longer-lag average below zero. Therefore the
+apparent disappearance of long-range positive dependence is inseparable
+from the Screen-2 selection rule; the mashr significance filter in
+Screen 3 provides no change at all.</p>
+</div>
+<div id="why-the-mean-z-screen-can-induce-negative-correlation"
+class="section level2">
+<h2>Why the mean-Z screen can induce negative correlation</h2>
+<div class="mean-z-caution">
+<p>The stricter rule is not an outcome-neutral refinement. It conditions
+on the sum of the 16 coordinates. Even if a zero-effect vector
+originally had independent coordinates, forcing its mean toward zero
+makes a positive value at one time point more likely to be offset by
+negative values elsewhere.</p>
+</div>
+<p>The limiting calculation makes the mechanism transparent. If <span
+class="math inline">\(z\sim N(0,I_R)\)</span> and one conditions on the
+exact constraint <span class="math inline">\(\mathbf 1^Tz=0\)</span>,
+then</p>
+<p><span class="math display">\[
+\operatorname{Cov}(z\mid\mathbf 1^Tz=0)
+=I_R-\frac{1}{R}\mathbf 1\mathbf 1^T.
+\]</span></p>
+<p>After rescaling to a correlation matrix, every off-diagonal entry is
+<span class="math inline">\(-1/(R-1)\)</span>, which is approximately
+<span class="math inline">\(-0.067\)</span> for <span
+class="math inline">\(R=16\)</span>. The actual screen is a band rather
+than an exact constraint, and the real coordinates are not independent,
+so this calculation is not a prediction of the observed matrix. It does
+show why negative long-lag entries can arise mechanically after
+screening on <span
+class="math inline">\(|Z_{\mathrm{mean}}|\)</span>.</p>
+<p>Consequently, the comparison identifies a genuine sensitivity but
+does not by itself identify the true residual correlation. The
+maximum-only set may retain unit-specific constant effects; the combined
+set more aggressively removes that common direction but can bias the
+correlation downward through conditioning.</p>
+</div>
+<div id="audit-of-the-motivating-bad-example" class="section level2">
+<h2>Audit of the motivating bad example</h2>
+<p>The visually suspicious Screen-1 example identified in the first
+gallery is not removed by Screen 3. Its estimated effects are positive
+at every time point, with an inverse-variance-weighted constant effect
+near 1, yet its individual z scores all remain below 2. Mashr assigns it
+pair lfdr 0.394, well above the 0.05 removal threshold. Screen 2 removes
+it because its <span class="math inline">\(Z_{\mathrm{mean}}\)</span> is
+3.733.</p>
+<pre class="r"><code>render_scrollable_table(
+  bad_example_table,
+  align = &quot;lllrrrrrlll&quot;,
+  minimum_width = &quot;1760px&quot;,
+  digits = 4L
+)</code></pre>
+<div class="mean-z-table-scroll">
+<div style="min-width: 1760px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Gene
+</th>
+<th style="text-align:left;">
+Variant
+</th>
+<th style="text-align:left;">
+Beta-hat range
+</th>
+<th style="text-align:right;">
+IVW constant beta
+</th>
+<th style="text-align:right;">
+max|z|
+</th>
+<th style="text-align:right;">
+Z_mean
+</th>
+<th style="text-align:right;">
+Mashr pair lfdr
+</th>
+<th style="text-align:right;">
+Minimum condition lfdr
+</th>
+<th style="text-align:left;">
+Screen 1
+</th>
+<th style="text-align:left;">
+Screen 2
+</th>
+<th style="text-align:left;">
+Screen 3
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+ENSG00000078618
+</td>
+<td style="text-align:left;">
+rs7544633
+</td>
+<td style="text-align:left;">
+[0.252, 1.466]
+</td>
+<td style="text-align:right;">
+0.9634
+</td>
+<td style="text-align:right;">
+1.7704
+</td>
+<td style="text-align:right;">
+3.7331
+</td>
+<td style="text-align:right;">
+0.3937
+</td>
+<td style="text-align:right;">
+0.4712
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>This demonstrates why the Screen-3 filter is not equivalent to
+controlling the common direction. The marginal z scores are deliberately
+bounded by Screen 1, and under the fitted mashr mixture the accumulated
+evidence for this smooth, moderate trajectory is not strong enough to
+make its posterior null probability at most 0.05.</p>
+</div>
+<div id="selected-unit-audit"
+class="section level2 tabset tabset-pills">
+<h2 class="tabset tabset-pills">Selected-unit audit</h2>
+<p>The three tabs show fixed random samples of 25 retained units. The
+first sample is drawn from the full maximum-z set; 19 of its 25 units
+also pass the added mean-Z rule and the other 6 do not. The second
+sample is drawn independently from the combined set. The third sample is
+drawn independently from Screen 3. Screens 1 and 3 contain the same
+pairs, but their displayed samples use different fixed seeds, so their
+gallery panels need not match. Blue, orange, or green lines are z-score
+trajectories, gray lines mark zero and <span
+class="math inline">\(\pm2\)</span>, and the green dashed line is the
+within-trajectory mean z. Full gene and variant identifiers are listed
+beneath each plot.</p>
+<div id="screen-1-maxzt-2" class="section level3">
+<h3>Screen 1: max|z(t)| &lt; 2</h3>
+<pre class="r"><code>plot_gallery(maximum_filter_id)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_mashr_mean_z_null_correlation.rmd/maximum-z-gallery-1.png" alt="Twenty-five fixed-random units selected under the maximum-z rule." width="2340" />
+<p class="caption">
+Twenty-five fixed-random units selected under the maximum-z rule.
+</p>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  gallery_table(maximum_filter_id),
+  align = &quot;rllrrrrll&quot;,
+  minimum_width = &quot;1540px&quot;,
+  digits = 4L
+)</code></pre>
+<div class="mean-z-table-scroll">
+<div style="min-width: 1540px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:right;">
+Position
+</th>
+<th style="text-align:left;">
+Gene
+</th>
+<th style="text-align:left;">
+Variant
+</th>
+<th style="text-align:right;">
+lfdr
+</th>
+<th style="text-align:right;">
+max|z|
+</th>
+<th style="text-align:right;">
+Z_mean
+</th>
+<th style="text-align:right;">
+Mashr pair lfdr
+</th>
+<th style="text-align:left;">
+Passes Screen 2
+</th>
+<th style="text-align:left;">
+Passes Screen 3
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+ENSG00000110497
+</td>
+<td style="text-align:left;">
+rs7126343
+</td>
+<td style="text-align:right;">
+0.9726
+</td>
+<td style="text-align:right;">
+0.9081
+</td>
+<td style="text-align:right;">
+-0.4430
+</td>
+<td style="text-align:right;">
+0.5579
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+ENSG00000160113
+</td>
+<td style="text-align:left;">
+rs11671753
+</td>
+<td style="text-align:right;">
+0.9342
+</td>
+<td style="text-align:right;">
+1.7263
+</td>
+<td style="text-align:right;">
+0.1163
+</td>
+<td style="text-align:right;">
+0.4434
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+ENSG00000174574
+</td>
+<td style="text-align:left;">
+rs10788903
+</td>
+<td style="text-align:right;">
+0.9377
+</td>
+<td style="text-align:right;">
+1.7198
+</td>
+<td style="text-align:right;">
+2.4284
+</td>
+<td style="text-align:right;">
+0.4279
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+ENSG00000074054
+</td>
+<td style="text-align:left;">
+rs115949267
+</td>
+<td style="text-align:right;">
+0.6298
+</td>
+<td style="text-align:right;">
+1.9266
+</td>
+<td style="text-align:right;">
+-1.4859
+</td>
+<td style="text-align:right;">
+0.4848
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+ENSG00000142149
+</td>
+<td style="text-align:left;">
+rs2009041
+</td>
+<td style="text-align:right;">
+0.9187
+</td>
+<td style="text-align:right;">
+1.9790
+</td>
+<td style="text-align:right;">
+-1.5873
+</td>
+<td style="text-align:right;">
+0.5287
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:left;">
+ENSG00000101546
+</td>
+<td style="text-align:left;">
+rs11664633
+</td>
+<td style="text-align:right;">
+0.9650
+</td>
+<td style="text-align:right;">
+1.7176
+</td>
+<td style="text-align:right;">
+-0.2359
+</td>
+<td style="text-align:right;">
+0.4677
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:left;">
+ENSG00000090971
+</td>
+<td style="text-align:left;">
+rs62127063
+</td>
+<td style="text-align:right;">
+0.9454
+</td>
+<td style="text-align:right;">
+0.8930
+</td>
+<td style="text-align:right;">
+0.1211
+</td>
+<td style="text-align:right;">
+0.4648
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+ENSG00000013016
+</td>
+<td style="text-align:left;">
+rs6740128
+</td>
+<td style="text-align:right;">
+0.9486
+</td>
+<td style="text-align:right;">
+1.7445
+</td>
+<td style="text-align:right;">
+-0.9434
+</td>
+<td style="text-align:right;">
+0.4521
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:left;">
+ENSG00000086598
+</td>
+<td style="text-align:left;">
+rs12817861
+</td>
+<td style="text-align:right;">
+0.9383
+</td>
+<td style="text-align:right;">
+1.1442
+</td>
+<td style="text-align:right;">
+0.7128
+</td>
+<td style="text-align:right;">
+0.4429
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:left;">
+ENSG00000189337
+</td>
+<td style="text-align:left;">
+rs72865009
+</td>
+<td style="text-align:right;">
+0.9244
+</td>
+<td style="text-align:right;">
+1.7146
+</td>
+<td style="text-align:right;">
+-0.6214
+</td>
+<td style="text-align:right;">
+0.5514
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:left;">
+ENSG00000078618
+</td>
+<td style="text-align:left;">
+rs7544633
+</td>
+<td style="text-align:right;">
+0.9455
+</td>
+<td style="text-align:right;">
+1.7704
+</td>
+<td style="text-align:right;">
+3.7331
+</td>
+<td style="text-align:right;">
+0.3937
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:left;">
+ENSG00000163808
+</td>
+<td style="text-align:left;">
+rs9311361
+</td>
+<td style="text-align:right;">
+0.9532
+</td>
+<td style="text-align:right;">
+1.6632
+</td>
+<td style="text-align:right;">
+-3.0027
+</td>
+<td style="text-align:right;">
+0.4289
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:left;">
+ENSG00000163320
+</td>
+<td style="text-align:left;">
+rs4287925
+</td>
+<td style="text-align:right;">
+0.9432
+</td>
+<td style="text-align:right;">
+1.2674
+</td>
+<td style="text-align:right;">
+1.1732
+</td>
+<td style="text-align:right;">
+0.4640
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:left;">
+ENSG00000114030
+</td>
+<td style="text-align:left;">
+rs9837149
+</td>
+<td style="text-align:right;">
+0.9522
+</td>
+<td style="text-align:right;">
+1.2258
+</td>
+<td style="text-align:right;">
+-0.0185
+</td>
+<td style="text-align:right;">
+0.5226
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:left;">
+ENSG00000161203
+</td>
+<td style="text-align:left;">
+rs76118461
+</td>
+<td style="text-align:right;">
+0.9330
+</td>
+<td style="text-align:right;">
+1.2400
+</td>
+<td style="text-align:right;">
+0.6098
+</td>
+<td style="text-align:right;">
+0.4427
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:left;">
+ENSG00000122678
+</td>
+<td style="text-align:left;">
+rs11762429
+</td>
+<td style="text-align:right;">
+0.9624
+</td>
+<td style="text-align:right;">
+1.0318
+</td>
+<td style="text-align:right;">
+-0.6775
+</td>
+<td style="text-align:right;">
+0.5298
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:left;">
+ENSG00000135452
+</td>
+<td style="text-align:left;">
+rs11172302
+</td>
+<td style="text-align:right;">
+0.9415
+</td>
+<td style="text-align:right;">
+1.9480
+</td>
+<td style="text-align:right;">
+-2.5877
+</td>
+<td style="text-align:right;">
+0.4463
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:left;">
+ENSG00000113368
+</td>
+<td style="text-align:left;">
+rs35036110
+</td>
+<td style="text-align:right;">
+0.9393
+</td>
+<td style="text-align:right;">
+1.3715
+</td>
+<td style="text-align:right;">
+0.0497
+</td>
+<td style="text-align:right;">
+0.4444
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:left;">
+ENSG00000115183
+</td>
+<td style="text-align:left;">
+rs842074
+</td>
+<td style="text-align:right;">
+0.9553
+</td>
+<td style="text-align:right;">
+1.0684
+</td>
+<td style="text-align:right;">
+-0.6683
+</td>
+<td style="text-align:right;">
+0.5545
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:left;">
+ENSG00000099810
+</td>
+<td style="text-align:left;">
+rs7029287
+</td>
+<td style="text-align:right;">
+0.9623
+</td>
+<td style="text-align:right;">
+1.5541
+</td>
+<td style="text-align:right;">
+-2.2916
+</td>
+<td style="text-align:right;">
+0.4703
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:left;">
+ENSG00000171444
+</td>
+<td style="text-align:left;">
+rs10035293
+</td>
+<td style="text-align:right;">
+0.9486
+</td>
+<td style="text-align:right;">
+1.7261
+</td>
+<td style="text-align:right;">
+-1.0861
+</td>
+<td style="text-align:right;">
+0.5621
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:left;">
+ENSG00000170325
+</td>
+<td style="text-align:left;">
+rs2323898
+</td>
+<td style="text-align:right;">
+0.9725
+</td>
+<td style="text-align:right;">
+1.4616
+</td>
+<td style="text-align:right;">
+1.3280
+</td>
+<td style="text-align:right;">
+0.5499
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:left;">
+ENSG00000143569
+</td>
+<td style="text-align:left;">
+rs56760430
+</td>
+<td style="text-align:right;">
+0.9408
+</td>
+<td style="text-align:right;">
+1.4840
+</td>
+<td style="text-align:right;">
+1.6386
+</td>
+<td style="text-align:right;">
+0.4437
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:left;">
+ENSG00000012822
+</td>
+<td style="text-align:left;">
+rs57027330
+</td>
+<td style="text-align:right;">
+0.9354
+</td>
+<td style="text-align:right;">
+1.3719
+</td>
+<td style="text-align:right;">
+-1.5284
+</td>
+<td style="text-align:right;">
+0.5024
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:left;">
+ENSG00000135476
+</td>
+<td style="text-align:left;">
+rs7398228
+</td>
+<td style="text-align:right;">
+0.9424
+</td>
+<td style="text-align:right;">
+1.4859
+</td>
+<td style="text-align:right;">
+-2.0509
+</td>
+<td style="text-align:right;">
+0.4408
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="screen-2-maxzt-2-and-z_mean-2" class="section level3">
+<h3>Screen 2: max|z(t)| &lt; 2 and |Z_mean| &lt; 2</h3>
+<pre class="r"><code>plot_gallery(combined_filter_id)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_mashr_mean_z_null_correlation.rmd/combined-gallery-1.png" alt="Twenty-five fixed-random units selected after adding the mean-Z rule." width="2340" />
+<p class="caption">
+Twenty-five fixed-random units selected after adding the mean-Z rule.
+</p>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  gallery_table(combined_filter_id),
+  align = &quot;rllrrrrll&quot;,
+  minimum_width = &quot;1540px&quot;,
+  digits = 4L
+)</code></pre>
+<div class="mean-z-table-scroll">
+<div style="min-width: 1540px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:right;">
+Position
+</th>
+<th style="text-align:left;">
+Gene
+</th>
+<th style="text-align:left;">
+Variant
+</th>
+<th style="text-align:right;">
+lfdr
+</th>
+<th style="text-align:right;">
+max|z|
+</th>
+<th style="text-align:right;">
+Z_mean
+</th>
+<th style="text-align:right;">
+Mashr pair lfdr
+</th>
+<th style="text-align:left;">
+Passes Screen 2
+</th>
+<th style="text-align:left;">
+Passes Screen 3
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+ENSG00000136231
+</td>
+<td style="text-align:left;">
+rs10216323
+</td>
+<td style="text-align:right;">
+0.9536
+</td>
+<td style="text-align:right;">
+1.5861
+</td>
+<td style="text-align:right;">
+0.6765
+</td>
+<td style="text-align:right;">
+0.5047
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+ENSG00000163001
+</td>
+<td style="text-align:left;">
+rs62165168
+</td>
+<td style="text-align:right;">
+0.9155
+</td>
+<td style="text-align:right;">
+1.9862
+</td>
+<td style="text-align:right;">
+-1.5844
+</td>
+<td style="text-align:right;">
+0.4754
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+ENSG00000100906
+</td>
+<td style="text-align:left;">
+rs11626786
+</td>
+<td style="text-align:right;">
+0.9311
+</td>
+<td style="text-align:right;">
+1.4238
+</td>
+<td style="text-align:right;">
+-0.3087
+</td>
+<td style="text-align:right;">
+0.4663
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+ENSG00000125434
+</td>
+<td style="text-align:left;">
+rs61619093
+</td>
+<td style="text-align:right;">
+0.9842
+</td>
+<td style="text-align:right;">
+1.7909
+</td>
+<td style="text-align:right;">
+-0.6816
+</td>
+<td style="text-align:right;">
+0.5570
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+ENSG00000112531
+</td>
+<td style="text-align:left;">
+rs9654569
+</td>
+<td style="text-align:right;">
+0.8602
+</td>
+<td style="text-align:right;">
+1.9905
+</td>
+<td style="text-align:right;">
+0.6326
+</td>
+<td style="text-align:right;">
+0.3540
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:left;">
+ENSG00000092148
+</td>
+<td style="text-align:left;">
+rs11625798
+</td>
+<td style="text-align:right;">
+0.9456
+</td>
+<td style="text-align:right;">
+1.7622
+</td>
+<td style="text-align:right;">
+0.7521
+</td>
+<td style="text-align:right;">
+0.4649
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:left;">
+ENSG00000155229
+</td>
+<td style="text-align:left;">
+rs10786349
+</td>
+<td style="text-align:right;">
+0.9482
+</td>
+<td style="text-align:right;">
+1.6185
+</td>
+<td style="text-align:right;">
+1.3315
+</td>
+<td style="text-align:right;">
+0.4736
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+ENSG00000100439
+</td>
+<td style="text-align:left;">
+rs5742843
+</td>
+<td style="text-align:right;">
+0.9216
+</td>
+<td style="text-align:right;">
+1.6904
+</td>
+<td style="text-align:right;">
+-0.4501
+</td>
+<td style="text-align:right;">
+0.4487
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:left;">
+ENSG00000133195
+</td>
+<td style="text-align:left;">
+rs12943630
+</td>
+<td style="text-align:right;">
+0.9502
+</td>
+<td style="text-align:right;">
+1.9232
+</td>
+<td style="text-align:right;">
+-0.0968
+</td>
+<td style="text-align:right;">
+0.5441
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:left;">
+ENSG00000108424
+</td>
+<td style="text-align:left;">
+rs8065669
+</td>
+<td style="text-align:right;">
+0.9414
+</td>
+<td style="text-align:right;">
+1.0619
+</td>
+<td style="text-align:right;">
+0.5007
+</td>
+<td style="text-align:right;">
+0.4504
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:left;">
+ENSG00000110492
+</td>
+<td style="text-align:left;">
+rs75794821
+</td>
+<td style="text-align:right;">
+0.9382
+</td>
+<td style="text-align:right;">
+1.4735
+</td>
+<td style="text-align:right;">
+1.3858
+</td>
+<td style="text-align:right;">
+0.4414
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:left;">
+ENSG00000089220
+</td>
+<td style="text-align:left;">
+rs795483
+</td>
+<td style="text-align:right;">
+0.9383
+</td>
+<td style="text-align:right;">
+1.2452
+</td>
+<td style="text-align:right;">
+1.4375
+</td>
+<td style="text-align:right;">
+0.4417
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:left;">
+ENSG00000176946
+</td>
+<td style="text-align:left;">
+rs34441975
+</td>
+<td style="text-align:right;">
+0.9458
+</td>
+<td style="text-align:right;">
+1.8676
+</td>
+<td style="text-align:right;">
+-0.8910
+</td>
+<td style="text-align:right;">
+0.4718
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:left;">
+ENSG00000086598
+</td>
+<td style="text-align:left;">
+rs12817861
+</td>
+<td style="text-align:right;">
+0.9383
+</td>
+<td style="text-align:right;">
+1.1442
+</td>
+<td style="text-align:right;">
+0.7128
+</td>
+<td style="text-align:right;">
+0.4429
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:left;">
+ENSG00000198663
+</td>
+<td style="text-align:left;">
+rs12111266
+</td>
+<td style="text-align:right;">
+0.9519
+</td>
+<td style="text-align:right;">
+1.0065
+</td>
+<td style="text-align:right;">
+-0.5824
+</td>
+<td style="text-align:right;">
+0.4960
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:left;">
+ENSG00000125124
+</td>
+<td style="text-align:left;">
+rs16959711
+</td>
+<td style="text-align:right;">
+0.9534
+</td>
+<td style="text-align:right;">
+1.6524
+</td>
+<td style="text-align:right;">
+-0.2768
+</td>
+<td style="text-align:right;">
+0.5037
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:left;">
+ENSG00000171490
+</td>
+<td style="text-align:left;">
+rs33637
+</td>
+<td style="text-align:right;">
+0.9389
+</td>
+<td style="text-align:right;">
+1.6802
+</td>
+<td style="text-align:right;">
+-0.1420
+</td>
+<td style="text-align:right;">
+0.4491
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:left;">
+ENSG00000151229
+</td>
+<td style="text-align:left;">
+rs77943660
+</td>
+<td style="text-align:right;">
+0.9601
+</td>
+<td style="text-align:right;">
+1.4338
+</td>
+<td style="text-align:right;">
+-0.5173
+</td>
+<td style="text-align:right;">
+0.5336
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:left;">
+ENSG00000164930
+</td>
+<td style="text-align:left;">
+rs3133830
+</td>
+<td style="text-align:right;">
+0.9367
+</td>
+<td style="text-align:right;">
+1.5479
+</td>
+<td style="text-align:right;">
+-0.0678
+</td>
+<td style="text-align:right;">
+0.4749
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:left;">
+ENSG00000139926
+</td>
+<td style="text-align:left;">
+rs1885033
+</td>
+<td style="text-align:right;">
+0.9286
+</td>
+<td style="text-align:right;">
+1.4462
+</td>
+<td style="text-align:right;">
+0.4705
+</td>
+<td style="text-align:right;">
+0.5079
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:left;">
+ENSG00000152377
+</td>
+<td style="text-align:left;">
+rs6863414
+</td>
+<td style="text-align:right;">
+0.9119
+</td>
+<td style="text-align:right;">
+1.4674
+</td>
+<td style="text-align:right;">
+1.5465
+</td>
+<td style="text-align:right;">
+0.4625
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:left;">
+ENSG00000123737
+</td>
+<td style="text-align:left;">
+rs72913982
+</td>
+<td style="text-align:right;">
+0.9549
+</td>
+<td style="text-align:right;">
+1.2647
+</td>
+<td style="text-align:right;">
+-0.8888
+</td>
+<td style="text-align:right;">
+0.4956
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:left;">
+ENSG00000164073
+</td>
+<td style="text-align:left;">
+rs6534656
+</td>
+<td style="text-align:right;">
+0.9446
+</td>
+<td style="text-align:right;">
+1.5517
+</td>
+<td style="text-align:right;">
+0.4158
+</td>
+<td style="text-align:right;">
+0.5080
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:left;">
+ENSG00000107164
+</td>
+<td style="text-align:left;">
+rs3802341
+</td>
+<td style="text-align:right;">
+0.9509
+</td>
+<td style="text-align:right;">
+1.2234
+</td>
+<td style="text-align:right;">
+-1.7040
+</td>
+<td style="text-align:right;">
+0.4749
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:left;">
+ENSG00000103591
+</td>
+<td style="text-align:left;">
+rs8038739
+</td>
+<td style="text-align:right;">
+0.9474
+</td>
+<td style="text-align:right;">
+1.6412
+</td>
+<td style="text-align:right;">
+-0.8703
+</td>
+<td style="text-align:right;">
+0.4103
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="screen-3-maxzt-2-and-mashr-pair-lfdr-0.05"
+class="section level3">
+<h3>Screen 3: max|z(t)| &lt; 2 and mashr pair lfdr &gt; 0.05</h3>
+<pre class="r"><code>plot_gallery(mashr_filter_id)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_mashr_mean_z_null_correlation.rmd/mashr-gallery-1.png" alt="Twenty-five fixed-random units selected after removing mashr discoveries from Screen 1. The retained set is exactly the Screen-1 set in this fit." width="2340" />
+<p class="caption">
+Twenty-five fixed-random units selected after removing mashr discoveries
+from Screen 1. The retained set is exactly the Screen-1 set in this fit.
+</p>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  gallery_table(mashr_filter_id),
+  align = &quot;rllrrrrll&quot;,
+  minimum_width = &quot;1540px&quot;,
+  digits = 4L
+)</code></pre>
+<div class="mean-z-table-scroll">
+<div style="min-width: 1540px;">
+<table>
+<thead>
+<tr>
+<th style="text-align:right;">
+Position
+</th>
+<th style="text-align:left;">
+Gene
+</th>
+<th style="text-align:left;">
+Variant
+</th>
+<th style="text-align:right;">
+lfdr
+</th>
+<th style="text-align:right;">
+max|z|
+</th>
+<th style="text-align:right;">
+Z_mean
+</th>
+<th style="text-align:right;">
+Mashr pair lfdr
+</th>
+<th style="text-align:left;">
+Passes Screen 2
+</th>
+<th style="text-align:left;">
+Passes Screen 3
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+ENSG00000185630
+</td>
+<td style="text-align:left;">
+rs74117940
+</td>
+<td style="text-align:right;">
+0.9216
+</td>
+<td style="text-align:right;">
+1.5280
+</td>
+<td style="text-align:right;">
+-2.6786
+</td>
+<td style="text-align:right;">
+0.4593
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+ENSG00000253485
+</td>
+<td style="text-align:left;">
+rs7730183
+</td>
+<td style="text-align:right;">
+0.9958
+</td>
+<td style="text-align:right;">
+1.7140
+</td>
+<td style="text-align:right;">
+2.6251
+</td>
+<td style="text-align:right;">
+0.7557
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+ENSG00000130669
+</td>
+<td style="text-align:left;">
+rs73551779
+</td>
+<td style="text-align:right;">
+0.9340
+</td>
+<td style="text-align:right;">
+1.7248
+</td>
+<td style="text-align:right;">
+-1.6862
+</td>
+<td style="text-align:right;">
+0.4660
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+ENSG00000213390
+</td>
+<td style="text-align:left;">
+rs4919086
+</td>
+<td style="text-align:right;">
+0.9637
+</td>
+<td style="text-align:right;">
+1.6211
+</td>
+<td style="text-align:right;">
+-3.7040
+</td>
+<td style="text-align:right;">
+0.4731
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+ENSG00000142599
+</td>
+<td style="text-align:left;">
+rs28999101
+</td>
+<td style="text-align:right;">
+0.9391
+</td>
+<td style="text-align:right;">
+1.5494
+</td>
+<td style="text-align:right;">
+0.0489
+</td>
+<td style="text-align:right;">
+0.4646
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:left;">
+ENSG00000123213
+</td>
+<td style="text-align:left;">
+rs10070137
+</td>
+<td style="text-align:right;">
+0.9514
+</td>
+<td style="text-align:right;">
+1.3744
+</td>
+<td style="text-align:right;">
+0.0222
+</td>
+<td style="text-align:right;">
+0.4731
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:left;">
+ENSG00000145439
+</td>
+<td style="text-align:left;">
+rs79213600
+</td>
+<td style="text-align:right;">
+0.9434
+</td>
+<td style="text-align:right;">
+1.2356
+</td>
+<td style="text-align:right;">
+-0.8341
+</td>
+<td style="text-align:right;">
+0.4787
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:left;">
+ENSG00000009307
+</td>
+<td style="text-align:left;">
+rs72996464
+</td>
+<td style="text-align:right;">
+0.9388
+</td>
+<td style="text-align:right;">
+1.2128
+</td>
+<td style="text-align:right;">
+-1.2076
+</td>
+<td style="text-align:right;">
+0.4428
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:left;">
+ENSG00000138162
+</td>
+<td style="text-align:left;">
+rs2420980
+</td>
+<td style="text-align:right;">
+0.9308
+</td>
+<td style="text-align:right;">
+1.3858
+</td>
+<td style="text-align:right;">
+0.9660
+</td>
+<td style="text-align:right;">
+0.4975
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:left;">
+ENSG00000139644
+</td>
+<td style="text-align:left;">
+rs7312658
+</td>
+<td style="text-align:right;">
+0.9387
+</td>
+<td style="text-align:right;">
+1.8468
+</td>
+<td style="text-align:right;">
+2.8289
+</td>
+<td style="text-align:right;">
+0.4347
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:left;">
+ENSG00000124164
+</td>
+<td style="text-align:left;">
+rs8115522
+</td>
+<td style="text-align:right;">
+0.9654
+</td>
+<td style="text-align:right;">
+1.0693
+</td>
+<td style="text-align:right;">
+0.0434
+</td>
+<td style="text-align:right;">
+0.5279
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:left;">
+ENSG00000177082
+</td>
+<td style="text-align:left;">
+rs10852053
+</td>
+<td style="text-align:right;">
+0.9582
+</td>
+<td style="text-align:right;">
+1.9689
+</td>
+<td style="text-align:right;">
+0.3478
+</td>
+<td style="text-align:right;">
+0.5107
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:left;">
+ENSG00000023330
+</td>
+<td style="text-align:left;">
+rs74665344
+</td>
+<td style="text-align:right;">
+0.9308
+</td>
+<td style="text-align:right;">
+1.6210
+</td>
+<td style="text-align:right;">
+0.5885
+</td>
+<td style="text-align:right;">
+0.4704
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:left;">
+ENSG00000128731
+</td>
+<td style="text-align:left;">
+rs1635169
+</td>
+<td style="text-align:right;">
+0.9506
+</td>
+<td style="text-align:right;">
+1.0513
+</td>
+<td style="text-align:right;">
+-1.1324
+</td>
+<td style="text-align:right;">
+0.4753
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:left;">
+ENSG00000183978
+</td>
+<td style="text-align:left;">
+rs59700742
+</td>
+<td style="text-align:right;">
+0.9300
+</td>
+<td style="text-align:right;">
+1.8806
+</td>
+<td style="text-align:right;">
+-1.1618
+</td>
+<td style="text-align:right;">
+0.4501
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:left;">
+ENSG00000102996
+</td>
+<td style="text-align:left;">
+rs55967324
+</td>
+<td style="text-align:right;">
+0.9381
+</td>
+<td style="text-align:right;">
+1.8118
+</td>
+<td style="text-align:right;">
+-0.6739
+</td>
+<td style="text-align:right;">
+0.4428
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:left;">
+ENSG00000144713
+</td>
+<td style="text-align:left;">
+rs9813534
+</td>
+<td style="text-align:right;">
+0.9197
+</td>
+<td style="text-align:right;">
+1.6595
+</td>
+<td style="text-align:right;">
+0.8987
+</td>
+<td style="text-align:right;">
+0.4427
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:left;">
+ENSG00000178104
+</td>
+<td style="text-align:left;">
+rs28549707
+</td>
+<td style="text-align:right;">
+0.9262
+</td>
+<td style="text-align:right;">
+1.6213
+</td>
+<td style="text-align:right;">
+-2.9036
+</td>
+<td style="text-align:right;">
+0.5348
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:left;">
+ENSG00000112787
+</td>
+<td style="text-align:left;">
+rs56351945
+</td>
+<td style="text-align:right;">
+0.9517
+</td>
+<td style="text-align:right;">
+1.5740
+</td>
+<td style="text-align:right;">
+-1.5419
+</td>
+<td style="text-align:right;">
+0.4557
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:left;">
+ENSG00000165782
+</td>
+<td style="text-align:left;">
+rs72672714
+</td>
+<td style="text-align:right;">
+0.9617
+</td>
+<td style="text-align:right;">
+1.2445
+</td>
+<td style="text-align:right;">
+-0.8968
+</td>
+<td style="text-align:right;">
+0.5113
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:left;">
+ENSG00000163960
+</td>
+<td style="text-align:left;">
+rs141974763
+</td>
+<td style="text-align:right;">
+0.9484
+</td>
+<td style="text-align:right;">
+1.9139
+</td>
+<td style="text-align:right;">
+0.5960
+</td>
+<td style="text-align:right;">
+0.4600
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:left;">
+ENSG00000110047
+</td>
+<td style="text-align:left;">
+rs7102350
+</td>
+<td style="text-align:right;">
+0.9261
+</td>
+<td style="text-align:right;">
+1.7746
+</td>
+<td style="text-align:right;">
+-1.7268
+</td>
+<td style="text-align:right;">
+0.5136
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:left;">
+ENSG00000073111
+</td>
+<td style="text-align:left;">
+rs13078270
+</td>
+<td style="text-align:right;">
+0.9365
+</td>
+<td style="text-align:right;">
+1.7167
+</td>
+<td style="text-align:right;">
+0.4062
+</td>
+<td style="text-align:right;">
+0.4488
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:left;">
+ENSG00000143761
+</td>
+<td style="text-align:left;">
+rs10916261
+</td>
+<td style="text-align:right;">
+0.9378
+</td>
+<td style="text-align:right;">
+1.6977
+</td>
+<td style="text-align:right;">
+-0.5139
+</td>
+<td style="text-align:right;">
+0.4395
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:left;">
+ENSG00000143013
+</td>
+<td style="text-align:left;">
+rs1002482
+</td>
+<td style="text-align:right;">
+0.9392
+</td>
+<td style="text-align:right;">
+1.6621
+</td>
+<td style="text-align:right;">
+-0.9362
+</td>
+<td style="text-align:right;">
+0.4719
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div id="interpretation-and-limitations" class="section level2">
+<h2>Interpretation and limitations</h2>
+<ol style="list-style-type: decimal">
+<li>Letting mashr estimate its own null correlation does not provide an
+independent validation of Screen 1: the standard estimator is exactly
+the Screen-1 empirical z-score correlation.</li>
+<li>At pair lfdr 0.05, Screen 3 is redundant after Screen 1. It removes
+zero of the 3,436 Screen-1 pairs and leaves the suspicious
+constant-effect example in the set.</li>
+<li>The proposed mean-Z criterion materially changes the estimated
+correlation, despite using the same one-variant-per-gene thinning. It is
+the only tested screen here that removes the motivating example.</li>
+<li>The Screen-2 matrix has a similar time-pattern ordering but a much
+lower baseline. That is consistent with removing a broad common
+component, but the rule also truncates that direction and can create
+negative dependence.</li>
+<li>None of the selected sets is known to contain only exact
+zero-marginal-effect pairs. Screens 1 and 3 can retain constant-effect
+heterogeneity, while Screen 2 can have selection-induced downward
+bias.</li>
+<li>These are empirical correlations of adjusted z scores, not
+beta-scale covariance matrices and not identified gene-specific error
+covariances.</li>
+</ol>
+<p>The defensible conclusion is therefore twofold. First, the proposed
+mashr-lfdr filter does not improve the maximum-z set in this dataset.
+Second, the estimated residual-correlation level is sensitive to adding
+a mean-Z restriction, but that restriction has its own selection effect.
+This page should remain internal until the estimand and selection
+argument are settled.</p>
+</div>
+<div id="reproduction" class="section level2">
+<h2>Reproduction</h2>
+<p>The cache contains the exact candidate z matrix, fitted beta
+estimates, adjusted standard errors, selected indices, all three
+complete empirical correlation matrices, the fitted mashr object and
+posterior weights, bootstrap intervals, gallery membership, input-file
+provenance, and CSV audit tables.</p>
+<pre class="r"><code>Rscript --vanilla \
+  code/revision_simulations/internal/covariance_estimation/run_mashr_mean_z_null_correlation.R
+
+workflowr::wflow_build(
+  &quot;analysis/revision_internal_mashr_mean_z_null_correlation.rmd&quot;,
+  local = TRUE,
+  verbose = TRUE
+)</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+ [1] vctrs_0.7.3       cli_3.6.6         knitr_1.50        rlang_1.2.0      
+ [5] xfun_0.55         stringi_1.8.7     otel_0.2.0        promises_1.5.0   
+ [9] jsonlite_2.0.0    workflowr_1.7.2   glue_1.8.1        git2r_0.36.2     
+[13] rprojroot_2.1.1   htmltools_0.5.9   httpuv_1.6.16     sass_0.4.10      
+[17] rmarkdown_2.30    jquerylib_0.1.4   evaluate_1.0.5    tibble_3.3.0     
+[21] fastmap_1.2.0     yaml_2.3.12       lifecycle_1.0.5   stringr_1.6.0    
+[25] compiler_4.5.1    fs_1.6.6          Rcpp_1.1.1-1.1    pkgconfig_2.0.3  
+[29] rstudioapi_0.17.1 later_1.4.4       digest_0.6.39     R6_2.6.1         
+[33] pillar_1.11.1     magrittr_2.0.5    bslib_0.9.0       tools_4.5.1      
+[37] cachem_1.1.0     </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

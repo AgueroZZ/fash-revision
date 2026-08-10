@@ -1,0 +1,487 @@
+---
+title: "Internal sensitivity analysis: one random variant per gene"
+author: "Ziang Zhang"
+date: "2026-08-07"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 9,
+  fig.height = 5.4,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(
+  "code/revision_simulations/internal/one_variant_per_gene_refit/reporting.R"
+)
+```
+
+<style>
+.one-gene-internal-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.one-gene-key-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.one-gene-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.one-gene-table-scroll table {
+  margin-bottom: 1em;
+}
+.one-gene-inline-path {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+</style>
+
+<div class="one-gene-internal-banner">
+<strong>Internal sensitivity page.</strong> This page is not linked from the
+workflowr homepage, manuscript, or response letter. It does not replace or
+modify R1, R2, or any existing real-data page. All results below are read from
+completed retained caches.
+</div>
+
+## Question and answer
+
+The full FASH(1) analysis contains
+`r format_integer(expected_full_units)` tested gene-variant pairs from
+`r format_integer(expected_genes)` genes. A gene with many tested cis variants
+therefore contributes more units to the empirical-Bayes fit than a gene with
+few tested variants. Nearby variants for the same gene can also be in linkage
+disequilibrium (LD).
+
+The primary sensitivity analysis uniformly samples one tested variant per gene
+and refits FASH on the resulting `r format_integer(expected_genes)` units. It
+asks whether the fitted prior, selected-unit lfdr values, and discoveries
+depend strongly on the repeated representation of genes in the full
+pair-level data.
+
+<div class="one-gene-key-result">
+<strong>Main result.</strong> The raw FASH fit retains almost the same ranking
+but changes in absolute prior and lfdr calibration. After the paper's BF prior
+update, the thinned fits remain close to the full-data fit across all ten
+random selections: estimated null weights are
+`r format_range(bf_metrics$thinned_pi0, 4)`, paired lfdr mean absolute
+differences are `r format_range(bf_lfdr_mae_range, 4)`, and lfdr Spearman
+correlations are `r format_range(bf_spearman_range, 4)`. The complete full-data
+fit has one fixed result--`r format_integer(full_bf_gene_discoveries)` genes
+with discovered dynamic eQTLs--whereas the ten independently thinned refits
+discover `r format_integer(bf_thinned_trained_gene_range[1])`--`r format_integer(bf_thinned_trained_gene_range[2])`
+genes each.
+</div>
+
+## Sensitivity design
+
+The experiment uses the current raw and BF-adjusted FASH(1) objects without
+simulating new beta estimates or standard errors.
+
+```{r design-table, results='asis'}
+render_scrollable_table(
+  design_table,
+  align = "ll",
+  minimum_width = "680px"
+)
+```
+
+The full analysis does not contribute the same number of units per gene. The
+distribution below is computed directly from the full fit's pair keys. A gene
+has a median of `r format_integer(variant_count_median)` tested variants
+(IQR `r format_integer(variant_count_q1)`--`r format_integer(variant_count_q3)`),
+with a range of `r format_integer(variant_count_min)`--`r format_integer(variant_count_max)`.
+
+```{r variant-count-summary, results='asis'}
+render_scrollable_table(
+  variant_count_summary_table,
+  align = "lr",
+  minimum_width = "620px"
+)
+```
+
+```{r variants-per-gene-histogram, fig.width=8.8, fig.height=5.2, fig.cap="Distribution of the number of tested variants contributed by each gene to the full FASH analysis. The horizontal axis is logarithmic so that both the main distribution and the long right tail remain visible."}
+plot_variants_per_gene_histogram()
+```
+
+The logarithmic horizontal axis changes only the display, not the counts. This
+unequal full-data representation is exactly what the one-per-gene thinning
+removes.
+
+For each deterministic seed, all pair keys are split by Ensembl gene ID and
+one index is sampled uniformly within every gene. The draw is independent of
+the observed beta estimates, standard errors, lfdr values, and significance.
+
+```{r one-per-gene-selection, eval=FALSE}
+pair_keys <- names(fash_fit1$fash_data$data_list)
+gene_id <- sub("_.*$", "", pair_keys)
+gene_index <- split(
+  seq_along(pair_keys),
+  factor(gene_id, levels = sort(unique(gene_id)))
+)
+
+set.seed(12345)
+selected_indices <- vapply(
+  gene_index,
+  function(indices) {
+    if (length(indices) == 1L) indices else sample(indices, size = 1L)
+  },
+  integer(1)
+)
+```
+
+This changes the empirical target as well as reducing repeated variants per
+gene:
+
+- the full fit is **pair-weighted**, so genes with more tested variants receive
+  more weight;
+- the thinned fit is **gene-weighted**, with exactly one pair per gene.
+
+It is therefore a sensitivity analysis of the complete unit-composition
+change, not an estimator of an LD-only effect.
+
+### Selection audit
+
+Every seed retains exactly one unique gene-variant pair per gene. The selected
+sets contain `r format_integer(unique_variant_range[1])`--`r format_integer(unique_variant_range[2])`
+unique source variant IDs. A small number of variants are assigned to two
+different genes, producing `r repeated_assignment_range[1]`--`r repeated_assignment_range[2]`
+repeated cross-gene assignments per seed.
+
+```{r selection-audit-table, results='asis'}
+render_scrollable_table(
+  selection_audit,
+  align = "rrrrrr",
+  minimum_width = "1040px"
+)
+```
+
+Thus the design removes multiple tested variants *within each gene*, but it
+does not force globally unique SNP IDs and does not remove LD between nearby
+variants assigned to different genes.
+
+## Exact refitting from cached likelihood rows
+
+For unit $j$ and PSD-grid component $k$, let $L_{jk}$ be the likelihood stored
+in the full FASH object's `L_matrix`. At fixed beta estimates, standard errors,
+basis, likelihood, and PSD grid, the data-likelihood part of the
+empirical-Bayes objective is
+
+$$
+\ell(\pi)
+=
+\sum_{j=1}^{J}
+\log\left\{
+\sum_{k=1}^{K}\pi_k L_{jk}
+\right\}.
+$$
+
+Each row of $L$ is computed independently before the mixture weights are
+estimated. Consequently, thinning the units requires selecting the matching
+likelihood rows and reoptimizing $\pi$; it does not require recomputing the
+same 52 likelihood values from beta and SE for every selected unit.
+
+```{r cached-likelihood-refit, eval=FALSE}
+selected_L <- fash_fit1$L_matrix[selected_indices, , drop = FALSE]
+
+eb_result <- fashr::fash_eb_est(
+  L_matrix = selected_L,
+  grid = fash_fit1$psd_grid,
+  penalty = fash_fit1$settings$penalty
+)
+
+thinned_raw <- refit_fash_from_cached_likelihood(
+  fash_fit1,
+  selected_indices
+)
+thinned_bf <- fashr::BF_update(thinned_raw, plot = FALSE)
+```
+
+This is a genuine refit: the thinned mixture weights, posterior weights, and
+lfdr values are re-estimated. Only the fixed per-unit likelihood calculations
+are reused.
+
+## Raw and BF-adjusted stability
+
+All raw fits use the original analysis choice `penalty = 10`; this setting is
+held fixed throughout the sensitivity analysis.
+
+The full raw fit estimates $\widehat\pi_0=
+`r format_decimal(full_raw_pi0, 4)`$. After thinning, the raw estimate rises to
+`r format_range(raw_pi0_range, 4)`. Its paired lfdr ranking remains extremely
+stable, but its absolute lfdr mean absolute difference reaches
+`r format_decimal(max(raw_lfdr_mae_range), 4)`.
+
+The full BF-adjusted fit estimates $\widehat\pi_0=
+`r format_decimal(full_bf_pi0, 4)`$. The ten thinned BF-adjusted estimates are
+`r format_range(bf_pi0_range, 4)`, a change of only
+`r format_range(bf_pi0_difference_range, 4, signed = TRUE)`.
+
+```{r ten-seed-range-table, results='asis'}
+render_scrollable_table(
+  fit_range_table,
+  align = "lrrrrrrrl",
+  minimum_width = "1660px"
+)
+```
+
+### A concrete draw: seed 12345
+
+The scatter plot below shows every selected pair for the first prespecified
+seed. The horizontal coordinate is the lfdr assigned by the fixed full-data fit;
+the vertical coordinate is the lfdr after re-estimating the mixture on the
+6,362 selected pairs. Thus, both axes refer to exactly the same gene-variant
+pairs.
+
+```{r specific-seed-table, results='asis'}
+render_scrollable_table(
+  specific_seed_table,
+  align = "lrrrrrrr",
+  minimum_width = "1260px"
+)
+```
+
+```{r specific-seed-lfdr, fig.width=9.4, fig.height=4.8, fig.cap="Seed 12345 lfdr values from the fixed full-data fit and thinned refit. Each facet uses the identical 6,362 selected gene-variant pairs."}
+plot_specific_seed_lfdr()
+```
+
+The raw points show a calibration shift despite a nearly unchanged ordering.
+The BF-adjusted points lie much closer to the equality line.
+
+### Estimated null weight
+
+```{r pi0-stability, fig.width=9.4, fig.height=4.8, fig.cap="Distribution of thinned null-weight estimates across ten seeds. Each point is one seed; diamonds mark the corresponding fixed full-data estimates."}
+plot_pi0_stability()
+```
+
+The boxplots summarize cross-seed variability rather than connecting arbitrary
+seed labels. The raw estimates move upward under gene weighting and vary more
+across representative variants. The BF-adjusted estimates remain tightly
+centered around the full-data reference.
+
+### Paired lfdr agreement
+
+```{r lfdr-mae, fig.width=8.8, fig.height=5.2, fig.cap="Distribution across ten seeds of the mean absolute lfdr difference between the full-fit reference and thinned refit on the same sampled pairs."}
+plot_lfdr_mae()
+```
+
+The logarithmic axis emphasizes the separation: BF-adjusted lfdr mean absolute
+differences remain below 0.009 in every seed, compared with
+`r format_range(raw_lfdr_mae_range, 4)` for the raw fit.
+
+### Genes with discovered dynamic eQTLs
+
+In the complete BF-adjusted analysis, cumulative-lfdr FDR control at 0.05
+discovers `r format_integer(full_bf_pair_discoveries)` gene-variant pairs from
+`r format_integer(full_bf_gene_discoveries)` distinct genes. This is one fixed
+full-data result; it has no thinning seed and does not vary across the ten
+refits.
+
+```{r full-data-discovery-table, results='asis'}
+render_scrollable_table(
+  full_data_discovery_table,
+  align = "lrrrr",
+  minimum_width = "1040px"
+)
+```
+
+Each thinned refit instead tests exactly `r format_integer(expected_genes)`
+sampled pairs, one per gene. Therefore every discovered pair in a thinned fit
+corresponds to one discovered gene. Its discovery count can vary because a
+different representative variant is sampled for each gene and the FASH prior
+is then refitted on that selected dataset.
+
+```{r thinned-gene-discovery-table, results='asis'}
+render_scrollable_table(
+  thinned_gene_discovery_table,
+  align = "rr",
+  minimum_width = "720px"
+)
+```
+
+```{r thinned-gene-discovery-boxplot, fig.width=7.2, fig.height=4.8, fig.cap="Distribution of the number of genes discovered by the ten thinned BF-adjusted refits. Each point is one seed."}
+plot_thinned_gene_discoveries()
+```
+
+Across the ten thinned refits, the count ranges from
+`r format_integer(bf_thinned_trained_gene_range[1])` to
+`r format_integer(bf_thinned_trained_gene_range[2])` genes, with median
+`r format_decimal(bf_thinned_gene_median, 1)` and interquartile range
+`r format_range(bf_thinned_gene_iqr, 1)`. The full-data count of
+`r format_integer(full_bf_gene_discoveries)` and the thinned counts should not
+be compared as though they used the same testing universe: the full analysis
+tests all `r format_integer(expected_full_units)` pairs, while each thinned
+analysis tests only one randomly selected pair per gene.
+
+### Conditional agreement on the sampled pairs
+
+The lfdr and discovery-overlap diagnostics use a different, deliberately
+paired comparison. For each seed, the fixed full-data fit is evaluated only on
+that seed's 6,362 sampled pairs, and cumulative-lfdr FDR control is reapplied
+within that restricted set. This produces a seed-dependent **reference on the
+sampled pairs**; it is not the number of genes discovered by the full FASH
+analysis. The corresponding thinned refit is evaluated on exactly the same
+pairs, so their Jaccard overlap is meaningful as a conditional robustness
+diagnostic.
+
+```{r discovery-overlap, fig.width=8.8, fig.height=5.2, fig.cap="Distribution across ten seeds of the conditional discovery-set Jaccard. In each seed, both fits are evaluated on the same sampled pairs."}
+plot_discovery_jaccard()
+```
+
+The BF-adjusted discovery Jaccard ranges from
+`r format_decimal(bf_jaccard_range[1], 4)` to
+`r format_decimal(bf_jaccard_range[2], 4)`. The non-overlapping calls remain
+concentrated near the decision boundary.
+
+### Seed-level results
+
+```{r seed-result-table, results='asis'}
+render_scrollable_table(
+  seed_result_table,
+  align = "rlrrrrrr",
+  minimum_width = "1240px"
+)
+```
+
+## Interpretation
+
+This experiment separates two aspects of similarity.
+
+1. **Ranking stability is strong even before BF adjustment.** Raw paired lfdr
+   Spearman correlations are `r format_range(raw_spearman_range, 4)`.
+2. **Raw absolute calibration is composition-sensitive.** The raw null weight,
+   alternative mixture allocation, and absolute lfdr scale shift after moving
+   from pair weighting to gene weighting.
+3. **The BF-adjusted analysis is practically stable.** Across all ten draws,
+   the BF-adjusted null-weight change is smaller than 0.009 in magnitude, lfdr
+   MAE is below 0.009, and lfdr Spearman correlations are
+   `r format_range(bf_spearman_range, 4)`.
+4. **Full-data and thinned discovery counts are distinct quantities.** The full
+   FASH result is fixed at `r format_integer(full_bf_gene_discoveries)` genes.
+   The ten thinned refits discover
+   `r format_integer(bf_thinned_trained_gene_range[1])`--`r format_integer(bf_thinned_trained_gene_range[2])`
+   genes on their much smaller, seed-specific testing universes.
+
+The strongest defensible conclusion is:
+
+> The paper's BF-adjusted FASH(1) prior and selected-pair lfdr values are robust
+> to heavy thinning from 1,009,173 gene-variant pairs to one uniformly selected
+> pair per gene. The corresponding raw empirical-Bayes prior is less robust to
+> this change in unit composition.
+
+This supports the practical stability of the reported BF-adjusted fit. It does
+not establish that LD has no effect, because thinning also changes the
+gene-versus-pair weighting of the empirical distribution.
+
+## Limitations
+
+- One variant per gene reduces same-gene tagging but does not eliminate LD
+  between nearby variants assigned to different genes.
+- There are `r repeated_assignment_range[1]`--`r repeated_assignment_range[2]`
+  repeated cross-gene variant assignments per seed; no source variant is
+  assigned to more than two genes.
+- Pair-weighted and gene-weighted empirical distributions are different
+  targets. A difference between fits cannot be attributed to LD alone.
+- Ten deterministic random selections characterize representative-variant
+  sensitivity but do not form a formal bootstrap confidence interval.
+- Discovery overlap conditions on the same thinned universe and should not be
+  interpreted as overlap with the complete million-pair discovery set.
+- Cached likelihood reuse is exact because the beta estimates, SEs, basis,
+  likelihood, PSD grid, and original `penalty = 10` choice are unchanged.
+
+## Source provenance
+
+The two full-fit files were treated as immutable. Their recorded sizes,
+modification times, and SHA-256 hashes are reported below and remained
+unchanged across the random refits. Routine page builds use only
+compact caches and do not open these large objects.
+
+```{r source-provenance-table, results='asis'}
+render_scrollable_table(
+  source_provenance_table,
+  align = "lllrl",
+  minimum_width = "1480px"
+)
+```
+
+## Reproducibility
+
+Routine builds read:
+
+<span class="one-gene-inline-path">`output/revision_simulations/internal/one_variant_per_gene_refit_seed<seed>/`</span>
+
+and the combined
+<span class="one-gene-inline-path">`one_variant_per_gene_refit_seed_summary.csv`</span>,
+plus
+<span class="one-gene-inline-path">`one_variant_per_gene_full_bf_discovery_summary.csv`</span>
+and
+<span class="one-gene-inline-path">`one_variant_per_gene_variant_counts.csv`</span>.
+They do not reload the full FASH objects or rerun the empirical-Bayes fits.
+
+To reproduce the analysis without overwriting the retained cache, use a new
+output prefix:
+
+```{bash regenerate-one-variant-per-gene-refits, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/one_variant_per_gene_refit/run_one_variant_per_gene_refit.R \
+  --seeds 12345,22345,32345,42345,52345,62345,72345,82345,92345,102345 \
+  --num-cores 8 \
+  --validation-units 24 \
+  --output-prefix one_variant_per_gene_refit_reproduction_seed \
+  --full-summary-file one_variant_per_gene_full_bf_discovery_summary_reproduction.csv \
+  --variant-count-file one_variant_per_gene_variant_counts_reproduction.csv
+```
+
+The focused computation and reporting tests are:
+
+```{bash test-one-variant-per-gene-refits, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/one_variant_per_gene_refit/test_one_variant_per_gene_refit_helpers.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/one_variant_per_gene_refit/test_reporting.R
+```
+
+The page can be rebuilt from the retained caches with:
+
+```{bash rebuild-one-variant-per-gene-page, eval=FALSE}
+Rscript --vanilla -e \
+  'workflowr::wflow_build(
+    "analysis/revision_internal_one_variant_per_gene_refit.rmd"
+  )'
+```

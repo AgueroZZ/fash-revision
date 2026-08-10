@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-05" />
+
+<title>Revision Real-data Sensitivity R4: temporal correlation</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Revision Real-data Sensitivity R4: temporal
+correlation</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-05</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-07
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/revision_simulations/
+
+Untracked files:
+    Untracked:  Rplots.pdf
+    Untracked:  analysis/revision_balanced_variant_thinning.rmd
+    Untracked:  analysis/revision_combined_spiky_genotype_simulation.rmd
+    Untracked:  analysis/revision_correlated_error_simulation.rmd
+    Untracked:  analysis/revision_functional_testing_simulation.rmd
+    Untracked:  analysis/revision_genotype_level_simulation.rmd
+    Untracked:  analysis/revision_internal_observational_null_set_pilot.rmd
+    Untracked:  analysis/revision_internal_one_variant_per_gene_refit.rmd
+    Untracked:  analysis/revision_internal_real_genotype_simulation.rmd
+    Untracked:  analysis/revision_internal_targeted_broad_calibration.rmd
+    Untracked:  analysis/revision_internal_zero_intercept_correlation.rmd
+    Untracked:  analysis/revision_ld_tagging_switch_example.rmd
+    Untracked:  code/00_eQTLs_CL.R
+    Untracked:  code/01_fash_CL.R
+    Untracked:  code/01_fash_CL.sbatch
+    Untracked:  code/09_penalty_sensitivity.R
+    Untracked:  code/09_penalty_sensitivity.sbatch
+    Untracked:  code/revision_simulations/
+    Untracked:  fash_prior_comparison_order1_after.pdf
+    Untracked:  fash_prior_comparison_order1_after.png
+    Untracked:  fash_prior_comparison_order1_before.pdf
+    Untracked:  fash_prior_comparison_order1_before.png
+    Untracked:  fash_prior_comparison_order2_after.pdf
+    Untracked:  fash_prior_comparison_order2_after.png
+    Untracked:  fash_prior_comparison_order2_before.pdf
+    Untracked:  fash_prior_comparison_order2_before.png
+
+Unstaged changes:
+    Modified:   .gitignore
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Modified:   code/README.md
+    Modified:   output/toy_example/toy_example_11.pdf
+    Modified:   output/toy_example/toy_example_12.pdf
+    Modified:   output/toy_example/toy_example_21.pdf
+    Modified:   output/toy_example/toy_example_22.pdf
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style>
+.r4-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.r4-table-scroll table {
+  margin-bottom: 1em;
+}
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+</style>
+<div id="question" class="section level2">
+<h2>Question</h2>
+<p>The FASH-IWP1 likelihood treats the 16 effect estimates within a
+trajectory as conditionally independent given its true effect function.
+The real data reuse the same donors at multiple times, so this
+assumption is not exact. This page asks three increasingly targeted
+questions:</p>
+<ol style="list-style-type: decimal">
+<li>What full within-trajectory dependence patterns are visible among
+the 500 most null-like gene-variant pairs?</li>
+<li>Does FASH-IWP1 remain calibrated when the complete estimated 16 by
+16 patterns are inserted into the R1 data-generating mechanism?</li>
+<li>How do power, empirical FDR, and the estimated dynamic-null
+proportion change as a local lag-1 correlation varies from
+<code>-0.3</code> to <code>0.3</code>?</li>
+</ol>
+<p>Only FASH-IWP1 before and after BF adjustment is reported. The
+purpose is to test whether the fitted method used in the main analysis
+is sensitive to moderate violations of its conditional-independence
+working model.</p>
+</div>
+<div id="real-data-dependence-pattern" class="section level2">
+<h2>Real-data dependence pattern</h2>
+<div id="null-like-one-pair-per-gene-subset" class="section level3">
+<h3>Null-like one-pair-per-gene subset</h3>
+<p>The BF-adjusted FASH fit contains more than one variant for many
+genes. To avoid allowing a gene with many variants to dominate the
+diagnostic, we first retain the variant with the <strong>highest
+BF-adjusted lfdr within each gene</strong> and then take the 500
+representatives with the highest lfdr overall. The selected lfdr values
+range from 0.977 to 1.000.</p>
+<p>For FASH-IWP1, a high lfdr supports a constant effect trajectory, not
+necessarily a zero effect. Two complementary full-matrix estimators are
+therefore considered.</p>
+</div>
+<div id="direct-centered-estimator" class="section level3">
+<h3>Direct centered estimator</h3>
+<p>For unit <span class="math inline">\(j\)</span>, let <span
+class="math inline">\(\widehat\beta_j(t)\)</span> and <span
+class="math inline">\(s_j(t)\)</span> be the effect estimate and the
+t-adjusted standard error supplied to FASH. We estimate its unknown
+constant effect by inverse-variance weighting,</p>
+<p><span class="math display">\[
+\widehat\mu_j =
+\frac{\sum_t \widehat\beta_j(t)/s_j^2(t)}
+{\sum_t 1/s_j^2(t)},
+\qquad
+z_j(t)=\frac{\widehat\beta_j(t)-\widehat\mu_j}{s_j(t)},
+\]</span></p>
+<p>and compute the empirical correlation matrix across the 500 rows of
+<span class="math inline">\(z_j(t)\)</span>. This is a descriptive
+correlation of <strong>centered</strong> residual trajectories.
+Estimating and removing <span
+class="math inline">\(\widehat\mu_j\)</span> itself induces negative
+dependence, so this matrix should not be interpreted as an uncentered
+error covariance.</p>
+</div>
+<div id="pairwise-difference-estimator" class="section level3">
+<h3>Pairwise-difference estimator</h3>
+<p>An alternative removes the unknown constant without explicitly
+estimating it. For each time pair <span
+class="math inline">\((t,s)\)</span>, define</p>
+<p><span class="math display">\[
+a_j=s_j^2(t)+s_j^2(s),\qquad
+c_j=\frac{2s_j(t)s_j(s)}{a_j},\qquad
+q_j=\frac{\{\widehat\beta_j(t)-\widehat\beta_j(s)\}^2}{a_j}.
+\]</span></p>
+<p>Under a constant truth and conditionally Gaussian errors with
+correlation <span class="math inline">\(R_{ts}\)</span>, <span
+class="math inline">\(E(1-q_j)=c_jR_{ts}\)</span>. We therefore use the
+through-origin method-of-moments estimate</p>
+<p><span class="math display">\[
+\widehat R_{ts}=
+\frac{\sum_j c_j(1-q_j)}{\sum_j c_j^2}.
+\]</span></p>
+<p>Both symmetric estimates are projected to the nearest
+positive-definite correlation matrix before simulation.</p>
+<pre class="r"><code>plot_r4_real_data_correlation_heatmaps(real_analysis)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_correlated_error_simulation.rmd/real-correlation-heatmaps-1.png" alt="Figure R4.1: Real-data within-trajectory correlation diagnostics from 500 null-like one-pair-per-gene representatives. Panels distinguish the direct-centered and pairwise-difference estimators before and after nearest-positive-definite projection; color encodes correlation." width="1800" />
+<p class="caption">
+Figure R4.1: Real-data within-trajectory correlation diagnostics from
+500 null-like one-pair-per-gene representatives. Panels distinguish the
+direct-centered and pairwise-difference estimators before and after
+nearest-positive-definite projection; color encodes correlation.
+</p>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  projection_table,
+  caption = paste(
+    &quot;Table R4.1: Positive-definite projection diagnostics for the two&quot;,
+    &quot;real-data 16 by 16 correlation estimates.&quot;
+  ),
+  align = &quot;lrrrrrr&quot;,
+  minimum_width = &quot;980px&quot;
+)</code></pre>
+<div class="r4-table-scroll">
+<table class="table table-condensed" style="min-width:980px;">
+<caption>
+Table R4.1: Positive-definite projection diagnostics for the two
+real-data 16 by 16 correlation estimates.
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Estimator
+</th>
+<th style="text-align:right;">
+Raw minimum eigenvalue
+</th>
+<th style="text-align:right;">
+Projected minimum eigenvalue
+</th>
+<th style="text-align:right;">
+Maximum entry change
+</th>
+<th style="text-align:right;">
+Frobenius change
+</th>
+<th style="text-align:right;">
+Raw lag-1 correlation
+</th>
+<th style="text-align:right;">
+Projected lag-1 correlation
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Direct centered
+</td>
+<td style="text-align:right;">
+0.0987
+</td>
+<td style="text-align:right;">
+0.0986637
+</td>
+<td style="text-align:right;">
+0.000000
+</td>
+<td style="text-align:right;">
+0.00000
+</td>
+<td style="text-align:right;">
+-0.152
+</td>
+<td style="text-align:right;">
+-0.152
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pairwise difference
+</td>
+<td style="text-align:right;">
+-0.0050
+</td>
+<td style="text-align:right;">
+0.0000001
+</td>
+<td style="text-align:right;">
+0.000715
+</td>
+<td style="text-align:right;">
+0.00525
+</td>
+<td style="text-align:right;">
+0.566
+</td>
+<td style="text-align:right;">
+0.567
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The direct matrix is already positive definite. The pairwise matrix
+has a slightly negative minimum eigenvalue, but nearest-PD projection
+changes any entry by at most 0.000715. Thus the projection enforces a
+valid generating matrix without materially changing its pattern.</p>
+</div>
+<div id="why-a-matched-independence-benchmark-is-necessary"
+class="section level3">
+<h3>Why a matched independence benchmark is necessary</h3>
+<p>The pairwise moment equation is valid before selecting unusually flat
+trajectories. Ranking by a dynamic-null lfdr is itself a selection on
+within-trajectory variation. To expose this ascertainment effect, we
+generated independent standard-normal errors with the observed SE
+patterns and compared:</p>
+<ul>
+<li>the fixed top-500 SE patterns without re-selection; and</li>
+<li>the 500 flattest trajectories selected from all 6,362 one-per-gene
+SE patterns.</li>
+</ul>
+<pre class="r"><code>render_scrollable_table(
+  benchmark_lag1_table,
+  caption = paste(
+    &quot;Table R4.2: Observed lag-1 dependence and matched independent-error&quot;,
+    &quot;benchmarks for the direct-centered and pairwise-difference estimators.&quot;
+  ),
+  align = &quot;lrrr&quot;,
+  minimum_width = &quot;1080px&quot;
+)</code></pre>
+<div class="r4-table-scroll">
+<table class="table table-condensed" style="min-width:1080px;">
+<caption>
+Table R4.2: Observed lag-1 dependence and matched independent-error
+benchmarks for the direct-centered and pairwise-difference estimators.
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Estimator
+</th>
+<th style="text-align:right;">
+Observed correlation (95% gene-bootstrap CI)
+</th>
+<th style="text-align:right;">
+Independent, fixed SE (95% interval)
+</th>
+<th style="text-align:right;">
+Independent, flatness-selected (95% interval)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Direct centered
+</td>
+<td style="text-align:right;">
+-0.152 [-0.172, -0.130]
+</td>
+<td style="text-align:right;">
+-0.062 [-0.084, -0.041]
+</td>
+<td style="text-align:right;">
+-0.062 [-0.082, -0.041]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pairwise difference
+</td>
+<td style="text-align:right;">
+0.566 [0.545, 0.587]
+</td>
+<td style="text-align:right;">
+-0.001 [-0.044, 0.039]
+</td>
+<td style="text-align:right;">
+0.589 [0.575, 0.603]
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>For the direct estimator, observed lag-1 correlation is -0.152
+[-0.172, -0.130], compared with -0.062 [-0.084, -0.041] under
+independent errors with the same centering and SE patterns. The
+additional short-lag negative dependence is therefore modest.</p>
+<p>The raw pairwise estimate is strongly positive, 0.566 [0.545, 0.587],
+but the flatness-selected independence benchmark is already 0.589
+[0.575, 0.603]. Consequently, the pairwise matrix is retained as a
+deliberately conservative full-matrix stress pattern, not presented as
+an unbiased estimate of the unselected residual correlation.</p>
+<p>The conclusion is not driven by the t-to-normal SE adjustment.
+Inverting that adjustment gives the following lag-1 sensitivity:</p>
+<pre class="r"><code>render_scrollable_table(
+  se_sensitivity_table,
+  caption = paste(
+    &quot;Table R4.3: Sensitivity of the real-data lag-1 diagnostics to the&quot;,
+    &quot;t-to-normal standard-error scaling.&quot;
+  ),
+  align = &quot;llrr&quot;,
+  minimum_width = &quot;700px&quot;
+)</code></pre>
+<div class="r4-table-scroll">
+<table class="table table-condensed" style="min-width:700px;">
+<caption>
+Table R4.3: Sensitivity of the real-data lag-1 diagnostics to the
+t-to-normal standard-error scaling.
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Estimator
+</th>
+<th style="text-align:left;">
+SE scale
+</th>
+<th style="text-align:right;">
+Lag-1 correlation
+</th>
+<th style="text-align:right;">
+Lag-1 semivariogram
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Direct centered
+</td>
+<td style="text-align:left;">
+t-adjusted
+</td>
+<td style="text-align:right;">
+-0.152
+</td>
+<td style="text-align:right;">
+1.152
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pairwise difference
+</td>
+<td style="text-align:left;">
+t-adjusted
+</td>
+<td style="text-align:right;">
+0.566
+</td>
+<td style="text-align:right;">
+0.434
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Direct centered
+</td>
+<td style="text-align:left;">
+raw regression
+</td>
+<td style="text-align:right;">
+-0.153
+</td>
+<td style="text-align:right;">
+1.153
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pairwise difference
+</td>
+<td style="text-align:left;">
+raw regression
+</td>
+<td style="text-align:right;">
+0.511
+</td>
+<td style="text-align:right;">
+0.489
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="variograms-with-95-intervals" class="section level3">
+<h3>Variograms with 95% intervals</h3>
+<p>For a unit-diagonal correlation matrix, the standardized
+semivariogram at lag <span class="math inline">\(h\)</span> is</p>
+<p><span class="math display">\[
+\gamma(h)=1-\frac{1}{16-h}\sum_{t=1}^{16-h}R_{t,t+h}.
+\]</span></p>
+<p>The blue bands below are percentile intervals from 1,000 gene
+bootstraps. The gray and orange bands are 1,000 matched
+independent-error replications.</p>
+<pre class="r"><code>plot_r4_real_data_variograms(
+  real_analysis$bootstrap_lags,
+  real_analysis$independence_benchmark
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_correlated_error_simulation.rmd/real-data-variograms-1.png" alt="Figure R4.2: Lag-specific real-data correlation and semivariogram diagnostics. Blue curves and bands are observed estimates with 95% gene-bootstrap intervals; grey and orange curves and bands are the two matched independent-error benchmarks identified in the in-figure legend." width="1980" />
+<p class="caption">
+Figure R4.2: Lag-specific real-data correlation and semivariogram
+diagnostics. Blue curves and bands are observed estimates with 95%
+gene-bootstrap intervals; grey and orange curves and bands are the two
+matched independent-error benchmarks identified in the in-figure legend.
+</p>
+</div>
+<p>The direct centered diagnostic shows its largest departure at lag 1
+and moves toward its matched independence benchmark at longer lags,
+although the pattern is not exactly lag-1-only. The pairwise diagnostic
+is dominated by a broad positive common mode that is nearly reproduced
+by flatness selection under independence. These observations motivate
+testing both complete matrices first; the subsequent one-parameter sweep
+uses lag 1 as a parsimonious local sensitivity direction rather than as
+a fitted time-series model.</p>
+</div>
+</div>
+<div id="paired-r1-simulation-with-the-complete-matrices"
+class="section level2">
+<h2>Paired R1 simulation with the complete matrices</h2>
+<div id="data-generating-mechanism" class="section level3">
+<h3>Data-generating mechanism</h3>
+<p>The full-matrix experiment reuses R1 without changing its scientific
+setting: 19 donors, 16 times, 1,000 variants, five PC-like covariates,
+and exact class counts of 200 random B-spline dynamic effects, 400
+constant effects, and 400 zero effects. Thus the true dynamic-null
+proportion is <span class="math inline">\(\pi_0=0.8\)</span>.</p>
+<p>At every time, <code>Y ~ G + PC1 + ... + PC5</code> is fitted and the
+genotype standard error receives the same t-to-normal correction used in
+R1 and the real-data analysis. Within each seed, the independent,
+direct-full, and pairwise-full conditions share the exact same genotype,
+covariates, truth, nuisance effects, and Gaussian innovations. Only the
+Cholesky transform of the expression errors changes.</p>
+<pre class="r"><code>correlation_matrices &lt;- readRDS(file.path(
+  &quot;output&quot;,
+  &quot;revision_simulations&quot;,
+  &quot;real_data&quot;,
+  &quot;r4_null_like_top500_full_correlations&quot;,
+  &quot;simulation_correlation_matrices.rds&quot;
+))
+
+out &lt;- run_genotype_level_bspline_eqtl_simulation(
+  n_donors = 19,
+  n_variants = 1000,
+  time_grid = 0:15,
+  n_covariates = 5,
+  class_probs = c(
+    dynamic_bspline = 0.20,
+    constant = 0.40,
+    zero = 0.40
+  ),
+  expression_noise_sd = 1,
+  dynamic_main_effect_sd = 1,
+  seed = seed,
+  num_basis = 20,
+  expression_error_correlation = correlation,
+  save_outputs = FALSE
+)</code></pre>
+</div>
+<div id="target-versus-realized-dependence" class="section level3">
+<h3>Target-versus-realized dependence</h3>
+<pre class="r"><code>plot_r4_full_matrix_target_realized(
+  full_configuration,
+  full_matrix_summary
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_correlated_error_simulation.rmd/full-matrix-target-realized-1.png" alt="Figure R4.3: Target and realized dependence in the paired R1 complete-matrix simulations. Panels distinguish independent, direct-centered, and pairwise-difference conditions and the relevant error scale; color encodes correlation." width="1800" />
+<p class="caption">
+Figure R4.3: Target and realized dependence in the paired R1
+complete-matrix simulations. Panels distinguish independent,
+direct-centered, and pairwise-difference conditions and the relevant
+error scale; color encodes correlation.
+</p>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  full_lag1_table,
+  caption = paste(
+    &quot;Table R4.4: Target and realized mean lag-1 correlations in the paired&quot;,
+    &quot;complete-matrix R1 simulations.&quot;
+  ),
+  align = &quot;lrrrr&quot;,
+  minimum_width = &quot;1120px&quot;
+)</code></pre>
+<div class="r4-table-scroll">
+<table class="table table-condensed" style="min-width:1120px;">
+<caption>
+Table R4.4: Target and realized mean lag-1 correlations in the paired
+complete-matrix R1 simulations.
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Condition
+</th>
+<th style="text-align:right;">
+Target lag-1 correlation
+</th>
+<th style="text-align:right;">
+Expression error (95% MC CI)
+</th>
+<th style="text-align:right;">
+Truth-known beta-hat error (95% MC CI)
+</th>
+<th style="text-align:right;">
+Centered dynamic-null residual (95% MC CI)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Independent
+</td>
+<td style="text-align:right;">
+0.000
+</td>
+<td style="text-align:right;">
+-0.000 [-0.003, 0.003]
+</td>
+<td style="text-align:right;">
+0.002 [-0.008, 0.012]
+</td>
+<td style="text-align:right;">
+-0.066 [-0.073, -0.059]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Direct centered full matrix
+</td>
+<td style="text-align:right;">
+-0.152
+</td>
+<td style="text-align:right;">
+-0.152 [-0.156, -0.149]
+</td>
+<td style="text-align:right;">
+-0.147 [-0.154, -0.140]
+</td>
+<td style="text-align:right;">
+-0.155 [-0.159, -0.151]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pairwise-difference full matrix
+</td>
+<td style="text-align:right;">
+0.567
+</td>
+<td style="text-align:right;">
+0.566 [0.563, 0.570]
+</td>
+<td style="text-align:right;">
+0.562 [0.544, 0.580]
+</td>
+<td style="text-align:right;">
+-0.210 [-0.214, -0.206]
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The realized expression-error and truth-known beta-hat error
+correlations track both complete targets closely. Centering the
+dynamic-null beta-hat trajectories again shifts the correlations, which
+is why the target matrix should not be compared directly with a
+post-centering diagnostic without reproducing the same operation.</p>
+</div>
+<div id="power-empirical-fdr-and-estimated-pi0" class="section level3">
+<h3>Power, empirical FDR, and estimated pi0</h3>
+<pre class="r"><code>plot_r4_full_matrix_metrics(
+  full_condition_alpha,
+  full_condition_pi0,
+  true_pi0 = 0.8,
+  nominal_alpha = 0.05
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_correlated_error_simulation.rmd/full-matrix-metrics-figure-1.png" alt="Figure R4.4: Power, empirical FDR, and estimated pi0 for paired R1 simulations using independent errors or either complete real-data-derived correlation matrix. Colors identify conditions and symbols identify raw versus BF-updated FASH in the in-figure legend; interval bars summarize five paired seeds." width="2160" />
+<p class="caption">
+Figure R4.4: Power, empirical FDR, and estimated pi0 for paired R1
+simulations using independent errors or either complete
+real-data-derived correlation matrix. Colors identify conditions and
+symbols identify raw versus BF-updated FASH in the in-figure legend;
+interval bars summarize five paired seeds.
+</p>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  full_results_table,
+  caption = paste(
+    &quot;Table R4.5: Monte Carlo performance and paired changes for raw and&quot;,
+    &quot;BF-updated IWP FASH under the complete correlation matrices.&quot;
+  ),
+  align = &quot;llrrrrrr&quot;,
+  minimum_width = &quot;1450px&quot;
+)</code></pre>
+<div class="r4-table-scroll">
+<table class="table table-condensed" style="min-width:1450px;">
+<caption>
+Table R4.5: Monte Carlo performance and paired changes for raw and
+BF-updated IWP FASH under the complete correlation matrices.
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Condition
+</th>
+<th style="text-align:left;">
+Fit
+</th>
+<th style="text-align:right;">
+Power (95% MC CI)
+</th>
+<th style="text-align:right;">
+E[FDP] (95% MC CI)
+</th>
+<th style="text-align:right;">
+Estimated pi0 (95% MC CI)
+</th>
+<th style="text-align:right;">
+Power change vs independent
+</th>
+<th style="text-align:right;">
+FDR change vs independent
+</th>
+<th style="text-align:right;">
+pi0 change vs independent
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Independent
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.949 [0.930, 0.968]
+</td>
+<td style="text-align:right;">
+0.060 [0.045, 0.076]
+</td>
+<td style="text-align:right;">
+0.785 [0.770, 0.800]
+</td>
+<td style="text-align:right;">
+Reference
+</td>
+<td style="text-align:right;">
+Reference
+</td>
+<td style="text-align:right;">
+Reference
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Independent
+</td>
+<td style="text-align:left;">
+BF-corrected
+</td>
+<td style="text-align:right;">
+0.938 [0.921, 0.955]
+</td>
+<td style="text-align:right;">
+0.048 [0.023, 0.074]
+</td>
+<td style="text-align:right;">
+0.832 [0.829, 0.836]
+</td>
+<td style="text-align:right;">
+Reference
+</td>
+<td style="text-align:right;">
+Reference
+</td>
+<td style="text-align:right;">
+Reference
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Direct centered full matrix
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.952 [0.933, 0.971]
+</td>
+<td style="text-align:right;">
+0.039 [0.025, 0.054]
+</td>
+<td style="text-align:right;">
+0.799 [0.796, 0.803]
+</td>
+<td style="text-align:right;">
++0.003 [-0.003, +0.009]
+</td>
+<td style="text-align:right;">
+-0.021 [-0.031, -0.012]
+</td>
+<td style="text-align:right;">
++0.014 [-0.000, +0.028]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Direct centered full matrix
+</td>
+<td style="text-align:left;">
+BF-corrected
+</td>
+<td style="text-align:right;">
+0.946 [0.928, 0.964]
+</td>
+<td style="text-align:right;">
+0.036 [0.019, 0.052]
+</td>
+<td style="text-align:right;">
+0.834 [0.829, 0.838]
+</td>
+<td style="text-align:right;">
++0.008 [-0.005, +0.021]
+</td>
+<td style="text-align:right;">
+-0.013 [-0.024, -0.001]
+</td>
+<td style="text-align:right;">
++0.001 [-0.002, +0.005]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pairwise-difference full matrix
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.938 [0.896, 0.980]
+</td>
+<td style="text-align:right;">
+0.000 [0.000, 0.000]
+</td>
+<td style="text-align:right;">
+0.820 [0.814, 0.826]
+</td>
+<td style="text-align:right;">
+-0.011 [-0.042, +0.020]
+</td>
+<td style="text-align:right;">
+-0.060 [-0.076, -0.045]
+</td>
+<td style="text-align:right;">
++0.035 [+0.019, +0.051]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pairwise-difference full matrix
+</td>
+<td style="text-align:left;">
+BF-corrected
+</td>
+<td style="text-align:right;">
+0.931 [0.887, 0.975]
+</td>
+<td style="text-align:right;">
+0.000 [0.000, 0.000]
+</td>
+<td style="text-align:right;">
+0.843 [0.835, 0.851]
+</td>
+<td style="text-align:right;">
+-0.007 [-0.035, +0.021]
+</td>
+<td style="text-align:right;">
+-0.048 [-0.074, -0.023]
+</td>
+<td style="text-align:right;">
++0.011 [+0.006, +0.016]
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>For the primary BF-adjusted IWP1 fit, the direct full matrix changes
+power from 0.938 to 0.946 and empirical FDR from 0.048 to 0.036. The
+paired changes are +0.008 [-0.005, +0.021] for power and -0.013 [-0.024,
+-0.001] for FDR. Estimated pi0 is 0.834, compared with 0.832 under
+independence.</p>
+<p>The selection-sensitive pairwise stress pattern is also conservative:
+its BF-adjusted power is 0.931, its mean realized FDP is 0.000, and its
+estimated pi0 is 0.843. Zero false discoveries in five replicates should
+be read as conservative behavior in this focused experiment, not as
+proof that the population FDR is exactly zero.</p>
+<p>Thus neither complete matrix produces FDR inflation. The empirically
+relevant direct pattern yields essentially unchanged power and pi0,
+while the much stronger common-mode pairwise stress pattern is slightly
+less powerful and more conservative.</p>
+</div>
+</div>
+<div id="sensitivity-across-lag-1-correlation-strengths"
+class="section level2">
+<h2>Sensitivity across lag-1 correlation strengths</h2>
+<p>The complete-matrix results address the observed structures directly.
+To make the robustness boundary interpretable, we next vary only the
+first off-diagonal correlation,</p>
+<p><span class="math display">\[
+R_{tt}=1,\qquad R_{t,t+1}=R_{t+1,t}=\rho,\qquad
+R_{ts}=0\ \text{for }|t-s|&gt;1,
+\]</span></p>
+<p>over <span
+class="math inline">\(\rho\in\{-0.3,-0.2,\ldots,0.3\}\)</span>. This is
+a lag-1-only sensitivity model, not AR(1). The same five seeds and
+common innovations are used at every rho.</p>
+<pre class="r"><code>rho_grid &lt;- seq(-0.3, 0.3, by = 0.1)
+correlation_matrices &lt;- lapply(
+  rho_grid,
+  function(rho) make_lag1_correlation(16, rho)
+)</code></pre>
+<pre class="r"><code>plot_r4_correlation_sweep(
+  sweep_alpha_005,
+  empirical_rho = -0.09,
+  nominal_alpha = 0.05,
+  methods = c(&quot;FASH-IWP1-Raw&quot;, &quot;FASH-IWP1-BF&quot;)
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_correlated_error_simulation.rmd/lag1-sweep-power-fdr-1.png" alt="Figure R4.5: Power and empirical FDR across the lag-1-only correlation sweep. Curves identify raw and BF-updated IWP FASH in the in-figure legend; the vertical reference marks the approximate real-data direct-centered estimate and the horizontal FDR reference marks 0.05." width="1980" />
+<p class="caption">
+Figure R4.5: Power and empirical FDR across the lag-1-only correlation
+sweep. Curves identify raw and BF-updated IWP FASH in the in-figure
+legend; the vertical reference marks the approximate real-data
+direct-centered estimate and the horizontal FDR reference marks 0.05.
+</p>
+</div>
+<pre class="r"><code>plot_r4_correlation_sweep_pi0(
+  sweep_pi0,
+  empirical_rho = -0.09,
+  true_pi0 = 0.8
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_correlated_error_simulation.rmd/lag1-sweep-pi0-1.png" alt="Figure R4.6: Estimated dynamic-null proportion across the lag-1-only correlation sweep. Curves identify raw and BF-updated IWP FASH, the vertical reference marks the approximate real-data direct-centered estimate, and the horizontal reference marks the true pi0 of 0.8." width="1800" />
+<p class="caption">
+Figure R4.6: Estimated dynamic-null proportion across the lag-1-only
+correlation sweep. Curves identify raw and BF-updated IWP FASH, the
+vertical reference marks the approximate real-data direct-centered
+estimate, and the horizontal reference marks the true pi0 of 0.8.
+</p>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  sweep_primary_table,
+  caption = paste(
+    &quot;Table R4.6: BF-updated IWP FASH performance and paired changes across&quot;,
+    &quot;the lag-1-only correlation sensitivity grid.&quot;
+  ),
+  align = &quot;rrrrrrr&quot;,
+  minimum_width = &quot;1400px&quot;
+)</code></pre>
+<div class="r4-table-scroll">
+<table class="table table-condensed" style="min-width:1400px;">
+<caption>
+Table R4.6: BF-updated IWP FASH performance and paired changes across
+the lag-1-only correlation sensitivity grid.
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+Generating rho
+</th>
+<th style="text-align:right;">
+Realized beta-hat correlation (95% MC CI)
+</th>
+<th style="text-align:right;">
+Power (95% MC CI)
+</th>
+<th style="text-align:right;">
+E[FDP] (95% MC CI)
+</th>
+<th style="text-align:right;">
+Estimated pi0 (95% MC CI)
+</th>
+<th style="text-align:right;">
+Power change vs rho=0
+</th>
+<th style="text-align:right;">
+FDR change vs rho=0
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+-0.3
+</td>
+<td style="text-align:right;">
+-0.286 [-0.293, -0.279]
+</td>
+<td style="text-align:right;">
+0.949 [0.924, 0.974]
+</td>
+<td style="text-align:right;">
+0.018 [0.004, 0.031]
+</td>
+<td style="text-align:right;">
+0.836 [0.831, 0.841]
+</td>
+<td style="text-align:right;">
++0.011 [-0.004, +0.026]
+</td>
+<td style="text-align:right;">
+-0.031 [-0.052, -0.009]
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-0.2
+</td>
+<td style="text-align:right;">
+-0.190 [-0.198, -0.182]
+</td>
+<td style="text-align:right;">
+0.947 [0.927, 0.967]
+</td>
+<td style="text-align:right;">
+0.026 [0.014, 0.038]
+</td>
+<td style="text-align:right;">
+0.835 [0.831, 0.839]
+</td>
+<td style="text-align:right;">
++0.009 [-0.000, +0.018]
+</td>
+<td style="text-align:right;">
+-0.023 [-0.040, -0.005]
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-0.1
+</td>
+<td style="text-align:right;">
+-0.094 [-0.103, -0.085]
+</td>
+<td style="text-align:right;">
+0.948 [0.930, 0.966]
+</td>
+<td style="text-align:right;">
+0.034 [0.021, 0.047]
+</td>
+<td style="text-align:right;">
+0.834 [0.830, 0.838]
+</td>
+<td style="text-align:right;">
++0.010 [+0.002, +0.018]
+</td>
+<td style="text-align:right;">
+-0.015 [-0.029, -0.001]
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+0.002 [-0.008, 0.012]
+</td>
+<td style="text-align:right;">
+0.938 [0.921, 0.955]
+</td>
+<td style="text-align:right;">
+0.048 [0.023, 0.074]
+</td>
+<td style="text-align:right;">
+0.832 [0.829, 0.836]
+</td>
+<td style="text-align:right;">
++0.000 [+0.000, +0.000]
+</td>
+<td style="text-align:right;">
++0.000 [+0.000, +0.000]
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
++0.1
+</td>
+<td style="text-align:right;">
+0.098 [0.087, 0.109]
+</td>
+<td style="text-align:right;">
+0.919 [0.900, 0.938]
+</td>
+<td style="text-align:right;">
+0.044 [0.019, 0.070]
+</td>
+<td style="text-align:right;">
+0.829 [0.826, 0.833]
+</td>
+<td style="text-align:right;">
+-0.019 [-0.029, -0.009]
+</td>
+<td style="text-align:right;">
+-0.004 [-0.028, +0.019]
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
++0.2
+</td>
+<td style="text-align:right;">
+0.194 [0.183, 0.205]
+</td>
+<td style="text-align:right;">
+0.905 [0.883, 0.927]
+</td>
+<td style="text-align:right;">
+0.065 [0.048, 0.082]
+</td>
+<td style="text-align:right;">
+0.822 [0.817, 0.827]
+</td>
+<td style="text-align:right;">
+-0.033 [-0.043, -0.023]
+</td>
+<td style="text-align:right;">
++0.017 [-0.018, +0.051]
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
++0.3
+</td>
+<td style="text-align:right;">
+0.291 [0.279, 0.302]
+</td>
+<td style="text-align:right;">
+0.905 [0.877, 0.933]
+</td>
+<td style="text-align:right;">
+0.099 [0.076, 0.123]
+</td>
+<td style="text-align:right;">
+0.808 [0.798, 0.817]
+</td>
+<td style="text-align:right;">
+-0.033 [-0.046, -0.020]
+</td>
+<td style="text-align:right;">
++0.051 [+0.015, +0.087]
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Negative adjacent correlation is conservative in this setting. Near
+the real-data direct estimate, <code>rho = -0.1</code>, BF-adjusted IWP1
+has power 0.948, empirical FDR 0.034, and estimated pi0 0.834.</p>
+<p>At mild positive correlation, <code>rho = +0.1</code>, power is
+0.919, the paired power change is -0.019 [-0.029, -0.009], empirical FDR
+is 0.044, and estimated pi0 remains 0.829.</p>
+<p>Inflation becomes visible only as positive correlation grows. At
+<code>rho = +0.2</code>, BF-adjusted empirical FDR is 0.065; at
+<code>rho = +0.3</code>, it is 0.099, with paired change +0.051 [+0.015,
++0.087]. BF adjustment substantially attenuates this failure mode: at
+<code>rho = +0.3</code>, Raw IWP1 FDR is 0.265, versus 0.099 after BF
+adjustment.</p>
+<p>The pi0 diagnostic tells the same story more sharply. At
+<code>rho = +0.3</code>, the Raw estimate falls to 0.469, while the
+BF-adjusted estimate remains 0.808, close to the true value 0.8.</p>
+</div>
+<div id="interpretation-and-limitations" class="section level2">
+<h2>Interpretation and limitations</h2>
+<p>Together, the diagnostics support a local robustness claim:</p>
+<ul>
+<li>the centered real-data pattern shows modest additional negative
+short-lag dependence beyond the matched centering benchmark;</li>
+<li>inserting its complete 16 by 16 matrix into R1 does not inflate FDR
+or materially change power or estimated pi0;</li>
+<li>an intentionally strong, broad positive full-matrix stress pattern
+is also conservative; and</li>
+<li>in the controlled lag-1 sweep, mild negative or positive correlation
+has a small effect after BF adjustment, whereas moderate positive
+correlation eventually lowers power and inflates FDR.</li>
+</ul>
+<p>Several boundaries matter. The top-lfdr subset is selected for
+flatness, so the pairwise moment estimator is not unbiased after
+selection; its matched benchmark is shown explicitly. The direct matrix
+is a post-centering description rather than an identified raw
+covariance. Monte Carlo intervals use only five paired seeds and are
+therefore imprecise, especially for realized FDP. Finally, these
+experiments vary within-trajectory Gaussian correlation; they do not
+establish robustness to arbitrary dependence, non-Gaussian errors, or
+dependence across genes and variants.</p>
+</div>
+<div id="reproducibility" class="section level2">
+<h2>Reproducibility</h2>
+<p>The implementation is in the <a
+href="https://github.com/stephenslab/fashr-paper/tree/master/code/revision_simulations/r4_correlated_errors">R4
+correlation directory</a>. Routine workflowr builds read the completed
+versioned caches and do not rerun the real-data bootstrap or Monte Carlo
+fits.</p>
+<p>The real-data matrices can be regenerated with:</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/r4_correlated_errors/estimate_real_data_error_correlations.R \
+  --top-n 500 \
+  --bootstrap-reps 1000 \
+  --benchmark-reps 1000 \
+  --output-id r4_null_like_top500_full_correlations</code></pre>
+<p>The paired complete-matrix experiment can be regenerated with:</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/r4_correlated_errors/run_full_empirical_correlation_mc.R \
+  --J 1000 \
+  --seed-list 12345,22345,32345,42345,52345 \
+  --output-id r4_full_empirical_correlations_top500_pilot5 \
+  --num-cores 4</code></pre>
+<p>The lag-1 sweep with pi0 summaries can be regenerated with:</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/r4_correlated_errors/run_lag1_correlation_sweep.R \
+  --J 1000 \
+  --rho-list=-0.3,-0.2,-0.1,0,0.1,0.2,0.3 \
+  --seed-list 12345,22345,32345,42345,52345 \
+  --output-id r4_lag1_correlation_sweep_m0p3_to_p0p3_pi0_pilot5 \
+  --num-cores 4</code></pre>
+<p>The versioned caches are:</p>
+<pre class="text"><code>output/revision_simulations/real_data/
+  r4_null_like_top500_full_correlations/
+
+output/revision_simulations/mc/
+  r4_full_empirical_correlations_top500_pilot5/
+  r4_lag1_correlation_sweep_m0p3_to_p0p3_pi0_pilot5/</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] workflowr_1.7.2
+
+loaded via a namespace (and not attached):
+ [1] vctrs_0.7.3       httr_1.4.7        cli_3.6.6         knitr_1.50       
+ [5] rlang_1.2.0       xfun_0.55         stringi_1.8.7     otel_0.2.0       
+ [9] processx_3.8.6    promises_1.5.0    jsonlite_2.0.0    glue_1.8.1       
+[13] rprojroot_2.1.1   git2r_0.36.2      htmltools_0.5.9   httpuv_1.6.16    
+[17] ps_1.9.1          sass_0.4.10       rmarkdown_2.30    jquerylib_0.1.4  
+[21] tibble_3.3.0      evaluate_1.0.5    fastmap_1.2.0     yaml_2.3.12      
+[25] lifecycle_1.0.5   whisker_0.4.1     stringr_1.6.0     compiler_4.5.1   
+[29] fs_1.6.6          pkgconfig_2.0.3   Rcpp_1.1.1-1.1    rstudioapi_0.17.1
+[33] later_1.4.4       digest_0.6.39     R6_2.6.1          pillar_1.11.1    
+[37] callr_3.7.6       magrittr_2.0.5    bslib_0.9.0       tools_4.5.1      
+[41] cachem_1.1.0      getPass_0.2-4    </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

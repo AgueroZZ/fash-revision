@@ -1,0 +1,420 @@
+---
+title: "Revision Simulation R3: functional testing under broad and transient effects"
+author: "Ziang Zhang"
+date: "2026-07-30"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 10,
+  fig.height = 8,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source("code/revision_simulations/shared/simulation_functions.R")
+source("code/revision_simulations/r3_functional_testing/reporting.R")
+```
+
+## Overview
+
+This simulation evaluates FASH functional testing after global dynamic-eQTL
+discovery. It uses two non-IWP truth mechanisms matched on sample size,
+variant classes, genetic main effects, functional labels, and analysis.
+
+For donor $i$, variant $j$, and time $t$,
+
+$$
+Y_{ijt} = \alpha_{jt} + G_{ij}\beta_j(t) +
+X_i^T\gamma_{jt} + \epsilon_{ijt},
+\qquad \epsilon_{ijt}\sim N(0,1).
+$$
+
+For each variant, the minor-allele frequency is drawn from
+$p_j\sim\mathrm{Uniform}(0.1,0.5)$ and
+$G_{ij}\sim\mathrm{Binomial}(2,p_j)$; monomorphic draws are repeated.
+The five columns of $X$ are generated independently from $N(0,1)$ and
+standardized across donors. Independently for each covariate, variant, and
+time, $\gamma_{kjt}\sim N(0,0.5^2)$. The current simulation sets
+$\alpha_{jt}=0$; each fitted regression still includes an intercept. Genotype,
+covariate, covariate-effect, and noise draws are mutually independent.
+
+```{r r3-simulate-genotypes-and-covariates, eval=FALSE}
+seed <- 12345
+component_seeds <- revision_component_seeds(seed)
+
+genotype_sim <- simulate_genotype_matrix(
+  n_donors = 19,
+  n_variants = 1000,
+  maf_range = c(0.1, 0.5),
+  seed = component_seeds[["genotype"]]
+)
+covariates <- simulate_covariate_matrix(
+  n_donors = 19,
+  n_covariates = 5,
+  seed = component_seeds[["covariates"]]
+)
+```
+
+Each replicate contains `19` donors, `16` time points, five PC-like
+covariates, `200` dynamic eQTLs, `400` constant eQTLs, and `400` zero-effect
+variants. For every dynamic candidate,
+
+$$
+\beta_j(t)=\mu_j+h_j(t),
+\qquad \mu_j\sim N(0,1).
+$$
+
+The dynamic eQTLs are balanced as evenly as possible across six preassigned
+truth cells: early, middle, or late crossed with switch or non-switch. Each
+candidate draws a new $\mu_j$ from $N(0,1)$; rejection sampling retains it only
+when the final trajectory $\mu_j+h_j(t)$ satisfies its assigned cell.
+
+### R3A: broad random B-spline effects
+
+The deviation $h_j(t)$ is a cubic B-spline with six iid $N(0,1)$ coefficients.
+It is centered over the 16 observed times and scaled to maximum absolute value
+`2` before adding $\mu_j$.
+
+### R3B: compact raised-cosine effects
+
+The deviation $h_j(t)$ contains one, two, or three compact raised-cosine peaks
+with half-width `1.5`. Peak locations vary within the early, middle, and late
+windows, secondary amplitudes are random, and the deviation is scaled to
+centered RMS `0.9` before adding $\mu_j$.
+
+### Truth definitions
+
+Early, middle, and late use the same max-contrast functionals as the
+manuscript. The target contrast must be at least `0.1`, and the two non-target
+contrasts must be at most `-0.1`.
+
+For the switch threshold $c=0.25$,
+
+$$
+T_{\mathrm{switch}}\{\beta\}
+=
+\min\left[
+\max_t\{\beta(t):\beta(t)>0\},
+\max_t\{|\beta(t)|:\beta(t)<0\}
+\right]-c.
+$$
+
+A switch truth must have $T_{\mathrm{switch}}\geq 0.1$; equivalently, it has
+both a positive and a negative effect of magnitude at least `0.35`. A
+non-switch truth remains the same sign over the full dense grid. Writing
+$R_j=\max_t\beta_j(t)-\min_t\beta_j(t)$, its clearance from zero must satisfy
+
+$$
+\min_t|\beta_j(t)|\geq\max(0.1,\,0.1R_j).
+$$
+
+Thus, a larger-amplitude non-switch curve must remain proportionally farther
+from zero. These margins make the simulation labels unambiguous.
+
+```{r r3-simulate-functional-truth, eval=FALSE}
+truth_mechanism <- "random_bspline" # Use "raised_cosine" for R3B.
+scenario <- paste0(
+  if (truth_mechanism == "random_bspline") "r3a_" else "r3b_",
+  "matched_functional_",
+  truth_mechanism,
+  "_relative_clearance_main_effect"
+)
+time_grid <- 0:15
+evaluation_grid <- seq(0, 15, by = 0.1)
+class_probs <- c(
+  dynamic_bspline = 0.20,
+  constant = 0.40,
+  zero = 0.40
+)
+
+effect_sim <- simulate_matched_functional_effect_set(
+  n_variants = 1000,
+  truth_mechanism = truth_mechanism,
+  time_grid = time_grid,
+  evaluation_grid = evaluation_grid,
+  class_probs = class_probs,
+  dynamic_main_effect_sd = 1,
+  constant_sd = 1,
+  bspline_amplitude = 2,
+  bspline_df = 6,
+  bspline_coefficient_sd = 1,
+  cosine_width_half = 1.5,
+  cosine_spike_counts = 1:3,
+  cosine_relative_amplitude_range = c(0.35, 0.75),
+  cosine_target_centered_rms = 0.9,
+  switch_threshold = 0.25,
+  location_truth_margin = 0.10,
+  switch_truth_margin = 0.10,
+  non_switch_min_abs = 0.10,
+  non_switch_min_range_fraction = 0.10,
+  exact_class_counts = TRUE,
+  seed = seed,
+  class_seed = component_seeds[["classes"]],
+  constant_seed = component_seeds[["constant_effects"]],
+  shape_seed = component_seeds[["functional_truth"]],
+  scenario = scenario
+)
+expression_sim <- simulate_eqtl_expression_from_genotypes(
+  G = genotype_sim$G,
+  beta_matrix = effect_sim$beta_matrix,
+  time_grid = time_grid,
+  covariates = covariates,
+  expression_noise_sd = 1,
+  covariate_effect_sd = 0.5,
+  intercept_sd = 0,
+  seed = component_seeds[["expression"]]
+)
+```
+
+At each observed time, the genetic effect and standard error are estimated
+from `Y ~ G + PC1 + PC2 + PC3 + PC4 + PC5`. The t-statistic correction uses
+`df = 19 - 7 = 12`; FASH is fit to these estimates and corrected standard
+errors.
+
+## Example truth curves
+
+Two examples are shown for each of the six functional truth cells. Points and
+bars are the per-time estimates and two corrected standard errors used by
+FASH; orange lines are the continuous truths. Shading marks the target timing
+window.
+
+### R3A examples
+
+```{r r3a-examples, fig.width=11, fig.height=23, fig.cap="Figure R3.1: Representative broad random B-spline truth curves for each functional target and timing cell. Points and bars show estimated effects and two corrected standard errors, orange lines are continuous truths, and shading marks the target timing window."}
+plot_truth_examples(
+  example_curves$random_bspline,
+  mechanism_labels[["random_bspline"]]
+)
+```
+
+### R3B examples
+
+```{r r3b-examples, fig.width=11, fig.height=23, fig.cap="Figure R3.2: Representative compact raised-cosine truth curves for each functional target and timing cell. Points and bars show estimated effects and two corrected standard errors, orange lines are continuous truths, and shading marks the target timing window."}
+plot_truth_examples(
+  example_curves$raised_cosine,
+  mechanism_labels[["raised_cosine"]]
+)
+```
+
+## Inference procedure
+
+At each nominal level $\alpha$, the same procedure is applied to
+`FASH-IWP1-Raw` and `FASH-IWP1-BF`:
+
+1. Apply global dynamic-eQTL FDR control at level $\alpha$.
+2. For each dynamically selected variant, evaluate the early, middle, late,
+   and switch functionals using posterior samples.
+3. Rank functional lfsr values and call variants whose cumulative FSR is at
+   most $\alpha$.
+
+Power is the fraction of true positive functionals that are called. Empirical
+FSR is the fraction of functional calls whose known true functional is
+non-positive. The figures report five-seed Monte Carlo means and 95% t-based
+intervals across the full alpha grid.
+
+```{r r3-fit-and-test-functionals, eval=FALSE}
+out <- run_genotype_level_dynamic_eqtl_simulation(
+  G = genotype_sim$G,
+  time_grid = time_grid,
+  covariates = covariates,
+  class_probs = class_probs,
+  maf_range = c(0.1, 0.5),
+  expression_noise_sd = 1,
+  covariate_effect_sd = 0.5,
+  intercept_sd = 0,
+  dynamic_main_effect_sd = 1,
+  alpha = 0.05,
+  seed = seed,
+  num_cores = 4,
+  num_basis = 20,
+  scenario = scenario,
+  save_outputs = FALSE,
+  effect_sim = effect_sim,
+  expression_sim = expression_sim
+)
+
+true_functionals <- effect_sim$true_functionals[
+  out$unit_info$variant_id,
+  c("early", "middle", "late", "switch"),
+  drop = FALSE
+]
+true_dynamic <- out$unit_info$effect_class == "dynamic_bspline"
+
+raw_results <- evaluate_fash_functional_testing(
+  fit = out$fash_fits$fash_iwp1_raw,
+  true_functionals = true_functionals,
+  evaluation_grid = evaluation_grid,
+  alpha_grid = seq(0.005, 0.20, by = 0.005),
+  method = "FASH-IWP1-Raw",
+  switch_threshold = 0.25,
+  true_dynamic = true_dynamic,
+  num_cores = 4,
+  seed = component_seeds[["functional_posterior"]]
+)
+bf_results <- evaluate_fash_functional_testing(
+  fit = out$fash_fits$fash_iwp1_bf,
+  true_functionals = true_functionals,
+  evaluation_grid = evaluation_grid,
+  alpha_grid = seq(0.005, 0.20, by = 0.005),
+  method = "FASH-IWP1-BF",
+  switch_threshold = 0.25,
+  true_dynamic = true_dynamic,
+  num_cores = 4,
+  seed = component_seeds[["functional_posterior"]] + 100L
+)
+```
+
+## R3A: broad random B-spline results
+
+### Results at alpha 0.05
+
+```{r r3a-table}
+knitr::kable(
+  r3a_table,
+  align = "l",
+  caption = paste(
+    "Table R3.1: Functional-testing power and empirical false sign rate at",
+    "alpha 0.05 under broad random B-spline truth."
+  )
+)
+```
+
+### Power as a function of alpha
+
+```{r r3a-power, fig.height=9, fig.cap="Figure R3.3: Monte Carlo functional-testing power under broad random B-spline truth. Panels identify early, middle, late, and switch targets; curves identify raw and BF-updated FASH in the in-figure legend, with 95% intervals across five seeds."}
+plot_mc_functional_curve_grid(
+  mc_curve = r3a_alpha,
+  metric = "power",
+  title = "Functional-testing power: broad random B-spline truth"
+)
+```
+
+### Empirical FSR as a function of alpha
+
+```{r r3a-fsr, fig.height=9, fig.cap="Figure R3.4: Monte Carlo empirical false sign rate under broad random B-spline truth. Panels identify functional targets, curves identify raw and BF-updated FASH, and the diagonal reference denotes nominal alpha."}
+plot_mc_functional_curve_grid(
+  mc_curve = r3a_alpha,
+  metric = "empirical_fsr",
+  title = "Empirical FSR: broad random B-spline truth"
+)
+```
+
+## R3B: compact raised-cosine results
+
+### Results at alpha 0.05
+
+```{r r3b-table}
+knitr::kable(
+  r3b_table,
+  align = "l",
+  caption = paste(
+    "Table R3.2: Functional-testing power and empirical false sign rate at",
+    "alpha 0.05 under compact raised-cosine truth."
+  )
+)
+```
+
+### Power as a function of alpha
+
+```{r r3b-power, fig.height=9, fig.cap="Figure R3.5: Monte Carlo functional-testing power under compact raised-cosine truth. Panels identify early, middle, late, and switch targets; curves identify raw and BF-updated FASH in the in-figure legend, with 95% intervals across five seeds."}
+plot_mc_functional_curve_grid(
+  mc_curve = r3b_alpha,
+  metric = "power",
+  title = "Functional-testing power: compact raised-cosine truth"
+)
+```
+
+### Empirical FSR as a function of alpha
+
+```{r r3b-fsr, fig.height=9, fig.cap="Figure R3.6: Monte Carlo empirical false sign rate under compact raised-cosine truth. Panels identify functional targets, curves identify raw and BF-updated FASH, and the diagonal reference denotes nominal alpha."}
+plot_mc_functional_curve_grid(
+  mc_curve = r3b_alpha,
+  metric = "empirical_fsr",
+  title = "Empirical FSR: compact raised-cosine truth"
+)
+```
+
+## Dynamic-null proportion
+
+The first-stage dynamic-null proportion is $\pi_0=0.8$. The table reports the
+fitted constant-component weights for the raw and BF-adjusted IWP fits.
+
+```{r pi0-table}
+knitr::kable(
+  pi0_table,
+  align = "l",
+  caption = paste(
+    "Table R3.3: Estimated first-stage dynamic-null proportions for raw and",
+    "BF-updated IWP FASH under both functional truth mechanisms."
+  )
+)
+```
+
+## Interpretation
+
+For R3A, BF-updated FASH has mean empirical FSR
+`r format_decimal(max(r3a_alpha_005$mean_empirical_fsr[
+  r3a_alpha_005$method == "FASH-IWP1-BF"
+]), 3)` or lower for all four targets at $\alpha=0.05$. Its switch power is
+`r format_decimal(metric_at(
+  r3a_alpha_005, "switch", "FASH-IWP1-BF", "mean_power"
+), 3)`.
+
+For the more localized R3B trajectories, BF-updated FASH makes few timing
+calls and no false timing calls in these five replicates. Its switch power is
+`r format_decimal(metric_at(
+  r3b_alpha_005, "switch", "FASH-IWP1-BF", "mean_power"
+), 3)`, but its mean switch FSR is
+`r format_decimal(metric_at(
+  r3b_alpha_005, "switch", "FASH-IWP1-BF", "mean_empirical_fsr"
+), 3)` at nominal $\alpha=0.05$. In this five-seed pilot, the scale-relative
+clearance condition separates switch and non-switch truths in both mechanisms
+without removing the compact transient behavior. These results support
+functional testing for the stated margin-separated designs; they do not imply
+that BF adjustment alone guarantees FSR control for every functional
+hypothesis or every truth geometry.
+
+## Reproducibility
+
+The
+[R3 simulation driver](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R)
+uses the
+[shared simulation functions](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/shared/simulation_functions.R).
+The page-specific cache validation and formatting are in
+[R3 reporting code](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r3_functional_testing/reporting.R).
+The following command regenerates the paired five-seed cache. It is shown for
+reproducibility but is intentionally not evaluated during workflowr builds;
+the table and figure chunks above read the saved cache.
+
+The paired five-seed cache can be regenerated with:
+
+```{bash regenerate-r3-cache, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R \
+  --J 1000 \
+  --n-donors 19 \
+  --n-covariates 5 \
+  --noise-sd 1 \
+  --dynamic-main-effect-sd 1 \
+  --truth-mechanisms random_bspline,raised_cosine \
+  --seed-list 12345,22345,32345,42345,52345 \
+  --output-id r3_matched_functional_relative_clearance_main_effect_pilot5 \
+  --num-cores 4
+```
+
+Cached replicate metrics, call-level diagnostics, examples, summaries, and
+figures are stored under:
+
+```text
+output/revision_simulations/mc/r3_matched_functional_relative_clearance_main_effect_pilot5/
+```

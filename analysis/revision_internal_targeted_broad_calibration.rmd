@@ -1,0 +1,592 @@
+---
+title: "Temporary internal simulation: functional testing with targeted broad B-spline effects"
+author: "Ziang Zhang"
+date: "2026-07-29"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 10,
+  fig.height = 6,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source("code/revision_simulations/shared/simulation_functions.R")
+
+mc_root <- file.path("output", "revision_simulations", "mc")
+targeted_id <- "internal_targeted_broad_calibration_pilot5"
+original_id <- "functional_targeted_broad_baseline075_pilot5"
+targeted_dir <- file.path(mc_root, targeted_id)
+original_dir <- file.path(mc_root, original_id)
+diagnostic_dir <- file.path(
+  "output",
+  "revision_simulations",
+  "internal",
+  "targeted_broad_functional_calibration_diagnostic"
+)
+figure_dir <- file.path(diagnostic_dir, "figures")
+summary_dir <- file.path(targeted_dir, "summary")
+
+configuration <- readRDS(file.path(targeted_dir, "configuration.rds"))
+example_curves <- readRDS(file.path(targeted_dir, "example_curves.rds"))
+mc_alpha <- read.csv(
+  file.path(summary_dir, "functional_testing_mc_alpha_curve.csv"),
+  stringsAsFactors = FALSE
+)
+mc_alpha_005 <- read.csv(
+  file.path(summary_dir, "functional_testing_mc_alpha005_summary.csv"),
+  stringsAsFactors = FALSE
+)
+mc_pi0 <- read.csv(
+  file.path(summary_dir, "functional_testing_mc_pi0_summary.csv"),
+  stringsAsFactors = FALSE
+)
+original_vs_reproduced <- read.csv(
+  file.path(diagnostic_dir, "original_vs_reproduced_alpha005.csv"),
+  stringsAsFactors = FALSE
+)
+false_switch_counts <- read.csv(
+  file.path(diagnostic_dir, "bf_false_switch_counts_by_seed.csv"),
+  stringsAsFactors = FALSE
+)
+geometry_summary <- read.csv(
+  file.path(diagnostic_dir, "dynamic_truth_geometry_summary.csv"),
+  stringsAsFactors = FALSE
+)
+call_lfsr_summary <- read.csv(
+  file.path(diagnostic_dir, "bf_switch_call_lfsr_by_truth.csv"),
+  stringsAsFactors = FALSE
+)
+
+expected_class_probs <- c(
+  dynamic_bspline = 0.20,
+  constant = 0.40,
+  zero = 0.40
+)
+method_order <- c("FASH-IWP1-Raw", "FASH-IWP1-BF")
+target_order <- c("early", "middle", "late", "switch")
+
+if (!identical(
+      configuration$scenario,
+      "genotype_functional_targeted_local_bspline"
+    ) ||
+    !isTRUE(all.equal(configuration$J, 1000L)) ||
+    !isTRUE(all.equal(configuration$n_donors, 19L)) ||
+    !isTRUE(all.equal(configuration$n_covariates, 5L)) ||
+    !isTRUE(all.equal(configuration$class_probs, expected_class_probs)) ||
+    !identical(configuration$truth_mechanism, "targeted_local_bspline") ||
+    !identical(configuration$targeted_profile, "broad") ||
+    !isTRUE(all.equal(configuration$dynamic_amplitude, 2)) ||
+    !isTRUE(all.equal(configuration$switch_threshold, 0.25)) ||
+    !isTRUE(all.equal(configuration$minimum_location_margin, 0.60)) ||
+    !isTRUE(all.equal(configuration$minimum_location_ratio, 1.4)) ||
+    !isTRUE(all.equal(configuration$non_switch_baseline_fraction, 0.75)) ||
+    !isTRUE(all.equal(configuration$non_switch_background_fraction, 0.05)) ||
+    length(configuration$seed_list) != 5L ||
+    any(mc_alpha$n_replications != 5L) ||
+    any(mc_alpha_005$n_replications != 5L) ||
+    !all(method_order %in% mc_alpha$method) ||
+    !all(target_order %in% mc_alpha$target)) {
+  stop("The internal targeted-broad cache does not match the intended setting.")
+}
+
+required_figures <- c(
+  "non_switch_truth_geometry_comparison.png",
+  "bf_switch_call_lfsr_by_truth.png",
+  "bf_false_switch_call_examples.png"
+)
+if (!all(file.exists(file.path(figure_dir, required_figures)))) {
+  stop("One or more internal diagnostic figures are missing.")
+}
+if (!requireNamespace("png", quietly = TRUE)) {
+  stop("The png package is required to embed cached diagnostic figures.")
+}
+
+plot_cached_png <- function(path) {
+  image <- png::readPNG(path)
+  grid::grid.newpage()
+  grid::grid.raster(
+    image,
+    width = grid::unit(1, "npc"),
+    height = grid::unit(1, "npc"),
+    interpolate = TRUE
+  )
+}
+
+format_decimal <- function(x, digits = 3) {
+  formatC(x, format = "f", digits = digits)
+}
+
+format_mc_interval <- function(mean, lower, upper, digits = 3) {
+  paste0(
+    format_decimal(mean, digits),
+    " [",
+    format_decimal(lower, digits),
+    ", ",
+    format_decimal(upper, digits),
+    "]"
+  )
+}
+
+format_functional_table <- function(summary_table) {
+  table <- summary_table
+  table$target <- factor(table$target, levels = target_order)
+  table$method <- factor(table$method, levels = method_order)
+  table <- table[order(table$target, table$method), , drop = FALSE]
+  data.frame(
+    Target = tools::toTitleCase(as.character(table$target)),
+    Method = as.character(table$method),
+    `Mean calls` = format_decimal(table$mean_discoveries, 1),
+    `Power (95% MC CI)` = format_mc_interval(
+      table$mean_power,
+      table$power_ci_lower,
+      table$power_ci_upper
+    ),
+    `Empirical FSR (95% MC CI)` = format_mc_interval(
+      table$mean_empirical_fsr,
+      table$empirical_fsr_ci_lower,
+      table$empirical_fsr_ci_upper
+    ),
+    check.names = FALSE
+  )
+}
+
+format_pi0_table <- function(summary_table) {
+  summary_table$fit <- factor(
+    summary_table$fit,
+    levels = c("Raw", "BF-corrected")
+  )
+  summary_table <- summary_table[order(summary_table$fit), , drop = FALSE]
+  data.frame(
+    Fit = as.character(summary_table$fit),
+    `Mean estimated dynamic-null proportion (95% MC CI)` =
+      format_mc_interval(
+        summary_table$mean_estimated_pi0,
+        summary_table$pi0_ci_lower,
+        summary_table$pi0_ci_upper
+      ),
+    check.names = FALSE
+  )
+}
+
+plot_truth_examples <- function(examples) {
+  group_order <- c(
+    "early / switch",
+    "early / non-switch",
+    "middle / switch",
+    "middle / non-switch",
+    "late / switch",
+    "late / non-switch"
+  )
+  panels <- lapply(examples[group_order], `[[`, 1L)
+
+  old_par <- par(no.readonly = TRUE)
+  on.exit(par(old_par), add = TRUE)
+  par(mfrow = c(3, 2), mar = c(3.6, 3.8, 3.0, 0.8), oma = c(0, 0, 2.3, 0))
+
+  for (panel in panels) {
+    observed <- panel$observed
+    time_group <- sub(" /.*", "", panel$group)
+    target_window <- switch(
+      time_group,
+      early = c(0, 3),
+      middle = c(4, 11),
+      late = c(12, 15)
+    )
+    window_color <- switch(
+      time_group,
+      early = "#d7eaf7",
+      middle = "#dff0d8",
+      late = "#fde6c9"
+    )
+    y_limits <- range(c(
+      observed$estimate - 2 * observed$se,
+      observed$estimate + 2 * observed$se,
+      panel$true_curve$true_effect,
+      -configuration$switch_threshold,
+      configuration$switch_threshold
+    ))
+    y_padding <- max(0.15, 0.07 * diff(y_limits))
+    y_limits <- y_limits + c(-y_padding, y_padding)
+
+    plot(
+      observed$time,
+      observed$estimate,
+      type = "n",
+      ylim = y_limits,
+      xlim = range(configuration$time_grid),
+      xlab = "Time",
+      ylab = "Genetic effect",
+      main = paste(panel$group, "\n", panel$variant_id)
+    )
+    rect(
+      target_window[1],
+      y_limits[1],
+      target_window[2],
+      y_limits[2],
+      col = window_color,
+      border = NA
+    )
+    abline(
+      h = c(-configuration$switch_threshold, configuration$switch_threshold),
+      col = "gray70",
+      lty = 3
+    )
+    abline(h = 0, col = "gray55", lty = 3)
+    arrows(
+      observed$time,
+      observed$estimate - 2 * observed$se,
+      observed$time,
+      observed$estimate + 2 * observed$se,
+      angle = 90,
+      code = 3,
+      length = 0.035,
+      col = "gray45"
+    )
+    points(observed$time, observed$estimate, pch = 19)
+    lines(
+      panel$true_curve$time,
+      panel$true_curve$true_effect,
+      col = "#E64B35",
+      lwd = 2
+    )
+  }
+  mtext(
+    paste(
+      "Per-time estimates with two-SE bars; red lines are true effects;",
+      "shading marks the target time window"
+    ),
+    outer = TRUE,
+    cex = 1.02
+  )
+}
+
+functional_table <- format_functional_table(mc_alpha_005)
+pi0_table <- format_pi0_table(mc_pi0)
+
+reproduction_table <- original_vs_reproduced[
+  original_vs_reproduced$target == "switch" &
+    original_vs_reproduced$method == "FASH-IWP1-BF",
+  ,
+  drop = FALSE
+]
+reproduction_table <- data.frame(
+  Run = reproduction_table$run,
+  `Mean dynamic discoveries` =
+    format_decimal(reproduction_table$mean_dynamic_discoveries, 1),
+  `Mean switch calls` =
+    format_decimal(reproduction_table$mean_discoveries, 1),
+  `Switch power` = format_decimal(reproduction_table$mean_power),
+  `Empirical switch FSR` =
+    format_decimal(reproduction_table$mean_empirical_fsr),
+  check.names = FALSE
+)
+
+false_source_table <- aggregate(
+  n_false_calls ~ false_call_source,
+  data = false_switch_counts,
+  FUN = sum
+)
+false_source_table <- data.frame(
+  Source = false_source_table$false_call_source,
+  `False switch calls across five seeds` =
+    false_source_table$n_false_calls,
+  check.names = FALSE
+)
+
+non_switch_geometry <- geometry_summary[
+  geometry_summary$switch_status == "non-switch",
+  ,
+  drop = FALSE
+]
+non_switch_geometry$setting <- factor(
+  non_switch_geometry$setting,
+  levels = c(
+    "Targeted broad; baseline 0.75",
+    "Compact peaks; zero background"
+  )
+)
+non_switch_geometry <- non_switch_geometry[
+  order(non_switch_geometry$setting),
+  ,
+  drop = FALSE
+]
+geometry_table <- data.frame(
+  Setting = as.character(non_switch_geometry$setting),
+  Curves = non_switch_geometry$n_curves,
+  `Median near-zero fraction` =
+    format_decimal(non_switch_geometry$near_zero_fraction_median),
+  `Median same-sign margin` =
+    format_decimal(non_switch_geometry$same_sign_margin_median),
+  `Median maximum absolute effect` =
+    format_decimal(non_switch_geometry$maximum_absolute_effect_median),
+  check.names = FALSE
+)
+
+call_lfsr_summary$call_truth_class <- factor(
+  call_lfsr_summary$call_truth_class,
+  levels = c(
+    "True switch",
+    "True-dynamic non-switch",
+    "First-stage dynamic null"
+  )
+)
+call_lfsr_summary <- call_lfsr_summary[
+  order(call_lfsr_summary$call_truth_class),
+  ,
+  drop = FALSE
+]
+lfsr_table <- data.frame(
+  `Truth class among BF switch calls` =
+    as.character(call_lfsr_summary$call_truth_class),
+  Calls = call_lfsr_summary$n_calls,
+  `Median individual lfsr` =
+    format_decimal(call_lfsr_summary$lfsr_median),
+  `Individual lfsr range` = paste0(
+    format_decimal(call_lfsr_summary$lfsr_minimum),
+    " - ",
+    format_decimal(call_lfsr_summary$lfsr_maximum)
+  ),
+  check.names = FALSE
+)
+```
+
+## Overview
+
+> **Internal temporary analysis.** This page is not part of the formal
+> reviewer-facing workflowr navigation.
+
+This genotype-level simulation evaluates early, middle, late, and switch
+functional testing under a labelled non-IWP B-spline truth. For donor $i$,
+variant $j$, and time $t$, expression is generated as
+
+$$
+Y_{ijt} = \alpha_{jt} + G_{ij}\beta_j(t) +
+X_i^T\gamma_{jt} + \epsilon_{ijt},
+\qquad \epsilon_{ijt} \sim N(0,1).
+$$
+
+Each dataset has `19` donors, `16` time points, `1000` variants, and five
+PC-like covariates. Exactly `200` variants are dynamic, `400` have constant
+effects, and `400` have zero effects. Per-time effects and standard errors are
+estimated from `Y ~ G + PC1 + PC2 + PC3 + PC4 + PC5`, followed by the
+real-data t-statistic correction with
+
+$$
+\mathrm{df} = 19 - 7 = 12.
+$$
+
+The results average five independently simulated datasets with seeds `12345`,
+`22345`, `32345`, `42345`, and `52345`.
+
+## Functional truth
+
+Dynamic effects are broad local cubic B-spline curves with maximum absolute
+effect `2`. They are split as evenly as possible among the six strata formed
+by early, middle, or late timing crossed with switch or non-switch status.
+
+Early, middle, and late mean that the largest absolute effect occurs on days
+0--3, 4--11, or 12--15. A switch curve has both a positive and a negative
+effect exceeding the manuscript threshold $c = 0.25$. For non-switch curves,
+a same-signed baseline equal to `0.75` times the primary amplitude keeps the
+trajectory away from zero. All labels are validated on a refined time grid
+before expression data are generated.
+
+## Example simulated eQTLs
+
+One representative trajectory is shown for each truth stratum. Points are the
+per-time effect estimates used by FASH, bars show two corrected standard
+errors, and red lines are the continuous true effects. The shaded region marks
+the time window used by the early, middle, or late functional.
+
+```{r labelled-truth-examples, echo=FALSE, fig.width=11, fig.height=11}
+plot_truth_examples(example_curves)
+```
+
+## Inference procedure
+
+At each nominal level $\alpha$, both `FASH-IWP1-Raw` and `FASH-IWP1-BF` use
+the same three-stage rule:
+
+1. Select dynamic eQTLs using the global FASH FDR procedure.
+2. Evaluate early, middle, late, and switch functionals with
+   `testing_functional()` using posterior samples.
+3. Rank the functional lfsr values and call the largest set whose cumulative
+   FSR is at most $\alpha$.
+
+Power is the fraction of true members of a functional class that are called.
+Empirical FSR is the fraction of all reported calls whose true functional is
+non-positive. The empirical FSR therefore includes both functional
+misclassification among dynamic eQTLs and errors inherited from the first
+dynamic-eQTL selection stage.
+
+## Functional-testing results
+
+### Results at alpha 0.05
+
+```{r functional-results-table, echo=FALSE}
+knitr::kable(functional_table, align = "l")
+```
+
+For BF-updated FASH, mean switch power is `0.925` and mean empirical switch FSR
+is `0.021`. Early, middle, and late empirical FSR estimates are zero in these
+five replications.
+
+### Power as a function of alpha
+
+```{r functional-power, echo=FALSE, fig.width=11, fig.height=9}
+plot_mc_functional_curve_grid(
+  mc_curve = mc_alpha,
+  metric = "power",
+  title = "Functional-testing power for targeted broad B-spline effects"
+)
+```
+
+### Empirical FSR as a function of alpha
+
+```{r empirical-fsr, echo=FALSE, fig.width=13, fig.height=9.5}
+plot_mc_functional_curve_grid(
+  mc_curve = mc_alpha,
+  metric = "empirical_fsr",
+  title = "Empirical FSR for targeted broad B-spline effects"
+)
+```
+
+The diagonal is the nominal level. The ribbons are 95% Monte Carlo confidence
+intervals across the five seeds. The near-zero early, middle, and late curves
+mean that no false calls occurred for those targets in this pilot; they should
+not be interpreted as high-precision estimates of a zero error rate.
+
+## Dynamic-null proportion
+
+The true first-stage dynamic-null proportion is $\pi_0 = 0.8$. The table shows
+the fitted constant-component weight before and after BF updating.
+
+```{r pi0-table, echo=FALSE}
+knitr::kable(pi0_table, align = "l")
+```
+
+## Why switch FSR is calibrated here
+
+### Non-switch truth geometry
+
+```{r geometry-table, echo=FALSE}
+knitr::kable(geometry_table, align = "l")
+```
+
+```{r geometry-figure, echo=FALSE, fig.height=3.65, out.width="100%"}
+plot_cached_png(
+  file.path(figure_dir, "non_switch_truth_geometry_comparison.png")
+)
+```
+
+The maximum effect sizes are similar in the targeted-broad and compact-peak
+settings. The main geometric difference is sign separation: targeted
+non-switch curves have a large same-sign margin, whereas compact
+zero-background curves spend most of the evaluation grid inside
+$[-0.25,0.25]$. Consequently, isolated posterior excursions across zero are
+much less likely to turn a true non-switch trajectory into a switch call in
+the targeted-broad setting.
+
+### False-call decomposition
+
+At $\alpha = 0.05$, BF-updated FASH makes 10 false switch calls across the five
+replications.
+
+```{r false-source-table, echo=FALSE}
+knitr::kable(false_source_table, align = "l")
+```
+
+```{r lfsr-table, echo=FALSE}
+knitr::kable(lfsr_table, align = "l")
+```
+
+```{r lfsr-figure, echo=FALSE, fig.width=7, fig.height=5.6, out.width="70%"}
+plot_cached_png(
+  file.path(figure_dir, "bf_switch_call_lfsr_by_truth.png")
+)
+```
+
+The six called dynamic non-switch variants have a median individual switch
+lfsr of `0.982`. They enter only because the cumulative FSR rule averages
+their high lfsr values with many highly confident true-switch calls. Their
+realized frequency nevertheless remains within the aggregate error budget.
+
+### Example false switch calls
+
+The red lines are the true effects; titles report the individual lfsr,
+cumulative FSR at the call boundary, and true switch functional.
+
+```{r false-switch-examples, echo=FALSE, fig.height=12.7, out.width="100%"}
+plot_cached_png(
+  file.path(figure_dir, "bf_false_switch_call_examples.png")
+)
+```
+
+The six true-dynamic non-switch examples remain one-signed. The other four
+errors are constant or zero variants that passed the first-stage dynamic-eQTL
+screen.
+
+## Reproduction check
+
+The current-code run closely reproduces the original five-seed cache.
+
+```{r reproduction-table, echo=FALSE}
+knitr::kable(reproduction_table, align = "l")
+```
+
+The one-call difference is consistent with posterior Monte Carlo variation
+near the cumulative FSR boundary.
+
+## Interpretation
+
+In this targeted-broad setting, BF-updated FASH has mean empirical FSR below
+the nominal level across the evaluated alpha grid and retains high switch
+power. Raw FASH is also conservative for early, middle, and late calls, but
+its switch FSR exceeds the nominal level as alpha increases. Calibration is
+especially favorable after BF updating because true non-switch trajectories
+are clearly same-signed; this does not imply that controlling the global
+dynamic-null proportion alone guarantees calibration for every functional
+hypothesis.
+
+## Reproducibility
+
+The five-seed cache was generated with:
+
+```{bash, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/archived_experiments/run_functional_testing_bspline_mc_replication.R \
+  --J 1000 \
+  --seed-list 12345,22345,32345,42345,52345 \
+  --truth-mechanism targeted_local_bspline \
+  --targeted-profile broad \
+  --dynamic-amplitude 2 \
+  --minimum-location-margin 0.60 \
+  --minimum-location-ratio 1.4 \
+  --non-switch-baseline-fraction 0.75 \
+  --non-switch-background-fraction 0.05 \
+  --output-id internal_targeted_broad_calibration_pilot5 \
+  --num-cores 2 \
+  --cache-full-fits true
+```
+
+The diagnostic tables and figures were generated with:
+
+```{bash, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/diagnostics/summarize_internal_targeted_broad_calibration_diagnostic.R
+```
+
+Cached outputs are stored under:
+
+```text
+output/revision_simulations/mc/internal_targeted_broad_calibration_pilot5/
+output/revision_simulations/internal/targeted_broad_functional_calibration_diagnostic/
+```

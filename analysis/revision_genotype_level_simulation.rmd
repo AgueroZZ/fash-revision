@@ -1,0 +1,392 @@
+---
+title: "Revision Simulation R1: genotype-level eQTLs with random B-spline effects"
+author: "Ziang Zhang"
+date: "2026-07-30"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 9,
+  fig.height = 6.5,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source("code/revision_simulations/shared/simulation_functions.R")
+source("code/revision_simulations/r1_random_bspline/reporting.R")
+```
+
+## Overview
+
+This genotype-level simulation uses random cubic B-spline dynamic effects as a
+non-IWP data-generating mechanism. It is the broad, smoothly varying baseline;
+the separate [spiky transient analysis](revision_combined_spiky_genotype_simulation.html)
+examines sharply localized effects.
+
+For donor $i$, variant $j$, and time $t$, expression is generated as
+
+$$
+Y_{ijt} = \alpha_{jt} + G_{ij}\beta_j(t) +
+X_i^T\gamma_{jt} + \epsilon_{ijt},
+\qquad \epsilon_{ijt} \sim N(0, 1).
+$$
+
+For each variant, the minor-allele frequency is drawn from
+$p_j\sim\mathrm{Uniform}(0.1,0.5)$ and
+$G_{ij}\sim\mathrm{Binomial}(2,p_j)$; monomorphic draws are repeated.
+The five columns of $X$ are generated independently from $N(0,1)$ and
+standardized across donors. Independently for each covariate, variant, and
+time, $\gamma_{kjt}\sim N(0,0.5^2)$. The current simulation sets
+$\alpha_{jt}=0$; each fitted regression still includes an intercept. Genotype,
+covariate, covariate-effect, and noise draws are mutually independent.
+
+```{r r1-simulate-genotypes-and-covariates, eval=FALSE}
+seed <- 12345
+set.seed(seed)
+
+genotype_sim <- simulate_genotype_matrix(
+  n_donors = 19,
+  n_variants = 1000,
+  maf_range = c(0.1, 0.5)
+)
+covariates <- simulate_covariate_matrix(
+  n_donors = 19,
+  n_covariates = 5
+)
+```
+
+Each simulated dataset has `19` donors, `16` time points, `1000` variants, and
+five PC-like covariates. The variant classes are fixed at:
+
+- `200` dynamic eQTLs with random cubic B-spline effects;
+- `400` non-dynamic eQTLs with constant effects drawn from $N(0,1)$;
+- `400` zero-effect variants.
+
+For a dynamic variant,
+
+$$
+\beta_j(t) = \mu_j + h_j(t),
+\qquad
+\mu_j \sim N(0,1),
+\qquad
+h_j(t) = \sum_{k=1}^{6} b_{jk} B_k(t),
+\qquad b_{jk} \stackrel{\mathrm{iid}}{\sim} N(0,1).
+$$
+
+Only the time-varying deviation $h_j(t)$ is mean-centered over the observed
+times and scaled to have maximum absolute value `2`. The independent
+$\mu_j$ is the genetic main effect, so the final trajectory is not constrained
+to be centered at zero. Thus, the true dynamic-null proportion is
+$\pi_0 = 0.8$.
+
+```{r r1-simulate-effects-and-expression, eval=FALSE}
+class_probs <- c(
+  dynamic_bspline = 0.20,
+  constant = 0.40,
+  zero = 0.40
+)
+effect_sim <- simulate_variant_effect_curves(
+  n_variants = 1000,
+  time_grid = 0:15,
+  class_probs = class_probs,
+  dynamic_amplitude = 2,
+  bspline_df = 6,
+  bspline_coefficient_sd = 1,
+  constant_sd = 1,
+  dynamic_main_effect_sd = 1,
+  exact_class_counts = TRUE,
+  seed = revision_component_seeds(seed)[["functional_truth"]],
+  scenario = "genotype_random_bspline_main_effect_dynamic_eqtl"
+)
+expression_sim <- simulate_eqtl_expression_from_genotypes(
+  G = genotype_sim$G,
+  beta_matrix = effect_sim$beta_matrix,
+  time_grid = 0:15,
+  covariates = covariates,
+  expression_noise_sd = 1,
+  covariate_effect_sd = 0.5,
+  intercept_sd = 0
+)
+```
+
+At each time point, the genetic effect and its standard error are estimated
+from `Y ~ G + PC1 + PC2 + PC3 + PC4 + PC5`. The real-data-like t-statistic
+standard-error correction uses
+
+$$
+\mathrm{df} = 19 - 7 = 12,
+$$
+
+corresponding to the intercept, genotype, and five covariates. All methods use
+the same per-time estimates and corrected standard errors.
+
+```{r r1-estimate-and-fit-fash, eval=FALSE}
+eqtl_summary <- estimate_eqtl_summaries_from_genotypes(
+  G = genotype_sim$G,
+  expression = expression_sim$expression,
+  covariates = covariates,
+  apply_t_se_correction = TRUE
+)
+datasets <- make_fash_datasets_from_eqtl_summary(
+  beta_hat = eqtl_summary$beta_hat,
+  se = eqtl_summary$se,
+  true_beta = effect_sim$beta_matrix,
+  time_grid = 0:15,
+  unit_info = effect_sim$unit_info,
+  scenario = "genotype_random_bspline_main_effect_dynamic_eqtl"
+)
+
+fash_iwp1_raw <- fashr::fash(
+  Y = "y",
+  smooth_var = "x",
+  S = "sd",
+  data_list = datasets,
+  order = 1,
+  grid = default_revision_grid(),
+  num_basis = 20,
+  penalty = 10,
+  num_cores = 4,
+  verbose = FALSE
+)
+fash_iwp1_bf <- fashr::BF_update(fash_iwp1_raw, plot = FALSE)
+
+linear_sigma_grid <- exp(seq(log(0.05), log(5), length.out = 25))
+fash_linear_raw <- fit_simplified_fash(
+  datasets = datasets,
+  estimate_sigma = TRUE,
+  sigma_beta_grid = linear_sigma_grid,
+  scale_time = TRUE
+)
+fash_linear_bf <- BF_update_simplified_fash(fash_linear_raw)
+```
+
+The reported curves and tables average five independently simulated datasets
+with seeds `12345`, `22345`, `32345`, `42345`, and `52345`. The full
+seed-12345 object is used only to display representative trajectories.
+
+## Example simulated eQTLs
+
+The panels show three zero-effect variants, three constant eQTLs, and three
+random B-spline dynamic eQTLs. Points are per-time genetic effect estimates,
+bars show two corrected standard errors, and red lines are the true effects.
+
+```{r example-trajectories, fig.width=13, fig.height=11, fig.cap="Figure R1.1: Representative zero-effect, constant-effect, and random B-spline dynamic eQTLs from seed 12345. Points are estimated genetic effects, vertical bars span two corrected standard errors, and red curves are the true effects."}
+plot_genotype_eqtl_examples(
+  out,
+  classes = c("zero", "constant", "dynamic_bspline"),
+  n_per_class = 3,
+  seed = 1,
+  true_curve_n = 500
+)
+```
+
+## Comparison 1: IWP versus linear FASH
+
+This comparison changes only the alternative prior. `FASH-IWP1` uses the
+first-order IWP alternative. `FASH-linear` uses a constant-versus-linear model
+on time scaled to $[0,1]$: its alternative adds a slope
+$b\sim N(0,\sigma_\beta^2)$ to the unrestricted intercept. Within each seed,
+the fit profiles $\pi_0$ separately at each of 25 log-spaced candidate values
+of $\sigma_\beta$ from `0.05` to `5`, then selects the pair with the largest
+marginal likelihood. The BF adjustment updates the mixture weight while
+holding the selected $\sigma_\beta$ fixed. Across the five seeds, the selected
+slope SD has mean
+`r format_decimal(linear_sigma_summary$mean_selected_sigma)` and observed range
+[`r format_decimal(linear_sigma_summary$min_selected_sigma)`,
+`r format_decimal(linear_sigma_summary$max_selected_sigma)`].
+
+### Estimated dynamic-null proportion
+
+The table reports the fitted prior weight on each method's constant component.
+The true dynamic-null proportion is $\pi_0 = 0.8$.
+
+```{r pi0-table}
+knitr::kable(
+  pi0_table,
+  align = "l",
+  caption = paste(
+    "Table R1.1: Estimated dynamic-null proportions and selected linear slab",
+    "scales across five random B-spline simulation replicates."
+  )
+)
+```
+
+### Results at alpha 0.05
+
+```{r fash-alpha-table}
+knitr::kable(
+  fash_table,
+  align = "l",
+  caption = paste(
+    "Table R1.2: Monte Carlo power and empirical FDR at alpha 0.05 for IWP",
+    "and linear FASH under random B-spline effects."
+  )
+)
+```
+
+### Power as a function of alpha
+
+```{r fash-power, fig.cap="Figure R1.2: Monte Carlo power across nominal alpha for IWP and linear FASH under random B-spline effects. Curves identify the raw and BF-updated methods shown in the in-figure legend; uncertainty summarizes five simulation seeds."}
+plot_mc_alpha_curves(
+  fash_alpha,
+  metric = "power",
+  title = "IWP versus linear FASH: Monte Carlo power",
+  subtitle = "Five seeds; random cubic B-spline effects; N = 19, J = 1000",
+  style_profile = "combined"
+)
+```
+
+### Empirical FDR as a function of alpha
+
+```{r fash-fdr, fig.cap="Figure R1.3: Monte Carlo empirical FDR across nominal alpha for IWP and linear FASH under random B-spline effects. Curves identify methods in the in-figure legend, and the diagonal reference marks equality between empirical FDR and nominal alpha."}
+plot_mc_alpha_curves(
+  fash_alpha,
+  metric = "fdr",
+  title = "IWP versus linear FASH: Monte Carlo empirical FDR",
+  subtitle = "Five seeds; random cubic B-spline effects; N = 19, J = 1000",
+  legend_position = "topleft",
+  style_profile = "combined"
+)
+```
+
+At $\alpha = 0.05$, IWP-Raw and IWP-BF have mean power
+`r format_decimal(get_mc_metric(fash_alpha_005, "FASH-IWP1-Raw", "mean_power"))`
+and
+`r format_decimal(get_mc_metric(fash_alpha_005, "FASH-IWP1-BF", "mean_power"))`,
+compared with
+`r format_decimal(get_mc_metric(fash_alpha_005, "FASH-linear-Raw", "mean_power"))`
+and
+`r format_decimal(get_mc_metric(fash_alpha_005, "FASH-linear-BF", "mean_power"))`
+for the corresponding linear fits. Their empirical FDR estimates are
+`r format_decimal(get_mc_metric(fash_alpha_005, "FASH-IWP1-Raw", "mean_fdr"))`
+and
+`r format_decimal(get_mc_metric(fash_alpha_005, "FASH-IWP1-BF", "mean_fdr"))`.
+The IWP alternative therefore provides substantially higher power for these
+nonlinear broad curves. BF correction raises the estimated IWP null proportion
+and produces the expected more conservative fit.
+
+## Comparison 2: IWP FASH versus direct interaction tests
+
+The direct baselines fit individual-level expression using linear or
+linear-plus-quadratic genotype-by-time interactions and use permutation-based
+eFDR. To make this comparison favorable to the direct methods, their eFDR
+calculation is supplied with the true $\pi_0 = 0.8$ and uses `B = 100`
+donor-level permutations per replicate.
+
+```{r r1-direct-interaction-efdr, eval=FALSE}
+out <- add_direct_interaction_efdr_results_to_genotype_output(
+  out = out,
+  n_permutations = 100,
+  alpha = 0.05,
+  seed = seed + 10000L,
+  lambda = 0.5,
+  pi0_method = "conservative",
+  true_pi0 = 0.8,
+  include_true_pi0 = TRUE,
+  permute_covariates_with_expression = TRUE,
+  num_cores = 4,
+  overwrite = TRUE,
+  verbose = FALSE
+)
+```
+
+### Results at alpha 0.05
+
+```{r direct-alpha-table}
+knitr::kable(
+  direct_table,
+  align = "l",
+  caption = paste(
+    "Table R1.3: Monte Carlo power and empirical FDR at alpha 0.05 for IWP",
+    "FASH and direct interaction tests under random B-spline effects."
+  )
+)
+```
+
+### Power as a function of alpha
+
+```{r direct-power, fig.cap="Figure R1.4: Monte Carlo power across nominal alpha for IWP FASH and direct linear or quadratic interaction tests. The in-figure legend identifies methods; direct-test eFDR uses the true pi0 and 100 donor-level permutations."}
+plot_mc_alpha_curves(
+  direct_alpha,
+  metric = "power",
+  title = "IWP FASH versus direct interaction: Monte Carlo power",
+  subtitle = "Five seeds; direct eFDR uses true pi0 = 0.8 and B = 100 permutations",
+  style_profile = "combined"
+)
+```
+
+### Empirical FDR as a function of alpha
+
+```{r direct-fdr, fig.cap="Figure R1.5: Monte Carlo empirical FDR across nominal alpha for IWP FASH and direct interaction tests. The in-figure legend identifies methods, and the diagonal reference marks equality between empirical FDR and nominal alpha."}
+plot_mc_alpha_curves(
+  direct_alpha,
+  metric = "fdr",
+  title = "IWP FASH versus direct interaction: Monte Carlo empirical FDR",
+  subtitle = "Five seeds; direct eFDR uses true pi0 = 0.8 and B = 100 permutations",
+  legend_position = "bottomright",
+  style_profile = "combined"
+)
+```
+
+At $\alpha = 0.05$, IWP-BF has mean power
+`r format_decimal(get_mc_metric(direct_alpha_005, "FASH-IWP1-BF", "mean_power"))`,
+compared with
+`r format_decimal(get_mc_metric(direct_alpha_005, "Direct-linear-LRT-eFDR-true-pi0", "mean_power"))`
+for the direct linear test and
+`r format_decimal(get_mc_metric(direct_alpha_005, "Direct-quadratic-LRT-eFDR-true-pi0", "mean_power"))`
+for the direct quadratic test. IWP-BF has the highest power while maintaining
+mean empirical FDR
+`r format_decimal(get_mc_metric(direct_alpha_005, "FASH-IWP1-BF", "mean_fdr"))`.
+The direct tests are more conservative but less powerful, even with the true
+null proportion supplied.
+
+## Interpretation
+
+For broad random B-spline effects, IWP FASH is substantially more powerful than
+linear FASH and both direct interaction baselines. The BF-updated IWP fit
+retains high power and conservative empirical FDR across this five-seed pilot.
+The separate spiky transient page evaluates whether this ordering persists for
+sharply localized one-, two-, and three-peak effects.
+
+## Reproducibility
+
+The
+[R1 simulation driver](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r1_random_bspline/run_random_bspline_mc_replication.R)
+uses the
+[shared simulation functions](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/shared/simulation_functions.R).
+The page-specific cache validation and formatting are in
+[R1 reporting code](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r1_random_bspline/reporting.R).
+The following command regenerates the full Monte Carlo cache. It is shown for
+reproducibility but is intentionally not evaluated during workflowr builds;
+the table and figure chunks above read the saved cache.
+
+The full Monte Carlo cache can be regenerated with:
+
+```{bash regenerate-r1-cache, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/r1_random_bspline/run_random_bspline_mc_replication.R \
+  --J 1000 \
+  --n-donors 19 \
+  --n-covariates 5 \
+  --noise-sd 1 \
+  --dynamic-main-effect-sd 1 \
+  --efdr-permutations 100 \
+  --seed-list 12345,22345,32345,42345,52345 \
+  --output-id r1_random_bspline_main_effect_profile_sigma_pilot5 \
+  --num-cores 4
+```
+
+Cached replicate metrics, summaries, and figures are stored under:
+
+```text
+output/revision_simulations/mc/r1_random_bspline_main_effect_profile_sigma_pilot5/
+```

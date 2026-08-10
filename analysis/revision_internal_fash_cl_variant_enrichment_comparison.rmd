@@ -1,0 +1,320 @@
+---
+title: "Internal analysis: FASH versus FASH-CL variant enrichment"
+author: "Ziang Zhang"
+date: "2026-08-08"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 10.5,
+  fig.height = 8.0,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(file.path(
+  "code",
+  "revision_simulations",
+  "internal",
+  "fash_cl_variant_enrichment_comparison",
+  "reporting.R"
+))
+```
+
+<style>
+.fash-cl-internal-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.fash-cl-key-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.fash-cl-caution {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #cc7a00;
+  border-radius: 4px;
+  background: #fff8ec;
+  color: #563a0c;
+}
+.fash-cl-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.fash-cl-table-scroll table {
+  margin-bottom: 1em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+
+<div class="fash-cl-internal-banner">
+<strong>Internal exploratory page.</strong> This page is intentionally absent
+from the workflowr homepage, navigation, manuscript, response letter, and the
+two existing internal enrichment pages. It reads retained caches and does not
+replace the current FASH analysis.
+</div>
+
+## Question and provisional answer
+
+This analysis asks two related questions:
+
+1. within FASH-CL, is enhancer enrichment stronger after selecting one lead
+   discovered variant per gene rather than retaining all discovered variants?;
+2. under each selection strategy, does current FASH or FASH-CL have stronger
+   enhancer enrichment?
+
+Current FASH adjusts expression for five PCs estimated separately at each time
+point. FASH-CL adjusts for five PCs estimated after collapsing expression to
+the cell-line level. Both comparisons use the order-1 FASH dynamic-eQTL test,
+the BF-based prior correction, and cumulative-lfdr FDR 0.05.
+
+<div class="fash-cl-key-result">
+<strong>Provisional readout.</strong>
+`r lead_pattern_answer`
+`r method_comparison_answer`
+Thus the one-lead pattern extends to FASH-CL, but the head-to-head method result
+is mixed rather than a uniform FASH-CL or current-FASH advantage.
+</div>
+
+No pre-specified enhancer reaches within-set BH q below 0.05; the smallest is
+`r format_decimal(smallest_enhancer_q, 3L)`. These are exploratory point-estimate
+patterns, not thresholded discoveries or formal tests of a difference between
+methods.
+
+## Discovery sets and method overlap
+
+For each method, the all-discovery set is collapsed to unique rsIDs. The
+one-lead set retains the discovered pair with the lowest lfdr for each gene,
+using rsID as the deterministic tie-breaker, and is then deduplicated to unique
+rsIDs for enrichment.
+
+```{r discovery-table, results='asis'}
+render_scrollable_table(
+  discovery_table,
+  align = "llrrr",
+  minimum_width = "880px"
+)
+```
+
+```{r overlap-table, results='asis'}
+render_scrollable_table(
+  overlap_table,
+  align = "lrrrrr",
+  minimum_width = "820px"
+)
+```
+
+FASH-CL yields fewer calls: 5,393 pairs and 5,361 unique variants, compared
+with 9,205 pairs and 9,139 unique variants for current FASH. The one-lead sets
+contain 686 and 1,170 unique variants, respectively. Their low Jaccard overlap
+shows that this is not merely the same discoveries with slightly different
+scores; the PC construction materially changes set membership.
+
+## BF-adjustment validation
+
+The original FASH-CL fit did not retain a BF-adjusted object. The analysis
+therefore recomputes the same two mixture-optimization stages used by
+`fashr::BF_update()`, while discarding unused portions of the 2.4-GiB fit before
+likelihood expansion. This keeps the calculation laptop-scale.
+
+The stored current-FASH lfdr is reconstructed from its retained null and
+conditional-alternative weights to numerical precision. Re-running the
+historical mixture optimizer produces nearly identical, but not bitwise
+identical, threshold-edge calls; the retained current adjusted fit remains the
+authoritative current-FASH result.
+
+```{r bf-validation-table, results='asis'}
+render_scrollable_table(
+  bf_validation_table,
+  align = "lr",
+  minimum_width = "760px"
+)
+```
+
+## Annotation coverage
+
+The custom regulatory matrix covers the entire tested-variant universe.
+baselineLD v2.2 uses its 1000G EUR rsID coverage, so every discovery set and
+the matched-control universe are restricted before matching.
+
+```{r coverage-table, results='asis'}
+render_scrollable_table(
+  coverage_table,
+  align = "lllrrr",
+  minimum_width = "980px"
+)
+```
+
+## Pre-specified enhancer comparison
+
+The custom panel contains ENCODE enhancer-like cCRE plus E020, E013, and E095
+Roadmap enhancers. The baselineLD panel contains Andersson enhancer, Hoffman
+enhancer, Hoffman weak enhancer, Hnisz super-enhancer, and Villar human
+enhancer. These categories were fixed before examining the FASH-CL results.
+
+Each selected variant is matched to five non-selected tested variants on
+chromosome, cohort MAF, minimum target-gene TSS distance, local tested-variant
+density, and number of tested genes. Matching is repeated over 100 fixed seeds.
+Intervals are delete-one-autosome jackknife 95% intervals.
+
+```{r enhancer-enrichment, fig.width=11.2, fig.height=8.6, fig.cap="Figure 1. Pre-specified enhancer enrichment for current FASH and FASH-CL, using all discoveries or one lead variant per gene. Enrichment is relative to separately matched tested variants. Error bars are delete-one-autosome 95% intervals. The FASH-CL one-lead Andersson estimate is omitted because fewer than ten selected variants overlap that sparse annotation."}
+plot_enhancer_enrichment()
+```
+
+For FASH-CL, the one-lead strategy raises the median enhancer point estimate in
+both systems. In baselineLD, FASH-CL Hoffman enhancer is
+`r format_decimal(enhancer_results$enrichment[enhancer_results$annotation_system == "baselineLD v2.2" & enhancer_results$method == "FASH-CL" & enhancer_results$selection_strategy == "One lead variant per gene" & enhancer_results$annotation == "Enhancer_Hoffman"], 2L)`-fold
+with a fold-scale interval of
+`r format_decimal(2^enhancer_results$ci_lower[enhancer_results$annotation_system == "baselineLD v2.2" & enhancer_results$method == "FASH-CL" & enhancer_results$selection_strategy == "One lead variant per gene" & enhancer_results$annotation == "Enhancer_Hoffman"], 2L)`--`r format_decimal(2^enhancer_results$ci_upper[enhancer_results$annotation_system == "baselineLD v2.2" & enhancer_results$method == "FASH-CL" & enhancer_results$selection_strategy == "One lead variant per gene" & enhancer_results$annotation == "Enhancer_Hoffman"], 2L)`
+and q =
+`r format_decimal(enhancer_results$q_value_within_set[enhancer_results$annotation_system == "baselineLD v2.2" & enhancer_results$method == "FASH-CL" & enhancer_results$selection_strategy == "One lead variant per gene" & enhancer_results$annotation == "Enhancer_Hoffman"], 3L)`.
+
+The method comparison depends on the panel. FASH-CL is descriptively stronger
+for all discoveries in both panels and for baselineLD under one-lead selection.
+In the custom one-lead panel, current FASH and FASH-CL are close: current FASH
+is slightly higher by the panel median and for E013, whereas FASH-CL is higher
+for ENCODE enhancer-like cCRE and E020.
+
+```{r enhancer-summary-table, results='asis'}
+render_scrollable_table(
+  enhancer_summary_table,
+  digits = 4L,
+  minimum_width = "1260px"
+)
+```
+
+### Exact enhancer estimates
+
+```{r enhancer-numeric-table, results='asis'}
+render_scrollable_table(
+  enhancer_numeric_table,
+  digits = 4L,
+  minimum_width = "1580px"
+)
+```
+
+## Whole-annotation comparison
+
+The identity line below provides a descriptive current-versus-CL comparison
+for every annotation. Points above the line have a larger FASH-CL estimate;
+points below have a larger current-FASH estimate. Because the discovery sets
+differ in size and membership, this plot is not a paired significance test.
+
+```{r method-scatter, fig.width=10.8, fig.height=8.2, fig.cap="Figure 2. Current-FASH versus FASH-CL point estimates across all retained annotations. Orange points are the pre-specified enhancer categories. The dashed identity line marks equal point estimates."}
+plot_method_scatter()
+```
+
+<details>
+<summary><strong>Complete numerical results for both annotation systems</strong></summary>
+
+```{r full-results-table, results='asis'}
+render_scrollable_table(
+  full_results_table,
+  digits = 5L,
+  minimum_width = "1580px"
+)
+```
+
+</details>
+
+## Matching diagnostics and local scale
+
+```{r matching-balance, fig.width=10.8, fig.height=7.4, fig.cap="Figure 3. Matching balance over 100 deterministic seeds for both methods, selection strategies, and annotation systems. Dotted lines at +/-0.1 are diagnostic references."}
+plot_matching_balance()
+```
+
+The maximum absolute standardized mean difference is
+`r format_decimal(cache$maximum_absolute_smd, 4L)`, below the pre-specified
+0.10 diagnostic boundary.
+
+```{r runtime-table, results='asis'}
+render_scrollable_table(
+  runtime_table,
+  align = "lr",
+  minimum_width = "700px"
+)
+```
+
+The complete analysis through cache assembly took
+`r format_decimal(lookup_runtime("analysis_through_cache_assembly"), 1L)`
+seconds locally. Existing annotation caches avoid re-downloading or reparsing
+the baselineLD archive.
+
+## Interpretation boundaries
+
+<div class="fash-cl-caution">
+<strong>Important limitations.</strong> FASH and FASH-CL use the same biological
+study and tested pair universe, and the two annotation systems evaluate the
+same discovery sets. They are robustness views, not independent replications.
+The method sets have different sizes and low overlap, and each is matched to
+its own controls. Consequently, a larger point estimate does not by itself
+establish that one method is significantly more enriched than the other.
+</div>
+
+- The one-lead analysis changes the estimand from variant-weighted discovery
+  enrichment toward equal weighting of discovered genes. It also reduces
+  repeated-locus influence and increases sampling uncertainty.
+- The baselineLD Andersson category is too sparse for a finite FASH-CL
+  one-lead estimate under the pre-specified minimum of ten selected overlaps.
+- None of the pre-specified enhancer categories passes within-set BH q below
+  0.05. The leading results should therefore be described as suggestive.
+- Annotation overlap supports functional plausibility; it does not establish
+  causal variants or validate discovery FDR.
+
+## Reproduction
+
+The scientific settings below are shown but not evaluated while rendering.
+The page reads the completed retained cache.
+
+```{r reproduction, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_cl_variant_enrichment_comparison/\
+test_fash_cl_variant_enrichment_helpers.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_cl_variant_enrichment_comparison/\
+run_fash_cl_variant_enrichment_comparison.R
+
+Rscript --vanilla -e \
+  'workflowr::wflow_build("analysis/revision_internal_fash_cl_variant_enrichment_comparison.rmd", local = TRUE)'
+```
+
+<details>
+<summary><strong>Retained input provenance</strong></summary>
+
+```{r provenance-table, results='asis'}
+render_scrollable_table(
+  input_provenance,
+  align = "lrrl",
+  minimum_width = "1280px"
+)
+```
+
+</details>
