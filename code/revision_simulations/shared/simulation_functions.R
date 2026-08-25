@@ -864,7 +864,7 @@ sample_multispike_local_bspline_truth <- function(time_group,
       diagnostics$target_to_outside_ratio >= minimum_location_ratio
     switch_ok <- if (switch_status == "switch") {
       diagnostics$contrasts[["switch"]] > 0 &&
-        diagnostics$effective_sign_transitions >= 1L
+        diagnostics$effective_sign_transitions == 1L
     } else {
       diagnostics$contrasts[["switch"]] <= 0 &&
         diagnostics$effective_sign_transitions == 0L
@@ -2026,6 +2026,11 @@ simulate_matched_functional_effect_set <- function(
     cosine_spike_counts = 1:3,
     cosine_relative_amplitude_range = c(0.35, 0.75),
     cosine_target_centered_rms = 0.90,
+    cosine_center_ranges = list(
+      early = c(0.50, 1.50),
+      middle = c(4.50, 10.50),
+      late = c(13.50, 14.50)
+    ),
     switch_threshold = 0.25,
     location_truth_margin = 0.10,
     location_truth_min_range_fraction = 0,
@@ -2045,7 +2050,18 @@ simulate_matched_functional_effect_set <- function(
   truth_mechanism <- match.arg(truth_mechanism)
   middle_boundary <- match.arg(middle_boundary)
   required_classes <- c("dynamic_bspline", "constant", "zero")
+  temporal_groups <- c("early", "middle", "late")
   cosine_spike_counts <- sort(as.integer(cosine_spike_counts))
+  valid_cosine_center_ranges <- is.list(cosine_center_ranges) &&
+    identical(names(cosine_center_ranges), temporal_groups) &&
+    all(vapply(cosine_center_ranges, function(range) {
+      is.numeric(range) &&
+        length(range) == 2L &&
+        all(is.finite(range)) &&
+        range[[1L]] <= range[[2L]] &&
+        range[[1L]] >= min(time_grid) &&
+        range[[2L]] <= max(time_grid)
+    }, logical(1)))
   if (!identical(sort(names(class_probs)), sort(required_classes)) ||
       abs(sum(class_probs) - 1) > 1e-8 ||
       n_variants < 30 ||
@@ -2072,6 +2088,7 @@ simulate_matched_functional_effect_set <- function(
       cosine_relative_amplitude_range[2] >= 1 ||
       !is.finite(cosine_target_centered_rms) ||
       cosine_target_centered_rms <= 0 ||
+      !valid_cosine_center_ranges ||
       !is.finite(switch_threshold) ||
       switch_threshold <= 0 ||
       !is.finite(location_truth_margin) ||
@@ -2232,11 +2249,7 @@ simulate_matched_functional_effect_set <- function(
   peak_signs <- vector("list", n_variants)
   peak_relative_amplitudes <- vector("list", n_variants)
   bspline_coefficients <- vector("list", n_variants)
-  center_ranges <- list(
-    early = c(0.50, 1.50),
-    middle = c(4.50, 10.50),
-    late = c(13.50, 14.50)
-  )
+  center_ranges <- cosine_center_ranges
 
   set.seed(shape_seed)
   for (position in seq_along(dynamic_index)) {
@@ -2819,7 +2832,12 @@ simulate_targeted_local_bspline_effect_set <- function(n_variants = 1000,
                                                        non_switch_baseline_fraction = 0.15,
                                                        non_switch_background_fraction = 0.05,
                                                        switch_secondary_fraction = c(0.38, 0.50),
-                                                       profile = c("narrow", "broad", "mixed"),
+                                                       profile = c(
+                                                         "narrow",
+                                                         "broad",
+                                                         "random_broad",
+                                                         "mixed"
+                                                       ),
                                                        spiky_truth_version = c(
                                                          "centered_single_v1",
                                                          "mixed_single_double_v2"
@@ -3039,7 +3057,7 @@ simulate_targeted_local_bspline_effect_set <- function(n_variants = 1000,
   if (any(target_contrasts < minimum_location_margin) ||
       any(target_to_outside_ratio[dynamic_index] < minimum_location_ratio) ||
       any(true_functionals[switch_index, "switch"] <= 0) ||
-      if (profile == "mixed") {
+      if (profile %in% c("mixed", "random_broad")) {
         any(effective_sign_transitions[switch_index] < 1L)
       } else {
         any(effective_sign_transitions[switch_index] != 1L)

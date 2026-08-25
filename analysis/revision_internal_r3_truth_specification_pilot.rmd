@@ -1,0 +1,270 @@
+---
+title: "Temporary internal analysis: R3 truth-specification pilot"
+author: "Ziang Zhang"
+date: "2026-08-24"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 10,
+  fig.height = 6,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+project_root <- if (file.exists(
+  "code/revision_simulations/shared/simulation_functions.R"
+)) {
+  "."
+} else if (file.exists(
+  "../code/revision_simulations/shared/simulation_functions.R"
+)) {
+  ".."
+} else {
+  stop("Could not locate the workflowr project root.")
+}
+pilot_root <- file.path(
+  project_root,
+  "output",
+  "revision_simulations",
+  "internal"
+)
+seed_list <- c(12345L, 22345L, 32345L, 42345L, 52345L)
+designs <- c(
+  r3a_targeted_broad_bspline_j300 =
+    "R3A: functionally separated broad cubic B-spline",
+  r3a_constrained_global_bspline_j300 =
+    "R3A: constrained global random cubic B-spline",
+  r3b_interior_single_lobe_j300 =
+    "R3B: target-contained single raised cosine"
+)
+
+read_design <- function(prefix) {
+  paths <- file.path(
+    pilot_root,
+    paste0(prefix, "_seed", seed_list),
+    "pilot_result.rds"
+  )
+  if (any(!file.exists(paths))) {
+    stop("The five-seed internal pilot cache is incomplete for ", prefix, ".")
+  }
+  results <- lapply(paths, readRDS)
+  configurations <- lapply(results, `[[`, "configuration")
+  reference <- configurations[[1L]]
+  if (!all(vapply(configurations, function(configuration) {
+    identical(configuration$J, reference$J) &&
+      identical(configuration$truth_settings, reference$truth_settings) &&
+      identical(configuration$middle_definition, reference$middle_definition) &&
+      identical(configuration$package_provenance, reference$package_provenance)
+  }, logical(1)))) {
+    stop("The seed-level pilot configurations are not comparable.")
+  }
+  alpha <- do.call(rbind, Map(function(result, seed) {
+    rows <- result$functional_alpha
+    rows$seed <- seed
+    rows
+  }, results, seed_list))
+  list(configuration = reference, alpha = alpha)
+}
+
+pilot <- lapply(names(designs), read_design)
+names(pilot) <- names(designs)
+
+summarize_alpha <- function(alpha, design_name, alpha_value = 0.05) {
+  rows <- alpha[
+    alpha$method == "FASH-IWP1-BF" &
+      abs(alpha$alpha - alpha_value) < 1e-12,
+    ,
+    drop = FALSE
+  ]
+  summary <- do.call(rbind, lapply(split(rows, rows$target), function(target_rows) {
+    discoveries <- sum(target_rows$n_discoveries)
+    false_discoveries <- sum(target_rows$false_discoveries)
+    data.frame(
+      design = design_name,
+      target = target_rows$target[[1L]],
+      mean_power = mean(target_rows$power),
+      mean_empirical_fsr = mean(target_rows$empirical_fsr),
+      maximum_seed_empirical_fsr = max(target_rows$empirical_fsr),
+      pooled_discoveries = discoveries,
+      pooled_false_discoveries = false_discoveries,
+      pooled_empirical_fsr = if (discoveries == 0L) 0 else {
+        false_discoveries / discoveries
+      },
+      stringsAsFactors = FALSE
+    )
+  }))
+  summary[match(c("early", "middle", "late", "switch"), summary$target), ]
+}
+
+alpha005_summary <- do.call(rbind, Map(
+  function(design_name, object) summarize_alpha(object$alpha, design_name),
+  names(designs),
+  pilot
+))
+alpha005_summary$design <- designs[alpha005_summary$design]
+
+r3a_seed_middle <- pilot$r3a_constrained_global_bspline_j300$alpha
+r3a_seed_middle <- r3a_seed_middle[
+  r3a_seed_middle$method == "FASH-IWP1-BF" &
+    r3a_seed_middle$target == "middle" &
+    abs(r3a_seed_middle$alpha - 0.05) < 1e-12,
+  c("seed", "n_discoveries", "false_discoveries", "empirical_fsr", "power")
+]
+```
+
+## Scope
+
+> **Internal exploratory analysis.** This page is a prespecified-truth pilot,
+> not a formal replacement for the R3 cache and not evidence of general FSR
+> control. Its purpose is to determine whether a full five-seed, real-genotype
+> `J = 6362` calibration run is scientifically justified.
+
+The two designs use the same five R3 genotype-cache seeds, `19` donors, `16`
+observed times, five covariates, expression noise standard deviation `1`, and
+the pinned `fashr` 0.1.43 revision. For computational triage only, the pilot
+uses the first `J = 300` gene--variant pairs from each cached seed. The dynamic,
+constant, and zero-effect class proportions are `0.20`, `0.40`, and `0.40`.
+
+## R3B: a strictly target-contained compact sensitivity
+
+The raised-cosine **deviation** has one lobe only. Its center ranges are
+Early `1.5`, Middle `4.5--10.5`, and Late `13.5`; the half-width is `1.2`.
+The resulting lobe supports are Early `[0.3, 2.7]`, Middle `[3.3, 11.7]` at
+the two extreme Middle centers, and Late `[12.3, 14.7]`. Thus all primary
+deviation support is strictly inside the target window. The full genetic
+effect is not compactly supported because it also includes a sampled main
+effect; this distinction is intentional and reported explicitly.
+
+The proposal therefore resolves a semantic ambiguity in the compact-truth
+construction. It does not make a calibration claim. In particular, allowing
+two or three lobes would contradict a claim that the complete deviation is
+target-contained, so this sensitivity fixes the lobe count to one.
+
+## R3A alternatives: local and global broad cubic B-spline truth
+
+The R3A candidate remains a non-IWP cubic B-spline construction, but uses a
+prespecified acceptance rule on the dense grid rather than assigning a label
+solely because one broad random curve happened to have a favorable maximum.
+For each dynamic curve, generation requires:
+
+- target functional contrast at least `0.60`;
+- target-to-outside absolute peak ratio at least `1.40`;
+- exactly one effective sign transition for a switch truth;
+- no effective sign transition for a non-switch truth;
+- a same-signed non-switch baseline of at least `0.75` of the primary
+  amplitude, with a secondary background at most `0.05` of that amplitude.
+
+These constraints were fixed before the `J = 300` run. Two R3A mechanisms are
+evaluated under the same contract. The first is a targeted local broad lobe,
+which is useful for a deliberately label-clean sensitivity but can be accused
+of making the timing task easier. The second first samples a global random
+cubic B-spline with six iid coefficient draws, rescales its centered RMS to
+`0.90`, and accepts it only if it satisfies the same functional-separation
+conditions. For the global mechanism, a switch requires at least one effective
+sign transition rather than exactly one: this matches the stated FASH switch
+functional, which requires sufficiently large effects of both signs but does
+not define a unique crossing count.
+
+The constrained global version is the more conservative primary candidate: it
+retains broad global B-spline geometry, while avoiding labels that are only
+weakly separated from the competing timing functionals. The original R3A
+remains necessary as a misspecification stress test.
+
+## Five-seed pilot results at alpha 0.05
+
+```{r alpha005-table, echo=FALSE}
+display <- alpha005_summary
+display$design <- sub("R3[A-B]: ", "", display$design)
+display$target <- tools::toTitleCase(display$target)
+display$mean_power <- formatC(display$mean_power, format = "f", digits = 3)
+display$mean_empirical_fsr <- formatC(
+  display$mean_empirical_fsr,
+  format = "f",
+  digits = 3
+)
+display$maximum_seed_empirical_fsr <- formatC(
+  display$maximum_seed_empirical_fsr,
+  format = "f",
+  digits = 3
+)
+display$pooled_empirical_fsr <- formatC(
+  display$pooled_empirical_fsr,
+  format = "f",
+  digits = 3
+)
+names(display) <- c(
+  "Design", "Target", "Mean power", "Mean seed-level FSR",
+  "Maximum seed FSR", "Pooled calls", "Pooled false calls", "Pooled FSR"
+)
+knitr::kable(
+  display,
+  align = "l",
+  caption = paste(
+    "Table 1. Five-seed real-genotype J=300 exploratory BF results.",
+    "Pooled quantities are descriptive; Monte Carlo replication remains the seed."
+  )
+)
+```
+
+The strict R3B sensitivity has only three Middle calls in total, one of which
+is false. It is therefore unsuitable as a primary calibration scenario despite
+its cleaner compact-support geometry. The local broad R3A pilot has `51`
+Middle calls and one false call. The more conservative constrained-global R3A
+pilot has `79` Middle calls and two false calls, with mean seed-level empirical
+FSR `0.0251` and mean Middle power `0.770`. Its switch FSR is `0.0448`, close
+to nominal `0.05`; this is why a full-scale confirmation remains necessary.
+
+```{r r3a-middle-by-seed, echo=FALSE}
+r3a_seed_middle$empirical_fsr <- formatC(
+  r3a_seed_middle$empirical_fsr,
+  format = "f",
+  digits = 3
+)
+r3a_seed_middle$power <- formatC(r3a_seed_middle$power, format = "f", digits = 3)
+names(r3a_seed_middle) <- c(
+  "Seed", "Middle calls", "False Middle calls", "Empirical FSR", "Power"
+)
+knitr::kable(
+  r3a_seed_middle,
+  align = "r",
+  caption = paste(
+    "Table 2. R3A constrained-global-B-spline Middle results by seed",
+    "at alpha 0.05."
+  )
+)
+```
+
+## Prespecified full-scale decision rule
+
+No truth parameter will be tuned further using this pilot. The next analysis,
+if submitted, will use all `6,362` pairs and the same five seeds. It will
+report Raw and BF results for every target and alpha in `0.005, 0.010, ..., 0.200`.
+
+The candidate will be rejected as a primary calibration scenario if, for the
+BF fit, the maximum across Early, Middle, Late, Switch, and alpha values from
+`0.05` through `0.20` of
+
+$$
+\overline{\operatorname{FSR}}_{\mathrm{empirical}} - \alpha
+$$
+
+exceeds `0.03`. Power is descriptive rather than an acceptance gate. The
+single-lobe R3B design remains a labelled low-power sensitivity regardless of
+this decision. The full-scale primary candidate is the constrained-global R3A
+mechanism, not the local targeted-lobe sensitivity.
+
+## Reproduction
+
+The local five-seed pilot is produced with
+`code/revision_simulations/internal/pilots/run_r3_truth_specification_pilot.R`
+and summarized with
+`code/revision_simulations/internal/pilots/summarize_r3_truth_specification_pilot.R`.
+The corresponding Slurm array entry point is
+`code/revision_simulations/internal/pilots/run_r3_truth_specification_pilot.sbatch`.
