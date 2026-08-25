@@ -35,6 +35,7 @@
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
@@ -231,6 +232,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -348,6 +352,14 @@ div.tocify {
 </div><!--/.navbar -->
 
 <div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
 
 
 
@@ -514,15 +526,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree15df3d4b9c6e529f1f306c00933d3824cf975e57targetblank15df3d4a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree87d793701e1f46a454f4a27ae2e269f7e898e7a0targetblank87d7937a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/AgueroZZ/fash-revision/tree/15df3d4b9c6e529f1f306c00933d3824cf975e57" target="_blank">15df3d4</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/87d793701e1f46a454f4a27ae2e269f7e898e7a0" target="_blank">87d7937</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree15df3d4b9c6e529f1f306c00933d3824cf975e57targetblank15df3d4a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree87d793701e1f46a454f4a27ae2e269f7e898e7a0targetblank87d7937a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -532,7 +544,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/AgueroZZ/fash-revision/tree/15df3d4b9c6e529f1f306c00933d3824cf975e57" target="_blank">15df3d4</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/87d793701e1f46a454f4a27ae2e269f7e898e7a0" target="_blank">87d7937</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -594,6 +606,74 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/87d793701e1f46a454f4a27ae2e269f7e898e7a0/analysis/revision_internal_r3_full_calibration.rmd" target="_blank">87d7937</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+<td>
+Add R3 calibration figures
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/87d793701e1f46a454f4a27ae2e269f7e898e7a0/docs/revision_internal_r3_full_calibration.html" target="_blank">87d7937</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+<td>
+Add R3 calibration figures
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/ba6c29a2bf13c37935e5d41a6c2c8622329dbe0d/analysis/revision_internal_r3_full_calibration.rmd" target="_blank">ba6c29a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/ba6c29a2bf13c37935e5d41a6c2c8622329dbe0d/docs/revision_internal_r3_full_calibration.html" target="_blank">ba6c29a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -924,6 +1004,501 @@ replication.</caption>
 </tbody>
 </table>
 </div>
+<div id="power-as-a-function-of-alpha" class="section level2">
+<h2>Power as a function of alpha</h2>
+<p>The curves below follow the format of the main functional-testing
+simulation page. They show five-seed means and 95% t-based Monte Carlo
+intervals for both Raw and BF-updated FASH. The prespecified gate
+remains based only on FASH-IWP1-BF over alpha from 0.05 through
+0.20.</p>
+<div id="constrained-global-b-spline-truth" class="section level3">
+<h3>Constrained-global B-spline truth</h3>
+<pre class="r"><code>plot_mc_functional_curve_grid(
+  mc_curve = mc_curves$constrained_global,
+  metric = &quot;power&quot;,
+  title = &quot;Functional-testing power: constrained-global B-spline truth&quot;
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_r3_full_calibration.rmd/constrained-global-power-1.png" alt="Figure 1. Monte Carlo functional-testing power under constrained-global random cubic B-spline truth. Panels identify Early, Middle, Late, and Switch targets; curves compare Raw and BF-updated FASH, shaded bands are 95% t-based intervals across five seeds, and the vertical reference marks alpha 0.05." width="1800" />
+<p class="caption">
+Figure 1. Monte Carlo functional-testing power under constrained-global
+random cubic B-spline truth. Panels identify Early, Middle, Late, and
+Switch targets; curves compare Raw and BF-updated FASH, shaded bands are
+95% t-based intervals across five seeds, and the vertical reference
+marks alpha 0.05.
+</p>
+</div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-constrained-global-power-1">
+Past versions of constrained-global-power-1.png
+</button>
+</p>
+<div id="fig-constrained-global-power-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/87d793701e1f46a454f4a27ae2e269f7e898e7a0/docs/figure/revision_internal_r3_full_calibration.rmd/constrained-global-power-1.png" target="_blank">87d7937</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/ba6c29a2bf13c37935e5d41a6c2c8622329dbe0d/docs/figure/revision_internal_r3_full_calibration.rmd/constrained-global-power-1.png" target="_blank">ba6c29a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/15df3d4b9c6e529f1f306c00933d3824cf975e57/docs/figure/revision_internal_r3_full_calibration.rmd/constrained-global-power-1.png" target="_blank">15df3d4</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/83ed33754c311f714dd93e3109ee7018f2b46f3d/docs/figure/revision_internal_r3_full_calibration.rmd/constrained-global-power-1.png" target="_blank">83ed337</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/052df2a78ddb29295366cffcdaf1f33b4169ee7e/docs/figure/revision_internal_r3_full_calibration.rmd/constrained-global-power-1.png" target="_blank">052df2a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/edaade5acfe3231e81d3cf697285f016ce10a2b7/docs/figure/revision_internal_r3_full_calibration.rmd/constrained-global-power-1.png" target="_blank">edaade5</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_internal_r3_full_calibration.rmd/constrained-global-power-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="targeted-local-broad-b-spline-truth" class="section level3">
+<h3>Targeted-local broad B-spline truth</h3>
+<pre class="r"><code>plot_mc_functional_curve_grid(
+  mc_curve = mc_curves$targeted_local,
+  metric = &quot;power&quot;,
+  title = &quot;Functional-testing power: targeted-local broad B-spline truth&quot;
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_r3_full_calibration.rmd/targeted-local-power-1.png" alt="Figure 2. Monte Carlo functional-testing power under targeted-local broad cubic B-spline truth. Panels identify Early, Middle, Late, and Switch targets; curves compare Raw and BF-updated FASH, shaded bands are 95% t-based intervals across five seeds, and the vertical reference marks alpha 0.05." width="1800" />
+<p class="caption">
+Figure 2. Monte Carlo functional-testing power under targeted-local
+broad cubic B-spline truth. Panels identify Early, Middle, Late, and
+Switch targets; curves compare Raw and BF-updated FASH, shaded bands are
+95% t-based intervals across five seeds, and the vertical reference
+marks alpha 0.05.
+</p>
+</div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-targeted-local-power-1">
+Past versions of targeted-local-power-1.png
+</button>
+</p>
+<div id="fig-targeted-local-power-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/87d793701e1f46a454f4a27ae2e269f7e898e7a0/docs/figure/revision_internal_r3_full_calibration.rmd/targeted-local-power-1.png" target="_blank">87d7937</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/ba6c29a2bf13c37935e5d41a6c2c8622329dbe0d/docs/figure/revision_internal_r3_full_calibration.rmd/targeted-local-power-1.png" target="_blank">ba6c29a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/15df3d4b9c6e529f1f306c00933d3824cf975e57/docs/figure/revision_internal_r3_full_calibration.rmd/targeted-local-power-1.png" target="_blank">15df3d4</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/83ed33754c311f714dd93e3109ee7018f2b46f3d/docs/figure/revision_internal_r3_full_calibration.rmd/targeted-local-power-1.png" target="_blank">83ed337</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/052df2a78ddb29295366cffcdaf1f33b4169ee7e/docs/figure/revision_internal_r3_full_calibration.rmd/targeted-local-power-1.png" target="_blank">052df2a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/edaade5acfe3231e81d3cf697285f016ce10a2b7/docs/figure/revision_internal_r3_full_calibration.rmd/targeted-local-power-1.png" target="_blank">edaade5</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_internal_r3_full_calibration.rmd/targeted-local-power-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div id="empirical-fsr-as-a-function-of-alpha" class="section level2">
+<h2>Empirical FSR as a function of alpha</h2>
+<div id="constrained-global-b-spline-truth-1" class="section level3">
+<h3>Constrained-global B-spline truth</h3>
+<pre class="r"><code>plot_mc_functional_curve_grid(
+  mc_curve = mc_curves$constrained_global,
+  metric = &quot;empirical_fsr&quot;,
+  title = &quot;Empirical FSR: constrained-global B-spline truth&quot;
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_r3_full_calibration.rmd/constrained-global-fsr-1.png" alt="Figure 3. Monte Carlo empirical false sign rate under constrained-global random cubic B-spline truth. Panels identify functional targets; curves compare Raw and BF-updated FASH with 95% t-based intervals across five seeds, the diagonal denotes nominal alpha, and the vertical reference marks alpha 0.05." width="1800" />
+<p class="caption">
+Figure 3. Monte Carlo empirical false sign rate under constrained-global
+random cubic B-spline truth. Panels identify functional targets; curves
+compare Raw and BF-updated FASH with 95% t-based intervals across five
+seeds, the diagonal denotes nominal alpha, and the vertical reference
+marks alpha 0.05.
+</p>
+</div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-constrained-global-fsr-1">
+Past versions of constrained-global-fsr-1.png
+</button>
+</p>
+<div id="fig-constrained-global-fsr-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/87d793701e1f46a454f4a27ae2e269f7e898e7a0/docs/figure/revision_internal_r3_full_calibration.rmd/constrained-global-fsr-1.png" target="_blank">87d7937</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/ba6c29a2bf13c37935e5d41a6c2c8622329dbe0d/docs/figure/revision_internal_r3_full_calibration.rmd/constrained-global-fsr-1.png" target="_blank">ba6c29a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/15df3d4b9c6e529f1f306c00933d3824cf975e57/docs/figure/revision_internal_r3_full_calibration.rmd/constrained-global-fsr-1.png" target="_blank">15df3d4</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/83ed33754c311f714dd93e3109ee7018f2b46f3d/docs/figure/revision_internal_r3_full_calibration.rmd/constrained-global-fsr-1.png" target="_blank">83ed337</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/052df2a78ddb29295366cffcdaf1f33b4169ee7e/docs/figure/revision_internal_r3_full_calibration.rmd/constrained-global-fsr-1.png" target="_blank">052df2a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/edaade5acfe3231e81d3cf697285f016ce10a2b7/docs/figure/revision_internal_r3_full_calibration.rmd/constrained-global-fsr-1.png" target="_blank">edaade5</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_internal_r3_full_calibration.rmd/constrained-global-fsr-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="targeted-local-broad-b-spline-truth-1" class="section level3">
+<h3>Targeted-local broad B-spline truth</h3>
+<pre class="r"><code>plot_mc_functional_curve_grid(
+  mc_curve = mc_curves$targeted_local,
+  metric = &quot;empirical_fsr&quot;,
+  title = &quot;Empirical FSR: targeted-local broad B-spline truth&quot;
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_r3_full_calibration.rmd/targeted-local-fsr-1.png" alt="Figure 4. Monte Carlo empirical false sign rate under targeted-local broad cubic B-spline truth. Panels identify functional targets; curves compare Raw and BF-updated FASH with 95% t-based intervals across five seeds, the diagonal denotes nominal alpha, and the vertical reference marks alpha 0.05." width="1800" />
+<p class="caption">
+Figure 4. Monte Carlo empirical false sign rate under targeted-local
+broad cubic B-spline truth. Panels identify functional targets; curves
+compare Raw and BF-updated FASH with 95% t-based intervals across five
+seeds, the diagonal denotes nominal alpha, and the vertical reference
+marks alpha 0.05.
+</p>
+</div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-targeted-local-fsr-1">
+Past versions of targeted-local-fsr-1.png
+</button>
+</p>
+<div id="fig-targeted-local-fsr-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/87d793701e1f46a454f4a27ae2e269f7e898e7a0/docs/figure/revision_internal_r3_full_calibration.rmd/targeted-local-fsr-1.png" target="_blank">87d7937</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/ba6c29a2bf13c37935e5d41a6c2c8622329dbe0d/docs/figure/revision_internal_r3_full_calibration.rmd/targeted-local-fsr-1.png" target="_blank">ba6c29a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/15df3d4b9c6e529f1f306c00933d3824cf975e57/docs/figure/revision_internal_r3_full_calibration.rmd/targeted-local-fsr-1.png" target="_blank">15df3d4</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/83ed33754c311f714dd93e3109ee7018f2b46f3d/docs/figure/revision_internal_r3_full_calibration.rmd/targeted-local-fsr-1.png" target="_blank">83ed337</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/052df2a78ddb29295366cffcdaf1f33b4169ee7e/docs/figure/revision_internal_r3_full_calibration.rmd/targeted-local-fsr-1.png" target="_blank">052df2a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/edaade5acfe3231e81d3cf697285f016ce10a2b7/docs/figure/revision_internal_r3_full_calibration.rmd/targeted-local-fsr-1.png" target="_blank">edaade5</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_internal_r3_full_calibration.rmd/targeted-local-fsr-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
 <div id="full-grid-calibration-decision" class="section level2">
 <h2>Full-grid calibration decision</h2>
 <table>
@@ -1080,6 +1655,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
 <script>
 $(document).ready(function ()  {
