@@ -341,7 +341,7 @@ div.tocify {
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-
+        
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -362,7 +362,7 @@ B-spline truth scenarios</h1>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+workflowr <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -373,8 +373,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> </a>
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -387,9 +387,9 @@ aria-hidden="true"></span> </a>
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 1
+aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>fash-revision/</code> <span
@@ -412,21 +412,18 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
-<span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
-changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges"
+<div id="strongRMarkdownfilestronguptodate"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown file has unstaged changes. To know which version of
-the R Markdown file created these results, you’ll want to first commit
-it to the Git repo. If you’re still working on the analysis, you can
-ignore this warning. When you’re finished, you can run
-<code>wflow_publish</code> to commit the R Markdown file and build the
-HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
@@ -517,15 +514,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreeedaade5acfe3231e81d3cf697285f016ce10a2b7targetblankedaade5a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree15df3d4b9c6e529f1f306c00933d3824cf975e57targetblank15df3d4a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/AgueroZZ/fash-revision/tree/edaade5acfe3231e81d3cf697285f016ce10a2b7" target="_blank">edaade5</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/15df3d4b9c6e529f1f306c00933d3824cf975e57" target="_blank">15df3d4</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreeedaade5acfe3231e81d3cf697285f016ce10a2b7targetblankedaade5a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree15df3d4b9c6e529f1f306c00933d3824cf975e57targetblank15df3d4a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -535,7 +532,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/AgueroZZ/fash-revision/tree/edaade5acfe3231e81d3cf697285f016ce10a2b7" target="_blank">edaade5</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/15df3d4b9c6e529f1f306c00933d3824cf975e57" target="_blank">15df3d4</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -551,19 +548,6 @@ were generated:
 <pre><code>
 Ignored files:
     Ignored:    output/revision_simulations/
-
-Untracked files:
-    Untracked:  AGENTS.md
-
-Unstaged changes:
-    Modified:   .gitignore
-    Modified:   analysis/revision_internal_r3_full_calibration.rmd
-    Modified:   code/revision_simulations/internal/pilots/run_r3_truth_specification_pilot.R
-    Modified:   code/revision_simulations/internal/pilots/run_r3_truth_specification_pilot.sbatch
-    Modified:   code/revision_simulations/internal/pilots/summarize_r3_truth_specification_pilot.R
-    Modified:   code/revision_simulations/internal/r3_middle_calibration/test_constrained_global_bspline_truth.R
-    Modified:   code/revision_simulations/internal/r3_middle_calibration/test_targeted_broad_bspline_truth.R
-    Modified:   code/revision_simulations/shared/simulation_functions.R
 
 </code></pre>
 <p>
@@ -610,6 +594,108 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/15df3d4b9c6e529f1f306c00933d3824cf975e57/analysis/revision_internal_r3_full_calibration.rmd" target="_blank">15df3d4</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+<td>
+Fix R3A Middle estimand mismatch
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/15df3d4b9c6e529f1f306c00933d3824cf975e57/docs/revision_internal_r3_full_calibration.html" target="_blank">15df3d4</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+<td>
+Fix R3A Middle estimand mismatch
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/83ed33754c311f714dd93e3109ee7018f2b46f3d/analysis/revision_internal_r3_full_calibration.rmd" target="_blank">83ed337</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/83ed33754c311f714dd93e3109ee7018f2b46f3d/docs/revision_internal_r3_full_calibration.html" target="_blank">83ed337</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/052df2a78ddb29295366cffcdaf1f33b4169ee7e/analysis/revision_internal_r3_full_calibration.rmd" target="_blank">052df2a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+<td>
+Simplify R6 enhancer-enrichment page to three Roadmap annotations
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/052df2a78ddb29295366cffcdaf1f33b4169ee7e/docs/revision_internal_r3_full_calibration.html" target="_blank">052df2a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+<td>
+Simplify R6 enhancer-enrichment page to three Roadmap annotations
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -925,22 +1011,22 @@ time zone: NA
 tzcode source: system (glibc)
 
 attached base packages:
-[1] stats     graphics  grDevices utils     datasets  methods   base
+[1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
 [1] workflowr_1.7.2
 
 loaded via a namespace (and not attached):
- [1] vctrs_0.7.3       httr_1.4.7        cli_3.6.6         knitr_1.50
- [5] rlang_1.3.0       xfun_0.52         stringi_1.8.9     processx_3.8.6
- [9] promises_1.3.3    jsonlite_2.0.0    glue_1.8.1        rprojroot_2.0.4
-[13] git2r_0.36.2      htmltools_0.5.8.1 httpuv_1.6.16     ps_1.9.1
-[17] sass_0.4.10       rmarkdown_2.29    jquerylib_0.1.4   tibble_3.3.0
-[21] evaluate_1.0.4    fastmap_1.2.0     yaml_2.3.10       lifecycle_1.0.5
-[25] whisker_0.4.1     stringr_1.6.0     compiler_4.4.1    fs_1.6.6
-[29] pkgconfig_2.0.3   Rcpp_1.1.2        rstudioapi_0.17.1 later_1.4.2
-[33] digest_0.6.37     R6_2.6.1          pillar_1.11.0     callr_3.7.6
-[37] magrittr_2.0.5    bslib_0.9.0       tools_4.4.1       cachem_1.1.0
+ [1] vctrs_0.7.3       httr_1.4.7        cli_3.6.6         knitr_1.50       
+ [5] rlang_1.3.0       xfun_0.52         stringi_1.8.9     processx_3.8.6   
+ [9] promises_1.3.3    jsonlite_2.0.0    glue_1.8.1        rprojroot_2.0.4  
+[13] git2r_0.36.2      htmltools_0.5.8.1 httpuv_1.6.16     ps_1.9.1         
+[17] sass_0.4.10       rmarkdown_2.29    jquerylib_0.1.4   tibble_3.3.0     
+[21] evaluate_1.0.4    fastmap_1.2.0     yaml_2.3.10       lifecycle_1.0.5  
+[25] whisker_0.4.1     stringr_1.6.0     compiler_4.4.1    fs_1.6.6         
+[29] pkgconfig_2.0.3   Rcpp_1.1.2        rstudioapi_0.17.1 later_1.4.2      
+[33] digest_0.6.37     R6_2.6.1          pillar_1.11.0     callr_3.7.6      
+[37] magrittr_2.0.5    bslib_0.9.0       tools_4.4.1       cachem_1.1.0     
 [41] getPass_0.2-4    </code></pre>
 </div>
 </div>
