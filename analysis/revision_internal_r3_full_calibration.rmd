@@ -2,13 +2,24 @@
 title: "Internal R3 full calibration: constrained B-spline truth scenarios"
 author: "Ziang Zhang"
 date: "2026-08-25"
-output: workflowr::wflow_html
+output:
+  workflowr::wflow_html:
+    code_folding: hide
 editor_options:
   chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 10,
+  fig.height = 8,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
 project_root <- if (file.exists("code/revision_simulations/shared/simulation_functions.R")) {
   "."
 } else if (file.exists("../code/revision_simulations/shared/simulation_functions.R")) {
@@ -16,6 +27,10 @@ project_root <- if (file.exists("code/revision_simulations/shared/simulation_fun
 } else {
   stop("Could not locate the workflowr project root.")
 }
+source(file.path(
+  project_root,
+  "code", "revision_simulations", "shared", "simulation_functions.R"
+))
 output_root <- file.path(project_root, "output", "revision_simulations", "internal")
 seed_list <- c(12345L, 22345L, 32345L, 42345L, 52345L)
 target_order <- c("early", "middle", "late", "switch")
@@ -131,6 +146,11 @@ summarize_gate <- function(alpha, label) {
 }
 
 full_results <- lapply(designs, read_completed_design)
+mc_curves <- Map(function(design, result) {
+  alpha <- result$alpha
+  alpha$scenario <- design$prefix
+  summarize_mc_functional_alpha_curves(alpha)
+}, designs, full_results)
 alpha005 <- do.call(rbind, Map(
   function(design, result) summarize_alpha(result$alpha, design$label),
   designs, full_results
@@ -195,6 +215,55 @@ knitr::kable(
     "Table 1. Five-seed J=6362 FASH-IWP1-BF results at alpha 0.05.",
     "Pooled quantities are descriptive; the seed is the replication."
   )
+)
+```
+
+## Power as a function of alpha
+
+The curves below follow the format of the main functional-testing simulation
+page. They show five-seed means and 95% t-based Monte Carlo intervals for both
+Raw and BF-updated FASH. The prespecified gate remains based only on
+FASH-IWP1-BF over alpha from 0.05 through 0.20.
+
+### Constrained-global B-spline truth
+
+```{r constrained-global-power, fig.height=9, fig.cap="Figure 1. Monte Carlo functional-testing power under constrained-global random cubic B-spline truth. Panels identify Early, Middle, Late, and Switch targets; curves compare Raw and BF-updated FASH, shaded bands are 95% t-based intervals across five seeds, and the vertical reference marks alpha 0.05."}
+plot_mc_functional_curve_grid(
+  mc_curve = mc_curves$constrained_global,
+  metric = "power",
+  title = "Functional-testing power: constrained-global B-spline truth"
+)
+```
+
+### Targeted-local broad B-spline truth
+
+```{r targeted-local-power, fig.height=9, fig.cap="Figure 2. Monte Carlo functional-testing power under targeted-local broad cubic B-spline truth. Panels identify Early, Middle, Late, and Switch targets; curves compare Raw and BF-updated FASH, shaded bands are 95% t-based intervals across five seeds, and the vertical reference marks alpha 0.05."}
+plot_mc_functional_curve_grid(
+  mc_curve = mc_curves$targeted_local,
+  metric = "power",
+  title = "Functional-testing power: targeted-local broad B-spline truth"
+)
+```
+
+## Empirical FSR as a function of alpha
+
+### Constrained-global B-spline truth
+
+```{r constrained-global-fsr, fig.height=9, fig.cap="Figure 3. Monte Carlo empirical false sign rate under constrained-global random cubic B-spline truth. Panels identify functional targets; curves compare Raw and BF-updated FASH with 95% t-based intervals across five seeds, the diagonal denotes nominal alpha, and the vertical reference marks alpha 0.05."}
+plot_mc_functional_curve_grid(
+  mc_curve = mc_curves$constrained_global,
+  metric = "empirical_fsr",
+  title = "Empirical FSR: constrained-global B-spline truth"
+)
+```
+
+### Targeted-local broad B-spline truth
+
+```{r targeted-local-fsr, fig.height=9, fig.cap="Figure 4. Monte Carlo empirical false sign rate under targeted-local broad cubic B-spline truth. Panels identify functional targets; curves compare Raw and BF-updated FASH with 95% t-based intervals across five seeds, the diagonal denotes nominal alpha, and the vertical reference marks alpha 0.05."}
+plot_mc_functional_curve_grid(
+  mc_curve = mc_curves$targeted_local,
+  metric = "empirical_fsr",
+  title = "Empirical FSR: targeted-local broad B-spline truth"
 )
 ```
 
