@@ -26,6 +26,7 @@ source(file.path(
 
 minimum_location_margin <- 0.60
 minimum_location_ratio <- 1.40
+middle_window <- c(3, 12)
 simulation <- simulate_targeted_local_bspline_effect_set(
   n_variants = 300L,
   time_grid = 0:15,
@@ -38,7 +39,37 @@ simulation <- simulate_targeted_local_bspline_effect_set(
   non_switch_background_fraction = 0.05,
   profile = "broad",
   seed = 98765L,
+  middle_window = middle_window,
+  middle_boundary = "open",
   scenario = "r3a_targeted_broad_truth_test"
+)
+
+stopifnot(identical(
+  targeted_time_window(
+    "middle", c(3, 3.1, 11, 11.9, 12),
+    middle_window = middle_window,
+    middle_boundary = "open"
+  ),
+  c(FALSE, TRUE, TRUE, TRUE, FALSE)
+))
+
+recomputed_functionals <- evaluate_temporal_functionals(
+  simulation$beta_evaluation,
+  smooth_var = simulation$evaluation_grid,
+  switch_threshold = 0.25,
+  middle_window = middle_window,
+  middle_boundary = "open"
+)
+legacy_functionals <- evaluate_temporal_functionals(
+  simulation$beta_evaluation,
+  smooth_var = simulation$evaluation_grid,
+  switch_threshold = 0.25
+)
+stopifnot(
+  isTRUE(all.equal(simulation$true_functionals, recomputed_functionals)),
+  !isTRUE(all.equal(simulation$true_functionals, legacy_functionals)),
+  identical(simulation$settings$middle_window, middle_window),
+  identical(simulation$settings$middle_boundary, "open")
 )
 
 dynamic <- simulation$unit_info[

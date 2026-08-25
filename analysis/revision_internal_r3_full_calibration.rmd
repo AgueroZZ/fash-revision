@@ -21,12 +21,12 @@ seed_list <- c(12345L, 22345L, 32345L, 42345L, 52345L)
 target_order <- c("early", "middle", "late", "switch")
 designs <- list(
   constrained_global = list(
-    prefix = "r3a_constrained_global_bspline_J6362",
+    prefix = "r3a_constrained_global_bspline_open_middle_J6362",
     truth_mechanism = "constrained_global_bspline",
     label = "Constrained global random cubic B-spline"
   ),
   targeted_local = list(
-    prefix = "r3a_targeted_broad_bspline_J6362",
+    prefix = "r3a_targeted_broad_bspline_open_middle_J6362",
     truth_mechanism = "targeted_broad_bspline",
     label = "Targeted local broad cubic B-spline"
   )
@@ -42,13 +42,32 @@ read_completed_design <- function(design) {
   results <- lapply(paths, readRDS)
   configurations <- lapply(results, `[[`, "configuration")
   reference <- configurations[[1L]]
+  comparable_truth_generation_settings <- function(settings) {
+    if (!is.list(settings)) return(settings)
+    if (!is.null(names(settings))) {
+      settings <- settings[!grepl("(^seed$|_seed$)", names(settings))]
+    }
+    lapply(settings, comparable_truth_generation_settings)
+  }
   if (!identical(reference$J, 6362L) ||
-      !identical(reference$truth_settings$truth_mechanism, design$truth_mechanism)) {
+      !identical(reference$truth_settings$truth_mechanism, design$truth_mechanism) ||
+      !identical(reference$middle_window, c(3, 12)) ||
+      !identical(reference$middle_boundary, "open") ||
+      !identical(reference$truth_generation_settings$middle_window, c(3, 12)) ||
+      !identical(reference$truth_generation_settings$middle_boundary, "open")) {
     stop("The recorded configuration does not match the intended full scenario.")
   }
   if (!all(vapply(configurations, function(configuration) {
     identical(configuration$J, reference$J) &&
       identical(configuration$truth_settings, reference$truth_settings) &&
+      identical(
+        comparable_truth_generation_settings(
+          configuration$truth_generation_settings
+        ),
+        comparable_truth_generation_settings(reference$truth_generation_settings)
+      ) &&
+      identical(configuration$middle_window, reference$middle_window) &&
+      identical(configuration$middle_boundary, reference$middle_boundary) &&
       identical(configuration$middle_definition, reference$middle_definition) &&
       identical(configuration$package_provenance, reference$package_provenance)
   }, logical(1)))) {
@@ -132,6 +151,11 @@ This internal page records two predefined, full real-genotype R3 truth
 scenarios. Each has five cached genotype seeds and J = 6362 gene--variant
 pairs per seed, with 19 donors, 16 observed times, five covariates, and the
 pinned fashr 0.1.43 revision bf223df75da6e41ae48607a56b4cd12d7c3b24e7.
+
+All truth acceptance, saved truth functionals, and posterior testing on this
+page use the same open Middle estimand, `3 < t < 12`. The earlier outputs with
+prefixes lacking `open_middle` used legacy closed-Middle truth generation and
+are explicitly superseded; they are not used anywhere on this page.
 
 For FASH-IWP1-BF, the prespecified calibration gate ranges over Early, Middle,
 Late, Switch, and alpha from 0.05 to 0.20. It passes only if the largest mean
@@ -228,3 +252,11 @@ misspecification stress test. The strict single-lobe R3B raised-cosine design
 remains a low-power label-clean sensitivity rather than a primary scenario.
 
 ## Reproduction
+
+The seed-level runner records both the requested Middle definition and the
+actual truth-generator settings, recomputes the saved truth functionals, and
+stops if they differ. The page independently requires all five seed-level
+configurations to agree on these fields before displaying results. Jobs were
+submitted with
+`code/revision_simulations/internal/pilots/run_r3_truth_specification_pilot.sbatch`
+using the two `open_middle_J6362` prefixes shown in the setup chunk.

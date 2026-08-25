@@ -177,7 +177,9 @@ effect_sim <- if (truth_mechanism == "r3b_interior_single_lobe") {
     non_switch_background_fraction = truth_settings$non_switch_background_fraction,
     profile = "broad",
     seed = component_seeds[["functional_truth"]],
-    scenario = "r3a_targeted_broad_real_genotype_pilot"
+    scenario = "r3a_targeted_broad_real_genotype_pilot",
+    middle_window = middle_window,
+    middle_boundary = "open"
   )
 } else {
   simulate_targeted_local_bspline_effect_set(
@@ -193,8 +195,30 @@ effect_sim <- if (truth_mechanism == "r3b_interior_single_lobe") {
     target_centered_rms = truth_settings$target_centered_rms,
     profile = "random_broad",
     seed = component_seeds[["functional_truth"]],
-    scenario = "r3a_constrained_global_bspline_real_genotype_pilot"
+    scenario = "r3a_constrained_global_bspline_real_genotype_pilot",
+    middle_window = middle_window,
+    middle_boundary = "open"
   )
+}
+
+if (!identical(effect_sim$settings$middle_window, middle_window) ||
+    !identical(effect_sim$settings$middle_boundary, "open")) {
+  stop("Truth generation and posterior evaluation use different Middle estimands.")
+}
+
+recomputed_true_functionals <- evaluate_temporal_functionals(
+  effect_sim$beta_evaluation,
+  smooth_var = effect_sim$evaluation_grid,
+  switch_threshold = 0.25,
+  middle_window = middle_window,
+  middle_boundary = "open"
+)
+if (!isTRUE(all.equal(
+  effect_sim$true_functionals,
+  recomputed_true_functionals,
+  check.attributes = TRUE
+))) {
+  stop("Saved truth functionals do not match the requested Middle estimand.")
 }
 
 effect_sim <- reassign_effect_simulation_by_maf(
@@ -223,6 +247,13 @@ output_dir <- file.path(
   workflowr_root,
   "output", "revision_simulations", "internal", output_id
 )
+if (dir.exists(output_dir) && length(list.files(
+  output_dir,
+  all.files = TRUE,
+  no.. = TRUE
+)) > 0L) {
+  stop("Refusing to overwrite a non-empty pilot output directory: ", output_dir)
+}
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 out <- run_genotype_level_dynamic_eqtl_simulation(
   G = genotype_sample$G,
@@ -283,6 +314,9 @@ configuration <- list(
   genotype_source = "paper-derived YRI DS dosage",
   genotype_selection_rule = genotype_cache$configuration$selection_rule,
   truth_settings = truth_settings,
+  truth_generation_settings = effect_sim$settings,
+  middle_window = middle_window,
+  middle_boundary = "open",
   middle_definition = "3 < t < 12",
   package_provenance = list(
     version = as.character(utils::packageVersion("fashr")),

@@ -425,15 +425,23 @@ random_bspline_truth_curve <- function(time_grid,
   )
 }
 
-targeted_time_window <- function(time_group, x) {
+targeted_time_window <- function(time_group,
+                                 x,
+                                 middle_window = c(4, 11),
+                                 middle_boundary = c("closed", "open")) {
   x <- as.numeric(x)
+  middle_boundary <- match.arg(middle_boundary)
   if (any(!is.finite(x))) {
     stop("x must contain finite time values.")
   }
   switch(
     time_group,
     early = x <= 3,
-    middle = x >= 4 & x <= 11,
+    middle = temporal_middle_membership(
+      smooth_var = x,
+      middle_window = middle_window,
+      middle_boundary = middle_boundary
+    ),
     late = x >= 12,
     stop("Unsupported time group: ", time_group)
   )
@@ -517,14 +525,22 @@ count_effective_sign_transitions <- function(x, tolerance = 1e-8) {
 summarize_targeted_truth_curve <- function(curve,
                                            evaluation_grid,
                                            time_group,
-                                           switch_threshold = 0.25) {
+                                           switch_threshold = 0.25,
+                                           middle_window = c(4, 11),
+                                           middle_boundary = c("closed", "open")) {
+  middle_boundary <- match.arg(middle_boundary)
   curve <- as.numeric(curve)
   evaluation_grid <- as.numeric(evaluation_grid)
   if (length(curve) != length(evaluation_grid) || any(!is.finite(curve)) ||
       any(!is.finite(evaluation_grid))) {
     stop("curve and evaluation_grid must have the same finite length.")
   }
-  target_mask <- targeted_time_window(time_group, evaluation_grid)
+  target_mask <- targeted_time_window(
+    time_group,
+    evaluation_grid,
+    middle_window = middle_window,
+    middle_boundary = middle_boundary
+  )
   if (!any(target_mask) || all(target_mask)) {
     stop("The target time window must contain, but not exhaust, evaluation_grid.")
   }
@@ -535,7 +551,9 @@ summarize_targeted_truth_curve <- function(curve,
   functionals <- evaluate_temporal_functionals(
     matrix(curve, nrow = 1),
     smooth_var = evaluation_grid,
-    switch_threshold = switch_threshold
+    switch_threshold = switch_threshold,
+    middle_window = middle_window,
+    middle_boundary = middle_boundary
   )
   list(
     target_peak = target_peak,
@@ -562,7 +580,10 @@ sample_spiky_local_bspline_truth <- function(time_group,
                                              minimum_location_ratio = 2,
                                              non_switch_baseline_fraction = 0.75,
                                              target_centered_rms = 0.70,
-                                             max_attempts = 1000) {
+                                             max_attempts = 1000,
+                                             middle_window = c(4, 11),
+                                             middle_boundary = c("closed", "open")) {
+  middle_boundary <- match.arg(middle_boundary)
   allowed_time_groups <- c("early", "middle", "late")
   allowed_switch_status <- c("switch", "non-switch")
   if (!time_group %in% allowed_time_groups ||
@@ -596,7 +617,12 @@ sample_spiky_local_bspline_truth <- function(time_group,
   peak_times <- evaluation_grid[
     apply(basis_evaluation[, interior, drop = FALSE], 2, which.max)
   ]
-  eligible_basis <- interior[targeted_time_window(time_group, peak_times)]
+  eligible_basis <- interior[targeted_time_window(
+    time_group,
+    peak_times,
+    middle_window = middle_window,
+    middle_boundary = middle_boundary
+  )]
   if (length(eligible_basis) == 0) {
     stop("The spiky B-spline basis has no support centered in the target window.")
   }
@@ -637,7 +663,9 @@ sample_spiky_local_bspline_truth <- function(time_group,
       curve = beta_evaluation,
       evaluation_grid = evaluation_grid,
       time_group = time_group,
-      switch_threshold = switch_threshold
+      switch_threshold = switch_threshold,
+      middle_window = middle_window,
+      middle_boundary = middle_boundary
     )
     location_ok <- diagnostics$contrasts[[time_group]] >= minimum_location_margin &&
       diagnostics$target_to_outside_ratio >= minimum_location_ratio
@@ -705,8 +733,11 @@ sample_multispike_local_bspline_truth <- function(time_group,
                                                   secondary_selection = c("random", "nearest"),
                                                   non_switch_baseline_fraction = 0,
                                                   direction = NULL,
-                                                  max_attempts = 1000) {
+                                                  max_attempts = 1000,
+                                                  middle_window = c(4, 11),
+                                                  middle_boundary = c("closed", "open")) {
   secondary_selection <- match.arg(secondary_selection)
+  middle_boundary <- match.arg(middle_boundary)
   allowed_time_groups <- c("early", "middle", "late")
   allowed_switch_status <- c("switch", "non-switch")
   if (!time_group %in% allowed_time_groups ||
@@ -774,7 +805,12 @@ sample_multispike_local_bspline_truth <- function(time_group,
     numeric(1)
   )
   names(peak_times) <- as.character(interior)
-  target_basis <- interior[targeted_time_window(time_group, peak_times)]
+  target_basis <- interior[targeted_time_window(
+    time_group,
+    peak_times,
+    middle_window = middle_window,
+    middle_boundary = middle_boundary
+  )]
   if (length(target_basis) == 0) {
     stop("The multi-spike B-spline basis has no peak in the target window.")
   }
@@ -788,7 +824,12 @@ sample_multispike_local_bspline_truth <- function(time_group,
 
     if (spike_count == 2L) {
       secondary_candidates <- interior[
-        !targeted_time_window(time_group, peak_times) &
+        !targeted_time_window(
+          time_group,
+          peak_times,
+          middle_window = middle_window,
+          middle_boundary = middle_boundary
+        ) &
           abs(peak_times - primary_peak_time) >= minimum_peak_separation
       ]
       if (length(secondary_candidates) == 0) {
@@ -858,7 +899,9 @@ sample_multispike_local_bspline_truth <- function(time_group,
       curve = beta_evaluation,
       evaluation_grid = evaluation_grid,
       time_group = time_group,
-      switch_threshold = switch_threshold
+      switch_threshold = switch_threshold,
+      middle_window = middle_window,
+      middle_boundary = middle_boundary
     )
     location_ok <- diagnostics$contrasts[[time_group]] >= minimum_location_margin &&
       diagnostics$target_to_outside_ratio >= minimum_location_ratio
@@ -1513,7 +1556,10 @@ sample_constrained_broad_bspline_truth <- function(time_group,
                                                    minimum_location_ratio = 1.4,
                                                    non_switch_baseline_fraction = 0.75,
                                                    target_centered_rms = 0.90,
-                                                   max_attempts = 10000) {
+                                                   max_attempts = 10000,
+                                                   middle_window = c(4, 11),
+                                                   middle_boundary = c("closed", "open")) {
+  middle_boundary <- match.arg(middle_boundary)
   allowed_time_groups <- c("early", "middle", "late")
   allowed_switch_status <- c("switch", "non-switch")
   if (!time_group %in% allowed_time_groups ||
@@ -1542,7 +1588,12 @@ sample_constrained_broad_bspline_truth <- function(time_group,
     deviation_observed <- curve$deviation_observed * rms_scale_factor
     deviation_evaluation <- curve$deviation_evaluation * rms_scale_factor
 
-    target_mask <- targeted_time_window(time_group, evaluation_grid)
+    target_mask <- targeted_time_window(
+      time_group,
+      evaluation_grid,
+      middle_window = middle_window,
+      middle_boundary = middle_boundary
+    )
     target_peak_index <- which(target_mask)[
       which.max(abs(deviation_evaluation[target_mask]))
     ]
@@ -1570,7 +1621,9 @@ sample_constrained_broad_bspline_truth <- function(time_group,
       curve = beta_evaluation,
       evaluation_grid = evaluation_grid,
       time_group = time_group,
-      switch_threshold = switch_threshold
+      switch_threshold = switch_threshold,
+      middle_window = middle_window,
+      middle_boundary = middle_boundary
     )
     location_ok <- diagnostics$contrasts[[time_group]] >= minimum_location_margin &&
       diagnostics$target_to_outside_ratio >= minimum_location_ratio
@@ -1640,8 +1693,11 @@ sample_targeted_local_bspline_truth <- function(time_group,
                                                   "random_broad"
                                                 ),
                                                 target_centered_rms = NULL,
-                                                max_attempts = 1000) {
+                                                max_attempts = 1000,
+                                                middle_window = c(4, 11),
+                                                middle_boundary = c("closed", "open")) {
   profile <- match.arg(profile)
+  middle_boundary <- match.arg(middle_boundary)
   allowed_time_groups <- c("early", "middle", "late")
   allowed_switch_status <- c("switch", "non-switch")
   if (!time_group %in% allowed_time_groups || !switch_status %in% allowed_switch_status) {
@@ -1678,7 +1734,9 @@ sample_targeted_local_bspline_truth <- function(time_group,
       minimum_location_ratio = minimum_location_ratio,
       non_switch_baseline_fraction = non_switch_baseline_fraction,
       target_centered_rms = target_centered_rms,
-      max_attempts = max_attempts
+      max_attempts = max_attempts,
+      middle_window = middle_window,
+      middle_boundary = middle_boundary
     ))
   }
   if (profile == "random_broad") {
@@ -1695,7 +1753,9 @@ sample_targeted_local_bspline_truth <- function(time_group,
       minimum_location_ratio = minimum_location_ratio,
       non_switch_baseline_fraction = non_switch_baseline_fraction,
       target_centered_rms = target_centered_rms,
-      max_attempts = max_attempts * 10
+      max_attempts = max_attempts * 10,
+      middle_window = middle_window,
+      middle_boundary = middle_boundary
     ))
   }
 
@@ -1781,7 +1841,9 @@ sample_targeted_local_bspline_truth <- function(time_group,
       curve = beta_evaluation,
       evaluation_grid = evaluation_grid,
       time_group = time_group,
-      switch_threshold = switch_threshold
+      switch_threshold = switch_threshold,
+      middle_window = middle_window,
+      middle_boundary = middle_boundary
     )
     location_ok <- diagnostics$contrasts[[time_group]] >= minimum_location_margin &&
       diagnostics$target_to_outside_ratio >= minimum_location_ratio
@@ -2853,8 +2915,11 @@ simulate_targeted_local_bspline_effect_set <- function(n_variants = 1000,
                                                        target_centered_rms = NULL,
                                                        exact_class_counts = TRUE,
                                                        seed = 12345,
-                                                       scenario = "genotype_functional_targeted_local_bspline") {
+                                                       scenario = "genotype_functional_targeted_local_bspline",
+                                                       middle_window = c(4, 11),
+                                                       middle_boundary = c("closed", "open")) {
   profile <- match.arg(profile)
+  middle_boundary <- match.arg(middle_boundary)
   spiky_truth_version <- match.arg(spiky_truth_version)
   spiky_secondary_selection <- match.arg(spiky_secondary_selection)
   required_classes <- c("dynamic_bspline", "constant", "zero")
@@ -3007,7 +3072,9 @@ simulate_targeted_local_bspline_effect_set <- function(n_variants = 1000,
         target_centered_rms = target_centered_rms,
         minimum_peak_separation = spiky_minimum_peak_separation,
         secondary_selection = spiky_secondary_selection,
-        non_switch_baseline_fraction = spiky_non_switch_baseline_fraction
+        non_switch_baseline_fraction = spiky_non_switch_baseline_fraction,
+        middle_window = middle_window,
+        middle_boundary = middle_boundary
       )
     } else {
       sample_targeted_local_bspline_truth(
@@ -3023,7 +3090,9 @@ simulate_targeted_local_bspline_effect_set <- function(n_variants = 1000,
         non_switch_background_fraction = non_switch_background_fraction,
         switch_secondary_fraction = switch_secondary_fraction,
         profile = generator_profile,
-        target_centered_rms = target_centered_rms
+        target_centered_rms = target_centered_rms,
+        middle_window = middle_window,
+        middle_boundary = middle_boundary
       )
     }
     index <- dynamic_index[position]
@@ -3048,7 +3117,9 @@ simulate_targeted_local_bspline_effect_set <- function(n_variants = 1000,
   true_functionals <- evaluate_temporal_functionals(
     beta_evaluation,
     smooth_var = evaluation_grid,
-    switch_threshold = switch_threshold
+    switch_threshold = switch_threshold,
+    middle_window = middle_window,
+    middle_boundary = middle_boundary
   )
   target_lookup <- match(time_group[dynamic_index], colnames(true_functionals))
   target_contrasts <- true_functionals[cbind(dynamic_index, target_lookup)]
@@ -3151,6 +3222,8 @@ simulate_targeted_local_bspline_effect_set <- function(n_variants = 1000,
       spiky_minimum_peak_separation = spiky_minimum_peak_separation,
       spiky_non_switch_baseline_fraction = spiky_non_switch_baseline_fraction,
       target_centered_rms = target_centered_rms,
+      middle_window = middle_window,
+      middle_boundary = middle_boundary,
       seed = seed
     )
   )

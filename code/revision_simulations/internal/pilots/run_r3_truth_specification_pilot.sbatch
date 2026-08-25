@@ -25,12 +25,17 @@ readonly R_LIBRARY="/home/ziangzhang/R/x86_64-pc-linux-gnu-library/4.4"
 readonly GCC_LIBRARY="/software/gcc-13.2.0-el8-x86_64/lib64"
 readonly GENOTYPE_CACHE="${PROJECT_ROOT}/workspace/inputs/r1_r2_fashr0143/genotype_samples.rds"
 readonly TRUTH_MECHANISM="${FASH_R3_TRUTH_MECHANISM:-r3a_constrained_global_bspline}"
-readonly RESULT_PREFIX="${FASH_R3_PILOT_PREFIX:-r3a_constrained_global_bspline_J6362}"
+readonly RESULT_PREFIX="${FASH_R3_PILOT_PREFIX:-r3a_constrained_global_bspline_open_middle_J6362}"
+readonly PILOT_J="${FASH_R3_PILOT_J:-6362}"
 readonly SEEDS=(12345 22345 32345 42345 52345)
 readonly SEED="${SEEDS[${SLURM_ARRAY_TASK_ID}]}"
 
 if [[ ! -x "${R_BINARY}" || ! -f "${RUNNER}" || ! -f "${GENOTYPE_CACHE}" ]]; then
   echo "Missing R binary, pilot runner, or genotype cache." >&2
+  exit 1
+fi
+if [[ ! "${PILOT_J}" =~ ^[0-9]+$ || "${PILOT_J}" -lt 30 ]]; then
+  echo "FASH_R3_PILOT_J must be an integer of at least 30." >&2
   exit 1
 fi
 if [[ "${TRUTH_MECHANISM}" != "r3a_targeted_broad_bspline" &&
@@ -47,7 +52,7 @@ cd "${WORKFLOWR_ROOT}"
 "${R_BINARY}" --vanilla "${RUNNER}" \
   --truth-mechanism "${TRUTH_MECHANISM}" \
   --seed "${SEED}" \
-  --J 6362 \
+  --J "${PILOT_J}" \
   --num-cores "${SLURM_CPUS_PER_TASK}" \
   --genotype-cache "${GENOTYPE_CACHE}" \
   --output-id "${RESULT_PREFIX}_seed${SEED}"

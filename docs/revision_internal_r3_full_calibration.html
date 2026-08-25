@@ -421,10 +421,10 @@ changes </a>
 <div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R
-Markdown file created these results, you’ll want to first commit it to
-the Git repo. If you’re still working on the analysis, you can ignore
-this warning. When you’re finished, you can run
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
 <code>wflow_publish</code> to commit the R Markdown file and build the
 HTML.</p>
 </div>
@@ -517,15 +517,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree09f63bc8536029c4816632f041b3afd85ffc523ctargetblank09f63bca">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreeedaade5acfe3231e81d3cf697285f016ce10a2b7targetblankedaade5a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/AgueroZZ/fash-revision/tree/09f63bc8536029c4816632f041b3afd85ffc523c" target="_blank">09f63bc</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/edaade5acfe3231e81d3cf697285f016ce10a2b7" target="_blank">edaade5</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree09f63bc8536029c4816632f041b3afd85ffc523ctargetblank09f63bca"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreeedaade5acfe3231e81d3cf697285f016ce10a2b7targetblankedaade5a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -535,7 +535,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/AgueroZZ/fash-revision/tree/09f63bc8536029c4816632f041b3afd85ffc523c" target="_blank">09f63bc</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/edaade5acfe3231e81d3cf697285f016ce10a2b7" target="_blank">edaade5</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -554,17 +554,15 @@ Ignored files:
 
 Untracked files:
     Untracked:  AGENTS.md
-    Untracked:  analysis/revision_internal_r3_full_calibration.rmd
-    Untracked:  analysis/revision_internal_r3_truth_specification_pilot.rmd
-    Untracked:  code/revision_simulations/internal/pilots/run_r3_truth_specification_pilot.R
-    Untracked:  code/revision_simulations/internal/pilots/run_r3_truth_specification_pilot.sbatch
-    Untracked:  code/revision_simulations/internal/pilots/summarize_r3_truth_specification_pilot.R
-    Untracked:  code/revision_simulations/internal/r3_middle_calibration/test_constrained_global_bspline_truth.R
-    Untracked:  code/revision_simulations/internal/r3_middle_calibration/test_interior_support_truth.R
-    Untracked:  code/revision_simulations/internal/r3_middle_calibration/test_targeted_broad_bspline_truth.R
 
 Unstaged changes:
     Modified:   .gitignore
+    Modified:   analysis/revision_internal_r3_full_calibration.rmd
+    Modified:   code/revision_simulations/internal/pilots/run_r3_truth_specification_pilot.R
+    Modified:   code/revision_simulations/internal/pilots/run_r3_truth_specification_pilot.sbatch
+    Modified:   code/revision_simulations/internal/pilots/summarize_r3_truth_specification_pilot.R
+    Modified:   code/revision_simulations/internal/r3_middle_calibration/test_constrained_global_bspline_truth.R
+    Modified:   code/revision_simulations/internal/r3_middle_calibration/test_targeted_broad_bspline_truth.R
     Modified:   code/revision_simulations/shared/simulation_functions.R
 
 </code></pre>
@@ -617,6 +615,40 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/edaade5acfe3231e81d3cf697285f016ce10a2b7/analysis/revision_internal_r3_full_calibration.rmd" target="_blank">edaade5</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+<td>
+Add R3 functional truth calibration experiments
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/edaade5acfe3231e81d3cf697285f016ce10a2b7/docs/revision_internal_r3_full_calibration.html" target="_blank">edaade5</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-25
+</td>
+<td>
+Add R3 functional truth calibration experiments
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/analysis/revision_internal_r3_full_calibration.rmd" target="_blank">09f63bc</a>
 </td>
 <td>
@@ -660,6 +692,11 @@ truth scenarios. Each has five cached genotype seeds and J = 6362
 gene–variant pairs per seed, with 19 donors, 16 observed times, five
 covariates, and the pinned fashr 0.1.43 revision
 bf223df75da6e41ae48607a56b4cd12d7c3b24e7.</p>
+<p>All truth acceptance, saved truth functionals, and posterior testing
+on this page use the same open Middle estimand,
+<code>3 &lt; t &lt; 12</code>. The earlier outputs with prefixes lacking
+<code>open_middle</code> used legacy closed-Middle truth generation and
+are explicitly superseded; they are not used anywhere on this page.</p>
 <p>For FASH-IWP1-BF, the prespecified calibration gate ranges over
 Early, Middle, Late, Switch, and alpha from 0.05 to 0.20. It passes only
 if the largest mean seed-level empirical FSR minus alpha is no greater
@@ -714,32 +751,32 @@ replication.</caption>
 <td align="left">constrained_global.early</td>
 <td align="left">Constrained global random cubic B-spline</td>
 <td align="left">Early</td>
-<td align="left">0.310</td>
-<td align="left">0.002</td>
-<td align="left">0.009</td>
-<td align="left">659</td>
+<td align="left">0.344</td>
+<td align="left">0.001</td>
+<td align="left">0.006</td>
+<td align="left">731</td>
 <td align="left">1</td>
-<td align="left">0.002</td>
+<td align="left">0.001</td>
 </tr>
 <tr class="even">
 <td align="left">constrained_global.middle</td>
 <td align="left">Constrained global random cubic B-spline</td>
 <td align="left">Middle</td>
-<td align="left">0.755</td>
-<td align="left">0.012</td>
-<td align="left">0.018</td>
-<td align="left">1620</td>
-<td align="left">20</td>
-<td align="left">0.012</td>
+<td align="left">0.806</td>
+<td align="left">0.011</td>
+<td align="left">0.020</td>
+<td align="left">1728</td>
+<td align="left">19</td>
+<td align="left">0.011</td>
 </tr>
 <tr class="odd">
 <td align="left">constrained_global.late</td>
 <td align="left">Constrained global random cubic B-spline</td>
 <td align="left">Late</td>
-<td align="left">0.315</td>
-<td align="left">0.002</td>
-<td align="left">0.008</td>
-<td align="left">668</td>
+<td align="left">0.336</td>
+<td align="left">0.001</td>
+<td align="left">0.007</td>
+<td align="left">713</td>
 <td align="left">1</td>
 <td align="left">0.001</td>
 </tr>
@@ -747,12 +784,12 @@ replication.</caption>
 <td align="left">constrained_global.switch</td>
 <td align="left">Constrained global random cubic B-spline</td>
 <td align="left">Switch</td>
-<td align="left">0.971</td>
-<td align="left">0.069</td>
-<td align="left">0.078</td>
-<td align="left">3316</td>
-<td align="left">228</td>
-<td align="left">0.069</td>
+<td align="left">0.976</td>
+<td align="left">0.068</td>
+<td align="left">0.076</td>
+<td align="left">3331</td>
+<td align="left">226</td>
+<td align="left">0.068</td>
 </tr>
 <tr class="odd">
 <td align="left">targeted_local.early</td>
@@ -761,7 +798,7 @@ replication.</caption>
 <td align="left">0.290</td>
 <td align="left">0.000</td>
 <td align="left">0.000</td>
-<td align="left">615</td>
+<td align="left">614</td>
 <td align="left">0</td>
 <td align="left">0.000</td>
 </tr>
@@ -769,10 +806,10 @@ replication.</caption>
 <td align="left">targeted_local.middle</td>
 <td align="left">Targeted local broad cubic B-spline</td>
 <td align="left">Middle</td>
-<td align="left">0.542</td>
+<td align="left">0.540</td>
 <td align="left">0.000</td>
 <td align="left">0.000</td>
-<td align="left">1149</td>
+<td align="left">1144</td>
 <td align="left">0</td>
 <td align="left">0.000</td>
 </tr>
@@ -780,10 +817,10 @@ replication.</caption>
 <td align="left">targeted_local.late</td>
 <td align="left">Targeted local broad cubic B-spline</td>
 <td align="left">Late</td>
-<td align="left">0.298</td>
+<td align="left">0.299</td>
 <td align="left">0.000</td>
 <td align="left">0.000</td>
-<td align="left">631</td>
+<td align="left">634</td>
 <td align="left">0</td>
 <td align="left">0.000</td>
 </tr>
@@ -829,7 +866,7 @@ requires maximum mean empirical FSR minus alpha no greater than
 <tr class="odd">
 <td align="left">constrained_global</td>
 <td align="left">Constrained global random cubic B-spline</td>
-<td align="left">0.0421</td>
+<td align="left">0.0422</td>
 <td align="left">switch</td>
 <td align="left">0.200</td>
 <td align="left">FALSE</td>
@@ -844,7 +881,7 @@ requires maximum mean empirical FSR minus alpha no greater than
 </tr>
 </tbody>
 </table>
-<p>The constrained-global B-spline has maximum excess 0.0421 at Switch
+<p>The constrained-global B-spline has maximum excess 0.0422 at Switch
 and alpha 0.200. It does not qualify as the primary calibration
 scenario.</p>
 <p>The targeted local broad B-spline has maximum excess 0.0239 at Switch
@@ -857,6 +894,14 @@ than a primary scenario.</p>
 </div>
 <div id="reproduction" class="section level2">
 <h2>Reproduction</h2>
+<p>The seed-level runner records both the requested Middle definition
+and the actual truth-generator settings, recomputes the saved truth
+functionals, and stops if they differ. The page independently requires
+all five seed-level configurations to agree on these fields before
+displaying results. Jobs were submitted with
+<code>code/revision_simulations/internal/pilots/run_r3_truth_specification_pilot.sbatch</code>
+using the two <code>open_middle_J6362</code> prefixes shown in the setup
+chunk.</p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">

@@ -27,6 +27,7 @@ source(file.path(
 
 minimum_location_margin <- 0.60
 minimum_location_ratio <- 1.40
+middle_window <- c(3, 12)
 simulation <- simulate_targeted_local_bspline_effect_set(
   n_variants = 300L,
   time_grid = 0:15,
@@ -39,7 +40,28 @@ simulation <- simulate_targeted_local_bspline_effect_set(
   target_centered_rms = 0.90,
   profile = "random_broad",
   seed = 98765L,
+  middle_window = middle_window,
+  middle_boundary = "open",
   scenario = "r3a_constrained_global_truth_test"
+)
+
+recomputed_functionals <- evaluate_temporal_functionals(
+  simulation$beta_evaluation,
+  smooth_var = simulation$evaluation_grid,
+  switch_threshold = 0.25,
+  middle_window = middle_window,
+  middle_boundary = "open"
+)
+legacy_functionals <- evaluate_temporal_functionals(
+  simulation$beta_evaluation,
+  smooth_var = simulation$evaluation_grid,
+  switch_threshold = 0.25
+)
+stopifnot(
+  isTRUE(all.equal(simulation$true_functionals, recomputed_functionals)),
+  !isTRUE(all.equal(simulation$true_functionals, legacy_functionals)),
+  identical(simulation$settings$middle_window, middle_window),
+  identical(simulation$settings$middle_boundary, "open")
 )
 
 dynamic_index <- which(simulation$unit_info$effect_class == "dynamic_bspline")

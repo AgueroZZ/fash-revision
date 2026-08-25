@@ -44,13 +44,32 @@ if (any(!file.exists(result_paths))) {
 results <- lapply(result_paths, readRDS)
 configurations <- lapply(results, `[[`, "configuration")
 reference <- configurations[[1L]]
+comparable_truth_generation_settings <- function(settings) {
+  if (!is.list(settings)) return(settings)
+  if (!is.null(names(settings))) {
+    settings <- settings[!grepl("(^seed$|_seed$)", names(settings))]
+  }
+  lapply(settings, comparable_truth_generation_settings)
+}
 if (!all(vapply(configurations, function(x) {
   identical(x$J, reference$J) &&
     identical(x$truth_settings, reference$truth_settings) &&
+    identical(
+      comparable_truth_generation_settings(x$truth_generation_settings),
+      comparable_truth_generation_settings(reference$truth_generation_settings)
+    ) &&
+    identical(x$middle_window, reference$middle_window) &&
+    identical(x$middle_boundary, reference$middle_boundary) &&
     identical(x$middle_definition, reference$middle_definition) &&
     identical(x$package_provenance, reference$package_provenance)
 }, logical(1)))) {
   stop("Pilot configurations are not comparable across the requested seeds.")
+}
+if (!identical(reference$middle_window, c(3, 12)) ||
+    !identical(reference$middle_boundary, "open") ||
+    !identical(reference$truth_generation_settings$middle_window, c(3, 12)) ||
+    !identical(reference$truth_generation_settings$middle_boundary, "open")) {
+  stop("Pilot truth generation does not use the required open Middle estimand.")
 }
 
 seed_rows <- do.call(rbind, Map(function(result, seed) {
