@@ -304,11 +304,11 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2026-08-10
+<strong>Last updated:</strong> 2026-08-21
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 1
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
 aria-hidden="true"></span> 1
 </p>
@@ -354,15 +354,99 @@ HTML.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -372,7 +456,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -390,63 +474,90 @@ Ignored files:
     Ignored:    .DS_Store
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+    Ignored:    Rplots.pdf
     Ignored:    analysis/.DS_Store
     Ignored:    analysis/.Rhistory
     Ignored:    code/.DS_Store
     Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
     Ignored:    data/appendixB/
     Ignored:    data/dynamic_eQTL_real/
     Ignored:    data/revision_simulations/
     Ignored:    data/toy_example/
     Ignored:    output/dynamic_eQTL_real/
     Ignored:    output/pdf/
+    Ignored:    output/playwright/
     Ignored:    output/revision_simulations/
 
 Untracked files:
-    Untracked:  Rplots.pdf
-    Untracked:  analysis/revision_balanced_variant_thinning.rmd
-    Untracked:  analysis/revision_combined_spiky_genotype_simulation.rmd
-    Untracked:  analysis/revision_correlated_error_simulation.rmd
-    Untracked:  analysis/revision_enhancer_enrichment.rmd
-    Untracked:  analysis/revision_functional_testing_simulation.rmd
-    Untracked:  analysis/revision_genotype_level_simulation.rmd
-    Untracked:  analysis/revision_internal_baseline_ld_variant_enrichment.rmd
-    Untracked:  analysis/revision_internal_correlated_likelihood_sensitivity.rmd
-    Untracked:  analysis/revision_internal_fash_cl_variant_enrichment_comparison.rmd
-    Untracked:  analysis/revision_internal_mashr_mean_z_null_correlation.rmd
-    Untracked:  analysis/revision_internal_observational_null_set_pilot.rmd
-    Untracked:  analysis/revision_internal_one_variant_per_gene_refit.rmd
-    Untracked:  analysis/revision_internal_real_genotype_simulation.rmd
-    Untracked:  analysis/revision_internal_targeted_broad_calibration.rmd
-    Untracked:  analysis/revision_internal_variant_annotation_enrichment.rmd
-    Untracked:  analysis/revision_internal_zero_intercept_correlation.rmd
-    Untracked:  analysis/revision_ld_tagging_switch_example.rmd
-    Untracked:  code/00_eQTLs_CL.R
-    Untracked:  code/01_fash_CL.R
-    Untracked:  code/01_fash_CL.sbatch
-    Untracked:  code/09_penalty_sensitivity.R
-    Untracked:  code/09_penalty_sensitivity.sbatch
-    Untracked:  code/revision_simulations/
-    Untracked:  fash_prior_comparison_order1_after.pdf
-    Untracked:  fash_prior_comparison_order1_after.png
-    Untracked:  fash_prior_comparison_order1_before.pdf
-    Untracked:  fash_prior_comparison_order1_before.png
-    Untracked:  fash_prior_comparison_order2_after.pdf
-    Untracked:  fash_prior_comparison_order2_after.png
-    Untracked:  fash_prior_comparison_order2_before.pdf
-    Untracked:  fash_prior_comparison_order2_before.png
+    Untracked:  analysis/dynamic_eQTL_real_cl.rmd
+    Untracked:  analysis/nonlinear_dynamic_eQTL_real_cl.Rmd
+    Untracked:  analysis/revision_enhancer_enrichment_cl.rmd
+    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd
+    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity_middle_4_11.rmd
+    Untracked:  analysis/revision_internal_fash_cl_manuscript_impact.rmd
+    Untracked:  analysis/revision_internal_fash_discovery_variant_count.rmd
+    Untracked:  analysis/revision_internal_fash_linear_real_data_ablation.rmd
+    Untracked:  analysis/revision_internal_fashr_correlated_observation_model.rmd
+    Untracked:  analysis/revision_internal_matched_fash_linear_real_data.rmd
+    Untracked:  analysis/revision_internal_matched_fash_linear_real_data_cl.rmd
+    Untracked:  analysis/revision_internal_r1_normality_assumption.rmd
+    Untracked:  analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd
+    Untracked:  analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd
+    Untracked:  analysis/revision_internal_twenty_variant_per_gene_refit.rmd
+    Untracked:  apps/
+    Untracked:  code/02_dyn_lfsr.R
+    Untracked:  code/02_dyn_lfsr.sbatch
+    Untracked:  code/revision_simulations/appendix_b/
+    Untracked:  code/revision_simulations/internal/cl_pc_real_data_pages/
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_design_propagated_null_correlation.R
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_multigene_null_beta_covariance_exploration.R
+    Untracked:  code/revision_simulations/internal/early_window_sensitivity/
+    Untracked:  code/revision_simulations/internal/evaluation_grid_sensitivity/
+    Untracked:  code/revision_simulations/internal/fash_cl_manuscript_impact/
+    Untracked:  code/revision_simulations/internal/fash_discovery_variant_count/
+    Untracked:  code/revision_simulations/internal/fash_linear_real_data_ablation/
+    Untracked:  code/revision_simulations/internal/fash_strober_enhancer_comparison_cl/
+    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data/
+    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data_cl/
+    Untracked:  code/revision_simulations/internal/r0_linear_iwp_power_mechanism/
+    Untracked:  code/revision_simulations/internal/r0_linear_summary_statistic/
+    Untracked:  code/revision_simulations/internal/r1_known_truth_genotype_permutation/
+    Untracked:  code/revision_simulations/internal/r1_linear_truth_composition/
+    Untracked:  code/revision_simulations/internal/r1_normality_assumption/
+    Untracked:  code/revision_simulations/internal/residual_correlation_fash/
+    Untracked:  code/revision_simulations/internal/selected_signal_genotype_permutation/
+    Untracked:  code/revision_simulations/r5_one_variant_per_gene/
+    Untracked:  code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R
+    Untracked:  code/revision_simulations/shared/real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/test_linear_mixture_fash.R
+    Untracked:  code/revision_simulations/shared/test_real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_linear_mixture_pairing.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_real_genotype_pairing.R
+    Untracked:  figure/
 
 Unstaged changes:
-    Modified:   .gitignore
-    Modified:   analysis/appendixB.rmd
     Modified:   analysis/dynamic_eQTL_real.rmd
     Modified:   analysis/index.Rmd
     Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
-    Modified:   code/README.md
-    Modified:   output/toy_example/toy_example_11.pdf
-    Modified:   output/toy_example/toy_example_12.pdf
-    Modified:   output/toy_example/toy_example_21.pdf
-    Modified:   output/toy_example/toy_example_22.pdf
+    Modified:   analysis/revision_balanced_variant_thinning.rmd
+    Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
+    Modified:   analysis/revision_enhancer_enrichment.rmd
+    Modified:   analysis/revision_functional_testing_simulation.rmd
+    Modified:   analysis/revision_genotype_level_simulation.rmd
+    Modified:   code/revision_simulations/README.md
+    Modified:   code/revision_simulations/internal/covariance_estimation/run_global_pca_factor_visualization.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/reporting.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/run_fash_strober_enhancer_comparison.R
+    Modified:   code/revision_simulations/r1_random_bspline/reporting.R
+    Modified:   code/revision_simulations/r1_random_bspline/run_random_bspline_mc_replication.R
+    Modified:   code/revision_simulations/r2_spiky_transient/reporting.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_combined_spiky_genotype_simulation.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R
+    Modified:   code/revision_simulations/r3_functional_testing/reporting.R
+    Modified:   code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R
+    Modified:   code/revision_simulations/shared/simulation_functions.R
 
 </code></pre>
 <p>
@@ -492,10 +603,44 @@ Message
 <tbody>
 <tr>
 <td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/analysis/index.Rmd" target="_blank">c87957a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-10
+</td>
+<td>
+Add revision analyses: R1-R6 reviewer-facing pages and internal studies
+</td>
+</tr>
+<tr>
+<td>
 html
 </td>
 <td>
-<a href="https://rawcdn.githack.com/stephenslab/fashr-paper/f72e7cd3e82a2ea96a867d2bdd228722fbf86b83/docs/index.html" target="_blank">f72e7cd</a>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/index.html" target="_blank">c87957a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-10
+</td>
+<td>
+Add revision analyses: R1-R6 reviewer-facing pages and internal studies
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/f72e7cd3e82a2ea96a867d2bdd228722fbf86b83/docs/index.html" target="_blank">f72e7cd</a>
 </td>
 <td>
 Ziang Zhang
@@ -512,7 +657,7 @@ Build site.
 html
 </td>
 <td>
-<a href="https://rawcdn.githack.com/stephenslab/fashr-paper/3bb06e644dd9e8848487cff1498024d5cdf6c75b/docs/index.html" target="_blank">3bb06e6</a>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/3bb06e644dd9e8848487cff1498024d5cdf6c75b/docs/index.html" target="_blank">3bb06e6</a>
 </td>
 <td>
 Ziang Zhang
@@ -529,7 +674,7 @@ Build site.
 Rmd
 </td>
 <td>
-<a href="https://github.com/stephenslab/fashr-paper/blob/ac9434d3a2f5e1f35d8ac751238f28622e67f93d/analysis/index.Rmd" target="_blank">ac9434d</a>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/ac9434d3a2f5e1f35d8ac751238f28622e67f93d/analysis/index.Rmd" target="_blank">ac9434d</a>
 </td>
 <td>
 Ziang Zhang
@@ -546,7 +691,7 @@ workflowr::wflow_publish("analysis/index.Rmd")
 Rmd
 </td>
 <td>
-<a href="https://github.com/stephenslab/fashr-paper/blob/07ad9d3ae9bc2e9458a28aafdca29818618c4c40/analysis/index.Rmd" target="_blank">07ad9d3</a>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/07ad9d3ae9bc2e9458a28aafdca29818618c4c40/analysis/index.Rmd" target="_blank">07ad9d3</a>
 </td>
 <td>
 Ziang Zhang
@@ -573,9 +718,10 @@ href="">fashr</a>.</p>
 <ul>
 <li><p><a href="appendixB.html">Simulated data examples</a></p></li>
 <li><p><a href="dynamic_eQTL_real.html">Testing dynamic eQTLs using iPSC
-data</a></p></li>
+data</a> (<a href="dynamic_eQTL_real_cl.html">CL version</a>)</p></li>
 <li><p><a href="nonlinear_dynamic_eQTL_real.html">Testing nonlinear
-dynamic eQTLs using iPSC data</a></p></li>
+dynamic eQTLs using iPSC data</a> (<a
+href="nonlinear_dynamic_eQTL_real_cl.html">CL version</a>)</p></li>
 </ul>
 <p><strong>Revision work:</strong></p>
 <p>These pages collect simulations and analyses added during the
@@ -594,10 +740,78 @@ effects</a></p></li>
 <li><p><a href="revision_correlated_error_simulation.html">Revision
 Real-data Sensitivity R4: temporal correlation</a></p></li>
 <li><p><a href="revision_balanced_variant_thinning.html">Revision
-Real-data Sensitivity R5: balanced variant thinning</a></p></li>
+Real-data Sensitivity R5: one random variant per gene</a></p></li>
 <li><p><a href="revision_enhancer_enrichment.html">Revision Real-data
-Analysis R6: enhancer enrichment of FASH dynamic eQTLs</a></p></li>
+Analysis R6: enhancer enrichment of FASH dynamic eQTLs</a> (<a
+href="revision_enhancer_enrichment_cl.html">CL version</a>)</p></li>
+<li><p><a
+href="revision_internal_matched_fash_linear_real_data.html">Revision
+Real-data Analysis R7: matched FASH-linear comparison</a> (<a
+href="revision_internal_matched_fash_linear_real_data_cl.html">CL
+version</a>)</p></li>
 </ul>
+<p><strong>Revision apps:</strong></p>
+<p>These local interactive tools support internal exploration of
+revision results.</p>
+<ul>
+<li><a href="http://127.0.0.1:7421/">Open the FASH trajectory
+explorer</a> — two tabs over all 1,009,173 tested pairs.
+<strong>Trajectory explorer:</strong> search any gene-variant pair and
+compare observed estimates, IWP1 FASH, predictive-SD mixture
+FASH-linear, an optional Strober-style weighted trend, and matched
+Strober statistics. <strong>All-pair browser:</strong> sort and filter
+the full result table by per-method significance, optionally keep only
+each gene’s most significant variant, read live counts and
+co-significance for the current view, and click any row to plot it.
+Filtering and thinning are display operations; significance always
+reflects the full-data FDR-0.05 calls.</li>
+</ul>
+<p>The link above only resolves while the app is running, since a static
+page cannot start an R process. Run the launcher from the workflowr
+project root; it reuses an already-running instance, otherwise starts
+one and waits until it answers, then opens the browser:</p>
+<pre class="bash"><code>./apps/fash_trajectory_explorer/run_explorer.sh</code></pre>
+<p><code>run_explorer.sh status</code>, <code>stop</code>,
+<code>restart</code>, and <code>log</code> are also available. Cold
+start takes about 20 seconds while the retained IWP1 fit loads.</p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+ [1] vctrs_0.7.3       cli_3.6.6         knitr_1.50        rlang_1.2.0      
+ [5] xfun_0.55         stringi_1.8.9     otel_0.2.0        promises_1.5.0   
+ [9] jsonlite_2.0.0    workflowr_1.7.2   glue_1.8.1        git2r_0.36.2     
+[13] rprojroot_2.1.1   htmltools_0.5.9   httpuv_1.6.16     sass_0.4.10      
+[17] rmarkdown_2.30    jquerylib_0.1.4   evaluate_1.0.5    tibble_3.3.0     
+[21] fastmap_1.2.0     yaml_2.3.12       lifecycle_1.0.5   whisker_0.4.1    
+[25] stringr_1.6.0     compiler_4.5.1    fs_1.6.6          Rcpp_1.1.1-1.1   
+[29] pkgconfig_2.0.3   rstudioapi_0.17.1 later_1.4.4       digest_0.6.39    
+[33] R6_2.6.1          pillar_1.11.1     magrittr_2.0.5    bslib_0.9.0      
+[37] tools_4.5.1       cachem_1.1.0     </code></pre>
+</div>
 </div>
 </div>
 </div>

@@ -1,0 +1,420 @@
+---
+title: "Internal R1 diagnostic: residual normality and t-adjusted SEs"
+author: "Ziang Zhang"
+date: "2026-08-20"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 10.5,
+  fig.height = 5.8,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(file.path(
+  "code",
+  "revision_simulations",
+  "internal",
+  "r1_normality_assumption",
+  "reporting.R"
+))
+```
+
+<style>
+.normality-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 0.9em 1.1em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.normality-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.main-container .figure {
+  max-width: 980px;
+  margin: 1.3em auto;
+}
+.main-container .figure img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+.MathJax_Display,
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+
+::: {.normality-banner}
+<strong>Two complementary checks.</strong> Part 1 is a descriptive real-data
+residual diagnostic, stratified by day. Part 2 is the seed-12345 R1
+known-truth consequence analysis and is the main justification for the
+t-statistic-based SE adjustment.
+:::
+
+## 1. Real-data residual normality check
+
+We use the fixed one-variant-per-gene subset (6,362 genes) and fit the original
+regression separately at Day 1, Day 3, and Day 9,
+
+$$
+Y_{gti}=\alpha_{gt}+\beta_{gt}G_{gi}
++\sum_{k=1}^{5}\gamma_{gtk}\mathrm{PC}_{tik}+e_{gti}.
+$$
+
+Each regression has 19 donors, seven fitted coefficients, and residual df 12.
+The conventional standardized residual is
+
+$$
+r_{gti}=\frac{e_{gti}}{s_{gt}\sqrt{1-h_{gtii}}},
+$$
+
+the quantity returned by `rstandard()` for an ordinary linear model. We
+compare it with the standard Normal as in a traditional regression diagnostic.
+Days are not pooled; within each day, the plot summarizes the 19 residuals
+from each of the 6,362 gene-specific regressions.
+
+```{r real-data-residual-distributions, fig.width=11, fig.height=8.6, out.width='97%', fig.cap="Figure 1. Traditional standardized-residual diagnostics for the fixed one-variant-per-gene real-data subset, shown separately for Day 1, Day 3, and Day 9. The upper row contains standard-Normal QQ plots. The lower row contains density-scaled histograms with the standard-Normal density overlaid in red. Each day contains 120,878 residuals from 6,362 regressions with 19 donors and residual df 12."}
+# Retain the conventional standardized residual from every valid gene-specific
+# regression, and set the requested Day 1, Day 3, Day 9 panel order explicitly.
+residual_plot_data <- standardized_residuals[
+  standardized_residuals$day %in% c(1L, 3L, 9L),
+  c("day", "day_label", "standardized_residual"),
+  drop = FALSE
+]
+residual_plot_data$day_label <- factor(
+  residual_plot_data$day_label,
+  levels = c("Day 1", "Day 3", "Day 9")
+)
+
+# For each day, compare empirical standardized-residual quantiles with the
+# corresponding standard-Normal quantiles on one shared probability grid.
+qq_probabilities <- c(
+  seq(0.001, 0.010, by = 0.001),
+  seq(0.015, 0.985, by = 0.005),
+  seq(0.990, 0.999, by = 0.001)
+)
+residual_qq_plot_data <- do.call(rbind, lapply(
+  levels(residual_plot_data$day_label),
+  function(current_day) {
+    current_residuals <- residual_plot_data$standardized_residual[
+      residual_plot_data$day_label == current_day
+    ]
+    data.frame(
+      day_label = current_day,
+      normal_reference_quantile = stats::qnorm(qq_probabilities),
+      empirical_quantile = as.numeric(stats::quantile(
+        current_residuals,
+        probs = qq_probabilities,
+        names = FALSE,
+        type = 8
+      )),
+      stringsAsFactors = FALSE
+    )
+  }
+))
+residual_qq_plot_data$day_label <- factor(
+  residual_qq_plot_data$day_label,
+  levels = levels(residual_plot_data$day_label)
+)
+
+residual_qq_plot <- ggplot2::ggplot(
+  residual_qq_plot_data,
+  ggplot2::aes(
+    x = normal_reference_quantile,
+    y = empirical_quantile
+  )
+) +
+  ggplot2::geom_abline(
+    intercept = 0,
+    slope = 1,
+    color = "grey45",
+    linewidth = 0.7,
+    linetype = 2
+  ) +
+  ggplot2::geom_point(
+    color = "#2166ac",
+    size = 0.9,
+    alpha = 0.75
+  ) +
+  ggplot2::facet_wrap(ggplot2::vars(day_label), nrow = 1) +
+  ggplot2::labs(
+    title = "Standard-Normal QQ comparison",
+    x = "Standard-Normal quantile",
+    y = "Empirical standardized-residual quantile"
+  ) +
+  normality_theme()
+
+# Overlay the standard-Normal density on density-scaled histograms of the same
+# day-specific standardized residuals shown in the QQ plots.
+normal_reference_density <- data.frame(
+  standardized_residual = seq(-3.6, 3.6, length.out = 1001L)
+)
+normal_reference_density$density <- stats::dnorm(
+  normal_reference_density$standardized_residual
+)
+
+residual_histogram_plot <- ggplot2::ggplot(
+  residual_plot_data,
+  ggplot2::aes(x = standardized_residual)
+) +
+  ggplot2::geom_histogram(
+    ggplot2::aes(y = ggplot2::after_stat(density)),
+    binwidth = 0.08,
+    boundary = 0,
+    fill = "#92c5de",
+    color = "white",
+    linewidth = 0.15
+  ) +
+  ggplot2::geom_line(
+    data = normal_reference_density,
+    ggplot2::aes(x = standardized_residual, y = density),
+    inherit.aes = FALSE,
+    color = "#b2182b",
+    linewidth = 0.9
+  ) +
+  ggplot2::facet_wrap(ggplot2::vars(day_label), nrow = 1) +
+  ggplot2::coord_cartesian(xlim = c(-3.6, 3.6)) +
+  ggplot2::labs(
+    title = "Histogram with standard-Normal density",
+    x = "Standardized residual",
+    y = "Density"
+  ) +
+  normality_theme()
+
+residual_qq_plot / residual_histogram_plot +
+  patchwork::plot_layout(heights = c(1.05, 0.95))
+```
+
+```{r residual-summary-table}
+# Report the exact day-specific denominators, distribution summaries, and
+# two-sided exceedance rates at standard-Normal 5%, 1%, and 0.1% cutoffs.
+tail_rate_005 <- residual_tail_summary[
+  residual_tail_summary$nominal_two_sided_rate == 0.05,
+  c("day", "observed_two_sided_rate"),
+  drop = FALSE
+]
+tail_rate_001 <- residual_tail_summary[
+  residual_tail_summary$nominal_two_sided_rate == 0.01,
+  c("day", "observed_two_sided_rate"),
+  drop = FALSE
+]
+tail_rate_0001 <- residual_tail_summary[
+  residual_tail_summary$nominal_two_sided_rate == 0.001,
+  c("day", "observed_two_sided_rate"),
+  drop = FALSE
+]
+
+residual_summary_display <- data.frame(
+  Day = residual_day_summary$day_label,
+  Residuals = format_integer(residual_day_summary$n_residuals),
+  SD = format_decimal(residual_day_summary$sd, 3L),
+  Skewness = format_decimal(residual_day_summary$skewness, 3L),
+  `Excess kurtosis` = format_decimal(
+    residual_day_summary$excess_kurtosis,
+    3L
+  ),
+  `Outside +/-1.96` = format_percent(
+    tail_rate_005$observed_two_sided_rate[
+      match(residual_day_summary$day, tail_rate_005$day)
+    ],
+    2L
+  ),
+  `Outside +/-2.58` = format_percent(
+    tail_rate_001$observed_two_sided_rate[
+      match(residual_day_summary$day, tail_rate_001$day)
+    ],
+    2L
+  ),
+  `Outside +/-3.29` = format_percent(
+    tail_rate_0001$observed_two_sided_rate[
+      match(residual_day_summary$day, tail_rate_0001$day)
+    ],
+    3L
+  ),
+  check.names = FALSE
+)
+render_scrollable_table(
+  residual_summary_display,
+  caption = paste(
+    "Day-stratified standardized-residual summaries.",
+    "Normal-reference tail rates are 5%, 1%, and 0.1%."
+  ),
+  align = "lrrrrrrr",
+  minimum_width = "900px"
+)
+```
+
+The deviations are modest: the day-specific SDs are
+`r paste(format_decimal(residual_day_summary$sd, 3L), collapse = ", ")`,
+and the absolute skewness is at most
+`r format_decimal(max(abs(residual_day_summary$skewness)), 3L)`.
+The extreme tails are somewhat lighter than the standard Normal, especially
+at Day 1. This is a descriptive diagnostic rather than a formal pooled test:
+residuals are dependent within each regression, and the same donors recur
+across genes.
+
+## 2. Consequence of omitting the t-statistic SE adjustment
+
+The same Gaussian R1 data, IWP1 prior grid, penalty, and cumulative-lfdr rule
+are used in both SE arms. Only the supplied SE changes. Raw and BF denote the
+original FASH fit and its BF-updated dynamic-null weight, respectively.
+
+```{r realized-fdp-curves, fig.width=10.5, fig.height=5.8, out.width='95%', fig.cap="Figure 2. Seed-12345 realized FDP before and after the t-statistic-based adjustment of the regression SE. Colors distinguish Raw and BF-updated FASH. Grey lines show equality with the nominal cumulative-lfdr level. These curves are realized FDP from one simulated dataset, not Monte Carlo empirical FDR."}
+# Retain the Gaussian R1 arm and order the two SE scales and FASH stages.
+fdp_curve_data <- performance_alpha_curve[
+  performance_alpha_curve$error_distribution == "Gaussian",
+  c("se_scale", "fit_stage", "alpha", "realized_fdp"),
+  drop = FALSE
+]
+fdp_curve_data$se_label <- factor(
+  fdp_curve_data$se_scale,
+  levels = c("raw regression SE", "t-adjusted SE"),
+  labels = c("Raw regression SE", "t-adjusted SE")
+)
+fdp_curve_data$fit_stage <- factor(
+  fdp_curve_data$fit_stage,
+  levels = c("Raw", "BF")
+)
+
+# Draw the equality reference separately within each SE panel.
+nominal_fdp_reference <- expand.grid(
+  alpha = c(0, 0.20),
+  se_label = levels(fdp_curve_data$se_label),
+  stringsAsFactors = FALSE
+)
+nominal_fdp_reference$realized_fdp <- nominal_fdp_reference$alpha
+nominal_fdp_reference$se_label <- factor(
+  nominal_fdp_reference$se_label,
+  levels = levels(fdp_curve_data$se_label)
+)
+
+ggplot2::ggplot(
+  fdp_curve_data,
+  ggplot2::aes(
+    x = alpha,
+    y = realized_fdp,
+    color = fit_stage
+  )
+) +
+  ggplot2::geom_line(
+    data = nominal_fdp_reference,
+    ggplot2::aes(x = alpha, y = realized_fdp, group = se_label),
+    inherit.aes = FALSE,
+    color = "grey45",
+    linewidth = 0.7,
+    linetype = 3
+  ) +
+  ggplot2::geom_line(linewidth = 0.9) +
+  ggplot2::facet_wrap(ggplot2::vars(se_label), nrow = 1) +
+  ggplot2::scale_color_manual(
+    values = c("Raw" = "#d95f02", "BF" = "#1b9e77")
+  ) +
+  ggplot2::scale_x_continuous(
+    breaks = seq(0, 0.20, by = 0.05),
+    labels = scales::label_percent(accuracy = 1)
+  ) +
+  ggplot2::scale_y_continuous(
+    labels = scales::label_percent(accuracy = 1)
+  ) +
+  ggplot2::labs(
+    title = "Realized FDP before and after t adjustment",
+    subtitle = "R1 seed 12345; grey lines mark the nominal level",
+    x = "Nominal cumulative-lfdr level",
+    y = "Realized FDP",
+    color = "FASH stage"
+  ) +
+  normality_theme()
+```
+
+```{r performance-alpha005-table}
+# Select the four Gaussian R1 results at cumulative-lfdr level 0.05.
+gaussian_performance_alpha005 <- performance_alpha005[
+  performance_alpha005$error_distribution == "Gaussian" &
+    abs(performance_alpha005$alpha - 0.05) < 1e-12,
+  ,
+  drop = FALSE
+]
+gaussian_performance_alpha005 <- gaussian_performance_alpha005[order(
+  match(
+    gaussian_performance_alpha005$se_scale,
+    c("raw regression SE", "t-adjusted SE")
+  ),
+  match(gaussian_performance_alpha005$fit_stage, c("Raw", "BF"))
+), , drop = FALSE]
+
+# Format counts and realized FDP for a compact collaborator-facing table.
+performance_display <- data.frame(
+  `SE scale` = gaussian_performance_alpha005$se_scale,
+  `FASH stage` = gaussian_performance_alpha005$fit_stage,
+  Discoveries = format_integer(
+    gaussian_performance_alpha005$n_discoveries
+  ),
+  `False discoveries` = format_integer(
+    gaussian_performance_alpha005$false_discoveries
+  ),
+  `Realized FDP` = format_percent(
+    gaussian_performance_alpha005$realized_fdp,
+    1L
+  ),
+  check.names = FALSE
+)
+render_scrollable_table(
+  performance_display,
+  caption = "Seed-12345 results at cumulative-lfdr level 0.05.",
+  align = "llrrr",
+  minimum_width = "680px"
+)
+```
+
+At level 0.05, t adjustment reduces realized FDP from
+`r format_percent(gaussian_performance_alpha005$realized_fdp[
+  gaussian_performance_alpha005$se_scale == "raw regression SE" &
+    gaussian_performance_alpha005$fit_stage == "Raw"
+], 1L)` to
+`r format_percent(gaussian_performance_alpha005$realized_fdp[
+  gaussian_performance_alpha005$se_scale == "t-adjusted SE" &
+    gaussian_performance_alpha005$fit_stage == "Raw"
+], 1L)` for Raw FASH, and from
+`r format_percent(gaussian_performance_alpha005$realized_fdp[
+  gaussian_performance_alpha005$se_scale == "raw regression SE" &
+    gaussian_performance_alpha005$fit_stage == "BF"
+], 1L)` to
+`r format_percent(gaussian_performance_alpha005$realized_fdp[
+  gaussian_performance_alpha005$se_scale == "t-adjusted SE" &
+    gaussian_performance_alpha005$fit_stage == "BF"
+], 1L)` after BF updating. This practical difference is the main result:
+with only 19 donors, the finite-sample t-statistic uncertainty cannot be
+ignored when supplying a Normal-likelihood method with effect estimates and
+standard errors.
+
+This page reads versioned caches; routine builds do not rerun the regressions
+or FASH.
+
+```{bash test-and-build-r1-normality-page, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/r1_normality_assumption/test_real_data_residual_normality_helpers.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/r1_normality_assumption/test_reporting.R
+
+Rscript --vanilla -e \
+  'workflowr::wflow_build("analysis/revision_internal_r1_normality_assumption.rmd")'
+```

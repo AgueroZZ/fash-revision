@@ -1,0 +1,3568 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-10" />
+
+<title>Internal analysis: manuscript impact of switching to FASH-CL</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Internal analysis: manuscript impact of
+switching to FASH-CL</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-10</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-10
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Rplots.pdf
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/revision_simulations/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/playwright/
+    Ignored:    output/revision_simulations/
+
+Untracked files:
+    Untracked:  analysis/revision_internal_fash_cl_manuscript_impact.rmd
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_design_propagated_null_correlation.R
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_multigene_null_beta_covariance_exploration.R
+    Untracked:  code/revision_simulations/internal/fash_cl_manuscript_impact/
+
+Unstaged changes:
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   code/revision_simulations/internal/covariance_estimation/run_global_pca_factor_visualization.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style>
+.impact-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.impact-answer {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.impact-caution {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #cc7a00;
+  border-radius: 4px;
+  background: #fff8ec;
+  color: #563a0c;
+}
+.impact-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.impact-table-scroll table {
+  margin-bottom: 1em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+.MathJax_Display,
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+<div class="impact-banner">
+<p><strong>Internal decision page.</strong> This page is intentionally
+absent from the workflowr homepage, navigation, manuscript, and response
+letter. It compares the retained current analysis with a matched FASH-CL
+sensitivity and does not itself change the primary analysis.</p>
+</div>
+<div id="executive-answer" class="section level2">
+<h2>Executive answer</h2>
+<div class="impact-answer">
+<p><strong>Switching to FASH-CL would require a substantial rewrite, not
+a simple number update.</strong> Dynamic discoveries fall from 9,205 to
+5,393 pairs and from 1,177 to 686 genes. Only 1,583 pairs are shared.
+The flexible functional modeling story remains valid, but the stronger
+claim that FASH identifies <em>many more</em> dynamic pairs than the
+Strober parametric analyses is not supported by FASH-CL.</p>
+</div>
+<p>The sensitivity changes the regression inputs before FASH is fitted:
+current FASH uses PCs estimated separately at each time point, whereas
+FASH-CL reuses donor-level PCs at every time point. The FASH prior, BF
+adjustment, and thresholds are otherwise matched. Therefore, changes in
+discoveries cannot be attributed solely to the flexible EB-LGP
+model.</p>
+<pre class="r"><code>render_scrollable_table(
+  claim_impact,
+  align = &quot;lll&quot;,
+  minimum_width = &quot;1180px&quot;
+)</code></pre>
+<div class="impact-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1180px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+claim
+</th>
+<th style="text-align:left;">
+status
+</th>
+<th style="text-align:left;">
+manuscript_action
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+FASH identifies many more dynamic eQTL pairs than Strober
+</td>
+<td style="text-align:left;">
+Not supported under FASH-CL at pair level
+</td>
+<td style="text-align:left;">
+Rewrite the central discovery-count paragraph and Figure 4
+interpretation.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH identifies many variants missed by parametric models
+</td>
+<td style="text-align:left;">
+Weakened but still present
+</td>
+<td style="text-align:left;">
+Replace absolute superiority language with set-specific novel-discovery
+counts.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The flexible EB-LGP model captures diverse nonlinear trajectories
+</td>
+<td style="text-align:left;">
+Methodologically preserved; examples change
+</td>
+<td style="text-align:left;">
+Replace lost Figure 3 and Figure 5 examples and avoid attributing all
+differences to model flexibility.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dynamic eQTLs can be classified by posterior functionals
+</td>
+<td style="text-align:left;">
+Preserved; counts and examples change
+</td>
+<td style="text-align:left;">
+Update Table 1, Figure 6 examples, and category-specific text.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Switch genes emphasize hypoxia and KRAS-related biology
+</td>
+<td style="text-align:left;">
+Overall hypoxia persists; switch-specific signal is not preserved
+</td>
+<td style="text-align:left;">
+Rewrite Table 2: retain all-dynamic hypoxia, but remove the
+switch-specific hypoxia/KRAS emphasis.
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  discovery_change_table,
+  digits = 1L,
+  minimum_width = &quot;980px&quot;
+)</code></pre>
+<div class="impact-table-scroll">
+<table class="table table-striped table-hover" style="min-width:980px;">
+<thead>
+<tr>
+<th>
+Test
+</th>
+<th>
+Current pairs
+</th>
+<th>
+FASH-CL pairs
+</th>
+<th>
+Pair change (%)
+</th>
+<th>
+Current genes
+</th>
+<th>
+FASH-CL genes
+</th>
+<th>
+Gene change (%)
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+IWP1 dynamic
+</td>
+<td>
+9205
+</td>
+<td>
+5393
+</td>
+<td>
+-41.4
+</td>
+<td>
+1177
+</td>
+<td>
+686
+</td>
+<td>
+-41.7
+</td>
+</tr>
+<tr>
+<td>
+IWP2 nonlinear
+</td>
+<td>
+44
+</td>
+<td>
+60
+</td>
+<td>
+36.4
+</td>
+<td>
+9
+</td>
+<td>
+6
+</td>
+<td>
+-33.3
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="global-lfdr-and-iwp1-prior-diagnostics" class="section level2">
+<h2>Global lfdr and IWP1 prior diagnostics</h2>
+<div id="pair-level-lfdr-comparison" class="section level3">
+<h3>Pair-level lfdr comparison</h3>
+<p>FASH estimates lfdr for gene-variant pairs, so the left panel
+includes all 1,009,173 tested pairs rather than deduplicated rsIDs. For
+the right panel, the pair with the smallest current-FASH lfdr is
+selected separately within each gene; variant ID and pair key provide
+stable tie-breakers. The same selected pair is then located in FASH-CL,
+as requested. Colors indicate whether the pair belongs to either
+method’s cumulative-lfdr FDR-0.05 discovery set.</p>
+<pre class="r"><code>plot_lfdr_scatter()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_cl_manuscript_impact.rmd/lfdr-scatter-1.png" alt="Global IWP1 lfdr comparison. The left panel contains every tested gene-variant pair. The right panel contains one pair per gene, selected solely by the minimum current-FASH lfdr, with the same pair evaluated under FASH-CL. Dashed lines mark equality." width="2070" />
+<p class="caption">
+Global IWP1 lfdr comparison. The left panel contains every tested
+gene-variant pair. The right panel contains one pair per gene, selected
+solely by the minimum current-FASH lfdr, with the same pair evaluated
+under FASH-CL. Dashed lines mark equality.
+</p>
+</div>
+<p>The all-pair Spearman correlation is 0.466; after current-FASH
+top-pair selection it is 0.410.</p>
+</div>
+<div id="iwp1-prior-weights-before-and-after-bf-adjustment"
+class="section level3">
+<h3>IWP1 prior weights before and after BF adjustment</h3>
+<p>The raw panel shows the mixture prior stored by each original IWP1
+fit. The BF-adjusted panel uses the retained current-FASH prior and the
+matched memory-bounded BF update for FASH-CL. Both axes use pseudo-log
+transforms so the null component at PSD zero and components assigned
+exactly zero weight remain visible.</p>
+<pre class="r"><code>plot_iwp1_prior_weights()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_cl_manuscript_impact.rmd/iwp1-prior-weights-1.png" alt="IWP1 prior weights for current FASH and FASH-CL before and after BF adjustment. PSD zero is the exact-null component. Pseudo-log axes retain zero-valued components while expanding the small non-null weights." width="2016" />
+<p class="caption">
+IWP1 prior weights for current FASH and FASH-CL before and after BF
+adjustment. PSD zero is the exact-null component. Pseudo-log axes retain
+zero-valued components while expanding the small non-null weights.
+</p>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  prior_weight_summary[, c(
+    &quot;method&quot;, &quot;adjustment&quot;, &quot;null_weight&quot;, &quot;nonzero_component_count&quot;
+  )],
+  digits = 6L,
+  minimum_width = &quot;760px&quot;
+)</code></pre>
+<div class="impact-table-scroll">
+<table class="table table-striped table-hover" style="min-width:760px;">
+<thead>
+<tr>
+<th>
+method
+</th>
+<th>
+adjustment
+</th>
+<th>
+null_weight
+</th>
+<th>
+nonzero_component_count
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+BF-adjusted
+</td>
+<td>
+0.938153
+</td>
+<td>
+9
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+BF-adjusted
+</td>
+<td>
+0.950770
+</td>
+<td>
+10
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Raw
+</td>
+<td>
+0.428990
+</td>
+<td>
+9
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Raw
+</td>
+<td>
+0.472166
+</td>
+<td>
+11
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="figure-3-dynamic-examples-and-the-flexibility-claim"
+class="section level2">
+<h2>Figure 3: dynamic examples and the flexibility claim</h2>
+<p>Only 1 of the six exact Figure 3 units remains a FASH-CL discovery.
+The table and first plot keep the original units fixed so the
+sensitivity is visible rather than concealed by replacement.</p>
+<pre class="r"><code>render_scrollable_table(
+  figure3_status_table,
+  digits = 5L,
+  minimum_width = &quot;980px&quot;
+)</code></pre>
+<div class="impact-table-scroll">
+<table class="table table-striped table-hover" style="min-width:980px;">
+<thead>
+<tr>
+<th>
+Panel
+</th>
+<th>
+Unit
+</th>
+<th>
+Role
+</th>
+<th>
+Current lfdr
+</th>
+<th>
+FASH-CL lfdr
+</th>
+<th>
+FASH-CL status
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+A
+</td>
+<td>
+VAMP3 / rs12130857
+</td>
+<td>
+Strober overlap
+</td>
+<td>
+0.00081
+</td>
+<td>
+0.87265
+</td>
+<td>
+Lost
+</td>
+</tr>
+<tr>
+<td>
+B
+</td>
+<td>
+GINM1 / rs11963075
+</td>
+<td>
+Strober overlap
+</td>
+<td>
+0.03762
+</td>
+<td>
+0.00529
+</td>
+<td>
+Retained
+</td>
+</tr>
+<tr>
+<td>
+C
+</td>
+<td>
+ADAMTS12 / rs1593084
+</td>
+<td>
+Strong FASH-only
+</td>
+<td>
+0.00001
+</td>
+<td>
+0.78168
+</td>
+<td>
+Lost
+</td>
+</tr>
+<tr>
+<td>
+D
+</td>
+<td>
+FKBP9 / rs3750076
+</td>
+<td>
+Strong FASH-only
+</td>
+<td>
+0.00173
+</td>
+<td>
+0.94164
+</td>
+<td>
+Lost
+</td>
+</tr>
+<tr>
+<td>
+E
+</td>
+<td>
+TCF12 / rs11071295
+</td>
+<td>
+Threshold-near FASH-only
+</td>
+<td>
+0.13145
+</td>
+<td>
+0.90276
+</td>
+<td>
+Lost
+</td>
+</tr>
+<tr>
+<td>
+F
+</td>
+<td>
+SRXN1 / rs911446
+</td>
+<td>
+Threshold-near FASH-only
+</td>
+<td>
+0.12255
+</td>
+<td>
+0.59158
+</td>
+<td>
+Lost
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>plot_figure3_same_units()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_cl_manuscript_impact.rmd/figure3-same-units-1.png" alt="Figure 1. The six paper Figure 3 units under current FASH and FASH-CL. Red curves and ribbons are the FASH posterior mean and 95% interval. Green and purple dashed curves are weighted linear and quadratic fits." width="2160" />
+<p class="caption">
+Figure 1. The six paper Figure 3 units under current FASH and FASH-CL.
+Red curves and ribbons are the FASH posterior mean and 95% interval.
+Green and purple dashed curves are weighted linear and quadratic fits.
+</p>
+</div>
+<div id="a-possible-fash-cl-replacement-figure" class="section level3">
+<h3>A possible FASH-CL replacement figure</h3>
+<p>The replacement rule preserves the original roles rather than
+selecting genes for a preferred biological interpretation:</p>
+<ol style="list-style-type: decimal">
+<li>retain GINM1 and add the lowest-lfdr FASH-CL unit detected by
+Strober;</li>
+<li>among FASH-CL-only units with both Strober p-values at least 0.20,
+select two strong discoveries with the largest standardized quadratic
+misfit;</li>
+<li>repeat within the upper 20% of discovered lfdr values for two
+threshold-near examples.</li>
+</ol>
+<pre class="r"><code>render_scrollable_table(
+  figure3_replacement_table,
+  digits = 5L,
+  minimum_width = &quot;1100px&quot;
+)</code></pre>
+<div class="impact-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1100px;">
+<thead>
+<tr>
+<th>
+Panel
+</th>
+<th>
+Unit
+</th>
+<th>
+Role
+</th>
+<th>
+lfdr
+</th>
+<th>
+Linear p
+</th>
+<th>
+Quadratic p
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+A
+</td>
+<td>
+FAM118A / rs170507
+</td>
+<td>
+Strober overlap replacement
+</td>
+<td>
+0.00000
+</td>
+<td>
+0.00000
+</td>
+<td>
+0.00000
+</td>
+</tr>
+<tr>
+<td>
+B
+</td>
+<td>
+GINM1 / rs11963075
+</td>
+<td>
+Strober overlap retained from paper
+</td>
+<td>
+0.00529
+</td>
+<td>
+0.00007
+</td>
+<td>
+0.00000
+</td>
+</tr>
+<tr>
+<td>
+C
+</td>
+<td>
+BICD1 / rs73293591
+</td>
+<td>
+Strong FASH-CL-only replacement
+</td>
+<td>
+0.01631
+</td>
+<td>
+0.28480
+</td>
+<td>
+0.48288
+</td>
+</tr>
+<tr>
+<td>
+D
+</td>
+<td>
+FLT1 / rs619031
+</td>
+<td>
+Strong FASH-CL-only replacement
+</td>
+<td>
+0.00443
+</td>
+<td>
+0.75077
+</td>
+<td>
+0.89700
+</td>
+</tr>
+<tr>
+<td>
+E
+</td>
+<td>
+IL17RB / rs4687590
+</td>
+<td>
+Threshold-near FASH-CL-only replacement
+</td>
+<td>
+0.10232
+</td>
+<td>
+0.77955
+</td>
+<td>
+0.28319
+</td>
+</tr>
+<tr>
+<td>
+F
+</td>
+<td>
+DDX11 / rs3867149
+</td>
+<td>
+Threshold-near FASH-CL-only replacement
+</td>
+<td>
+0.10700
+</td>
+<td>
+0.23632
+</td>
+<td>
+0.40586
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>plot_figure3_proposed()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_cl_manuscript_impact.rmd/figure3-proposed-1.png" alt="Figure 2. Deterministically selected FASH-CL replacements for paper Figure 3. Replacement examples demonstrate model flexibility, but they do not restore the original discovery-count claim." width="1944" />
+<p class="caption">
+Figure 2. Deterministically selected FASH-CL replacements for paper
+Figure 3. Replacement examples demonstrate model flexibility, but they
+do not restore the original discovery-count claim.
+</p>
+</div>
+<div class="impact-caution">
+<p>Replacing examples can preserve the visual demonstration that an
+EB-LGP model captures shapes missed by linear or quadratic curves. It
+cannot support the original causal wording that model flexibility
+explains the larger discovery count, because the discovery advantage
+disappears under the CL PC design.</p>
+</div>
+</div>
+</div>
+<div id="figure-4-overlap-with-strober" class="section level2">
+<h2>Figure 4: overlap with Strober</h2>
+<p>FASH-only pairs decline from 8,062 to 3,493. FASH-CL is more
+concordant with the Strober sets, but its total pair count is comparable
+to, rather than much larger than, the linear and quadratic analyses.</p>
+<p>The following panels preserve the paper’s three-set Venn
+representation. Each row compares the original current-FASH diagram with
+the corresponding FASH-CL diagram. In addition to the paper’s gene-level
+and gene-variant-pair views, a variant-level view is shown so repeated
+variants assigned to different genes can be distinguished from genuinely
+distinct discovered variants.</p>
+<pre class="r"><code>render_scrollable_table(
+  method_overlap,
+  digits = 4L,
+  minimum_width = &quot;820px&quot;
+)</code></pre>
+<div class="impact-table-scroll">
+<table class="table table-striped table-hover" style="min-width:820px;">
+<thead>
+<tr>
+<th>
+unit
+</th>
+<th>
+current_count
+</th>
+<th>
+cl_count
+</th>
+<th>
+intersection
+</th>
+<th>
+union
+</th>
+<th>
+jaccard
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Gene-variant pairs
+</td>
+<td>
+9205
+</td>
+<td>
+5393
+</td>
+<td>
+1583
+</td>
+<td>
+13015
+</td>
+<td>
+0.1216
+</td>
+</tr>
+<tr>
+<td>
+Genes
+</td>
+<td>
+1177
+</td>
+<td>
+686
+</td>
+<td>
+399
+</td>
+<td>
+1464
+</td>
+<td>
+0.2725
+</td>
+</tr>
+<tr>
+<td>
+Variants
+</td>
+<td>
+9139
+</td>
+<td>
+5361
+</td>
+<td>
+1593
+</td>
+<td>
+12907
+</td>
+<td>
+0.1234
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>plot_venn_diagram_comparison(&quot;Genes&quot;)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_cl_manuscript_impact.rmd/venn-gene-plot-1.png" alt="Paper Figure 4 sensitivity at the gene level. Current FASH is shown on the left and FASH-CL on the right." width="2070" />
+<p class="caption">
+Paper Figure 4 sensitivity at the gene level. Current FASH is shown on
+the left and FASH-CL on the right.
+</p>
+</div>
+<pre class="r"><code>plot_venn_diagram_comparison(&quot;Gene-variant pairs&quot;)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_cl_manuscript_impact.rmd/venn-pair-plot-1.png" alt="Paper Figure 4 sensitivity at the gene-variant-pair level. Current FASH is shown on the left and FASH-CL on the right." width="2070" />
+<p class="caption">
+Paper Figure 4 sensitivity at the gene-variant-pair level. Current FASH
+is shown on the left and FASH-CL on the right.
+</p>
+</div>
+<pre class="r"><code>plot_venn_diagram_comparison(&quot;Variants&quot;)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_cl_manuscript_impact.rmd/venn-variant-plot-1.png" alt="Additional paper Figure 4 sensitivity at the unique-variant level. Current FASH is shown on the left and FASH-CL on the right." width="2070" />
+<p class="caption">
+Additional paper Figure 4 sensitivity at the unique-variant level.
+Current FASH is shown on the left and FASH-CL on the right.
+</p>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  venn_regions[, c(&quot;method&quot;, &quot;unit&quot;, &quot;region&quot;, &quot;count&quot;)],
+  minimum_width = &quot;980px&quot;
+)</code></pre>
+<div class="impact-table-scroll">
+<table class="table table-striped table-hover" style="min-width:980px;">
+<thead>
+<tr>
+<th>
+method
+</th>
+<th>
+unit
+</th>
+<th>
+region
+</th>
+<th>
+count
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Genes
+</td>
+<td>
+Strober quadratic
+</td>
+<td>
+153
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Genes
+</td>
+<td>
+Strober linear
+</td>
+<td>
+49
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Genes
+</td>
+<td>
+FASH
+</td>
+<td>
+850
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Genes
+</td>
+<td>
+Strober quadratic + Strober linear
+</td>
+<td>
+244
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Genes
+</td>
+<td>
+Strober quadratic + FASH
+</td>
+<td>
+70
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Genes
+</td>
+<td>
+Strober linear + FASH
+</td>
+<td>
+31
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Genes
+</td>
+<td>
+Strober quadratic + Strober linear + FASH
+</td>
+<td>
+226
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Gene-variant pairs
+</td>
+<td>
+Strober quadratic
+</td>
+<td>
+2414
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Gene-variant pairs
+</td>
+<td>
+Strober linear
+</td>
+<td>
+985
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Gene-variant pairs
+</td>
+<td>
+FASH
+</td>
+<td>
+8062
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Gene-variant pairs
+</td>
+<td>
+Strober quadratic + Strober linear
+</td>
+<td>
+3414
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Gene-variant pairs
+</td>
+<td>
+Strober quadratic + FASH
+</td>
+<td>
+138
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Gene-variant pairs
+</td>
+<td>
+Strober linear + FASH
+</td>
+<td>
+147
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Gene-variant pairs
+</td>
+<td>
+Strober quadratic + Strober linear + FASH
+</td>
+<td>
+858
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Variants
+</td>
+<td>
+Strober quadratic
+</td>
+<td>
+2396
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Variants
+</td>
+<td>
+Strober linear
+</td>
+<td>
+982
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Variants
+</td>
+<td>
+FASH
+</td>
+<td>
+7972
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Variants
+</td>
+<td>
+Strober quadratic + Strober linear
+</td>
+<td>
+3382
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Variants
+</td>
+<td>
+Strober quadratic + FASH
+</td>
+<td>
+144
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Variants
+</td>
+<td>
+Strober linear + FASH
+</td>
+<td>
+148
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Variants
+</td>
+<td>
+Strober quadratic + Strober linear + FASH
+</td>
+<td>
+875
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Genes
+</td>
+<td>
+Strober quadratic
+</td>
+<td>
+170
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Genes
+</td>
+<td>
+Strober linear
+</td>
+<td>
+50
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Genes
+</td>
+<td>
+FASH
+</td>
+<td>
+356
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Genes
+</td>
+<td>
+Strober quadratic + Strober linear
+</td>
+<td>
+223
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Genes
+</td>
+<td>
+Strober quadratic + FASH
+</td>
+<td>
+53
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Genes
+</td>
+<td>
+Strober linear + FASH
+</td>
+<td>
+30
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Genes
+</td>
+<td>
+Strober quadratic + Strober linear + FASH
+</td>
+<td>
+247
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Gene-variant pairs
+</td>
+<td>
+Strober quadratic
+</td>
+<td>
+2344
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Gene-variant pairs
+</td>
+<td>
+Strober linear
+</td>
+<td>
+942
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Gene-variant pairs
+</td>
+<td>
+FASH
+</td>
+<td>
+3493
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Gene-variant pairs
+</td>
+<td>
+Strober quadratic + Strober linear
+</td>
+<td>
+2770
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Gene-variant pairs
+</td>
+<td>
+Strober quadratic + FASH
+</td>
+<td>
+208
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Gene-variant pairs
+</td>
+<td>
+Strober linear + FASH
+</td>
+<td>
+190
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Gene-variant pairs
+</td>
+<td>
+Strober quadratic + Strober linear + FASH
+</td>
+<td>
+1502
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Variants
+</td>
+<td>
+Strober quadratic
+</td>
+<td>
+2331
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Variants
+</td>
+<td>
+Strober linear
+</td>
+<td>
+929
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Variants
+</td>
+<td>
+FASH
+</td>
+<td>
+3455
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Variants
+</td>
+<td>
+Strober quadratic + Strober linear
+</td>
+<td>
+2761
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Variants
+</td>
+<td>
+Strober quadratic + FASH
+</td>
+<td>
+209
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Variants
+</td>
+<td>
+Strober linear + FASH
+</td>
+<td>
+201
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Variants
+</td>
+<td>
+Strober quadratic + Strober linear + FASH
+</td>
+<td>
+1496
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="figure-5-nonlinear-dynamic-examples" class="section level2">
+<h2>Figure 5: nonlinear dynamic examples</h2>
+<p>Only 2 of the four exact nonlinear examples remains significant under
+FASH-CL. The IWP2 result itself does not disappear: FASH-CL finds 60
+pairs in 6 genes, compared with 44 pairs in 9 genes under current FASH.
+The identities of the genes, however, change sharply.</p>
+<pre class="r"><code>render_scrollable_table(
+  figure5_status_table,
+  digits = 5L,
+  minimum_width = &quot;820px&quot;
+)</code></pre>
+<div class="impact-table-scroll">
+<table class="table table-striped table-hover" style="min-width:820px;">
+<thead>
+<tr>
+<th>
+Panel
+</th>
+<th>
+Unit
+</th>
+<th>
+Current lfdr
+</th>
+<th>
+FASH-CL lfdr
+</th>
+<th>
+FASH-CL status
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+A
+</td>
+<td>
+AMN / rs34145961
+</td>
+<td>
+0.00401
+</td>
+<td>
+0.01248
+</td>
+<td>
+Retained
+</td>
+</tr>
+<tr>
+<td>
+B
+</td>
+<td>
+RIPK2 / rs58780282
+</td>
+<td>
+0.09212
+</td>
+<td>
+0.89028
+</td>
+<td>
+Lost
+</td>
+</tr>
+<tr>
+<td>
+C
+</td>
+<td>
+LPAR2 / rs73004962
+</td>
+<td>
+0.00285
+</td>
+<td>
+0.99909
+</td>
+<td>
+Lost
+</td>
+</tr>
+<tr>
+<td>
+D
+</td>
+<td>
+ST6GALNAC2 / rs11657534
+</td>
+<td>
+0.00000
+</td>
+<td>
+0.00006
+</td>
+<td>
+Retained
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>plot_figure5_same_units()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_cl_manuscript_impact.rmd/figure5-same-units-1.png" alt="Figure 4. The four paper Figure 5 units under current FASH and FASH-CL IWP2 fits." width="1944" />
+<p class="caption">
+Figure 4. The four paper Figure 5 units under current FASH and FASH-CL
+IWP2 fits.
+</p>
+</div>
+<p>The proposed FASH-CL version retains surviving paper units and fills
+the remaining panels with the lowest-lfdr discoveries from distinct new
+genes.</p>
+<pre class="r"><code>render_scrollable_table(
+  figure5_replacement_table,
+  digits = 6L,
+  minimum_width = &quot;760px&quot;
+)</code></pre>
+<div class="impact-table-scroll">
+<table class="table table-striped table-hover" style="min-width:760px;">
+<thead>
+<tr>
+<th>
+Panel
+</th>
+<th>
+Unit
+</th>
+<th>
+Status
+</th>
+<th>
+lfdr
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+A
+</td>
+<td>
+AMN / rs34145961
+</td>
+<td>
+Retained paper unit
+</td>
+<td>
+0.012478
+</td>
+</tr>
+<tr>
+<td>
+B
+</td>
+<td>
+CAPN5 / rs948974
+</td>
+<td>
+FASH-CL nonlinear replacement
+</td>
+<td>
+0.018069
+</td>
+</tr>
+<tr>
+<td>
+C
+</td>
+<td>
+DRAXIN / rs7514198
+</td>
+<td>
+FASH-CL nonlinear replacement
+</td>
+<td>
+0.020618
+</td>
+</tr>
+<tr>
+<td>
+D
+</td>
+<td>
+ST6GALNAC2 / rs11657534
+</td>
+<td>
+Retained paper unit
+</td>
+<td>
+0.000064
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>plot_figure5_proposed()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_cl_manuscript_impact.rmd/figure5-proposed-1.png" alt="Figure 5. Proposed FASH-CL nonlinear examples selected by a deterministic lowest-lfdr, distinct-gene rule." width="1944" />
+<p class="caption">
+Figure 5. Proposed FASH-CL nonlinear examples selected by a
+deterministic lowest-lfdr, distinct-gene rule.
+</p>
+</div>
+</div>
+<div id="table-1-functional-classifications" class="section level2">
+<h2>Table 1: functional classifications</h2>
+<p>The CL classifications below were recomputed from the BF-adjusted
+FASH-CL posterior. Each of the 5,393 dynamic units was sampled once with
+3,000 posterior trajectories; the same draws were used for all four
+functionals before cumulative FSR control at 0.05.</p>
+<pre class="r"><code>smooth_var &lt;- seq(0, 15, by = 0.1)
+posterior_sample_size &lt;- 3000L
+switch_threshold &lt;- 0.25
+classification_seed &lt;- 20260810L
+classification_alpha &lt;- 0.05</code></pre>
+<pre class="r"><code>render_scrollable_table(
+  category_change_table,
+  digits = 1L,
+  minimum_width = &quot;1080px&quot;
+)</code></pre>
+<div class="impact-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1080px;">
+<thead>
+<tr>
+<th>
+category
+</th>
+<th>
+current_pair_count
+</th>
+<th>
+current_gene_count
+</th>
+<th>
+cl_pair_count
+</th>
+<th>
+cl_gene_count
+</th>
+<th>
+pair_change
+</th>
+<th>
+gene_change
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+nonlinear
+</td>
+<td>
+44
+</td>
+<td>
+9
+</td>
+<td>
+60
+</td>
+<td>
+6
+</td>
+<td>
+36.4
+</td>
+<td>
+-33.3
+</td>
+</tr>
+<tr>
+<td>
+early
+</td>
+<td>
+124
+</td>
+<td>
+8
+</td>
+<td>
+0
+</td>
+<td>
+0
+</td>
+<td>
+-100.0
+</td>
+<td>
+-100.0
+</td>
+</tr>
+<tr>
+<td>
+middle
+</td>
+<td>
+24
+</td>
+<td>
+5
+</td>
+<td>
+66
+</td>
+<td>
+9
+</td>
+<td>
+175.0
+</td>
+<td>
+80.0
+</td>
+</tr>
+<tr>
+<td>
+late
+</td>
+<td>
+20
+</td>
+<td>
+12
+</td>
+<td>
+21
+</td>
+<td>
+6
+</td>
+<td>
+5.0
+</td>
+<td>
+-50.0
+</td>
+</tr>
+<tr>
+<td>
+switch
+</td>
+<td>
+984
+</td>
+<td>
+250
+</td>
+<td>
+594
+</td>
+<td>
+150
+</td>
+<td>
+-39.6
+</td>
+<td>
+-40.0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Because categories are not mutually exclusive, these changes should
+be read category by category rather than summed. The early category
+disappears at the paper threshold, middle increases, and switch falls
+from 984 pairs/250 genes to 594 pairs/150 genes. These membership
+changes directly affect Figure 6 and Table 2.</p>
+</div>
+<div id="figure-6-category-examples" class="section level2">
+<h2>Figure 6: category examples</h2>
+<p>Figure 6 is not in the minimal list in the question, but it is
+included here because it is the visual support for Table 1. Only 0 of
+its four exact units remains significant in the same FASH-CL
+category.</p>
+<pre class="r"><code>render_scrollable_table(
+  figure6_status_table,
+  digits = 5L,
+  minimum_width = &quot;1120px&quot;
+)</code></pre>
+<div class="impact-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1120px;">
+<thead>
+<tr>
+<th>
+Panel
+</th>
+<th>
+Category
+</th>
+<th>
+Unit
+</th>
+<th>
+Current lfsr
+</th>
+<th>
+FASH-CL lfsr
+</th>
+<th>
+FASH-CL category status
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+A
+</td>
+<td>
+early
+</td>
+<td>
+PPIP5K2 / rs154356
+</td>
+<td>
+0.03233
+</td>
+<td>
+0.085
+</td>
+<td>
+Lost
+</td>
+</tr>
+<tr>
+<td>
+B
+</td>
+<td>
+middle
+</td>
+<td>
+RIPK2 / rs58780282
+</td>
+<td>
+0.06700
+</td>
+<td>
+NA
+</td>
+<td>
+Lost
+</td>
+</tr>
+<tr>
+<td>
+C
+</td>
+<td>
+late
+</td>
+<td>
+SELENOP / rs315268
+</td>
+<td>
+0.03533
+</td>
+<td>
+0.295
+</td>
+<td>
+Lost
+</td>
+</tr>
+<tr>
+<td>
+D
+</td>
+<td>
+switch
+</td>
+<td>
+GRAMD4 / rs12170707
+</td>
+<td>
+0.00000
+</td>
+<td>
+0.164
+</td>
+<td>
+Lost
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>plot_figure6_same_units()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_cl_manuscript_impact.rmd/figure6-same-units-1.png" alt="Figure 6. The four paper category examples under current FASH and FASH-CL IWP1 fits. The blue dashed line marks zero." width="1944" />
+<p class="caption">
+Figure 6. The four paper category examples under current FASH and
+FASH-CL IWP1 fits. The blue dashed line marks zero.
+</p>
+</div>
+<p>For a proposed CL version, an original unit is retained only if it
+remains significant in the same category. Otherwise, the lowest-lfsr
+significant unit from a distinct gene is used. If a category has no
+FASH-CL discoveries at FSR 0.05, the closest nonsignificant unit is
+displayed only as a diagnostic and is explicitly not treated as a valid
+replacement.</p>
+<pre class="r"><code>render_scrollable_table(
+  figure6_replacement_table,
+  digits = 5L,
+  minimum_width = &quot;980px&quot;
+)</code></pre>
+<div class="impact-table-scroll">
+<table class="table table-striped table-hover" style="min-width:980px;">
+<thead>
+<tr>
+<th>
+Panel
+</th>
+<th>
+Category
+</th>
+<th>
+Unit
+</th>
+<th>
+Status
+</th>
+<th>
+lfsr
+</th>
+<th>
+cFSR
+</th>
+<th>
+Significant at FSR 0.05
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+A
+</td>
+<td>
+early
+</td>
+<td>
+ZNF28 / rs2869877
+</td>
+<td>
+No significant FASH-CL unit; closest nonsignificant candidate
+</td>
+<td>
+0.05033
+</td>
+<td>
+0.05033
+</td>
+<td>
+FALSE
+</td>
+</tr>
+<tr>
+<td>
+B
+</td>
+<td>
+middle
+</td>
+<td>
+ST6GALNAC2 / rs113357646
+</td>
+<td>
+Same-category FASH-CL replacement
+</td>
+<td>
+0.00333
+</td>
+<td>
+0.00333
+</td>
+<td>
+TRUE
+</td>
+</tr>
+<tr>
+<td>
+C
+</td>
+<td>
+late
+</td>
+<td>
+SLC22A23 / rs7356847
+</td>
+<td>
+Same-category FASH-CL replacement
+</td>
+<td>
+0.03233
+</td>
+<td>
+0.03233
+</td>
+<td>
+TRUE
+</td>
+</tr>
+<tr>
+<td>
+D
+</td>
+<td>
+switch
+</td>
+<td>
+FAT1 / rs12498241
+</td>
+<td>
+Same-category FASH-CL replacement
+</td>
+<td>
+0.00000
+</td>
+<td>
+0.00000
+</td>
+<td>
+TRUE
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>plot_figure6_proposed()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_cl_manuscript_impact.rmd/figure6-proposed-1.png" alt="Figure 7. Proposed FASH-CL category panels selected by the same-category lowest-lfsr rule. A category with no FSR-0.05 discovery shows its closest nonsignificant unit and cannot retain a significant-example panel." width="1944" />
+<p class="caption">
+Figure 7. Proposed FASH-CL category panels selected by the same-category
+lowest-lfsr rule. A category with no FSR-0.05 discovery shows its
+closest nonsignificant unit and cannot retain a significant-example
+panel.
+</p>
+</div>
+</div>
+<div id="table-2-hallmark-enrichment-and-the-biological-story"
+class="section level2">
+<h2>Table 2: Hallmark enrichment and the biological story</h2>
+<p>The first table reproduces the values currently printed in the
+manuscript. The second recomputes both methods using the same installed
+Hallmark annotation (<code>msigdbr</code> 25.1.1) and the same
+tested-gene universe. This separates PC sensitivity from
+annotation-version drift.</p>
+<pre class="r"><code>render_scrollable_table(
+  manuscript_hallmark_display,
+  digits = 5L,
+  minimum_width = &quot;940px&quot;
+)</code></pre>
+<div class="impact-table-scroll">
+<table class="table table-striped table-hover" style="min-width:940px;">
+<thead>
+<tr>
+<th>
+Method
+</th>
+<th>
+Gene set
+</th>
+<th>
+Hallmark
+</th>
+<th>
+Overlap
+</th>
+<th>
+Selected genes
+</th>
+<th>
+p-value
+</th>
+<th>
+BH q-value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Current FASH manuscript
+</td>
+<td>
+All dynamic
+</td>
+<td>
+Hypoxia
+</td>
+<td>
+25
+</td>
+<td>
+1177
+</td>
+<td>
+0.01700
+</td>
+<td>
+0.436
+</td>
+</tr>
+<tr>
+<td>
+Current FASH manuscript
+</td>
+<td>
+All dynamic
+</td>
+<td>
+KRAS signaling up
+</td>
+<td>
+11
+</td>
+<td>
+1177
+</td>
+<td>
+0.24000
+</td>
+<td>
+0.840
+</td>
+</tr>
+<tr>
+<td>
+Current FASH manuscript
+</td>
+<td>
+Switch
+</td>
+<td>
+Hypoxia
+</td>
+<td>
+11
+</td>
+<td>
+250
+</td>
+<td>
+0.00067
+</td>
+<td>
+0.025
+</td>
+</tr>
+<tr>
+<td>
+Current FASH manuscript
+</td>
+<td>
+Switch
+</td>
+<td>
+KRAS signaling up
+</td>
+<td>
+7
+</td>
+<td>
+250
+</td>
+<td>
+0.00220
+</td>
+<td>
+0.035
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  hallmark_display,
+  digits = 6L,
+  minimum_width = &quot;1060px&quot;
+)</code></pre>
+<div class="impact-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1060px;">
+<thead>
+<tr>
+<th>
+Method
+</th>
+<th>
+Gene set
+</th>
+<th>
+Hallmark
+</th>
+<th>
+Overlap
+</th>
+<th>
+Selected genes
+</th>
+<th>
+p-value
+</th>
+<th>
+BH q-value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+All dynamic
+</td>
+<td>
+Hypoxia
+</td>
+<td>
+25
+</td>
+<td>
+1177
+</td>
+<td>
+0.016925
+</td>
+<td>
+0.470337
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+All dynamic
+</td>
+<td>
+KRAS signaling up
+</td>
+<td>
+11
+</td>
+<td>
+1177
+</td>
+<td>
+0.241531
+</td>
+<td>
+0.906562
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Switch
+</td>
+<td>
+Hypoxia
+</td>
+<td>
+11
+</td>
+<td>
+250
+</td>
+<td>
+0.000668
+</td>
+<td>
+0.033391
+</td>
+</tr>
+<tr>
+<td>
+Current FASH
+</td>
+<td>
+Switch
+</td>
+<td>
+KRAS signaling up
+</td>
+<td>
+7
+</td>
+<td>
+250
+</td>
+<td>
+0.002177
+</td>
+<td>
+0.047261
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+All dynamic
+</td>
+<td>
+Hypoxia
+</td>
+<td>
+21
+</td>
+<td>
+686
+</td>
+<td>
+0.000383
+</td>
+<td>
+0.019131
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+All dynamic
+</td>
+<td>
+KRAS signaling up
+</td>
+<td>
+9
+</td>
+<td>
+686
+</td>
+<td>
+0.060625
+</td>
+<td>
+0.348355
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Switch
+</td>
+<td>
+Hypoxia
+</td>
+<td>
+7
+</td>
+<td>
+150
+</td>
+<td>
+0.004826
+</td>
+<td>
+0.073619
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL
+</td>
+<td>
+Switch
+</td>
+<td>
+KRAS signaling up
+</td>
+<td>
+2
+</td>
+<td>
+150
+</td>
+<td>
+0.304525
+</td>
+<td>
+0.585625
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The matched-version result separates two biological conclusions.
+Among all dynamic genes, Hypoxia strengthens from q = 0.470 to 0.019.
+Among switch genes, however, Hypoxia weakens from q = 0.033 to 0.074,
+and KRAS signaling weakens from q = 0.047 to 0.586. Thus the general
+Hypoxia signal is preserved, but the manuscript’s switch-specific
+Hypoxia/KRAS story is not.</p>
+</div>
+<div id="how-much-rewriting-would-be-needed" class="section level2">
+<h2>How much rewriting would be needed?</h2>
+<ul>
+<li><strong>Major rewrite:</strong> the discovery-count paragraph, the
+interpretation of Figure 4, and the claim that flexibility leads to many
+more detected pairs.</li>
+<li><strong>Figure replacement plus text revision:</strong> Figures 3
+and 5. The general flexible-trajectory message survives, but most named
+loci change.</li>
+<li><strong>Full numerical and biological update:</strong> Table 1,
+Figure 6, Table 2, and the switch/hypoxia/KRAS paragraph.</li>
+<li><strong>Mostly preserved:</strong> the methodological description of
+FASH, BF adjustment, arbitrary functional testing, and the fact that
+flexible IWP priors can model nonparametric temporal effects.</li>
+</ul>
+<p>The safest FASH-CL framing would be: the model finds a partly
+distinct set of dynamic and nonlinear eQTLs, including thousands not
+called by the parametric analyses, while providing flexible posterior
+estimation and functional classification. It should not say that FASH-CL
+finds <em>many more pairs</em> than both parametric approaches.</p>
+</div>
+<div id="reproducibility" class="section level2">
+<h2>Reproducibility</h2>
+<p>Routine builds of this page read <code>analysis_cache.rds</code>;
+they do not rerun posterior sampling. The retained classification used
+fixed per-unit seeds and checkpointed every 64 units.</p>
+<pre class="r"><code>Sys.setenv(FASH_CL_CLASSIFICATION_CORES = 16)
+source(file.path(
+  &quot;code&quot;,
+  &quot;revision_simulations&quot;,
+  &quot;internal&quot;,
+  &quot;fash_cl_manuscript_impact&quot;,
+  &quot;run_fash_cl_manuscript_impact.R&quot;
+))
+
+workflowr::wflow_build(
+  &quot;analysis/revision_internal_fash_cl_manuscript_impact.rmd&quot;,
+  local = TRUE
+)</code></pre>
+<pre class="r"><code>render_scrollable_table(
+  runtime_summary,
+  digits = 1L,
+  minimum_width = &quot;760px&quot;
+)</code></pre>
+<div class="impact-table-scroll">
+<table class="table table-striped table-hover" style="min-width:760px;">
+<thead>
+<tr>
+<th>
+stage
+</th>
+<th>
+elapsed_seconds
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Total retained analysis
+</td>
+<td>
+114.9
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL IWP1 BF adjustment reused
+</td>
+<td>
+32.2
+</td>
+</tr>
+<tr>
+<td>
+FASH-CL IWP2 BF adjustment
+</td>
+<td>
+31.0
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details>
+<summary>
+<strong>Input provenance</strong>
+</summary>
+<pre class="r"><code>render_scrollable_table(
+  input_provenance,
+  minimum_width = &quot;1420px&quot;
+)</code></pre>
+<div class="impact-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1420px;">
+<thead>
+<tr>
+<th>
+path
+</th>
+<th>
+byte_size
+</th>
+<th>
+md5
+</th>
+<th>
+modified_at
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/dynamic_eQTL_real/fash_fit1_all.RData
+</td>
+<td>
+576110361
+</td>
+<td>
+e8aa07c1ebbd600b5dd192e5e91cb794
+</td>
+<td>
+2026-01-20 17:57:38 UTC
+</td>
+</tr>
+<tr>
+<td>
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/dynamic_eQTL_real/fash_fit1_update.RData
+</td>
+<td>
+581122554
+</td>
+<td>
+af46b39a04b241cf1e6116a645dbcc3e
+</td>
+<td>
+2026-01-20 20:29:11 UTC
+</td>
+</tr>
+<tr>
+<td>
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/dynamic_eQTL_real/fash_fit2_update.RData
+</td>
+<td>
+568718341
+</td>
+<td>
+5f29fc87e2c1dfeaf77d7b552b8865ec
+</td>
+<td>
+2026-01-20 22:31:43 UTC
+</td>
+</tr>
+<tr>
+<td>
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/dynamic_eQTL_real/fash_fit1_all_CL.RData
+</td>
+<td>
+597415015
+</td>
+<td>
+57383f6068304370930f2410021808cb
+</td>
+<td>
+2026-02-08 06:31:30 UTC
+</td>
+</tr>
+<tr>
+<td>
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/dynamic_eQTL_real/fash_fit2_all_CL.RData
+</td>
+<td>
+574585330
+</td>
+<td>
+550fd3d6bb5cf7a5a6d80288da7974a2
+</td>
+<td>
+2026-02-08 06:31:12 UTC
+</td>
+</tr>
+<tr>
+<td>
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/revision_simulations/internal/fash_cl_variant_enrichment_comparison/fash_cl_bf_adjustment.rds
+</td>
+<td>
+10448945
+</td>
+<td>
+b73d4ff81190602c405bf1d803c76260
+</td>
+<td>
+2026-08-08 05:46:10 UTC
+</td>
+</tr>
+<tr>
+<td>
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/dynamic_eQTL_real/cache_gene_map.rds
+</td>
+<td>
+50218
+</td>
+<td>
+3b869a545b734496af235decaa6648e6
+</td>
+<td>
+2026-01-20 21:18:50 UTC
+</td>
+</tr>
+<tr>
+<td>
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/data/dynamic_eQTL_real/strober_linear/linear_dynamic_eqtls_5_pc.txt
+</td>
+<td>
+63118432
+</td>
+<td>
+0046a033a3c6e2e6096c3551702353da
+</td>
+<td>
+2019-03-12 17:12:30 UTC
+</td>
+</tr>
+<tr>
+<td>
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/data/dynamic_eQTL_real/strober_nonlinear/non_linear_dynamic_eqtls_5_pc.txt
+</td>
+<td>
+63148959
+</td>
+<td>
+dd38af583983ab6a670ac1ffa773bdee
+</td>
+<td>
+2019-03-12 17:12:38 UTC
+</td>
+</tr>
+<tr>
+<td>
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/dynamic_eQTL_real/classify_dyn_eQTLs_early.RData
+</td>
+<td>
+169224
+</td>
+<td>
+ed93a60a1c826d5308ac6e7d6e42e2bc
+</td>
+<td>
+2026-01-21 00:20:57 UTC
+</td>
+</tr>
+<tr>
+<td>
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/dynamic_eQTL_real/classify_dyn_eQTLs_middle.RData
+</td>
+<td>
+175279
+</td>
+<td>
+2aa6c272404a30975bed1ffda821e43b
+</td>
+<td>
+2026-01-21 00:20:57 UTC
+</td>
+</tr>
+<tr>
+<td>
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/dynamic_eQTL_real/classify_dyn_eQTLs_late.RData
+</td>
+<td>
+178502
+</td>
+<td>
+61d6a23423b6b58ae9252b2f2985b421
+</td>
+<td>
+2026-01-21 00:20:57 UTC
+</td>
+</tr>
+<tr>
+<td>
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/dynamic_eQTL_real/classify_dyn_eQTLs_switch.RData
+</td>
+<td>
+178354
+</td>
+<td>
+055ca177f8e2cc72065fd12c393b00de
+</td>
+<td>
+2026-01-21 00:20:57 UTC
+</td>
+</tr>
+<tr>
+<td>
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/code/revision_simulations/internal/fash_cl_variant_enrichment_comparison/fash_cl_variant_enrichment_helpers.R
+</td>
+<td>
+10109
+</td>
+<td>
+d588cd5e5008b1f310fdd9222c9fd302
+</td>
+<td>
+2026-08-08 05:34:50 UTC
+</td>
+</tr>
+<tr>
+<td>
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/code/revision_simulations/internal/fash_cl_manuscript_impact/fash_cl_manuscript_impact_helpers.R
+</td>
+<td>
+15271
+</td>
+<td>
+0ac6fb526da3828dd4cbfa973e7b8ba8
+</td>
+<td>
+2026-08-10 19:59:22 UTC
+</td>
+</tr>
+<tr>
+<td>
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/code/revision_simulations/internal/fash_cl_manuscript_impact/run_fash_cl_manuscript_impact.R
+</td>
+<td>
+48016
+</td>
+<td>
+869d883e6b0244fe358447fa2826b8d8
+</td>
+<td>
+2026-08-10 20:00:22 UTC
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</details>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+ [1] sass_0.4.10         generics_0.1.4      stringi_1.8.7      
+ [4] digest_0.6.39       magrittr_2.0.5      evaluate_1.0.5     
+ [7] grid_4.5.1          RColorBrewer_1.1-3  fastmap_1.2.0      
+[10] rprojroot_2.1.1     workflowr_1.7.2     jsonlite_2.0.0     
+[13] ggrastr_1.0.2       promises_1.5.0      scales_1.4.0       
+[16] jquerylib_0.1.4     cli_3.6.6           rlang_1.2.0        
+[19] withr_3.0.2         cachem_1.1.0        yaml_2.3.12        
+[22] otel_0.2.0          ggbeeswarm_0.7.3    tools_4.5.1        
+[25] dplyr_1.1.4         ggplot2_4.0.1       httpuv_1.6.16      
+[28] vctrs_0.7.3         R6_2.6.1            lifecycle_1.0.5    
+[31] git2r_0.36.2        stringr_1.6.0       fs_1.6.6           
+[34] vipor_0.4.7         pkgconfig_2.0.3     beeswarm_0.4.0     
+[37] pillar_1.11.1       bslib_0.9.0         later_1.4.4        
+[40] gtable_0.3.6        glue_1.8.1          Rcpp_1.1.1-1.1     
+[43] xfun_0.55           tibble_3.3.0        tidyselect_1.2.1   
+[46] rstudioapi_0.17.1   knitr_1.50          dichromat_2.0-0.1  
+[49] farver_2.1.2        htmltools_0.5.9     patchwork_1.3.2    
+[52] rmarkdown_2.30      labeling_0.4.3      ggVennDiagram_1.5.4
+[55] Cairo_1.7-0         compiler_4.5.1      S7_0.2.1           </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

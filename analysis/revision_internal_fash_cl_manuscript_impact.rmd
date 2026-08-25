@@ -1,0 +1,444 @@
+---
+title: "Internal analysis: manuscript impact of switching to FASH-CL"
+author: "Ziang Zhang"
+date: "2026-08-10"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 11,
+  fig.height = 8,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(file.path(
+  "code",
+  "revision_simulations",
+  "internal",
+  "fash_cl_manuscript_impact",
+  "reporting.R"
+))
+```
+
+<style>
+.impact-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.impact-answer {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.impact-caution {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #cc7a00;
+  border-radius: 4px;
+  background: #fff8ec;
+  color: #563a0c;
+}
+.impact-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.impact-table-scroll table {
+  margin-bottom: 1em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+.MathJax_Display,
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+
+::: {.impact-banner}
+<strong>Internal decision page.</strong> This page is intentionally absent
+from the workflowr homepage, navigation, manuscript, and response letter. It
+compares the retained current analysis with a matched FASH-CL sensitivity and
+does not itself change the primary analysis.
+:::
+
+## Executive answer
+
+::: {.impact-answer}
+<strong>Switching to FASH-CL would require a substantial rewrite, not a simple
+number update.</strong> Dynamic discoveries fall from
+`r format_integer(current_dynamic_pairs)` to
+`r format_integer(cl_dynamic_pairs)` pairs and from
+`r format_integer(current_dynamic_genes)` to
+`r format_integer(cl_dynamic_genes)` genes. Only
+`r format_integer(method_overlap$intersection[method_overlap$unit == "Gene-variant pairs"])`
+pairs are shared. The flexible functional modeling story remains valid, but
+the stronger claim that FASH identifies <em>many more</em> dynamic pairs than
+the Strober parametric analyses is not supported by FASH-CL.
+:::
+
+The sensitivity changes the regression inputs before FASH is fitted: current
+FASH uses PCs estimated separately at each time point, whereas FASH-CL reuses
+donor-level PCs at every time point. The FASH prior, BF adjustment, and
+thresholds are otherwise matched. Therefore, changes in discoveries cannot be
+attributed solely to the flexible EB-LGP model.
+
+```{r claim-impact-table, results='asis'}
+render_scrollable_table(
+  claim_impact,
+  align = "lll",
+  minimum_width = "1180px"
+)
+```
+
+```{r discovery-change-table, results='asis'}
+render_scrollable_table(
+  discovery_change_table,
+  digits = 1L,
+  minimum_width = "980px"
+)
+```
+
+## Global lfdr and IWP1 prior diagnostics
+
+### Pair-level lfdr comparison
+
+FASH estimates lfdr for gene-variant pairs, so the left panel includes all
+`r format_integer(nrow(lfdr_scatter_all))` tested pairs rather than deduplicated
+rsIDs. For the right panel, the pair with the smallest current-FASH lfdr is
+selected separately within each gene; variant ID and pair key provide stable
+tie-breakers. The same selected pair is then located in FASH-CL, as requested.
+Colors indicate whether the pair belongs to either method's cumulative-lfdr
+FDR-0.05 discovery set.
+
+```{r lfdr-scatter, fig.width=11.5, fig.height=6.1, fig.cap="Global IWP1 lfdr comparison. The left panel contains every tested gene-variant pair. The right panel contains one pair per gene, selected solely by the minimum current-FASH lfdr, with the same pair evaluated under FASH-CL. Dashed lines mark equality."}
+plot_lfdr_scatter()
+```
+
+The all-pair Spearman correlation is
+`r format_decimal(lfdr_comparison_summary$spearman_correlation[lfdr_comparison_summary$selection == "All tested gene-variant pairs"], 3L)`;
+after current-FASH top-pair selection it is
+`r format_decimal(lfdr_comparison_summary$spearman_correlation[lfdr_comparison_summary$selection == "Current-FASH top pair per gene"], 3L)`.
+
+### IWP1 prior weights before and after BF adjustment
+
+The raw panel shows the mixture prior stored by each original IWP1 fit. The
+BF-adjusted panel uses the retained current-FASH prior and the matched
+memory-bounded BF update for FASH-CL. Both axes use pseudo-log transforms so
+the null component at PSD zero and components assigned exactly zero weight
+remain visible.
+
+```{r iwp1-prior-weights, fig.width=11.2, fig.height=5.8, fig.cap="IWP1 prior weights for current FASH and FASH-CL before and after BF adjustment. PSD zero is the exact-null component. Pseudo-log axes retain zero-valued components while expanding the small non-null weights."}
+plot_iwp1_prior_weights()
+```
+
+```{r iwp1-prior-summary-table, results='asis'}
+render_scrollable_table(
+  prior_weight_summary[, c(
+    "method", "adjustment", "null_weight", "nonzero_component_count"
+  )],
+  digits = 6L,
+  minimum_width = "760px"
+)
+```
+
+## Figure 3: dynamic examples and the flexibility claim
+
+Only `r figure3_retained_count` of the six exact Figure 3 units remains a
+FASH-CL discovery. The table and first plot keep the original units fixed so
+the sensitivity is visible rather than concealed by replacement.
+
+```{r figure3-status-table, results='asis'}
+render_scrollable_table(
+  figure3_status_table,
+  digits = 5L,
+  minimum_width = "980px"
+)
+```
+
+```{r figure3-same-units, fig.width=12, fig.height=11, fig.cap="Figure 1. The six paper Figure 3 units under current FASH and FASH-CL. Red curves and ribbons are the FASH posterior mean and 95% interval. Green and purple dashed curves are weighted linear and quadratic fits."}
+plot_figure3_same_units()
+```
+
+### A possible FASH-CL replacement figure
+
+The replacement rule preserves the original roles rather than selecting genes
+for a preferred biological interpretation:
+
+1. retain GINM1 and add the lowest-lfdr FASH-CL unit detected by Strober;
+2. among FASH-CL-only units with both Strober p-values at least 0.20, select
+   two strong discoveries with the largest standardized quadratic misfit;
+3. repeat within the upper 20% of discovered lfdr values for two
+   threshold-near examples.
+
+```{r figure3-replacement-table, results='asis'}
+render_scrollable_table(
+  figure3_replacement_table,
+  digits = 5L,
+  minimum_width = "1100px"
+)
+```
+
+```{r figure3-proposed, fig.width=10.8, fig.height=11, fig.cap="Figure 2. Deterministically selected FASH-CL replacements for paper Figure 3. Replacement examples demonstrate model flexibility, but they do not restore the original discovery-count claim."}
+plot_figure3_proposed()
+```
+
+::: {.impact-caution}
+Replacing examples can preserve the visual demonstration that an EB-LGP model
+captures shapes missed by linear or quadratic curves. It cannot support the
+original causal wording that model flexibility explains the larger discovery
+count, because the discovery advantage disappears under the CL PC design.
+:::
+
+## Figure 4: overlap with Strober
+
+FASH-only pairs decline from `r format_integer(current_fash_only_pairs)` to
+`r format_integer(cl_fash_only_pairs)`. FASH-CL is more concordant with the
+Strober sets, but its total pair count is comparable to, rather than much
+larger than, the linear and quadratic analyses.
+
+The following panels preserve the paper's three-set Venn representation. Each
+row compares the original current-FASH diagram with the corresponding FASH-CL
+diagram. In addition to the paper's gene-level and gene-variant-pair views, a
+variant-level view is shown so repeated variants assigned to different genes
+can be distinguished from genuinely distinct discovered variants.
+
+```{r overlap-summary-table, results='asis'}
+render_scrollable_table(
+  method_overlap,
+  digits = 4L,
+  minimum_width = "820px"
+)
+```
+
+```{r venn-gene-plot, fig.width=11.5, fig.height=5.8, fig.cap="Paper Figure 4 sensitivity at the gene level. Current FASH is shown on the left and FASH-CL on the right."}
+plot_venn_diagram_comparison("Genes")
+```
+
+```{r venn-pair-plot, fig.width=11.5, fig.height=5.8, fig.cap="Paper Figure 4 sensitivity at the gene-variant-pair level. Current FASH is shown on the left and FASH-CL on the right."}
+plot_venn_diagram_comparison("Gene-variant pairs")
+```
+
+```{r venn-variant-plot, fig.width=11.5, fig.height=5.8, fig.cap="Additional paper Figure 4 sensitivity at the unique-variant level. Current FASH is shown on the left and FASH-CL on the right."}
+plot_venn_diagram_comparison("Variants")
+```
+
+```{r venn-region-table, results='asis'}
+render_scrollable_table(
+  venn_regions[, c("method", "unit", "region", "count")],
+  minimum_width = "980px"
+)
+```
+
+## Figure 5: nonlinear dynamic examples
+
+Only `r figure5_retained_count` of the four exact nonlinear examples remains
+significant under FASH-CL. The IWP2 result itself does not disappear: FASH-CL
+finds 60 pairs in 6 genes, compared with 44 pairs in 9 genes under current
+FASH. The identities of the genes, however, change sharply.
+
+```{r figure5-status-table, results='asis'}
+render_scrollable_table(
+  figure5_status_table,
+  digits = 5L,
+  minimum_width = "820px"
+)
+```
+
+```{r figure5-same-units, fig.width=10.8, fig.height=9.5, fig.cap="Figure 4. The four paper Figure 5 units under current FASH and FASH-CL IWP2 fits."}
+plot_figure5_same_units()
+```
+
+The proposed FASH-CL version retains surviving paper units and fills the
+remaining panels with the lowest-lfdr discoveries from distinct new genes.
+
+```{r figure5-replacement-table, results='asis'}
+render_scrollable_table(
+  figure5_replacement_table,
+  digits = 6L,
+  minimum_width = "760px"
+)
+```
+
+```{r figure5-proposed, fig.width=10.8, fig.height=7.8, fig.cap="Figure 5. Proposed FASH-CL nonlinear examples selected by a deterministic lowest-lfdr, distinct-gene rule."}
+plot_figure5_proposed()
+```
+
+## Table 1: functional classifications
+
+The CL classifications below were recomputed from the BF-adjusted FASH-CL
+posterior. Each of the `r format_integer(cl_dynamic_pairs)` dynamic units was
+sampled once with 3,000 posterior trajectories; the same draws were used for
+all four functionals before cumulative FSR control at 0.05.
+
+```{r functional-settings, eval=FALSE}
+smooth_var <- seq(0, 15, by = 0.1)
+posterior_sample_size <- 3000L
+switch_threshold <- 0.25
+classification_seed <- 20260810L
+classification_alpha <- 0.05
+```
+
+```{r category-change-table, results='asis'}
+render_scrollable_table(
+  category_change_table,
+  digits = 1L,
+  minimum_width = "1080px"
+)
+```
+
+Because categories are not mutually exclusive, these changes should be read
+category by category rather than summed. The early category disappears at the
+paper threshold, middle increases, and switch falls from 984 pairs/250 genes
+to 594 pairs/150 genes. These membership changes directly affect Figure 6 and
+Table 2.
+
+## Figure 6: category examples
+
+Figure 6 is not in the minimal list in the question, but it is included here
+because it is the visual support for Table 1. Only
+`r figure6_retained_count` of its four exact units remains significant in the
+same FASH-CL category.
+
+```{r figure6-status-table, results='asis'}
+render_scrollable_table(
+  figure6_status_table,
+  digits = 5L,
+  minimum_width = "1120px"
+)
+```
+
+```{r figure6-same-units, fig.width=10.8, fig.height=9.8, fig.cap="Figure 6. The four paper category examples under current FASH and FASH-CL IWP1 fits. The blue dashed line marks zero."}
+plot_figure6_same_units()
+```
+
+For a proposed CL version, an original unit is retained only if it remains
+significant in the same category. Otherwise, the lowest-lfsr significant unit
+from a distinct gene is used. If a category has no FASH-CL discoveries at FSR
+0.05, the closest nonsignificant unit is displayed only as a diagnostic and is
+explicitly not treated as a valid replacement.
+
+```{r figure6-replacement-table, results='asis'}
+render_scrollable_table(
+  figure6_replacement_table,
+  digits = 5L,
+  minimum_width = "980px"
+)
+```
+
+```{r figure6-proposed, fig.width=10.8, fig.height=7.8, fig.cap="Figure 7. Proposed FASH-CL category panels selected by the same-category lowest-lfsr rule. A category with no FSR-0.05 discovery shows its closest nonsignificant unit and cannot retain a significant-example panel."}
+plot_figure6_proposed()
+```
+
+## Table 2: Hallmark enrichment and the biological story
+
+The first table reproduces the values currently printed in the manuscript.
+The second recomputes both methods using the same installed Hallmark annotation
+(`msigdbr` `r configuration$msigdbr_version`) and the same tested-gene
+universe. This separates PC sensitivity from annotation-version drift.
+
+```{r manuscript-hallmark-table, results='asis'}
+render_scrollable_table(
+  manuscript_hallmark_display,
+  digits = 5L,
+  minimum_width = "940px"
+)
+```
+
+```{r matched-hallmark-table, results='asis'}
+render_scrollable_table(
+  hallmark_display,
+  digits = 6L,
+  minimum_width = "1060px"
+)
+```
+
+The matched-version result separates two biological conclusions. Among all
+dynamic genes, Hypoxia strengthens from q =
+`r format_decimal(current_all_hypoxia_q, 3L)` to
+`r format_decimal(cl_all_hypoxia_q, 3L)`. Among switch genes, however, Hypoxia
+weakens from q = `r format_decimal(current_switch_hypoxia_q, 3L)` to
+`r format_decimal(cl_switch_hypoxia_q, 3L)`, and KRAS signaling weakens from q
+= `r format_decimal(current_switch_kras_q, 3L)` to
+`r format_decimal(cl_switch_kras_q, 3L)`. Thus the general Hypoxia signal is
+preserved, but the manuscript's switch-specific Hypoxia/KRAS story is not.
+
+## How much rewriting would be needed?
+
+- **Major rewrite:** the discovery-count paragraph, the interpretation of
+  Figure 4, and the claim that flexibility leads to many more detected pairs.
+- **Figure replacement plus text revision:** Figures 3 and 5. The general
+  flexible-trajectory message survives, but most named loci change.
+- **Full numerical and biological update:** Table 1, Figure 6, Table 2, and the
+  switch/hypoxia/KRAS paragraph.
+- **Mostly preserved:** the methodological description of FASH, BF adjustment,
+  arbitrary functional testing, and the fact that flexible IWP priors can model
+  nonparametric temporal effects.
+
+The safest FASH-CL framing would be: the model finds a partly distinct set of
+dynamic and nonlinear eQTLs, including thousands not called by the parametric
+analyses, while providing flexible posterior estimation and functional
+classification. It should not say that FASH-CL finds *many more pairs* than
+both parametric approaches.
+
+## Reproducibility
+
+Routine builds of this page read `analysis_cache.rds`; they do not rerun
+posterior sampling. The retained classification used fixed per-unit seeds and
+checkpointed every 64 units.
+
+```{r reproduction-command, eval=FALSE}
+Sys.setenv(FASH_CL_CLASSIFICATION_CORES = 16)
+source(file.path(
+  "code",
+  "revision_simulations",
+  "internal",
+  "fash_cl_manuscript_impact",
+  "run_fash_cl_manuscript_impact.R"
+))
+
+workflowr::wflow_build(
+  "analysis/revision_internal_fash_cl_manuscript_impact.rmd",
+  local = TRUE
+)
+```
+
+```{r runtime-table, results='asis'}
+render_scrollable_table(
+  runtime_summary,
+  digits = 1L,
+  minimum_width = "760px"
+)
+```
+
+<details>
+<summary><strong>Input provenance</strong></summary>
+
+```{r provenance-table, results='asis'}
+render_scrollable_table(
+  input_provenance,
+  minimum_width = "1420px"
+)
+```
+
+</details>

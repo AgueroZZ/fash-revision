@@ -9,14 +9,17 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r setup}
-knitr::opts_chunk$set(fig.width = 8, fig.height = 6)
+```{r setup, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(fig.width = 8, fig.height = 6, message = FALSE, warning = FALSE)
 library(fashr)
 library(biomaRt)
+library(dplyr)
+library(ggplot2)
+library(tibble)
 mart <- useEnsembl(biomart = "genes", dataset = "hsapiens_gene_ensembl")
-result_dir <- paste0(getwd(), "/output/dynamic_eQTL_real")
-data_dir <- paste0(getwd(), "/data/dynamic_eQTL_real")
-code_dir <- paste0(getwd(), "/code/dynamic_eQTL_real")
+result_dir <- file.path(getwd(), "output", "dynamic_eQTL_real")
+data_dir <- file.path(getwd(), "data", "dynamic_eQTL_real")
+code_dir <- file.path(getwd(), "code", "dynamic_eQTL_real")
 log_prec <- seq(0,10, by = 0.2)
 fine_grid <- sort(c(0, exp(-0.5*log_prec)))
 ```
@@ -155,6 +158,9 @@ plot_pair_nonlinear_base <- function(idx,
 }
 
 plot_many_pairs_nonlinear <- function(idxs, nrow = 2, ncol = 2, ...) {
+  idxs <- as.integer(idxs)
+  idxs <- idxs[is.finite(idxs) & idxs >= 1]
+  if (length(idxs) == 0L) return(invisible(NULL))
   oldpar <- par(no.readonly = TRUE)
   on.exit(par(oldpar), add = TRUE)
   par(mfrow = c(nrow, ncol))
@@ -164,6 +170,9 @@ plot_many_pairs_nonlinear <- function(idxs, nrow = 2, ncol = 2, ...) {
 
 # For early/middle/late/switch classification examples: show lfsr only (and keep the plot clean)
 plot_many_pairs_nonlinear_lfsr <- function(idxs, testing_obj, nrow = 2, ncol = 2, ...) {
+  idxs <- as.integer(idxs)
+  idxs <- idxs[is.finite(idxs) & idxs >= 1]
+  if (length(idxs) == 0L) return(invisible(NULL))
   lfsr_map <- setNames(testing_obj$lfsr, testing_obj$indices)
   oldpar <- par(no.readonly = TRUE)
   on.exit(par(oldpar), add = TRUE)
@@ -239,7 +248,13 @@ save(fash_fit2_update, file = paste0(result_dir, "/fash_fit2_update.RData"))
 ```
 
 ```{r echo=FALSE}
-load(paste0(result_dir, "/fash_fit2_update.RData"))
+stopifnot(as.character(packageVersion("fashr")) == "0.1.43")
+loaded_fit2_update <- load(file.path(result_dir, "fash_fit2_update.RData"))
+stopifnot(
+  identical(loaded_fit2_update, "fash_fit2_update"),
+  inherits(fash_fit2_update, "fash")
+)
+rm(loaded_fit2_update)
 ```
 
 ```{r}
@@ -249,7 +264,7 @@ load(paste0(result_dir, "/fash_fit2_update.RData"))
 ```
 
 
-The conservative estimate is `r fash_fit2_update$prior_weights$prior_weight[1]`, which is much more conservative.
+All BF-adjusted results below use the retained fit recomputed with `fashr` 0.1.43. The conservative estimate is `r fash_fit2_update$prior_weights$prior_weight[1]`, which is much more conservative.
 
 
 ```{r}
@@ -291,19 +306,19 @@ g_before <- g_before +
     labels = function(x) sprintf("%.3f", as.numeric(x))
   )
 
-ggsave(filename = paste0("fash_prior_comparison_order2_before.png"),
+ggsave(filename = file.path(result_dir, "fash_prior_comparison_order2_before.png"),
        plot = g_before,
        width = 8, height = 6)
 
-ggsave(filename = paste0("fash_prior_comparison_order2_after.png"),
+ggsave(filename = file.path(result_dir, "fash_prior_comparison_order2_after.png"),
        plot = g_after,
        width = 8, height = 6)
 
-ggsave(filename = paste0("fash_prior_comparison_order2_before.pdf"),
+ggsave(filename = file.path(result_dir, "fash_prior_comparison_order2_before.pdf"),
        plot = g_before,
        width = 8, height = 6)
 
-ggsave(filename = paste0("fash_prior_comparison_order2_after.pdf"),
+ggsave(filename = file.path(result_dir, "fash_prior_comparison_order2_after.pdf"),
        plot = g_after,
        width = 8, height = 6)
 ```
@@ -506,15 +521,17 @@ par(mfrow = c(1, 1))
 
 Following the definition in Strober et.al, we will classify the detected eQTLs into different categories:
 
-- *Early*: eQTLs with strongest effect during the first three days: $\max_{t\leq3} |\beta(t)| - \max_{t> 3} |\beta(t)| > 0$.
+- *Early*: eQTLs with strongest effect during the first three days: $\sup_{t\leq3} |\beta(t)| - \sup_{t> 3} |\beta(t)| > 0$.
 
-- *Late*: eQTLs with strongest effect during the last four days: $\max_{t\geq 12} |\beta(t)| - \max_{t< 12} |\beta(t)| > 0$.
+- *Late*: eQTLs with strongest effect during the last four days: $\sup_{t\geq 12} |\beta(t)| - \sup_{t< 12} |\beta(t)| > 0$.
 
-- *Middle*: eQTLs with strongest effect during days 4-11: $\max_{4\leq t\leq 11} |\beta(t)| - \max_{t> 11 | t< 4} |\beta(t)| > 0$.
+- *Middle*: eQTLs with strongest effect in the open middle interval: $\sup_{3<t<12} |\beta(t)| - \sup_{t\leq3\;\text{or}\;t\geq12} |\beta(t)| > 0$.
 
-- *Switch*: eQTLs with effect sign switch during the time course: $\min\{\max\beta(t)^+,\max\beta(t)^-\}-c $ where $c$ is a threshold that we set to 0.25 (which means with two alleles, the maximal difference of effect size is at least $\geq 2\times\min\{\max\beta(t)^+,\max\beta(t)^-\}\times2 \geq  2 \times 0.25  \times 2 = 1$).
+- *Switch*: eQTLs with effect sign switch during the time course such that $\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}-c>0$ where $c$ is a threshold that we set to 0.25 (which means with two alleles, the maximal difference of effect size is at least $\geq 2\times\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}\times2 \geq  2 \times 0.25  \times 2 = 1$).
 
-We first take a look at the significant pairs detected by FASH (order 2), and classify them based on the false sign rate (lfsr):
+The displayed functionals are continuous-time definitions using suprema; the code below uses maxima on the `0.1`-day evaluation grid as their discrete approximation.
+
+The retained classification files were recomputed from `fash_fit2_update` using one shared set of 3,000 posterior draws per pair across the four functionals. We first take a look at the significant pairs detected by FASH (order 2), and classify them based on the false sign rate (lfsr):
 
 ```{r eval=FALSE}
 smooth_var_refined = seq(0,15, by = 0.1)
@@ -523,7 +540,7 @@ functional_early <- function(x){
 }
 testing_early_nonlin_dyn <- testing_functional(functional_early,
                                               lfsr_cal = function(x){mean(x <= 0)},
-                                              fash = fash_fit2,
+                                              fash = fash_fit2_update,
                                               indices = fash_highlighted2,
                                               smooth_var = smooth_var_refined)
 ```
@@ -542,11 +559,12 @@ How many pairs are classified as middle dynamic eQTLs?
 
 ```{r eval=FALSE}
 functional_middle <- function(x){
-  max(abs(x[smooth_var_refined <= 11 & smooth_var_refined >= 4])) - max(abs(x[smooth_var_refined > 11]), abs(x[smooth_var_refined < 4]))
+  max(abs(x[smooth_var_refined > 3 & smooth_var_refined < 12])) -
+    max(abs(x[smooth_var_refined <= 3 | smooth_var_refined >= 12]))
 }
 testing_middle_nonlin_dyn <- testing_functional(functional_middle, 
                                                lfsr_cal = function(x){mean(x <= 0)},
-                                               fash = fash_fit2, 
+                                               fash = fash_fit2_update,
                                                indices = fash_highlighted2, 
                                                num_cores = num_cores,
                                                smooth_var = smooth_var_refined)
@@ -585,7 +603,7 @@ functional_late <- function(x){
 }
 testing_late_nonlin_dyn <- testing_functional(functional_late, 
                                              lfsr_cal = function(x){mean(x <= 0)},
-                                             fash = fash_fit2, 
+                                             fash = fash_fit2_update,
                                              indices = fash_highlighted2, 
                                              num_cores = num_cores,
                                              smooth_var = smooth_var_refined)
@@ -629,7 +647,7 @@ functional_switch <- function(x){
 }
 testing_switch_nonlin_dyn <- testing_functional(functional_switch, 
                                                lfsr_cal = function(x){mean(x <= 0)},
-                                               fash = fash_fit2, 
+                                               fash = fash_fit2_update,
                                                indices = fash_highlighted2, 
                                                num_cores = num_cores,
                                                smooth_var = smooth_var_refined)
@@ -787,5 +805,3 @@ result@result %>%
   filter(pvalue < 0.05) %>%
   dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)
 ```
-
-

@@ -1,0 +1,465 @@
+---
+title: "Internal note: correlated-observation FASH model"
+author: "Ziang Zhang"
+date: "2026-08-13"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+<style>
+.model-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.model-answer {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.model-caution {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #d55e00;
+  border-radius: 4px;
+  background: #fff4ec;
+  color: #59331e;
+}
+pre,
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+</style>
+
+<div class="model-banner">
+<strong>Internal mathematical note.</strong> This page is intentionally
+unlinked from the workflowr homepage and navigation. It documents a software
+capability; it does not change the manuscript model, the primary real-data
+analysis, or the response letter.
+</div>
+
+## Short answer
+
+<div class="model-answer">
+<strong>Yes.</strong> The conditionally independent Gaussian likelihood in
+the FASH manuscript is a diagonal special case of the Gaussian likelihood
+already implemented in <code>fashr</code>. For each unit \(j\), the software
+can use an arbitrary user-supplied symmetric positive-definite precision
+matrix \(\mathbf{\Omega}_j\), allowing the coordinates of
+\(\hat{\boldsymbol\beta}_j\) to be correlated conditional on the entire effect
+function \(\beta_j\).
+</div>
+
+The key distinction is **within-unit** versus **between-unit** dependence.
+The `Omega` interface models dependence among the \(R_j\) effect estimates
+within unit \(j\). The empirical-Bayes objective still combines one marginal
+likelihood per unit and does not accept a joint covariance matrix coupling
+different units.
+
+## The manuscript model as a special case
+
+Following the manuscript, let
+
+$$
+\hat{\boldsymbol\beta}_j
+\mathrel{\mathop:}=
+\left(
+  \hat\beta_j(t_{j1}),\ldots,\hat\beta_j(t_{jR_j})
+\right)^T,
+\qquad
+\boldsymbol\beta_j
+\mathrel{\mathop:}=
+\left(
+  \beta_j(t_{j1}),\ldots,\beta_j(t_{jR_j})
+\right)^T.
+$$
+
+The manuscript assumes
+
+$$
+\hat\beta_j(t_{jr})\mid\beta_j,s_{jr}
+\overset{\mathrm{ind}}{\sim}
+N\!\left(\beta_j(t_{jr}),s_{jr}^2\right),
+\qquad r\in[R_j].
+$$
+
+Equivalently, with
+
+$$
+\mathbf D_j
+\mathrel{\mathop:}=
+\operatorname{diag}(s_{j1},\ldots,s_{jR_j}),
+\qquad
+\mathbf S_j\mathrel{\mathop:}=\mathbf D_j^2,
+$$
+
+the vector likelihood is
+
+$$
+\hat{\boldsymbol\beta}_j\mid\beta_j,\mathbf S_j
+\sim
+N_{R_j}\!\left(\boldsymbol\beta_j,\mathbf S_j\right).
+$$
+
+Thus conditional independence is exactly the restriction that the
+conditional covariance matrix is diagonal.
+
+## General within-unit correlated observation model
+
+Let \(\mathbf\Omega_j\in\mathbb R^{R_j\times R_j}\) be a symmetric
+positive-definite precision matrix, and let
+\(\mathbf\Sigma_j\mathrel{\mathop:}=\mathbf\Omega_j^{-1}\). The general
+Gaussian
+observation model supported by `fashr` is
+
+$$
+\boxed{
+\hat{\boldsymbol\beta}_j\mid\beta_j,\mathbf\Omega_j
+\sim
+N_{R_j}\!\left(
+  \boldsymbol\beta_j+\boldsymbol o_j,
+  \mathbf\Omega_j^{-1}
+\right)
+}
+\qquad j\in[J],
+$$
+
+The bold matrix \(\mathbf\Omega_j\) is distinct from the manuscript's
+unbold \(\Omega\), which denotes the domain of the condition variable \(t\).
+Here \(\boldsymbol o_j\) is an optional known offset. For the summary-effect
+setting in the manuscript, \(\boldsymbol o_j=\boldsymbol 0\). The conditional
+log-density is
+
+$$
+\log p(\hat{\boldsymbol\beta}_j\mid\beta_j,\mathbf\Omega_j)
+=
+-\frac{1}{2}\left\{
+  (\hat{\boldsymbol\beta}_j-\boldsymbol o_j-\boldsymbol\beta_j)^T
+  \mathbf\Omega_j
+  (\hat{\boldsymbol\beta}_j-\boldsymbol o_j-\boldsymbol\beta_j)
+  -\log|\mathbf\Omega_j|
+  +R_j\log(2\pi)
+\right\}.
+$$
+
+Consequently,
+
+$$
+\operatorname{Cov}\!\left(
+  \hat{\boldsymbol\beta}_j\mid\beta_j,\mathbf\Omega_j
+\right)
+=\mathbf\Sigma_j,
+$$
+
+whose off-diagonal entries encode conditional covariance among settings of
+\(t\). The manuscript likelihood is recovered by taking
+
+$$
+\mathbf\Omega_j=\mathbf S_j^{-1}
+=\operatorname{diag}\!\left(
+  s_{j1}^{-2},\ldots,s_{jR_j}^{-2}
+\right).
+$$
+
+### Preserving the reported marginal standard errors
+
+Suppose \(\mathbf P_j\) is the desired conditional correlation matrix and the
+reported marginal standard errors remain
+\(\boldsymbol s_j=(s_{j1},\ldots,s_{jR_j})^T\). Then the appropriate covariance
+and precision matrices are
+
+$$
+\mathbf\Sigma_j=\mathbf D_j\mathbf P_j\mathbf D_j,
+\qquad
+\mathbf\Omega_j
+=\mathbf D_j^{-1}\mathbf P_j^{-1}\mathbf D_j^{-1}.
+$$
+
+Passing only \(\mathbf P_j^{-1}\) would implicitly replace all marginal
+standard errors by one and would therefore specify a different likelihood.
+
+## Full FASH hierarchy under correlated observations
+
+The observation model changes, but the FASH prior remains the same. In the
+manuscript's notation,
+
+$$
+\begin{aligned}
+\beta_j
+&\overset{\mathrm{iid}}{\sim} g_\beta,
+\\
+g_\beta
+&=\sum_{k=0}^K\pi_k\,
+L\text{-GP}(\beta;\sigma_k),
+\qquad
+\pi_k\geq0,
+\quad
+\sum_{k=0}^K\pi_k=1,
+\\
+\hat{\boldsymbol\beta}_j\mid\beta_j,\mathbf\Omega_j
+&\sim
+N_{R_j}\!\left(
+  \boldsymbol\beta_j+\boldsymbol o_j,
+  \mathbf\Omega_j^{-1}
+\right).
+\end{aligned}
+$$
+
+Here \(\sigma_0=0\) represents no deviation from the baseline space
+\(S_0=\operatorname{Null}\{L\}\), exactly as in the manuscript. Conditional on
+the functions and the supplied precision matrices, `fashr` forms the
+unit-level factorization
+
+$$
+p(\hat{\boldsymbol\beta}\mid
+  \boldsymbol\beta,\{\mathbf\Omega_j\}_{j=1}^J)
+=
+\prod_{j=1}^J
+p(\hat{\boldsymbol\beta}_j\mid\beta_j,\mathbf\Omega_j).
+$$
+
+If units are dependent in the data-generating process, the resulting sum of
+unit-level log likelihoods is a composite likelihood; `Omega` does not model
+cross-unit dependence.
+
+## Marginal likelihood and empirical-Bayes fit
+
+Let the \(k\)th \(L\)-GP component induce
+
+$$
+\boldsymbol\beta_j\mid k
+\sim N_{R_j}(\boldsymbol0,\mathbf C_{jk}),
+$$
+
+where \(\mathbf C_{jk}\) is the component covariance evaluated at
+\((t_{j1},\ldots,t_{jR_j})\). If all units share the same observation grid,
+this reduces to the manuscript's notation \(\mathbf C_k\). Define the
+offset-adjusted data
+
+$$
+\boldsymbol y_j
+\mathrel{\mathop:}=
+\hat{\boldsymbol\beta}_j-\boldsymbol o_j.
+$$
+
+Gaussian conjugacy gives the component marginal likelihood
+
+$$
+\begin{aligned}
+\ell_{jk}
+&=
+\int
+p(\boldsymbol y_j\mid\boldsymbol\beta_j,\mathbf\Sigma_j)
+p_k(\boldsymbol\beta_j)\,d\boldsymbol\beta_j
+\\
+&=
+d\mathcal N\!\left(
+  \boldsymbol y_j;
+  \boldsymbol0,
+  \mathbf C_{jk}+\mathbf\Sigma_j
+\right).
+\end{aligned}
+$$
+
+Therefore the empirical-Bayes objective has exactly the same form as in the
+paper,
+
+$$
+\hat{\boldsymbol\pi}
+=\operatorname*{argmax}_{\boldsymbol\pi}
+\sum_{j=1}^J
+\log\left\{
+  \sum_{k=0}^K\pi_k\ell_{jk}
+\right\},
+$$
+
+but each \(\ell_{jk}\) now uses the full
+\(\mathbf\Sigma_j=\mathbf\Omega_j^{-1}\), not the diagonal
+\(\mathbf S_j\).
+
+## Posterior under the general model
+
+The posterior remains a mixture of \(K+1\) GPs,
+
+$$
+p(\beta_j\mid\hat{\boldsymbol\beta}_j,
+  \mathbf\Omega_j,\hat{\boldsymbol\pi})
+=
+\sum_{k=0}^K
+\tilde\pi_{jk}\,
+p_k(\beta_j\mid\hat{\boldsymbol\beta}_j,\mathbf\Omega_j),
+$$
+
+with unchanged posterior mixture weights
+
+$$
+\tilde\pi_{jk}
+=
+\frac{\hat\pi_k\ell_{jk}}
+{\sum_{k'=0}^K\hat\pi_{k'}\ell_{jk'}}.
+$$
+
+For a proper Gaussian component, the posterior of the function values at the
+observed settings is
+
+$$
+\boldsymbol\beta_j\mid\boldsymbol y_j,k
+\sim
+N_{R_j}(\boldsymbol m_{jk},\mathbf V_{jk}),
+$$
+
+where
+
+$$
+\begin{aligned}
+\boldsymbol m_{jk}
+&=
+\mathbf C_{jk}
+(\mathbf C_{jk}+\mathbf\Sigma_j)^{-1}
+\boldsymbol y_j,
+\\
+\mathbf V_{jk}
+&=
+\mathbf C_{jk}
+-\mathbf C_{jk}
+(\mathbf C_{jk}+\mathbf\Sigma_j)^{-1}
+\mathbf C_{jk}.
+\end{aligned}
+$$
+
+For an arbitrary \(t\in\Omega\), let
+
+$$
+\boldsymbol c_{jk}(t)
+\mathrel{\mathop:}=
+\operatorname{Cov}_k\!\left(
+  \boldsymbol\beta_j,\beta_j(t)
+\right).
+$$
+
+Then
+
+$$
+\begin{aligned}
+\mathbb E_k\!\left[\beta_j(t)\mid\boldsymbol y_j\right]
+&=
+\boldsymbol c_{jk}(t)^T
+(\mathbf C_{jk}+\mathbf\Sigma_j)^{-1}
+\boldsymbol y_j,
+\\
+\operatorname{Cov}_k\!\left(
+  \beta_j(s),\beta_j(t)\mid\boldsymbol y_j
+\right)
+&=
+C_k(s,t)
+-\boldsymbol c_{jk}(s)^T
+(\mathbf C_{jk}+\mathbf\Sigma_j)^{-1}
+\boldsymbol c_{jk}(t).
+\end{aligned}
+$$
+
+Thus smoothing, lfdr, lfsr, and other posterior functionals retain their FASH
+definitions; only the unit-level Gaussian likelihood is generalized.
+
+## Mapping the model to `fashr`
+
+In `fashr` 0.1.42:
+
+1. `fash(..., likelihood = "gaussian", Omega = ...)` selects the dependent
+   Gaussian likelihood when `S` is `NULL`.
+2. `Omega` may be one precision matrix shared by all units or a list containing
+   one precision matrix per unit.
+3. The likelihood and posterior-sampling paths both use the supplied precision
+   matrix.
+4. If both `S` and `Omega` are supplied, the package warns and uses the
+   diagonal `S` path. They are alternative parameterizations, not additive
+   sources of uncertainty.
+5. The package checks dimensions but does not currently guarantee symmetry or
+   positive definiteness. These conditions must be validated before fitting.
+6. `fashr` consumes \(\mathbf\Omega_j\); it does not estimate the observation
+   correlation matrix from the effect estimates.
+
+```{r omega-interface, eval=FALSE}
+correlation <- estimated_error_correlation
+
+omega <- lapply(datasets, function(dataset) {
+  standard_errors <- dataset$SE
+  scale_matrix <- diag(standard_errors)
+  covariance <- scale_matrix %*% correlation %*% scale_matrix
+  precision <- solve(covariance)
+
+  # Validate the user-supplied precision before calling fashr.
+  chol(precision)
+  precision
+})
+
+correlated_fit <- fashr::fash(
+  Y = "beta",
+  smooth_var = "time",
+  data_list = datasets,
+  S = NULL,
+  Omega = omega,
+  likelihood = "gaussian",
+  num_basis = 20,
+  order = 1,
+  betaprec = 0,
+  pred_step = 1,
+  penalty = 10,
+  grid = fine_grid
+)
+```
+
+<div class="model-caution">
+<strong>Software capability is not the same as the fitted model in the
+manuscript.</strong> The retained dynamic-eQTL analysis in
+<code>code/01_fash.R</code> calls <code>fash()</code> with
+<code>S = "SE"</code>, after the marginal \(t\)-to-normal standard-error
+adjustment. It therefore uses the diagonal conditional-independence model. A
+full-<code>Omega</code> fit is available as a sensitivity or alternative model,
+but it requires a defensible externally supplied conditional error covariance.
+</div>
+
+## Source provenance and existing validation
+
+This note was checked against the following local sources:
+
+- manuscript source `revision-local/fash.tex`, especially the problem setup,
+  FASH likelihood, adaptive \(L\)-GP prior, posterior mixture, and likelihood
+  matrix;
+- `fashr` source checkout at commit
+  `3c1a9dee015f24a176571acbc133fabe48ae1009` and package version 0.1.42;
+- `R/00_setup.R`, `R/01_likelihood.R`, `R/03_sampling.R`, `R/04_fash.R`,
+  `src/Gaussian_dep.cpp`, and `src/Gaussian_dep_fixed.cpp` in that checkout;
+- the retained exact audit in
+  `code/revision_simulations/internal/omega_precision_sanity_check/`.
+
+The retained audit compared the dependent-Gaussian path with independent
+closed-form multivariate-normal calculations. All 12 exact checks passed, and
+the maximum absolute likelihood-matrix error was
+\(3.55\times10^{-15}\). That audit establishes the implementation contract for
+valid precision matrices; it does not establish how \(\mathbf\Omega_j\) should
+be estimated in a particular scientific application.
+
+For the existing real-data sensitivity that constructs
+\(\mathbf\Omega_j=(\mathbf D_j\mathbf P\mathbf D_j)^{-1}\), see
+[Internal sensitivity analysis: correlated FASH likelihoods](revision_internal_correlated_likelihood_sensitivity.html).

@@ -30,6 +30,30 @@ write_csv <- function(x, path) {
   utils::write.csv(x, file = path, row.names = FALSE)
 }
 
+as_flag <- function(x) {
+  tolower(x) %in% c("1", "true", "t", "yes", "y")
+}
+
+sha256_file <- function(path) {
+  path <- normalizePath(path, winslash = "/", mustWork = TRUE)
+  command <- if (identical(Sys.info()[["sysname"]], "Darwin")) {
+    "shasum"
+  } else {
+    "sha256sum"
+  }
+  arguments <- if (identical(command, "shasum")) {
+    c("-a", "256", path)
+  } else {
+    path
+  }
+  output <- system2(command, arguments, stdout = TRUE, stderr = TRUE)
+  status <- attr(output, "status")
+  if (!is.null(status) && status != 0L) {
+    stop("Unable to compute SHA-256 for ", path, ".")
+  }
+  sub("[[:space:]].*$", "", output[[1L]])
+}
+
 workflowr_root <- find_workflowr_root()
 source(file.path(
   workflowr_root,
@@ -48,20 +72,70 @@ output_id <- get_arg(
   "--output-id",
   "r4_null_like_top500_full_correlations"
 )
+fit_path_argument <- get_arg("--fit-path", "")
+output_dir_argument <- get_arg("--output-dir", "")
+expected_fit_sha256 <- get_arg("--expected-fit-sha256", "")
+expected_fashr_version <- get_arg("--expected-fashr-version", "")
+expected_fashr_remote_sha <- get_arg("--expected-fashr-remote-sha", "")
+overwrite <- as_flag(get_arg("--overwrite", "false"))
 if (is.na(top_n) || top_n < 20L || is.na(n_bootstrap) || n_bootstrap < 20L ||
     is.na(n_benchmark) || n_benchmark < 20L || is.na(bootstrap_seed) ||
     is.na(benchmark_seed) || !nzchar(output_id)) {
   stop("Invalid real-data correlation-estimation arguments.")
 }
 
-fit_path <- file.path(
-  workflowr_root,
-  "output",
-  "dynamic_eQTL_real",
-  "fash_fit1_update.RData"
-)
+fit_path <- if (nzchar(fit_path_argument)) {
+  fit_path_argument
+} else {
+  file.path(
+    workflowr_root,
+    "output",
+    "dynamic_eQTL_real",
+    "fash_fit1_update.RData"
+  )
+}
 if (!file.exists(fit_path)) {
   stop("The BF-adjusted real-data FASH fit is missing: ", fit_path)
+}
+fit_path <- normalizePath(fit_path, winslash = "/", mustWork = TRUE)
+fit_sha256 <- sha256_file(fit_path)
+if (nzchar(expected_fit_sha256) && !identical(fit_sha256, expected_fit_sha256)) {
+  stop(
+    "Expected real-data fit SHA-256 ", expected_fit_sha256,
+    "; found ", fit_sha256, "."
+  )
+}
+if (!requireNamespace("fashr", quietly = TRUE)) {
+  stop("The fashr package is required to load the real-data fit.")
+}
+fashr_description <- utils::packageDescription("fashr")
+package_provenance <- list(
+  package = "fashr",
+  version = as.character(utils::packageVersion("fashr")),
+  remote_sha = if (is.null(fashr_description$RemoteSha)) {
+    NA_character_
+  } else {
+    as.character(fashr_description$RemoteSha)
+  },
+  library_path = normalizePath(
+    find.package("fashr"), winslash = "/", mustWork = TRUE
+  ),
+  r_version = R.version.string,
+  platform = R.version$platform
+)
+if (nzchar(expected_fashr_version) &&
+    !identical(package_provenance$version, expected_fashr_version)) {
+  stop(
+    "Expected fashr ", expected_fashr_version,
+    "; found ", package_provenance$version, "."
+  )
+}
+if (nzchar(expected_fashr_remote_sha) &&
+    !identical(package_provenance$remote_sha, expected_fashr_remote_sha)) {
+  stop(
+    "Expected fashr RemoteSha ", expected_fashr_remote_sha,
+    "; found ", package_provenance$remote_sha, "."
+  )
 }
 fit_environment <- new.env(parent = emptyenv())
 loaded_names <- load(fit_path, envir = fit_environment)
@@ -224,7 +298,9 @@ rownames(matrix_long) <- NULL
 configuration <- list(
   output_id = output_id,
   fit_path = fit_path,
+  fit_sha256 = fit_sha256,
   fit_object = "fash_fit1_update",
+  package_provenance = package_provenance,
   selection = "Highest BF-adjusted lfdr variant per gene, then top lfdr genes",
   top_n = top_n,
   n_gene_representatives = selection$n_genes,
@@ -241,13 +317,20 @@ configuration <- list(
   projection = "Matrix::nearPD(corr = TRUE, keepDiag = TRUE)"
 )
 
-output_dir <- file.path(
-  workflowr_root,
-  "output",
-  "revision_simulations",
-  "real_data",
-  output_id
-)
+output_dir <- if (nzchar(output_dir_argument)) {
+  output_dir_argument
+} else {
+  file.path(
+    workflowr_root,
+    "output",
+    "revision_simulations",
+    "real_data",
+    output_id
+  )
+}
+if ((dir.exists(output_dir) || file.exists(output_dir)) && !overwrite) {
+  stop("Refusing to overwrite real-data R4 output: ", output_dir)
+}
 summary_dir <- file.path(output_dir, "summary")
 invisible(lapply(
   c(output_dir, summary_dir),

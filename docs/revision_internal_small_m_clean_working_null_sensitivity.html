@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-19" />
+
+<title>Internal analysis: small-M clean working-model null sensitivity</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Internal analysis: small-M clean
+working-model null sensitivity</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-19</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-19
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Rplots.pdf
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    analysis/site_libs/
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/revision_simulations/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/playwright/
+    Ignored:    output/revision_simulations/
+
+Untracked files:
+    Untracked:  analysis/revision_internal_fash_cl_manuscript_impact.rmd
+    Untracked:  analysis/revision_internal_fash_discovery_variant_count.rmd
+    Untracked:  analysis/revision_internal_fash_linear_real_data_ablation.rmd
+    Untracked:  analysis/revision_internal_fashr_correlated_observation_model.rmd
+    Untracked:  analysis/revision_internal_r1_normality_assumption.rmd
+    Untracked:  analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd
+    Untracked:  analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd
+    Untracked:  analysis/revision_internal_twenty_variant_per_gene_refit.rmd
+    Untracked:  apps/
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_design_propagated_null_correlation.R
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_multigene_null_beta_covariance_exploration.R
+    Untracked:  code/revision_simulations/internal/early_window_sensitivity/
+    Untracked:  code/revision_simulations/internal/evaluation_grid_sensitivity/
+    Untracked:  code/revision_simulations/internal/fash_cl_manuscript_impact/
+    Untracked:  code/revision_simulations/internal/fash_discovery_variant_count/
+    Untracked:  code/revision_simulations/internal/fash_linear_real_data_ablation/
+    Untracked:  code/revision_simulations/internal/r1_known_truth_genotype_permutation/
+    Untracked:  code/revision_simulations/internal/r1_normality_assumption/
+    Untracked:  code/revision_simulations/internal/selected_signal_genotype_permutation/
+    Untracked:  code/revision_simulations/r5_one_variant_per_gene/
+    Untracked:  code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R
+    Untracked:  code/revision_simulations/shared/real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/test_linear_mixture_fash.R
+    Untracked:  code/revision_simulations/shared/test_real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_linear_mixture_pairing.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_real_genotype_pairing.R
+
+Unstaged changes:
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/revision_balanced_variant_thinning.rmd
+    Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
+    Modified:   analysis/revision_functional_testing_simulation.rmd
+    Modified:   analysis/revision_genotype_level_simulation.rmd
+    Modified:   code/revision_simulations/README.md
+    Modified:   code/revision_simulations/internal/covariance_estimation/run_global_pca_factor_visualization.R
+    Modified:   code/revision_simulations/r1_random_bspline/reporting.R
+    Modified:   code/revision_simulations/r1_random_bspline/run_random_bspline_mc_replication.R
+    Modified:   code/revision_simulations/r2_spiky_transient/reporting.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_combined_spiky_genotype_simulation.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R
+    Modified:   code/revision_simulations/r3_functional_testing/reporting.R
+    Modified:   code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R
+    Modified:   code/revision_simulations/shared/simulation_functions.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style>
+.clean-null-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.clean-null-definition {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.clean-null-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #009e73;
+  border-radius: 4px;
+  background: #edf8f3;
+  color: #164d3a;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre,
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+<div class="clean-null-banner">
+<p><strong>Internal single-draw benchmark.</strong> This page is not
+linked from the workflowr homepage, manuscript, or response letter. It
+is a clean working-model diagnostic rather than a repeated-simulation
+calibration claim.</p>
+</div>
+<div id="question-and-design" class="section level2">
+<h2>Question and design</h2>
+<p>The preceding small-<span class="math inline">\(M\)</span> analysis
+used synchronized signal-stripped residual permutations. This benchmark
+instead generates exact null observations under the diagonal Gaussian
+working likelihood:</p>
+<p><span class="math display">\[
+\widehat\beta_{jt}^{(0)}
+=
+s_{jt} Z_{jt},
+\qquad
+Z_{jt}\overset{\mathrm{iid}}{\sim}N(0,1).
+\]</span></p>
+<div class="clean-null-definition">
+<ul>
+<li>
+<strong>Targets:</strong> the same 6,362 one-random-variant-per-gene
+units selected with seed 20260817.
+</li>
+<li>
+<strong>Preserved inputs:</strong> each target unit’s SE vector,
+16-point time grid, IWP grid, FASH settings, and cached target
+likelihood row.
+</li>
+<li>
+<strong>Clean-null draw:</strong> one independent Gaussian pool of 6,362
+units generated with seed 20260819.
+</li>
+<li>
+<strong>Nested ratios:</strong> (M/J=0.05,0.10,0.20,1.00), using subset
+seed 2026081901.
+</li>
+<li>
+<strong>Full procedure:</strong> raw empirical-Bayes fitting and
+<code>BF_update()</code> are re-estimated for every merged universe; all
+lfdr values come from that universe-specific fit.
+</li>
+<li>
+<strong>Uncertainty:</strong> this is one clean-null draw. No Monte
+Carlo interval is reported.
+</li>
+</ul>
+</div>
+<p>The validated likelihood construction plus the resumed downstream fit
+took 188.7 seconds in total. The likelihood construction itself took
+185.0 seconds.</p>
+</div>
+<div id="bf-adjusted-result-at-alpha-0.05" class="section level2">
+<h2>BF-adjusted result at alpha = 0.05</h2>
+<pre class="r"><code>render_clean_table(
+  clean_bf_alpha005_table,
+  align = &quot;rrrrrrrrrrr&quot;
+)</code></pre>
+<table class="table table-striped table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+M / J
+</th>
+<th style="text-align:right;">
+M
+</th>
+<th style="text-align:right;">
+Merged pi0
+</th>
+<th style="text-align:right;">
+Recovered target pi0
+</th>
+<th style="text-align:right;">
+Target calls
+</th>
+<th style="text-align:right;">
+V
+</th>
+<th style="text-align:right;">
+R merged
+</th>
+<th style="text-align:right;">
+V / R merged
+</th>
+<th style="text-align:right;">
+V / M
+</th>
+<th style="text-align:right;">
+Target-pi0 plug-in FDR
+</th>
+<th style="text-align:right;">
+Merged-pi0 plug-in FDR
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+0.05
+</td>
+<td style="text-align:right;">
+318
+</td>
+<td style="text-align:right;">
+0.934
+</td>
+<td style="text-align:right;">
+0.931
+</td>
+<td style="text-align:right;">
+75
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+75
+</td>
+<td style="text-align:right;">
+0.00%
+</td>
+<td style="text-align:right;">
+0.000%
+</td>
+<td style="text-align:right;">
+0.0%
+</td>
+<td style="text-align:right;">
+0.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.10
+</td>
+<td style="text-align:right;">
+636
+</td>
+<td style="text-align:right;">
+0.938
+</td>
+<td style="text-align:right;">
+0.932
+</td>
+<td style="text-align:right;">
+72
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+72
+</td>
+<td style="text-align:right;">
+0.00%
+</td>
+<td style="text-align:right;">
+0.000%
+</td>
+<td style="text-align:right;">
+0.0%
+</td>
+<td style="text-align:right;">
+0.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.20
+</td>
+<td style="text-align:right;">
+1,272
+</td>
+<td style="text-align:right;">
+0.946
+</td>
+<td style="text-align:right;">
+0.935
+</td>
+<td style="text-align:right;">
+68
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+68
+</td>
+<td style="text-align:right;">
+0.00%
+</td>
+<td style="text-align:right;">
+0.000%
+</td>
+<td style="text-align:right;">
+0.0%
+</td>
+<td style="text-align:right;">
+0.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1.00
+</td>
+<td style="text-align:right;">
+6,362
+</td>
+<td style="text-align:right;">
+0.976
+</td>
+<td style="text-align:right;">
+0.952
+</td>
+<td style="text-align:right;">
+46
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+46
+</td>
+<td style="text-align:right;">
+0.00%
+</td>
+<td style="text-align:right;">
+0.000%
+</td>
+<td style="text-align:right;">
+0.0%
+</td>
+<td style="text-align:right;">
+0.0%
+</td>
+</tr>
+</tbody>
+</table>
+<div class="clean-null-result">
+<p>At nominal (), no clean working-model null was selected by the
+BF-adjusted procedure at any tested (M/J). Therefore (V/R_{}), (V/M),
+and both plug-in FDR diagnostics are exactly zero for this one draw.</p>
+</div>
+<p>This zero is retained without a continuity correction. It does not
+establish that the corresponding probability is exactly zero; it says
+that the observed single-draw count is zero.</p>
+</div>
+<div id="comparison-with-synchronized-residual-controls"
+class="section level2">
+<h2>Comparison with synchronized residual controls</h2>
+<p>The synchronized-residual entries below are the earlier median [IQR]
+across 20 nested subsets of one fixed residual-permutation pool. The
+clean-null entries are single-draw values and therefore have no
+interval.</p>
+<pre class="r"><code>render_clean_table(
+  clean_residual_comparison_table,
+  align = &quot;rrrr&quot;
+)</code></pre>
+<table class="table table-striped table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+M / J
+</th>
+<th style="text-align:right;">
+Clean-null V
+</th>
+<th style="text-align:right;">
+Clean-null V / R merged
+</th>
+<th style="text-align:right;">
+Synchronized-residual V / R merged
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+0.05
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.00%
+</td>
+<td style="text-align:right;">
+2.55% [1.32%, 4.47%]
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.10
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.00%
+</td>
+<td style="text-align:right;">
+5.26% [3.20%, 7.41%]
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.20
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.00%
+</td>
+<td style="text-align:right;">
+11.11% [9.35%, 12.37%]
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1.00
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.00%
+</td>
+<td style="text-align:right;">
+40.21%
+</td>
+</tr>
+</tbody>
+</table>
+<p>The contrast is large: the full synchronized-residual benchmark had
+<span class="math inline">\(V/R_{\mathrm{merged}}=40.21\%\)</span>,
+whereas the clean working-model null draw has zero selected BF-adjusted
+controls. Thus the severe synchronized-residual result is not reproduced
+when the appended controls follow the fitted diagonal Gaussian working
+model exactly.</p>
+</div>
+<div id="raw-fit-sanity-check" class="section level2">
+<h2>Raw-fit sanity check</h2>
+<pre class="r"><code>render_clean_table(
+  clean_raw_alpha005_table,
+  align = &quot;rrrrrrrrrrr&quot;
+)</code></pre>
+<table class="table table-striped table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+M / J
+</th>
+<th style="text-align:right;">
+M
+</th>
+<th style="text-align:right;">
+Merged pi0
+</th>
+<th style="text-align:right;">
+Recovered target pi0
+</th>
+<th style="text-align:right;">
+Target calls
+</th>
+<th style="text-align:right;">
+V
+</th>
+<th style="text-align:right;">
+R merged
+</th>
+<th style="text-align:right;">
+V / R merged
+</th>
+<th style="text-align:right;">
+V / M
+</th>
+<th style="text-align:right;">
+Target-pi0 plug-in FDR
+</th>
+<th style="text-align:right;">
+Merged-pi0 plug-in FDR
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+0.05
+</td>
+<td style="text-align:right;">
+318
+</td>
+<td style="text-align:right;">
+0.573
+</td>
+<td style="text-align:right;">
+0.552
+</td>
+<td style="text-align:right;">
+251
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+251
+</td>
+<td style="text-align:right;">
+0.00%
+</td>
+<td style="text-align:right;">
+0.000%
+</td>
+<td style="text-align:right;">
+0.0%
+</td>
+<td style="text-align:right;">
+0.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.10
+</td>
+<td style="text-align:right;">
+636
+</td>
+<td style="text-align:right;">
+0.588
+</td>
+<td style="text-align:right;">
+0.547
+</td>
+<td style="text-align:right;">
+240
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+240
+</td>
+<td style="text-align:right;">
+0.00%
+</td>
+<td style="text-align:right;">
+0.000%
+</td>
+<td style="text-align:right;">
+0.0%
+</td>
+<td style="text-align:right;">
+0.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.20
+</td>
+<td style="text-align:right;">
+1,272
+</td>
+<td style="text-align:right;">
+0.622
+</td>
+<td style="text-align:right;">
+0.546
+</td>
+<td style="text-align:right;">
+221
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+223
+</td>
+<td style="text-align:right;">
+0.90%
+</td>
+<td style="text-align:right;">
+0.157%
+</td>
+<td style="text-align:right;">
+2.5%
+</td>
+<td style="text-align:right;">
+3.3%
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1.00
+</td>
+<td style="text-align:right;">
+6,362
+</td>
+<td style="text-align:right;">
+0.772
+</td>
+<td style="text-align:right;">
+0.544
+</td>
+<td style="text-align:right;">
+142
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+145
+</td>
+<td style="text-align:right;">
+2.07%
+</td>
+<td style="text-align:right;">
+0.047%
+</td>
+<td style="text-align:right;">
+1.1%
+</td>
+<td style="text-align:right;">
+3.2%
+</td>
+</tr>
+</tbody>
+</table>
+<p>The raw procedure does select clean null controls: two at <span
+class="math inline">\(M/J=0.20\)</span> and three at <span
+class="math inline">\(M/J=1.00\)</span>. Their known-null FDP lower
+bounds are 0.90% and 2.07%, respectively. This confirms that the
+simulated rows enter the selection and counting pipeline normally; the
+BF-adjusted zero is not a hard-coded or denominator artifact.</p>
+</div>
+<div id="known-null-fdp-lower-bound-curve" class="section level2">
+<h2>Known-null FDP lower-bound curve</h2>
+<pre class="r"><code>plot_clean_known_null_fdp()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_small_m_clean_working_null_sensitivity.rmd/clean-known-null-fdp-1.png" alt="BF-adjusted single-draw known-null FDP lower bound V/R_merged versus nominal alpha for directly simulated working-model null controls." width="1692" />
+<p class="caption">
+BF-adjusted single-draw known-null FDP lower bound V/R_merged versus
+nominal alpha for directly simulated working-model null controls.
+</p>
+</div>
+<p>If every appended unit is a valid known null, <span
+class="math inline">\(V/R_{\mathrm{merged}}\)</span> is a lower bound on
+the merged FDP because false target discoveries are not counted in <span
+class="math inline">\(V\)</span>.</p>
+</div>
+<div id="plug-in-fdr-curves" class="section level2">
+<h2>Plug-in FDR curves</h2>
+<p>The plug-in diagnostics remain distinct from the direct lower
+bound:</p>
+<p><span class="math display">\[
+\widehat{\mathrm{FDR}}_T
+=
+\widehat\pi_{0,T}
+\frac{V/M}{R_T/J},
+\qquad
+\widehat{\mathrm{FDR}}_{\mathrm{merged}}
+=
+\widehat\pi_{0,\mathrm{merged}}
+\frac{V/M}{R_{\mathrm{merged}}/(J+M)}.
+\]</span></p>
+<pre class="r"><code>plot_clean_plugin_fdr()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_small_m_clean_working_null_sensitivity.rmd/clean-plugin-fdr-1.png" alt="BF-adjusted target-pi0 and merged-pi0 plug-in FDR diagnostics for one clean working-model null draw." width="1692" />
+<p class="caption">
+BF-adjusted target-pi0 and merged-pi0 plug-in FDR diagnostics for one
+clean working-model null draw.
+</p>
+</div>
+<p>The formulas use <span class="math inline">\(V/M\)</span> to estimate
+a null selection probability. The directly counted discovery-set
+fraction remains <span
+class="math inline">\(V/R_{\mathrm{merged}}\)</span>.</p>
+</div>
+<div id="estimated-null-weights" class="section level2">
+<h2>Estimated null weights</h2>
+<pre class="r"><code>plot_clean_pi0()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_small_m_clean_working_null_sensitivity.rmd/clean-pi0-1.png" alt="Raw and BF-adjusted merged and recovered-target null-proportion estimates after appending nested clean working-model null controls." width="1692" />
+<p class="caption">
+Raw and BF-adjusted merged and recovered-target null-proportion
+estimates after appending nested clean working-model null controls.
+</p>
+</div>
+<p>For the BF-adjusted fit, merged <span
+class="math inline">\(\widehat\pi_0\)</span> rises from 0.930 in the
+target-only reference to 0.934, 0.938, 0.946, and 0.976 as <span
+class="math inline">\(M/J\)</span> increases. The recovered target
+estimate is comparatively stable, moving from 0.930 to 0.931, 0.932,
+0.935, and 0.952. Target calls decrease from 75 at <span
+class="math inline">\(M/J=0.05\)</span> to 46 at <span
+class="math inline">\(M/J=1.00\)</span>, showing that even valid clean
+null controls affect the re-estimated EB procedure when appended in
+large numbers.</p>
+</div>
+<div id="null-generation-diagnostics" class="section level2">
+<h2>Null-generation diagnostics</h2>
+<p>The simulated null z-scores have overall mean -0.0002, overall SD
+0.9970, and mean off-diagonal time correlation -0.0007. The mean
+absolute off-diagonal correlation is 0.0094. All 12 numerical validation
+checks passed with zero genuine FASH warnings.</p>
+</div>
+<div id="interpretation" class="section level2">
+<h2>Interpretation</h2>
+<ol style="list-style-type: decimal">
+<li><strong>The severe synchronized-residual inflation disappears under
+the clean working null.</strong> No BF-adjusted clean null control is
+selected at <span class="math inline">\(\alpha=0.05\)</span> in this
+draw.</li>
+<li><strong>This is a working-model benchmark, not a real-data
+temporal-null model.</strong> The iid Gaussian construction deliberately
+removes temporal dependence, signal leakage, heavy tails, and any other
+null misspecification.</li>
+<li><strong>The zero count is finite-sample evidence, not an exact
+probability.</strong> A repeated simulation would be needed to estimate
+a small nonzero null selection rate precisely.</li>
+<li><strong>Large (M) still changes the EB fit.</strong> Merged null
+weight increases and target discoveries decrease even though the
+appended units are valid nulls. Thus choosing (MJ) remains useful for
+limiting perturbation of the target procedure.</li>
+</ol>
+</div>
+<div id="reproduction-and-provenance" class="section level2">
+<h2>Reproduction and provenance</h2>
+<p>From the workflowr repository root:</p>
+<pre class="bash"><code>Rscript --vanilla code/revision_simulations/internal/selected_signal_genotype_permutation/test_small_m_clean_working_null_helpers.R
+Rscript --vanilla code/revision_simulations/internal/selected_signal_genotype_permutation/run_small_m_clean_working_null_sensitivity.R
+Rscript --vanilla -e &#39;workflowr::wflow_build(&quot;analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd&quot;)&#39;</code></pre>
+<p>The run used the existing target likelihood cache but computed every
+clean-null likelihood row from the simulated effect estimates and
+retained SE vectors. It did not reuse residual-permutation null
+likelihood rows.</p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] workflowr_1.7.2
+
+loaded via a namespace (and not attached):
+ [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.1.4        compiler_4.5.1    
+ [5] promises_1.5.0     tidyselect_1.2.1   Rcpp_1.1.1-1.1     stringr_1.6.0     
+ [9] git2r_0.36.2       dichromat_2.0-0.1  callr_3.7.6        later_1.4.4       
+[13] jquerylib_0.1.4    scales_1.4.0       yaml_2.3.12        fastmap_1.2.0     
+[17] ggplot2_4.0.1      R6_2.6.1           labeling_0.4.3     generics_0.1.4    
+[21] knitr_1.50         tibble_3.3.0       rprojroot_2.1.1    RColorBrewer_1.1-3
+[25] bslib_0.9.0        pillar_1.11.1      rlang_1.2.0        cachem_1.1.0      
+[29] stringi_1.8.7      httpuv_1.6.16      xfun_0.55          S7_0.2.1          
+[33] getPass_0.2-4      fs_1.6.6           sass_0.4.10        otel_0.2.0        
+[37] cli_3.6.6          withr_3.0.2        magrittr_2.0.5     ps_1.9.1          
+[41] grid_4.5.1         digest_0.6.39      processx_3.8.6     rstudioapi_0.17.1 
+[45] lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5     glue_1.8.1        
+[49] farver_2.1.2       whisker_0.4.1      rmarkdown_2.30     httr_1.4.7        
+[53] tools_4.5.1        pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

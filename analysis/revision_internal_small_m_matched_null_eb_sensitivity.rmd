@@ -1,0 +1,289 @@
+---
+title: "Internal analysis: small-M matched-null EB sensitivity"
+author: "Ziang Zhang"
+date: "2026-08-19"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 9.4,
+  fig.height = 6.4,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(file.path(
+  "code",
+  "revision_simulations",
+  "internal",
+  "selected_signal_genotype_permutation",
+  "report_small_m_eb_sensitivity.R"
+))
+```
+
+<style>
+.small-m-internal-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.small-m-definition {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.small-m-warning {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #d55e00;
+  border-radius: 4px;
+  background: #fff2ed;
+  color: #5a2817;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre,
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+
+<div class="small-m-internal-banner">
+<strong>Internal fixed-permutation sensitivity page.</strong> This page is not
+linked from the workflowr homepage, manuscript, or response letter.
+</div>
+
+## Question and design
+
+The original all-gene matched-null experiment appended one synchronized
+signal-stripped residual-permutation control for each of the 6,362 randomly
+sampled target gene--variant units, so that $M=J$. This sensitivity analysis
+asks how the fitted empirical-Bayes mixture changes when only a small subset of
+the existing controls is appended.
+
+<div class="small-m-definition">
+<ul>
+<li><strong>Target universe:</strong> 6,362 genes, with one variant sampled
+uniformly within every tested gene using selection seed 20260817.</li>
+<li><strong>Null construction:</strong> the saved synchronized full-model
+signal-stripped residual permutation from seed 20260811.</li>
+<li><strong>Small-M ratios:</strong> \(M/J=0.05,0.10,0.20\), corresponding to
+\(M=318,636,1272\).</li>
+<li><strong>Replicates:</strong> 20 deterministic null-row subsets per ratio.
+Within each replicate, the three subsets are nested.</li>
+<li><strong>Refitting:</strong> raw FASH and BF update are re-estimated after
+every merge; every target and control lfdr comes from that replicate-specific
+merged fit.</li>
+<li><strong>References:</strong> a newly refitted target-only \(M=0\) procedure
+and the saved full \(M=J\) procedure.</li>
+</ul>
+</div>
+
+The analysis reused cached likelihood rows, so no beta, SE, or likelihood was
+recomputed. The 60 small-M raw/BF refits plus validation took
+`r format_decimal(small_m_total_runtime, 1L)` seconds; the median raw-plus-BF
+fit itself took `r format_decimal(small_m_median_fit_runtime, 3L)` seconds.
+
+<div class="small-m-warning">
+The 20 repetitions quantify <strong>null-row subsampling sensitivity within
+one fixed synchronized permutation</strong>. They are not 20 independent
+permutations. Because the permuted controls may carry alternative-like signal,
+\(V/R_{\mathrm{merged}}\) is labeled a known-null FDP lower-bound diagnostic
+rather than a formal FDP estimate, and the plug-in quantities below are not
+formal repeated-sampling FDR estimates.
+</div>
+
+## Estimated pi0
+
+For each merged fit, the target-null proportion is algebraically recovered as
+
+\[
+\widehat\pi_{0,T}
+=
+\frac{(J+M)\widehat\pi_{0,\mathrm{merged}}-M}{J}.
+\]
+
+The BF-adjusted merged $\widehat\pi_0$ rises only slightly as controls are
+added, from 0.9302 in the target-only fit to median values of approximately
+0.9322, 0.9335, and 0.9357 at $M/J=0.05,0.10,0.20$. In contrast, the recovered
+target $\widehat\pi_0$ declines from 0.9302 to approximately 0.9288, 0.9268,
+and 0.9229. Thus the exact-null weight does not follow the ideal uncontaminated
+mixture identity as $M$ increases.
+
+```{r pi0-sensitivity, fig.height=8.0, fig.cap="Raw and BF-adjusted merged and recovered-target null-proportion estimates versus the appended-control ratio. Small-M points are medians with interquartile bands across 20 nested control subsets; M/J = 0 and 1 are single reference fits."}
+plot_small_m_pi0()
+```
+
+```{r pi0-summary-table, results='asis'}
+render_small_m_table(
+  small_m_pi0_summary_table,
+  align = "llrrr"
+)
+```
+
+## Alternative-mixture weights
+
+The next plot removes the total exact-null mass and, within every refit,
+renormalizes the remaining PSD-scale weights to sum to one before taking
+component-wise medians. It therefore isolates changes in the learned
+alternative mixture from changes in $\widehat\pi_0$. A missing scale in a
+particular fit means its fitted weight is zero.
+
+```{r alternative-weight-heatmap, fig.height=9.2, fig.cap="Median empirical-Bayes mixture weight at each non-null PSD scale after conditioning on the alternative component. Columns are target-only, three small-M ratios, and the full M/J = 1 reference."}
+plot_small_m_alternative_weights()
+```
+
+```{r alternative-weight-summary-table, results='asis'}
+render_small_m_table(
+  small_m_alternative_summary_table,
+  align = "llrr"
+)
+```
+
+The redistribution across non-null PSD scales shows that appended controls do
+more than change the scalar null weight: they also change the shape of the
+learned alternative prior. Consequently, a small difference in
+$\widehat\pi_0$ alone is not evidence that target lfdr values are unaffected.
+Some individual changes exchange weight between neighboring PSD scales, but a
+coarser summary moves in the same direction: the BF-adjusted conditional mean
+PSD declines from 0.1186 in the target-only fit to medians of 0.1179, 0.1168,
+and 0.1122 at the three small-M ratios, and to 0.0874 at \(M/J=1\).
+
+## Alpha = 0.05 summary
+
+For each small-M ratio, entries are median [first quartile, third quartile]
+across the 20 nested subsets. The $M/J=1$ row is the single saved reference.
+
+```{r alpha005-summary-table, results='asis'}
+render_small_m_table(
+  small_m_alpha005_table,
+  align = "lrrrrrrrr"
+)
+```
+
+At nominal $\alpha=0.05$, median $V/R_{\mathrm{merged}}$ is 2.55%, 5.26%,
+and 11.11% for the three small-M ratios, compared with 40.21% for the saved
+$M/J=1$ reference. The increase with $M$ is expected because a larger
+synthetic-control pool can contribute more selected controls to the merged
+discovery set. Median target-$\pi_0$ plug-in FDR diagnostics are 48.6%, 51.5%,
+and 57.7%; the merged-$\pi_0$ versions are 49.9%, 54.1%, and 62.4%.
+
+The $M/J=0.05$ diagnostic is especially discrete: the median number of
+selected controls is only two, with an interquartile range from one to slightly
+above three. Individual plug-in estimates can exceed one; this reflects the
+instability of the scaled diagnostic with a small $M$ and a small target-call
+denominator, not an FDR probability above 100%.
+
+## Plug-in FDR curves
+
+The two diagnostics are
+
+\[
+\widehat{\mathrm{FDR}}_T
+=
+\widehat\pi_{0,T}
+\frac{V/M}{R_T/J},
+\qquad
+\widehat{\mathrm{FDR}}_{\mathrm{merged}}
+=
+\widehat\pi_{0,\mathrm{merged}}
+\frac{V/M}{R_{\mathrm{merged}}/(J+M)}.
+\]
+
+These plug-in formulas still use $V/M$ as the estimated null selection
+probability. This is distinct from the direct known-null FDP lower-bound
+diagnostic $V/R_{\mathrm{merged}}$.
+
+```{r plugin-fdr-curves, fig.height=6.6, fig.cap="BF-adjusted plug-in FDR diagnostics versus nominal alpha for the three small-M ratios. Solid lines are medians, ribbons are interquartile ranges, and the dashed black curve is the saved M/J = 1 reference."}
+plot_small_m_plugin_fdr()
+```
+
+Reducing $M$ does not restore an approximately nominal plug-in curve. It
+reduces the influence of the appended controls on each individual EB fit, but
+the resulting diagnostic becomes noisier because only a few controls are
+selected.
+
+## Known-null FDP lower bound
+
+```{r known-null-fdp-curves, fig.height=6.4, fig.cap="BF-adjusted known-null FDP lower-bound diagnostic V/R_merged versus nominal alpha. These fixed-permutation controls may be signal-contaminated, so the curve is not a formal FDP estimate."}
+plot_small_m_known_null_fdp()
+```
+
+The direct diagnostic asks what fraction of all merged discoveries came from
+the appended controls. If every appended control were a valid known null, it
+would be a lower bound on the merged FDP because false target discoveries are
+not counted in $V$. Signal leakage weakens that known-null interpretation in
+this real-data permutation experiment.
+
+## Interpretation
+
+1. **The scalar BF null weight is fairly stable, but the ideal dilution
+identity fails.** Merged BF $\widehat\pi_0$ changes by only a few tenths of a
+percentage point at small $M$, while the recovered target $\widehat\pi_0$
+systematically decreases.
+2. **The alternative prior is also affected.** The conditional PSD-scale
+weights redistribute as $M/J$ increases, so inspecting only
+$\widehat\pi_0$ misses part of the EB influence.
+3. **The severe plug-in inflation is not created only by choosing $M=J$.**
+It remains large at $M/J=0.05,0.10,0.20$, although the smallest-$M$
+estimates have wide subsampling variation.
+4. **The direct known-null FDP diagnostic depends strongly on $M$.** At
+$\alpha=0.05$, median $V/R_{\mathrm{merged}}$ rises from 2.55% at $M/J=0.05$
+to 11.11% at $M/J=0.20$ and 40.21% at $M/J=1$.
+5. **Smaller $M$ limits contamination per fit but does not validate the
+controls.** This experiment is evidence about EB sensitivity to the fixed
+synthetic-control pool. A formal calibration claim would still require clean
+known-truth nulls or independently generated valid permutations.
+
+## Reproduction and provenance
+
+```{r provenance-table, results='asis'}
+provenance_display <- small_m_input_provenance
+provenance_display$size_bytes <- format_integer(provenance_display$size_bytes)
+names(provenance_display) <- c(
+  "Role", "Path", "Bytes", "Modified (UTC)", "MD5"
+)
+render_small_m_table(
+  provenance_display,
+  align = "llrll"
+)
+```
+
+Page-specific source files:
+
+- `code/revision_simulations/internal/selected_signal_genotype_permutation/small_m_eb_sensitivity_helpers.R`
+- `code/revision_simulations/internal/selected_signal_genotype_permutation/run_small_m_eb_sensitivity.R`
+- `code/revision_simulations/internal/selected_signal_genotype_permutation/test_small_m_eb_sensitivity.R`
+- `code/revision_simulations/internal/selected_signal_genotype_permutation/report_small_m_eb_sensitivity.R`
+
+Reproduction commands from the workflowr project root:
+
+```{r reproduction-commands, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/selected_signal_genotype_permutation/test_small_m_eb_sensitivity.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/selected_signal_genotype_permutation/run_small_m_eb_sensitivity.R
+
+Rscript --vanilla -e \
+  'workflowr::wflow_build("analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd")'
+```

@@ -11,7 +11,7 @@
 
 <meta name="author" content="Ziang Zhang" />
 
-<meta name="date" content="2025-09-14" />
+<meta name="date" content="2026-08-22" />
 
 <title>Appendix B: Simulation</title>
 
@@ -35,6 +35,7 @@
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
@@ -231,6 +232,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -349,11 +353,19 @@ div.tocify {
 
 <div id="header">
 
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
 
 
 <h1 class="title toc-ignore">Appendix B: Simulation</h1>
 <h4 class="author">Ziang Zhang</h4>
-<h4 class="date">2025-09-14</h4>
+<h4 class="date">2026-08-22</h4>
 
 </div>
 
@@ -361,7 +373,7 @@ div.tocify {
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-ok text-success"
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -372,8 +384,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
-</a>
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -382,16 +394,16 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2025-11-09
+<strong>Last updated:</strong> 2026-08-22
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 0
+aria-hidden="true"></span> 1
 </p>
 <p>
-<strong>Knit directory:</strong> <code>fashr-paper/</code> <span
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
 class="glyphicon glyphicon-question-sign" aria-hidden="true"
 title="This is the local directory in which the code in this file was executed.">
 </span>
@@ -411,18 +423,21 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
-<span class="glyphicon glyphicon-ok text-success"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
-</a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate"
+<div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git
-repository, you know the exact version of the code that produced these
-results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
 </div>
 </div>
 </div>
@@ -513,13 +528,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong81a1637">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa">
 <span class="glyphicon glyphicon-ok text-success"
-aria-hidden="true"></span> <strong>Repository version:</strong> 81a1637
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>
 </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrong81a1637"
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -528,7 +545,8 @@ and connecting the code version to the results is critical for
 reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version 81a1637.
+The results in this page were generated with repository version
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -544,33 +562,94 @@ were generated:
 <pre><code>
 Ignored files:
     Ignored:    .DS_Store
+    Ignored:    .Rhistory
     Ignored:    .Rproj.user/
-    Ignored:    analysis/figure/
+    Ignored:    Rplots.pdf
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
     Ignored:    code/.DS_Store
-    Ignored:    data/.DS_Store
-    Ignored:    output/appendixB/
+    Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/revision_simulations/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/playwright/
+    Ignored:    output/revision_simulations/
 
 Untracked files:
-    Untracked:  analysis/appendixC.rmd
-    Untracked:  analysis/dynamic_eQTL_real.rmd
-    Untracked:  analysis/nonlinear_dynamic_eQTL_real.rmd
-    Untracked:  analysis/toy_example.rmd
-    Untracked:  code/00_eQTLs.R
-    Untracked:  code/01_fash.R
-    Untracked:  code/01_fash_uncorrected.R
-    Untracked:  code/02_dyn.R
-    Untracked:  code/03_nonlindyn.R
-    Untracked:  code/04_minlfsr.R
-    Untracked:  code/05_Interact.R
-    Untracked:  code/06_minlfsr_nonlin.R
-    Untracked:  code/07_grid_sensitivity.R
-    Untracked:  code/08_grid_sensitivity.R
-    Untracked:  code/filterVariantPerGene.R
-    Untracked:  data/appendixB/
+    Untracked:  analysis/dynamic_eQTL_real_cl.rmd
+    Untracked:  analysis/nonlinear_dynamic_eQTL_real_cl.Rmd
+    Untracked:  analysis/revision_enhancer_enrichment_cl.rmd
+    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd
+    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity_middle_4_11.rmd
+    Untracked:  analysis/revision_internal_fash_cl_manuscript_impact.rmd
+    Untracked:  analysis/revision_internal_fash_discovery_variant_count.rmd
+    Untracked:  analysis/revision_internal_fash_linear_real_data_ablation.rmd
+    Untracked:  analysis/revision_internal_fashr_correlated_observation_model.rmd
+    Untracked:  analysis/revision_internal_matched_fash_linear_real_data.rmd
+    Untracked:  analysis/revision_internal_matched_fash_linear_real_data_cl.rmd
+    Untracked:  analysis/revision_internal_r1_normality_assumption.rmd
+    Untracked:  analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd
+    Untracked:  analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd
+    Untracked:  analysis/revision_internal_twenty_variant_per_gene_refit.rmd
+    Untracked:  apps/
+    Untracked:  code/02_dyn_lfsr.R
+    Untracked:  code/02_dyn_lfsr.sbatch
+    Untracked:  code/revision_simulations/appendix_b/
+    Untracked:  code/revision_simulations/internal/cl_pc_real_data_pages/
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_design_propagated_null_correlation.R
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_multigene_null_beta_covariance_exploration.R
+    Untracked:  code/revision_simulations/internal/early_window_sensitivity/
+    Untracked:  code/revision_simulations/internal/evaluation_grid_sensitivity/
+    Untracked:  code/revision_simulations/internal/fash_cl_manuscript_impact/
+    Untracked:  code/revision_simulations/internal/fash_discovery_variant_count/
+    Untracked:  code/revision_simulations/internal/fash_linear_real_data_ablation/
+    Untracked:  code/revision_simulations/internal/fash_strober_enhancer_comparison_cl/
+    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data/
+    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data_cl/
+    Untracked:  code/revision_simulations/internal/r0_linear_iwp_power_mechanism/
+    Untracked:  code/revision_simulations/internal/r0_linear_summary_statistic/
+    Untracked:  code/revision_simulations/internal/r1_known_truth_genotype_permutation/
+    Untracked:  code/revision_simulations/internal/r1_linear_truth_composition/
+    Untracked:  code/revision_simulations/internal/r1_normality_assumption/
+    Untracked:  code/revision_simulations/internal/residual_correlation_fash/
+    Untracked:  code/revision_simulations/internal/selected_signal_genotype_permutation/
+    Untracked:  code/revision_simulations/r1_r2_fashr0143/
+    Untracked:  code/revision_simulations/r5_one_variant_per_gene/
+    Untracked:  code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R
+    Untracked:  code/revision_simulations/shared/real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/test_linear_mixture_fash.R
+    Untracked:  code/revision_simulations/shared/test_real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_linear_mixture_pairing.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_real_genotype_pairing.R
+    Untracked:  figure/
 
 Unstaged changes:
-    Modified:   analysis/about.Rmd
+    Modified:   analysis/appendixB.rmd
+    Modified:   analysis/dynamic_eQTL_real.rmd
     Modified:   analysis/index.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Modified:   analysis/revision_balanced_variant_thinning.rmd
+    Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
+    Modified:   analysis/revision_enhancer_enrichment.rmd
+    Modified:   analysis/revision_functional_testing_simulation.rmd
+    Modified:   analysis/revision_genotype_level_simulation.rmd
+    Modified:   code/revision_simulations/README.md
+    Modified:   code/revision_simulations/internal/covariance_estimation/run_global_pca_factor_visualization.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/reporting.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/run_fash_strober_enhancer_comparison.R
+    Modified:   code/revision_simulations/r1_random_bspline/reporting.R
+    Modified:   code/revision_simulations/r1_random_bspline/run_random_bspline_mc_replication.R
+    Modified:   code/revision_simulations/r2_spiky_transient/reporting.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_combined_spiky_genotype_simulation.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R
+    Modified:   code/revision_simulations/r3_functional_testing/reporting.R
+    Modified:   code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R
+    Modified:   code/revision_simulations/shared/simulation_functions.R
 
 </code></pre>
 <p>
@@ -620,7 +699,41 @@ Message
 Rmd
 </td>
 <td>
-81a1637
+<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/analysis/appendixB.rmd" target="_blank">c87957a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-10
+</td>
+<td>
+Add revision analyses: R1-R6 reviewer-facing pages and internal studies
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/1871ea04b0b3d79b8c55a32e9a22fc8a442e94ad/docs/appendixB.html" target="_blank">1871ea0</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2025-11-09
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/81a1637c6596bd46696c9ec0e90432a78769d25a/analysis/appendixB.rmd" target="_blank">81a1637</a>
 </td>
 <td>
 Ziang Zhang
@@ -639,615 +752,649 @@ workflowr::wflow_publish("analysis/appendixB.rmd")
 </div>
 </div>
 </div>
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
-<p>The simulated datasets look like the following:</p>
-<pre class="r"><code>library(fashr)
-library(ggplot2)
-set.seed(12345)
-sigma_vec = c(0.1, 0.3, 0.5)
-
-data_sim_list_A &lt;- lapply(1:3, function(i) simulate_process(sd_poly = 1, type = &quot;nondynamic&quot;, sd = sigma_vec, normalize = F))
-
-data_sim_list_B &lt;- lapply(1:3, function(i) simulate_process(sd_poly = 1, type = &quot;linear&quot;, sd = sigma_vec, normalize = F))
-
-data_sim_list_C &lt;- lapply(1:3, function(i) simulate_process(sd_poly = 0, type = &quot;nonlinear&quot;, sd = sigma_vec, sd_fun = 5, p = 2, normalize = F))
-
-datasets &lt;- c(data_sim_list_A, data_sim_list_B, data_sim_list_C)
-labels &lt;- c(rep(&quot;A&quot;, 3), rep(&quot;B&quot;, 3), rep(&quot;C&quot;, 3))
-indices_A &lt;- 1:3
-indices_B &lt;- 4:6
-indices_C &lt;- 7:9
-
-dataset_labels &lt;- rep(as.character(NA),9)
-dataset_labels[indices_A] &lt;- paste0(&quot;A&quot;,seq(1,length(indices_A)))
-dataset_labels[indices_B] &lt;- paste0(&quot;B&quot;,seq(1,length(indices_B)))
-dataset_labels[indices_C] &lt;- paste0(&quot;C&quot;,seq(1,length(indices_C)))
-names(datasets) &lt;- dataset_labels
-
-par(mfrow = c(3, 3))
-for(i in indices_A[1:3]){
-  plot(datasets[[i]]$x, datasets[[i]]$y, 
-       type = &quot;p&quot;, col = &quot;black&quot;, lwd = 1, pch = 20,
-       xlab = &quot;Time&quot;, ylab = &quot;Effect Size&quot;, 
-       ylim = c(min(sapply(datasets[indices_A], function(d) min(d$y - 2*d$sd))) - 0.5,
-                max(sapply(datasets[indices_A], function(d) max(d$y + 2*d$sd)))) + 0.5,
-       main = paste(&quot;Category A: &quot;, i))
-  lines(datasets[[i]]$x, datasets[[i]]$truef, col = &quot;red&quot;, lwd = 2)
-   arrows(
-    datasets[[i]]$x,
-    datasets[[i]]$y - 2 * datasets[[i]]$sd,
-    datasets[[i]]$x,
-    datasets[[i]]$y + 2 * datasets[[i]]$sd,
-    length = 0.05,
-    angle = 90,
-    code = 3,
-    col = &quot;black&quot;
-  )
+<style>
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
 }
-
-for(i in indices_B[1:3]){
-  plot(datasets[[i]]$x, datasets[[i]]$y, type = &quot;p&quot;, col = &quot;black&quot;, 
-       lwd = 1, pch = 20,
-       xlab = &quot;Time&quot;, ylab = &quot;Effect Size&quot;, 
-       ylim = c(min(sapply(datasets[indices_B], function(d) min(d$y - 2*d$sd))) - 0.5,
-                max(sapply(datasets[indices_B], function(d) max(d$y + 2*d$sd)))) + 0.5,
-       main = paste(&quot;Category B: &quot;, i))
-  lines(datasets[[i]]$x,
-        datasets[[i]]$truef,
-        col = &quot;red&quot;,
-        lwd = 2)
-  arrows(
-    datasets[[i]]$x,
-    datasets[[i]]$y - 2 * datasets[[i]]$sd,
-    datasets[[i]]$x,
-    datasets[[i]]$y + 2 * datasets[[i]]$sd,
-    length = 0.05,
-    angle = 90,
-    code = 3,
-    col = &quot;black&quot;
-  )
+.r0-key-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
 }
-
-for(i in indices_C[1:3]){
-  plot(datasets[[i]]$x, datasets[[i]]$y, type = &quot;p&quot;, 
-       col = &quot;black&quot;, lwd = 1, pch = 20,
-       xlab = &quot;Time&quot;, ylab = &quot;Effect Size&quot;, 
-       ylim = c(min(sapply(datasets[indices_C], function(d) min(d$y - 2*d$sd))) - 0.5,
-                max(sapply(datasets[indices_C], function(d) max(d$y + 2*d$sd)))) + 0.5,
-       main = paste(&quot;Category C: &quot;, i))
-  lines(datasets[[i]]$x,
-        datasets[[i]]$truef,
-        col = &quot;red&quot;,
-        lwd = 2)
-  arrows(
-    datasets[[i]]$x,
-    datasets[[i]]$y - 2 * datasets[[i]]$sd,
-    datasets[[i]]$x,
-    datasets[[i]]$y + 2 * datasets[[i]]$sd,
-    length = 0.05,
-    angle = 90,
-    code = 3,
-    col = &quot;black&quot;
-  )
-}</code></pre>
-<p><img src="figure/appendixB.rmd/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>par(mfrow = c(1, 1))</code></pre>
-<p>Define the functions to be used for simulation:</p>
-<pre class="r"><code>get_one_set_of_datasets &lt;- function(J, pho0 = 0.1, pho1 = 0.05, sigma_vec = c(0.05, 0.1, 0.2)){
-  # check if pho0 &gt; pho1
-  if(pho0 &lt;= pho1){
-    stop(&quot;pho0 must be greater than pho1&quot;)
+.main-container .figure {
+  max-width: 980px;
+  margin: 1.4em auto;
+  text-align: center;
+}
+.main-container .figure img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+.main-container table {
+  width: auto;
+  max-width: 100%;
+}
+.main-container table caption,
+.main-container p.caption {
+  color: #333333;
+  font-weight: 600;
+  text-align: left;
+}
+pre {
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+@media (max-width: 767px) {
+  .main-container table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  propA &lt;- 1 - pho0
-  propB &lt;- pho0 - pho1
-  propC &lt;- pho1
-  
-  sizeA &lt;- J * propA
-  data_sim_list_A &lt;- lapply(1:sizeA, function(i) simulate_process(sd_poly = 1, type = &quot;nondynamic&quot;, sd = sigma_vec, normalize = F))
-  
-  sizeB &lt;- J * propB
-  if(sizeB &gt; 0){
-    data_sim_list_B &lt;- lapply(1:sizeB, function(i) simulate_process(sd_poly = 1, type = &quot;linear&quot;, sd = sigma_vec, normalize = F))
-  }else{
-    data_sim_list_B &lt;- list()
-  }
-  
-  sizeC &lt;- J * propC
-  data_sim_list_C &lt;- lapply(1:sizeC, function(i) simulate_process(sd_poly = 0, type = &quot;nonlinear&quot;, sd = sigma_vec, sd_fun = 5, p = 2, normalize = F))
-  
-  datasets &lt;- c(data_sim_list_A, data_sim_list_B, data_sim_list_C)
-  labels &lt;- c(rep(&quot;A&quot;, sizeA), rep(&quot;B&quot;, sizeB), rep(&quot;C&quot;, sizeC))
-  indices_A &lt;- 1:sizeA
-  indices_B &lt;- (sizeA + 1):(sizeA + sizeB)
-  indices_C &lt;- (sizeA + sizeB + 1):(sizeA + sizeB + sizeC)
-  
-  dataset_labels &lt;- rep(as.character(NA),100)
-  dataset_labels[indices_A] &lt;- paste0(&quot;A&quot;,seq(1,length(indices_A)))
-  dataset_labels[indices_B] &lt;- paste0(&quot;B&quot;,seq(1,length(indices_B)))
-  dataset_labels[indices_C] &lt;- paste0(&quot;C&quot;,seq(1,length(indices_C)))
-  names(datasets) &lt;- dataset_labels
-  
-  return(datasets)
 }
-
-get_result_once &lt;- function(J, pho0 = 0.1, pho1 = 0.05, sigma_vec = c(0.05, 0.1, 0.2), 
-                            grid = sort(c(0, exp(-0.5*seq(0,10, by = 0.2)))),
-                            penalty = 10, num_basis = 20, num_cores = 1){
-  
-  pi00 &lt;- 1 - pho0
-  pi01 &lt;- 1 - pho1
-  
-  datasets &lt;- get_one_set_of_datasets(J, pho0, pho1, sigma_vec)
-  
-  fash_fit1 &lt;- fash(Y = &quot;y&quot;, smooth_var = &quot;x&quot;, S = &quot;sd&quot;, data_list = datasets, order = 1,
-                    verbose = FALSE, num_cores = num_cores,
-                    grid = grid, num_basis = num_basis, penalty = penalty)
-  fash_fit2 &lt;- fash(Y = &quot;y&quot;, smooth_var = &quot;x&quot;, S = &quot;sd&quot;, data_list = datasets, order = 2,
-                    verbose = FALSE, num_cores = num_cores,
-                    grid = grid, num_basis = num_basis, penalty = penalty)
-  
-  hat_pi_00 &lt;- fash_fit1$prior_weights$prior_weight[1]
-  hat_pi_01 &lt;- fash_fit2$prior_weights$prior_weight[1]
-  
-  fash_fit1_update &lt;- BF_update(fash_fit1, plot = FALSE)
-  fash_fit2_update &lt;- BF_update(fash_fit2, plot = FALSE)
-  
-  tilde_pi_00 &lt;- fash_fit1_update$prior_weights$prior_weight[1]
-  tilde_pi_01 &lt;- fash_fit2_update$prior_weights$prior_weight[1]
-  
-  data.frame(pi_00 = pi00, pi_01 = pi01,
-             hat_pi_00 = hat_pi_00, hat_pi_01 = hat_pi_01,
-             tilde_pi_00 = tilde_pi_00, tilde_pi_01 = tilde_pi_01)
-  
-}</code></pre>
-</div>
-<div id="simulation" class="section level2">
-<h2>Simulation</h2>
-<div id="dense-grid" class="section level3">
-<h3>Dense grid</h3>
-<p>In the first setting, consider a relatively dense grid:</p>
-<pre class="r"><code>## Setting A:
-set.seed(12345)
-pho_vec &lt;- seq(0.05, 0.5, by = 0.01)
-
-result_all &lt;- lapply(pho_vec, function(pho0){
-  pho1 &lt;- pho0 / 2
-  get_result_once(J = 300, pho0 = pho0, pho1 = pho1, sigma_vec = c(0.1, 0.3, 0.5), 
-                  grid = sort(c(0, exp(-0.5*seq(0,10, by = 0.1)))),
-                  penalty = 1, num_cores = 5,
-                  num_basis = 20)
-})
-result_df &lt;- do.call(rbind, result_all)
-save(result_df, file = &quot;data/simulation_result_denser_grid.RData&quot;)</code></pre>
-<pre class="r"><code>load(&quot;data/appendixB/simulation_result_denser_grid.RData&quot;)</code></pre>
-<pre class="r"><code>par(mfrow = c(1, 2))
-plot(result_df$pi_00, result_df$hat_pi_00, 
-     xlab = expression(&quot;True &quot; * pi[0]), 
-     ylab = expression(&quot;Estimated &quot; * pi[0]),
-     main = expression(&quot;Estimated vs True &quot; * pi[0] * &quot; (Order 1)&quot;),
-     pch = 16, col = rgb(0,0,0,0.5), ylim = c(0,1), xlim = c(0.5,1))
-abline(0,1,col=&#39;red&#39;,lty=2, lwd = 2)
-points(result_df$pi_00, result_df$tilde_pi_00, pch = 17, col = rgb(0,0,1,0.5))
-legend(&quot;topleft&quot;, legend = c(&quot;Before BF update&quot;, &quot;After BF update&quot;), pch = c(16,17), col = c(rgb(0,0,0,0.5), rgb(0,0,1,0.5)), bty = &quot;n&quot;)
-plot(result_df$pi_01, result_df$hat_pi_01, 
-     xlab = expression(&quot;True &quot; * pi[0]), 
-     ylab = expression(&quot;Estimated &quot; * pi[0]),
-     main = expression(&quot;Estimated vs True &quot; * pi[0] * &quot; (Order 2)&quot;),
-     pch = 16, col = rgb(0,0,0,0.5), ylim = c(0,1), xlim = c(0.75,1))
-abline(0,1,col=&#39;red&#39;,lty=2, lwd = 2)
-points(result_df$pi_01, result_df$tilde_pi_01, pch = 17, col = rgb(0,0,1,0.5))</code></pre>
-<p><img src="figure/appendixB.rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code># legend(&quot;bottomleft&quot;, legend = c(&quot;Before BF update&quot;, &quot;After BF update&quot;), pch = c(16,17), col = c(rgb(0,0,0,0.5), rgb(0,0,1,0.5)), bty = &quot;n&quot;)
-par(mfrow = c(1, 1))</code></pre>
-<pre class="r"><code>pdf(&quot;output/appendixB/simulation_result_denser_grid.pdf&quot;, width = 5, height = 5)
-plot(result_df$pi_00, result_df$hat_pi_00, 
-     xlab = expression(&quot;True &quot; * pi[0]), 
-     ylab = expression(&quot;Estimated &quot; * pi[0]),
-     pch = 16, col = rgb(0,0,0,0.5), ylim = c(0,1), xlim = c(0.5,1))
-abline(0,1,col=&#39;red&#39;,lty=2, lwd = 2)
-points(result_df$pi_00, result_df$tilde_pi_00, pch = 17, col = rgb(0,0,1,0.5))
-legend(&quot;topleft&quot;, legend = c(&quot;Before BF update&quot;, &quot;After BF update&quot;), pch = c(16,17), col = c(rgb(0,0,0,0.5), rgb(0,0,1,0.5)), bty = &quot;n&quot;)
-dev.off()
-
-pdf(&quot;output/appendixB/simulation_result_denser_grid_order2.pdf&quot;, width = 5, height = 5)
-plot(result_df$pi_01, result_df$hat_pi_01, 
-     xlab = expression(&quot;True &quot; * pi[0]), 
-     ylab = expression(&quot;Estimated &quot; * pi[0]),
-     pch = 16, col = rgb(0,0,0,0.5), ylim = c(0,1), xlim = c(0.75,1))
-abline(0,1,col=&#39;red&#39;,lty=2, lwd = 2)
-points(result_df$pi_01, result_df$tilde_pi_01, pch = 17, col = rgb(0,0,1,0.5))
-# legend(&quot;bottomleft&quot;, legend = c(&quot;Before BF update&quot;, &quot;After BF update&quot;), pch = c(16,17), col = c(rgb(0,0,0,0.5), rgb(0,0,1,0.5)), bty = &quot;n&quot;)
-dev.off()</code></pre>
-</div>
-<div id="loose-grid" class="section level3">
-<h3>Loose grid</h3>
-<p>In the second setting, consider a relatively loose grid:</p>
-<pre class="r"><code>## Setting B:
-set.seed(12345)
-pho_vec &lt;- seq(0.05, 0.5, by = 0.01)
-
-result_all &lt;- lapply(pho_vec, function(pho0){
-  pho1 &lt;- pho0 / 2
-  get_result_once(J = 300, pho0 = pho0, pho1 = pho1, sigma_vec = c(0.1, 0.3, 0.5), 
-                  grid = sort(c(0, exp(-0.5*seq(0,10, by = 0.2)))),
-                  penalty = 1, num_cores = 5,
-                  num_basis = 20)
-})
-result_df &lt;- do.call(rbind, result_all)
-save(result_df, file = &quot;data/simulation_result_dense_grid.RData&quot;)</code></pre>
-<pre class="r"><code>load(&quot;data/appendixB/simulation_result_dense_grid.RData&quot;)</code></pre>
-<pre class="r"><code>par(mfrow = c(1, 2))
-plot(result_df$pi_00, result_df$hat_pi_00, 
-     xlab = expression(&quot;True &quot; * pi[0]), 
-     ylab = expression(&quot;Estimated &quot; * pi[0]),
-     main = expression(&quot;Estimated vs True &quot; * pi[0] * &quot; (Order 1)&quot;),
-     pch = 16, col = rgb(0,0,0,0.5), ylim = c(0,1), xlim = c(0.5,1))
-abline(0,1,col=&#39;red&#39;,lty=2, lwd = 2)
-points(result_df$pi_00, result_df$tilde_pi_00, pch = 17, col = rgb(0,0,1,0.5))
-legend(&quot;topleft&quot;, legend = c(&quot;Before BF update&quot;, &quot;After BF update&quot;), pch = c(16,17), col = c(rgb(0,0,0,0.5), rgb(0,0,1,0.5)), bty = &quot;n&quot;)
-plot(result_df$pi_01, result_df$hat_pi_01, 
-     xlab = expression(&quot;True &quot; * pi[0]), 
-     ylab = expression(&quot;Estimated &quot; * pi[0]),
-     main = expression(&quot;Estimated vs True &quot; * pi[0] * &quot; (Order 2)&quot;),
-     pch = 16, col = rgb(0,0,0,0.5), ylim = c(0,1), xlim = c(0.75,1))
-abline(0,1,col=&#39;red&#39;,lty=2, lwd = 2)
-points(result_df$pi_01, result_df$tilde_pi_01, pch = 17, col = rgb(0,0,1,0.5))</code></pre>
-<p><img src="figure/appendixB.rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code># legend(&quot;bottomleft&quot;, legend = c(&quot;Before BF update&quot;, &quot;After BF update&quot;), pch = c(16,17), col = c(rgb(0,0,0,0.5), rgb(0,0,1,0.5)), bty = &quot;n&quot;)
-par(mfrow = c(1, 1))</code></pre>
-<pre class="r"><code>pdf(&quot;output/appendixB/simulation_result_dense_grid.pdf&quot;, width = 5, height = 5)
-plot(result_df$pi_00, result_df$hat_pi_00, 
-     xlab = &quot;True pi0&quot;, 
-     ylab = &quot;Estimated pi0&quot;, 
-     pch = 16, col = rgb(0,0,0,0.5), ylim = c(0,1), xlim = c(0.5,1))
-abline(0,1,col=&#39;red&#39;,lty=2, lwd = 2)
-points(result_df$pi_00, result_df$tilde_pi_00, pch = 17, col = rgb(0,0,1,0.5))
-legend(&quot;topleft&quot;, legend = c(&quot;Before BF update&quot;, &quot;After BF update&quot;), pch = c(16,17), col = c(rgb(0,0,0,0.5), rgb(0,0,1,0.5)), bty = &quot;n&quot;)
-dev.off()
-
-pdf(&quot;output/appendixB/simulation_result_dense_grid_order2.pdf&quot;, width = 5, height = 5)
-plot(result_df$pi_01, result_df$hat_pi_01, 
-     xlab = &quot;True pi0&quot;, 
-     ylab = &quot;Estimated pi0&quot;, 
-     pch = 16, col = rgb(0,0,0,0.5), ylim = c(0,1), xlim = c(0.75,1))
-abline(0,1,col=&#39;red&#39;,lty=2, lwd = 2)
-points(result_df$pi_01, result_df$tilde_pi_01, pch = 17, col = rgb(0,0,1,0.5))
-# legend(&quot;bottomleft&quot;, legend = c(&quot;Before BF update&quot;, &quot;After BF update&quot;), pch = c(16,17), col = c(rgb(0,0,0,0.5), rgb(0,0,1,0.5)), bty = &quot;n&quot;)
-dev.off()</code></pre>
+</style>
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>This page evaluates FASH’s exact-null-weight estimation and discovery
+behavior in a controlled three-class simulation. It has been rebuilt
+from the completed versioned cache generated with <code>fashr</code>
+0.1.43 at commit bf223df75da6e41ae48607a56b4cd12d7c3b24e7. Routine
+workflowr builds read this cache and do not refit FASH.</p>
+<p>For unit <span class="math inline">\(j\)</span>, the true effect
+belongs to one of three ordered classes:</p>
+<ul>
+<li><strong>A: constant</strong>, which is null for both IWP<span
+class="math inline">\(_1\)</span> and IWP<span
+class="math inline">\(_2\)</span> testing;</li>
+<li><strong>B: linear dynamic</strong>, which is non-null for IWP<span
+class="math inline">\(_1\)</span> but null for IWP<span
+class="math inline">\(_2\)</span>;</li>
+<li><strong>C: nonlinear dynamic</strong>, which is non-null for both
+tests.</li>
+</ul>
+<p>Let</p>
+<p><span class="math display">\[
+\rho_{\mathrm{dynamic}} = P(B \cup C),
+\qquad
+\rho_{\mathrm{nonlinear}} = P(C).
+\]</span></p>
+<p>The exact-null proportions estimated by the two FASH orders are
+therefore</p>
+<p><span class="math display">\[
+\pi_{0,\mathrm{IWP1}} = 1-\rho_{\mathrm{dynamic}},
+\qquad
+\pi_{0,\mathrm{IWP2}} = 1-\rho_{\mathrm{nonlinear}}.
+\]</span></p>
+<div class="r0-key-result">
+<p><strong>Observed result.</strong> Across the 92 grid conditions, BF
+updating removes all seven raw-IWP1 boundary collapses in which the
+maximum-likelihood exact-null weight is zero. The mean absolute
+exact-null-weight error changes from 0.114 to 0.066 for IWP1, and from
+0.032 to 0.037 for IWP2. Thus BF updating materially stabilizes IWP1
+here, but it does not improve every order or every realized dataset.</p>
 </div>
 </div>
-<div id="focusing-on-one-particular-replication" class="section level2">
-<h2>Focusing on one particular replication</h2>
-<p>We will fix <span class="math inline">\(\pi_0 = 0.2\)</span> and
-<span class="math inline">\(\pi_1 = 0.1\)</span>, and focus on one
-particular replication to illustrate the inference using FASH.</p>
-<pre class="r"><code>set.seed(12345)
-J = 1200; pho0 = 0.2; pho1 = 0.1;
-datasets &lt;- get_one_set_of_datasets(J = J, pho0 = pho0, pho1 = pho1, sigma_vec = c(0.1, 0.3, 0.5))</code></pre>
-<pre class="r"><code>log_prec &lt;- seq(0,10, by = 0.2)
-fine_grid &lt;- sort(c(0, exp(-0.5*log_prec)))
-num_cores &lt;- 4
+<div id="simulated-effect-classes" class="section level2">
+<h2>Simulated effect classes</h2>
+<p>The retained focused replication contains 1,200 units with standard
+errors sampled from 0.1, 0.3, 0.5. Figure 1 shows the first three units
+in each truth class. Points are noisy effect estimates; vertical bars
+span two reported standard errors; orange curves are the true
+functions.</p>
+<pre class="r"><code># Select exactly three retained units from each ordered truth class.
+trajectory_plot_data &lt;- trajectory_examples
 
-fash_fit1 &lt;- fash(Y = &quot;y&quot;, smooth_var = &quot;x&quot;, S = &quot;sd&quot;, data_list = datasets,
-                  num_basis = 20, order = 1, betaprec = 0,
-                  pred_step = 1, penalty = 10, grid = fine_grid,
-                  num_cores = num_cores, verbose = TRUE)
-fash_fit1_update &lt;- BF_update(fash_fit1)
-
-
-fash_fit2 &lt;- fash(Y = &quot;y&quot;, smooth_var = &quot;x&quot;, S = &quot;sd&quot;, data_list = datasets,
-                  num_basis = 20, order = 2, betaprec = 0,
-                  pred_step = 1, penalty = 10, grid = fine_grid,
-                  num_cores = num_cores, verbose = TRUE)
-fash_fit2_update &lt;- BF_update(fash_fit2)
-
-save(fash_fit1, fash_fit1_update, fash_fit2, fash_fit2_update, file = &quot;data/appendixB/fash_fit_example.RData&quot;)</code></pre>
-<pre class="r"><code>load(&quot;data/appendixB/fash_fit_example.RData&quot;)</code></pre>
-<div id="testing-dynamic-eqtls" class="section level3">
-<h3>Testing dynamic eQTLs:</h3>
-<p>We will first focus on testing dynamic eQTLs:</p>
-<pre class="r"><code>alpha &lt;- 0.05
-test1 &lt;- fdr_control(fash_fit1, alpha = alpha, plot = F)</code></pre>
-<pre><code>210 datasets are significant at alpha level 0.05. Total datasets tested: 1200. </code></pre>
-<pre class="r"><code>test1_corrected &lt;- fdr_control(fash_fit1_update, alpha = alpha, plot = F)</code></pre>
-<pre><code>205 datasets are significant at alpha level 0.05. Total datasets tested: 1200. </code></pre>
-<p>What datasets are called significant?</p>
-<pre class="r"><code>alpha_vec = seq(0.01, 0.2, by = 0.01)
-FDR0 &lt;- c(); FDR0_corrected &lt;- c()
-Power0 &lt;- c(); Power0_corrected &lt;- c()
-
-for (alpha in alpha_vec) {
-  index1 &lt;- test1$fdr_results$index[test1$fdr_results$FDR &lt;= alpha]
-  index1_corrected &lt;- test1_corrected$fdr_results$index[test1_corrected$fdr_results$FDR &lt;= alpha]
-  
-  # True FDR
-  FDR0 &lt;- c(FDR0, mean(index1 &lt;= (J * (1 - pho0))))
-  FDR0_corrected &lt;- c(FDR0_corrected, mean(index1_corrected &lt;= (J * (1 - pho0))))
-  
-  # Power
-  Power0 &lt;- c(Power0, sum(index1 &gt; (J * (1 - pho0))) / (J * pho0))
-  Power0_corrected &lt;- c(Power0_corrected, sum(index1_corrected &gt; (J * (1 - pho0))) / (J * pho0))
-}</code></pre>
-<pre class="r"><code>pdf(&quot;output/appendixB/power_fdr_order1.pdf&quot;, width = 5, height = 5)
-# Power plot
-plot(alpha_vec, Power0, type = &quot;o&quot;, pch = 16, col = &quot;blue&quot;,
-     lty = 1, lwd = 1.5, 
-     xlab = expression(alpha), ylab = &quot;Power&quot;, ylim = c(0.75,0.9),
-     # main = &quot;Power vs alpha (Order 1)&quot;)
-     )
-points(alpha_vec, Power0_corrected, type = &quot;o&quot;, pch = 17, col = &quot;red&quot;,
-       lty = 2, lwd = 1.5)
-legend(&quot;bottomright&quot;, 
-       legend = c(&quot;Before BF update&quot;, &quot;After BF update&quot;),
-       pch = c(16,17), col = c(&quot;blue&quot;, &quot;red&quot;), lty = c(1,2), bty = &quot;n&quot;)
-dev.off()
-
-# FDR plot
-pdf(&quot;output/appendixB/fdr_plot_order1.pdf&quot;, width = 5, height = 5)
-plot(alpha_vec, FDR0, type = &quot;o&quot;, pch = 16, col = &quot;blue&quot;,
-     lty = 1, lwd = 1.5,
-     xlab = expression(alpha), ylab = &quot;true FDR&quot;, 
-     ylim = c(0,0.3),
-     # main = &quot;FDR vs alpha (Order 1)&quot;
-     )
-points(alpha_vec, FDR0_corrected, type = &quot;o&quot;, pch = 17, col = &quot;red&quot;,
-       lty = 2, lwd = 1.5)
-abline(0,1,col=&#39;black&#39;,lty=2, lwd = 1)
-legend(&quot;topleft&quot;, 
-       legend = c(&quot;Before BF update&quot;, &quot;After BF update&quot;),
-       pch = c(16,17), col = c(&quot;blue&quot;, &quot;red&quot;), lty = c(1,2), bty = &quot;n&quot;)
-dev.off()</code></pre>
-<p>Showing the cumulative FDR plot:</p>
-<pre class="r"><code>lfdr &lt;- fash_fit1$posterior_weights[,1]
-sizeA &lt;- J * (1 - pho0); sizeB &lt;- J * (pho0 - pho1); sizeC &lt;- J * pho1
-fdr_df &lt;- data.frame(eQTL = 1:length(lfdr), fdr = lfdr, type = rep(c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;), times = c(sizeA, sizeB, sizeC)))
-fdr_df &lt;- fdr_df[order(fdr_df$fdr), ] # ordering it
-fdr_df$cumulative_fdr &lt;- cumsum(fdr_df$fdr)/seq_along(fdr_df$fdr)
-fdr_df$rank &lt;- 1:length(lfdr)
-
-ggplot(fdr_df, aes(x = 1:length(lfdr), y = cumulative_fdr, col = type)) +
-  geom_point() +
-  geom_hline(yintercept = 0.05, linetype = &quot;dashed&quot;, color = &quot;purple&quot;) +
-  labs(x = &quot;Ordered eQTLs&quot;, y = &quot;Cumulative FDR&quot;, col = &quot;Type&quot;) +
-  theme_minimal() +
-  # ggtitle(&quot;Cumulative FDR Plot&quot;) +
-  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;, &quot;green&quot;)) +
+ggplot(
+  trajectory_plot_data,
+  aes(x = time, y = estimate)
+) +
+  geom_errorbar(
+    aes(
+      ymin = estimate - 2 * standard_error,
+      ymax = estimate + 2 * standard_error
+    ),
+    width = 0,
+    color = &quot;grey55&quot;,
+    linewidth = 0.35
+  ) +
+  geom_point(size = 1.15, color = &quot;black&quot;) +
+  geom_line(aes(y = truth), color = &quot;#D55E00&quot;, linewidth = 0.8) +
+  facet_wrap(~ panel, ncol = 3, scales = &quot;free_y&quot;) +
+  labs(x = &quot;Time&quot;, y = &quot;Effect estimate&quot;) +
+  theme_bw(base_size = 11) +
   theme(
-    axis.title = element_text(size = 16),   # xlab size
-    axis.text  = element_text(size = 14),   # x lim size
-    legend.key.size = unit(1.2, &#39;lines&#39;), # key size
-    legend.title = element_text(size = 14), # legend title size
-    legend.text = element_text(size = 12),  # legend text size
-    legend.position = c(0.8, 0.4),            # move inside
-    legend.background = element_rect(fill = alpha(&quot;white&quot;, 0.6)) # background
+    panel.grid.minor = element_blank(),
+    strip.text = element_text(size = 8.5),
+    axis.text = element_text(size = 8.5)
   )</code></pre>
-<p><img src="figure/appendixB.rmd/e-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>ggsave(&quot;output/appendixB/cumulative_fdr_order1.pdf&quot;, width = 5, height = 5)</code></pre>
-<pre class="r"><code>lfdr &lt;- fash_fit1_update$posterior_weights[,1]
-fdr_df &lt;- data.frame(eQTL = 1:length(lfdr), fdr = lfdr, type = rep(c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;), times = c(sizeA, sizeB, sizeC)))
-fdr_df &lt;- fdr_df[order(fdr_df$fdr), ] # ordering it
-fdr_df$cumulative_fdr &lt;- cumsum(fdr_df$fdr)/seq_along(fdr_df$fdr)
-fdr_df$rank &lt;- 1:length(lfdr)
-
-ggplot(fdr_df, aes(x = 1:length(lfdr), y = cumulative_fdr, col = type)) +
-  geom_point() +
-  geom_hline(yintercept = 0.05, linetype = &quot;dashed&quot;, color = &quot;purple&quot;) +
-  labs(x = &quot;Ordered eQTLs&quot;, y = &quot;Cumulative FDR&quot;, col = &quot;Type&quot;) +
-  theme_minimal() +
-  # ggtitle(&quot;Cumulative FDR Plot&quot;) +
-  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;, &quot;green&quot;)) +
-  theme(
-    axis.title = element_text(size = 16),   # xlab size
-    axis.text  = element_text(size = 14),   # x lim size
-    legend.key.size = unit(1.2, &#39;lines&#39;), # key size
-    legend.title = element_text(size = 14), # legend title size
-    legend.text = element_text(size = 12),  # legend text size
-    legend.position = c(0.8, 0.4),            # move inside
-    legend.background = element_rect(fill = alpha(&quot;white&quot;, 0.6)) # background
-  )</code></pre>
-<p><img src="figure/appendixB.rmd/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>ggsave(&quot;output/appendixB/cumulative_fdr_order1_corrected.pdf&quot;, width = 5, height = 5)</code></pre>
-<p>A few examples of most significant datasets:</p>
-<pre class="r"><code>set.seed(1234)
-most_significant_indices &lt;- sample(test1_corrected$fdr_results$index[test1_corrected$fdr_results$FDR &lt;= 0.05], 4)
-pdf(&quot;output/appendixB/fitted_curves_order1.pdf&quot;, width = 10, height = 8)
-par(mfrow = c(2, 2))
-for (i in most_significant_indices) {
-  fitted_result &lt;- predict(fash_fit1_update,
-                           index = i,
-                           smooth_var = seq(0, 16, by = 0.1))
-  
-  plot(datasets[[i]]$x, datasets[[i]]$y, type = &quot;p&quot;, col = &quot;black&quot;, 
-       lwd = 1, pch = 20,
-       # increase font size
-       cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.5,
-       xlab = &quot;Time&quot;, ylab = &quot;Effect Size&quot;, 
-       ylim = c(min(datasets[[i]]$y) - 0.5,
-                max(datasets[[i]]$y) + 0.5),
-       main = paste(&quot;Dataset:&quot;, names(datasets)[i]))
-  lines(datasets[[i]]$x,
-        datasets[[i]]$truef,
-        col = &quot;blue&quot;,
-        lwd = 1, lty = 2)
-  arrows(
-    datasets[[i]]$x,
-    datasets[[i]]$y - 2 * datasets[[i]]$sd,
-    datasets[[i]]$x,
-    datasets[[i]]$y + 2 * datasets[[i]]$sd,
-    length = 0.05,
-    angle = 90,
-    code = 3,
-    col = &quot;black&quot;
-  )
-  lines(fitted_result$x,
-        fitted_result$mean,
-        col = &quot;red&quot;,
-        lwd = 1.2)
-  polygon(
-    c(fitted_result$x, rev(fitted_result$x)),
-    c(fitted_result$lower, rev(fitted_result$upper)),
-    col = rgb(1, 0, 0, 0.1),
-    border = NA
-  )
-}
-par(mfrow = c(1, 1))
-dev.off()</code></pre>
-<pre><code>quartz_off_screen 
-                2 </code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/appendixB.rmd/representative-trajectories-1.png" alt="Figure 1. Representative simulated trajectories from the focused replication. Columns follow the fixed A/B/C truth definitions: constant, linear dynamic, and nonlinear dynamic. Points are estimated effects, vertical bars span two standard errors, and orange curves are the true effects." width="96%" />
+<p class="caption">
+Figure 1. Representative simulated trajectories from the focused
+replication. Columns follow the fixed A/B/C truth definitions: constant,
+linear dynamic, and nonlinear dynamic. Points are estimated effects,
+vertical bars span two standard errors, and orange curves are the true
+effects.
+</p>
 </div>
-<div id="testing-non-linear-eqtls" class="section level3">
-<h3>Testing non-linear eQTLs:</h3>
-<p>We now focus on testing non-linear dynamic eQTLs:</p>
-<pre class="r"><code>alpha &lt;- 0.05
-test2 &lt;- fdr_control(fash_fit2, alpha = alpha, plot = F)</code></pre>
-<pre><code>106 datasets are significant at alpha level 0.05. Total datasets tested: 1200. </code></pre>
-<pre class="r"><code>test2_corrected &lt;- fdr_control(fash_fit2_update, alpha = alpha, plot = F)</code></pre>
-<pre><code>98 datasets are significant at alpha level 0.05. Total datasets tested: 1200. </code></pre>
-<p>What datasets are called significant?</p>
-<pre class="r"><code>alpha_vec = seq(0.01, 0.2, by = 0.01)
-FDR1 &lt;- c(); FDR1_corrected &lt;- c()
-Power1 &lt;- c(); Power1_corrected &lt;- c()
+</div>
+<div id="simulation-and-fitting-design" class="section level2">
+<h2>Simulation and fitting design</h2>
+<p>The grid experiment uses the same random-number stream for each grid
+setting. For every <span
+class="math inline">\(\rho_{\mathrm{dynamic}}\)</span>, <span
+class="math inline">\(\rho_{\mathrm{nonlinear}}=\rho_{\mathrm{dynamic}}/2\)</span>.
+This pairs the original and denser-grid fits at the simulated-data
+level; it does not create repeated Monte Carlo replicates.</p>
+<pre class="r"><code># Record the fixed simulation, estimand, and fit choices shown in Table 1.
+design_table &lt;- data.frame(
+  Item = c(
+    &quot;Package&quot;,
+    &quot;Grid experiment units&quot;,
+    &quot;Dynamic proportion&quot;,
+    &quot;Nonlinear proportion&quot;,
+    &quot;Predictive-SD grids&quot;,
+    &quot;Grid-fit penalty&quot;,
+    &quot;Focused replication&quot;,
+    &quot;Focused-fit penalty&quot;,
+    &quot;Basis and prediction step&quot;,
+    &quot;Random-number stream&quot;,
+    &quot;IWP1 exact-null estimand&quot;,
+    &quot;IWP2 exact-null estimand&quot;
+  ),
+  Value = c(
+    paste0(
+      &quot;fashr &quot;, appendix_b_cache$manifest$package_provenance$version,
+      &quot; at &quot;, appendix_b_cache$manifest$package_provenance$remote_sha
+    ),
+    format_integer(appendix_b_cache$manifest$grid_design$J),
+    &quot;0.05 to 0.50 by 0.01&quot;,
+    &quot;rho_dynamic / 2&quot;,
+    &quot;Original spacing 0.2; denser spacing 0.1; both include exact zero&quot;,
+    format_integer(appendix_b_cache$manifest$grid_design$penalty),
+    paste0(
+      &quot;J = &quot;, format_integer(focused_example$parameters$J),
+      &quot;, rho_dynamic = 0.20, rho_nonlinear = 0.10&quot;
+    ),
+    format_integer(focused_example$parameters$penalty),
+    paste0(
+      focused_example$parameters$num_basis,
+      &quot; basis functions; pred_step = 1&quot;
+    ),
+    format_integer(focused_example$parameters$stream_seed),
+    &quot;P(A) = 1 - rho_dynamic&quot;,
+    &quot;P(A or B) = 1 - rho_nonlinear&quot;
+  ),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
 
-for (alpha in alpha_vec) {
-  index2 &lt;- test2$fdr_results$index[test2$fdr_results$FDR &lt;= alpha]
-  index2_corrected &lt;- test2_corrected$fdr_results$index[test2_corrected$fdr_results$FDR &lt;= alpha]
-  
-  # True FDR
-  FDR1 &lt;- c(FDR1, mean(index2 &lt;= (J * (1 - pho1))))
-  FDR1_corrected &lt;- c(FDR1_corrected, mean(index2_corrected &lt;= (J * (1 - pho1))))
-  
-  # Power
-  Power1 &lt;- c(Power1, sum(index2 &gt; (J * (1 - pho1))) / (J * pho1))
-  Power1_corrected &lt;- c(Power1_corrected, sum(index2_corrected &gt; (J * (1 - pho1))) / (J * pho1))
-}</code></pre>
-<pre class="r"><code>pdf(&quot;output/appendixB/power_fdr_order2.pdf&quot;, width = 5, height = 5)
-# Power plot
-plot(alpha_vec, Power1, type = &quot;o&quot;, pch = 16, col = &quot;blue&quot;,
-     lty = 1, lwd = 1.5,
-     xlab = expression(alpha), ylab = &quot;Power&quot;, ylim = c(0.7,0.9),
-     # main = &quot;Power vs alpha (Order 2)&quot;
-     )
-points(alpha_vec, Power1_corrected, type = &quot;o&quot;, pch = 17, col = &quot;red&quot;,
-       lty = 2, lwd = 1.5)
-legend(&quot;bottomright&quot;, 
-       legend = c(&quot;Before BF update&quot;, &quot;After BF update&quot;),
-       pch = c(16,17), col = c(&quot;blue&quot;, &quot;red&quot;), lty = c(1,2), bty = &quot;n&quot;)
-dev.off()</code></pre>
-<pre><code>quartz_off_screen 
-                2 </code></pre>
-<pre class="r"><code>pdf(&quot;output/appendixB/fdr_plot_order2.pdf&quot;, width = 5, height = 5)
-# FDR plot
-plot(alpha_vec, FDR1, type = &quot;o&quot;, pch = 16, col = &quot;blue&quot;,
-     lty = 1, lwd = 1.5,
-     xlab = expression(alpha), ylab = &quot;true FDR&quot;, ylim = c(0,0.3),
-     # main = &quot;FDR vs alpha (Order 2)&quot;
-     )
-points(alpha_vec, FDR1_corrected, type = &quot;o&quot;, pch = 17, col = &quot;red&quot;,
-       lty = 2, lwd = 1.5)
-abline(0,1,col=&#39;black&#39;,lty=2, lwd = 1)
-legend(&quot;topleft&quot;, 
-       legend = c(&quot;Before BF update&quot;, &quot;After BF update&quot;),
-       pch = c(16,17), col = c(&quot;blue&quot;, &quot;red&quot;), lty = c(1,2), bty = &quot;n&quot;)
-dev.off()</code></pre>
-<pre><code>quartz_off_screen 
-                2 </code></pre>
-<p>Showing the cumulative FDR plot:</p>
-<pre class="r"><code>lfdr &lt;- fash_fit2$posterior_weights[,1]
-fdr_df &lt;- data.frame(eQTL = 1:length(lfdr), fdr = lfdr, type = rep(c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;), times = c(sizeA, sizeB, sizeC)))
-fdr_df &lt;- fdr_df[order(fdr_df$fdr), ] # ordering it
-fdr_df$cumulative_fdr &lt;- cumsum(fdr_df$fdr)/seq_along(fdr_df$fdr)
-fdr_df$rank &lt;- 1:length(lfdr)
-
-ggplot(fdr_df, aes(x = 1:length(lfdr), y = cumulative_fdr, col = type)) +
-  geom_point() +
-  geom_hline(yintercept = 0.05, linetype = &quot;dashed&quot;, color = &quot;purple&quot;) +
-  labs(x = &quot;Ordered eQTLs&quot;, y = &quot;Cumulative FDR&quot;, col = &quot;Type&quot;) +
-  theme_minimal() +
-  # ggtitle(&quot;Cumulative FDR Plot&quot;) +
-  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;, &quot;green&quot;)) +
-  theme(
-    axis.title = element_text(size = 16),   # xlab size
-    axis.text  = element_text(size = 14),   # x lim size
-    legend.key.size = unit(1.2, &#39;lines&#39;), # key size
-    legend.title = element_text(size = 14), # legend title size
-    legend.text = element_text(size = 12),  # legend text size
-    legend.position = c(0.8, 0.4),            # move inside
-    legend.background = element_rect(fill = alpha(&quot;white&quot;, 0.6)) # background
-  )</code></pre>
-<p><img src="figure/appendixB.rmd/unnamed-chunk-22-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>ggsave(&quot;output/appendixB/cumulative_fdr_order2.pdf&quot;, width = 5, height = 5)</code></pre>
-<pre class="r"><code>lfdr &lt;- fash_fit2_update$posterior_weights[,1]
-fdr_df &lt;- data.frame(eQTL = 1:length(lfdr), fdr = lfdr, type = rep(c(&quot;A&quot;, &quot;B&quot;, &quot;C&quot;), times = c(sizeA, sizeB, sizeC)))
-fdr_df &lt;- fdr_df[order(fdr_df$fdr), ] # ordering it
-fdr_df$cumulative_fdr &lt;- cumsum(fdr_df$fdr)/seq_along(fdr_df$fdr)
-fdr_df$rank &lt;- 1:length(lfdr)
-
-ggplot(fdr_df, aes(x = 1:length(lfdr), y = cumulative_fdr, col = type)) +
-  geom_point() +
-  geom_hline(yintercept = 0.05, linetype = &quot;dashed&quot;, color = &quot;purple&quot;) +
-  labs(x = &quot;Ordered eQTLs&quot;, y = &quot;Cumulative FDR&quot;, col = &quot;Type&quot;) +
-  theme_minimal() +
-  # ggtitle(&quot;Cumulative FDR Plot&quot;) +
-  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;, &quot;green&quot;)) +
-  theme(
-    axis.title = element_text(size = 16),   # xlab size
-    axis.text  = element_text(size = 14),   # x lim size
-    legend.key.size = unit(1.2, &#39;lines&#39;), # key size
-    legend.title = element_text(size = 14), # legend title size
-    legend.text = element_text(size = 12),  # legend text size
-    legend.position = c(0.8, 0.4),            # move inside
-    legend.background = element_rect(fill = alpha(&quot;white&quot;, 0.6)) # background
-  )</code></pre>
-<p><img src="figure/appendixB.rmd/unnamed-chunk-23-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>ggsave(&quot;output/appendixB/cumulative_fdr_order2_corrected.pdf&quot;, width = 5, height = 5)</code></pre>
-<p>A few examples of significant datasets:</p>
-<pre class="r"><code>set.seed(1234)
-most_significant_indices &lt;- sample(test2_corrected$fdr_results$index[test2_corrected$fdr_results$FDR &lt;= 0.05], 4)
-pdf(&quot;output/appendixB/fitted_curves_order2.pdf&quot;, width = 10, height = 8)
-par(mfrow = c(2, 2))
-for (i in most_significant_indices) {
-  fitted_result &lt;- predict(fash_fit2_update,
-                           index = i,
-                           smooth_var = seq(0, 16, by = 0.1))
-  
-  plot(datasets[[i]]$x, datasets[[i]]$y, type = &quot;p&quot;, col = &quot;black&quot;, 
-       lwd = 1, pch = 20,
-       # increase font size
-       cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.5,
-       xlab = &quot;Time&quot;, ylab = &quot;Effect Size&quot;, 
-       ylim = c(min(datasets[[i]]$y) - 0.5,
-                max(datasets[[i]]$y) + 0.5),
-       main = paste(&quot;Dataset:&quot;, names(datasets)[i]))
-  lines(datasets[[i]]$x,
-        datasets[[i]]$truef,
-        col = &quot;blue&quot;,
-        lwd = 1, lty = 2)
-  arrows(
-    datasets[[i]]$x,
-    datasets[[i]]$y - 2 * datasets[[i]]$sd,
-    datasets[[i]]$x,
-    datasets[[i]]$y + 2 * datasets[[i]]$sd,
-    length = 0.05,
-    angle = 90,
-    code = 3,
-    col = &quot;black&quot;
+knitr::kable(
+  design_table,
+  align = c(&quot;l&quot;, &quot;l&quot;),
+  caption = paste(
+    &quot;Table 1. Fixed design and estimands for the versioned Appendix B&quot;,
+    &quot;simulation. The grid experiment contains one paired random-number&quot;,
+    &quot;stream, not repeated Monte Carlo replicates.&quot;
   )
-  lines(fitted_result$x,
-        fitted_result$mean,
-        col = &quot;red&quot;,
-        lwd = 1.2)
-  polygon(
-    c(fitted_result$x, rev(fitted_result$x)),
-    c(fitted_result$lower, rev(fitted_result$upper)),
-    col = rgb(1, 0, 0, 0.1),
-    border = NA
+)</code></pre>
+<table>
+<caption>Table 1. Fixed design and estimands for the versioned Appendix
+B simulation. The grid experiment contains one paired random-number
+stream, not repeated Monte Carlo replicates.</caption>
+<colgroup>
+<col width="28%" />
+<col width="71%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Item</th>
+<th align="left">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Package</td>
+<td align="left">fashr 0.1.43 at
+bf223df75da6e41ae48607a56b4cd12d7c3b24e7</td>
+</tr>
+<tr class="even">
+<td align="left">Grid experiment units</td>
+<td align="left">1,000</td>
+</tr>
+<tr class="odd">
+<td align="left">Dynamic proportion</td>
+<td align="left">0.05 to 0.50 by 0.01</td>
+</tr>
+<tr class="even">
+<td align="left">Nonlinear proportion</td>
+<td align="left">rho_dynamic / 2</td>
+</tr>
+<tr class="odd">
+<td align="left">Predictive-SD grids</td>
+<td align="left">Original spacing 0.2; denser spacing 0.1; both include
+exact zero</td>
+</tr>
+<tr class="even">
+<td align="left">Grid-fit penalty</td>
+<td align="left">1</td>
+</tr>
+<tr class="odd">
+<td align="left">Focused replication</td>
+<td align="left">J = 1,200, rho_dynamic = 0.20, rho_nonlinear =
+0.10</td>
+</tr>
+<tr class="even">
+<td align="left">Focused-fit penalty</td>
+<td align="left">10</td>
+</tr>
+<tr class="odd">
+<td align="left">Basis and prediction step</td>
+<td align="left">20 basis functions; pred_step = 1</td>
+</tr>
+<tr class="even">
+<td align="left">Random-number stream</td>
+<td align="left">12,345</td>
+</tr>
+<tr class="odd">
+<td align="left">IWP1 exact-null estimand</td>
+<td align="left">P(A) = 1 - rho_dynamic</td>
+</tr>
+<tr class="even">
+<td align="left">IWP2 exact-null estimand</td>
+<td align="left">P(A or B) = 1 - rho_nonlinear</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="exact-null-weight-estimation-across-the-grid"
+class="section level2">
+<h2>Exact-null-weight estimation across the grid</h2>
+<p>Figure 2 compares each fitted exact-null weight with its
+order-specific truth. The dashed line is equality. Crosses mark the
+seven raw IWP1 fits whose exact null weight reached the simplex boundary
+at zero; <code>fashr</code> explicitly warned that their raw lfdr values
+were consequently zero. The BF-updated fits retain the exact-null
+component and are shown as a separate stage.</p>
+<pre class="r"><code># Map each order to its own null estimand before plotting both fit stages.
+grid_plot_data &lt;- grid_long[
+  order(grid_long$order, grid_long$setting, grid_long$stage, grid_long$true_pi0),
+]
+
+ggplot(
+  grid_plot_data,
+  aes(
+    x = true_pi0,
+    y = estimated_pi0,
+    color = stage,
+    group = stage,
+    shape = boundary_warning
   )
-}
-par(mfrow = c(1, 1))
-dev.off()</code></pre>
-<pre><code>quartz_off_screen 
-                2 </code></pre>
+) +
+  geom_abline(
+    intercept = 0,
+    slope = 1,
+    color = &quot;grey35&quot;,
+    linetype = &quot;dashed&quot;,
+    linewidth = 0.55
+  ) +
+  geom_line(linewidth = 0.55, alpha = 0.65) +
+  geom_point(size = 1.8, stroke = 0.8) +
+  facet_grid(order ~ setting) +
+  scale_color_manual(values = stage_colors, drop = FALSE) +
+  scale_shape_manual(
+    values = c(`FALSE` = 16, `TRUE` = 4),
+    labels = c(`FALSE` = &quot;Regular fit&quot;, `TRUE` = &quot;Raw null-weight boundary&quot;)
+  ) +
+  scale_x_continuous(limits = c(0.48, 1), breaks = seq(0.5, 1, by = 0.1)) +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2)) +
+  labs(
+    x = &quot;True exact-null weight&quot;,
+    y = &quot;Estimated exact-null weight&quot;,
+    color = &quot;Fit stage&quot;,
+    shape = &quot;Fit status&quot;
+  ) +
+  theme_bw(base_size = 11) +
+  theme(
+    panel.grid.minor = element_blank(),
+    legend.position = &quot;bottom&quot;
+  )</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/appendixB.rmd/grid-null-weight-1.png" alt="Figure 2. Estimated versus true exact-null weight over 46 dynamic proportions and two predictive-SD grids. Panels separate IWP order and grid spacing; colors separate raw empirical-Bayes and BF-updated fits. The dashed line denotes equality, and crosses identify the seven valid raw-IWP1 boundary solutions with estimated exact-null weight zero." width="96%" />
+<p class="caption">
+Figure 2. Estimated versus true exact-null weight over 46 dynamic
+proportions and two predictive-SD grids. Panels separate IWP order and
+grid spacing; colors separate raw empirical-Bayes and BF-updated fits.
+The dashed line denotes equality, and crosses identify the seven valid
+raw-IWP1 boundary solutions with estimated exact-null weight zero.
+</p>
+</div>
+</div>
+<div id="focused-replication" class="section level2">
+<h2>Focused replication</h2>
+<p>The focused replication fixes <span
+class="math inline">\(J=1200\)</span>, <span
+class="math inline">\(\rho_{\mathrm{dynamic}}=0.2\)</span>, and <span
+class="math inline">\(\rho_{\mathrm{nonlinear}}=0.1\)</span>. Hence IWP1
+has 240 true dynamic units and IWP2 has 120 true nonlinear units. Calls
+are the longest prefix of lfdr-ranked units whose mean lfdr does not
+exceed <span class="math inline">\(\alpha\)</span>.</p>
+<p>Table 2 reports realized false-discovery proportion (FDP) and power
+for this single replication at <span
+class="math inline">\(\alpha=0.05\)</span>. These realized quantities
+are not repeated-simulation FDR or expected power.</p>
+<pre class="r"><code># Restrict the retained alpha curve to the prespecified alpha = 0.05 rows.
+alpha005_table &lt;- data.frame(
+  Order = as.character(alpha005$order),
+  Target = alpha005$target,
+  Stage = as.character(alpha005$stage),
+  Discoveries = format_integer(alpha005$discoveries),
+  `True discoveries` = format_integer(alpha005$true_discoveries),
+  `False discoveries` = format_integer(alpha005$false_discoveries),
+  `Realized FDP` = format_percent(alpha005$realized_fdp, 1),
+  Power = format_percent(alpha005$power, 1),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+
+knitr::kable(
+  alpha005_table,
+  align = c(&quot;l&quot;, &quot;l&quot;, &quot;l&quot;, &quot;r&quot;, &quot;r&quot;, &quot;r&quot;, &quot;r&quot;, &quot;r&quot;),
+  caption = paste(
+    &quot;Table 2. Focused-replication cumulative-lfdr calls at alpha = 0.05.&quot;,
+    &quot;FDP and power are realized values for this one retained replication.&quot;
+  )
+)</code></pre>
+<table>
+<caption>Table 2. Focused-replication cumulative-lfdr calls at alpha =
+0.05. FDP and power are realized values for this one retained
+replication.</caption>
+<colgroup>
+<col width="5%" />
+<col width="20%" />
+<col width="10%" />
+<col width="11%" />
+<col width="16%" />
+<col width="17%" />
+<col width="12%" />
+<col width="5%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Order</th>
+<th align="left">Target</th>
+<th align="left">Stage</th>
+<th align="right">Discoveries</th>
+<th align="right">True discoveries</th>
+<th align="right">False discoveries</th>
+<th align="right">Realized FDP</th>
+<th align="right">Power</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">IWP1</td>
+<td align="left">Dynamic (B or C)</td>
+<td align="left">Raw EB</td>
+<td align="right">210</td>
+<td align="right">198</td>
+<td align="right">12</td>
+<td align="right">5.7%</td>
+<td align="right">82.5%</td>
+</tr>
+<tr class="even">
+<td align="left">IWP1</td>
+<td align="left">Dynamic (B or C)</td>
+<td align="left">BF updated</td>
+<td align="right">205</td>
+<td align="right">196</td>
+<td align="right">9</td>
+<td align="right">4.4%</td>
+<td align="right">81.7%</td>
+</tr>
+<tr class="odd">
+<td align="left">IWP2</td>
+<td align="left">Nonlinear dynamic (C)</td>
+<td align="left">Raw EB</td>
+<td align="right">106</td>
+<td align="right">99</td>
+<td align="right">7</td>
+<td align="right">6.6%</td>
+<td align="right">82.5%</td>
+</tr>
+<tr class="even">
+<td align="left">IWP2</td>
+<td align="left">Nonlinear dynamic (C)</td>
+<td align="left">BF updated</td>
+<td align="right">100</td>
+<td align="right">98</td>
+<td align="right">2</td>
+<td align="right">2.0%</td>
+<td align="right">81.7%</td>
+</tr>
+</tbody>
+</table>
+<p>Figure 3 extends the same calculation across <span
+class="math inline">\(\alpha=0.01,\ldots,0.20\)</span>. The dashed
+diagonal in the FDP panels is the nominal reference, not a claim of
+calibration from one replication.</p>
+<pre class="r"><code># Keep the realized-FDP and power estimands distinct before faceting.
+alpha_plot_data &lt;- alpha_long[
+  order(alpha_long$metric, alpha_long$order, alpha_long$stage, alpha_long$alpha),
+]
+nominal_reference &lt;- data.frame(
+  metric = factor(&quot;Realized FDP&quot;, levels = levels(alpha_plot_data$metric)),
+  order = factor(c(&quot;IWP1&quot;, &quot;IWP2&quot;), levels = levels(alpha_plot_data$order))
+)
+
+ggplot(
+  alpha_plot_data,
+  aes(x = alpha, y = value, color = stage, group = stage)
+) +
+  geom_abline(
+    data = nominal_reference,
+    aes(intercept = 0, slope = 1),
+    inherit.aes = FALSE,
+    color = &quot;grey35&quot;,
+    linetype = &quot;dashed&quot;,
+    linewidth = 0.55
+  ) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 1.35) +
+  facet_grid(metric ~ order, scales = &quot;free_y&quot;) +
+  scale_color_manual(values = stage_colors, drop = FALSE) +
+  scale_x_continuous(breaks = seq(0, 0.2, by = 0.05)) +
+  scale_y_continuous(labels = function(x) paste0(round(100 * x), &quot;%&quot;)) +
+  labs(
+    x = expression(alpha),
+    y = NULL,
+    color = &quot;Fit stage&quot;
+  ) +
+  theme_bw(base_size = 11) +
+  theme(
+    panel.grid.minor = element_blank(),
+    legend.position = &quot;bottom&quot;
+  )</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/appendixB.rmd/focused-alpha-curves-1.png" alt="Figure 3. Focused-replication realized FDP and power across cumulative-lfdr thresholds. Columns separate IWP1 dynamic testing and IWP2 nonlinear testing; colors separate raw and BF-updated fits. The dashed diagonal in the FDP row denotes nominal alpha. Curves summarize one retained replication, not Monte Carlo expectations." width="94%" />
+<p class="caption">
+Figure 3. Focused-replication realized FDP and power across
+cumulative-lfdr thresholds. Columns separate IWP1 dynamic testing and
+IWP2 nonlinear testing; colors separate raw and BF-updated fits. The
+dashed diagonal in the FDP row denotes nominal alpha. Curves summarize
+one retained replication, not Monte Carlo expectations.
+</p>
+</div>
+<p>Figure 4 displays the actual lfdr-ranked prefixes underlying Table 2.
+A unit is called at <span class="math inline">\(\alpha=0.05\)</span>
+while its cumulative mean lfdr remains below the horizontal reference.
+The vertical dotted line is the resulting final call count for that
+panel.</p>
+<pre class="r"><code># Compute the final called prefix independently within each order and stage.
+cumulative_plot_data &lt;- cumulative_lfdr
+call_cutoffs &lt;- aggregate(
+  called_at_alpha ~ order + stage,
+  data = cumulative_plot_data,
+  FUN = sum
+)
+names(call_cutoffs)[[3L]] &lt;- &quot;called_rank&quot;
+
+ggplot(
+  cumulative_plot_data,
+  aes(x = rank, y = cumulative_lfdr, color = class)
+) +
+  geom_hline(
+    yintercept = 0.05,
+    color = &quot;grey35&quot;,
+    linetype = &quot;dashed&quot;,
+    linewidth = 0.55
+  ) +
+  geom_vline(
+    data = call_cutoffs,
+    aes(xintercept = called_rank),
+    inherit.aes = FALSE,
+    color = &quot;grey35&quot;,
+    linetype = &quot;dotted&quot;,
+    linewidth = 0.55
+  ) +
+  geom_point(size = 0.7, alpha = 0.72) +
+  facet_grid(order ~ stage) +
+  scale_color_manual(values = class_colors, drop = FALSE) +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2)) +
+  labs(
+    x = &quot;lfdr rank&quot;,
+    y = &quot;Cumulative mean lfdr&quot;,
+    color = &quot;Truth class&quot;
+  ) +
+  theme_bw(base_size = 11) +
+  theme(
+    panel.grid.minor = element_blank(),
+    legend.position = &quot;bottom&quot;
+  )</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/appendixB.rmd/focused-cumulative-lfdr-1.png" alt="Figure 4. Focused-replication cumulative lfdr after ranking units from smallest to largest lfdr. Panels separate order and fit stage; point colors show the fixed A/B/C truth classes. The horizontal dashed line is alpha = 0.05, and each vertical dotted line marks the final called rank for that panel." width="96%" />
+<p class="caption">
+Figure 4. Focused-replication cumulative lfdr after ranking units from
+smallest to largest lfdr. Panels separate order and fit stage; point
+colors show the fixed A/B/C truth classes. The horizontal dashed line is
+alpha = 0.05, and each vertical dotted line marks the final called rank
+for that panel.
+</p>
+</div>
+<p>The exact-null weights for the same focused replication are reported
+in Table 3. BF updating shifts both weights upward. In this one
+realization that reduces realized FDP with a small decrease in power,
+but it does not make both point estimates closer to their true
+values.</p>
+<pre class="r"><code># Compare each fitted exact-null component with its order-specific truth.
+prior_display &lt;- data.frame(
+  Order = as.character(prior_table$order),
+  Target = prior_table$target,
+  Stage = as.character(prior_table$stage),
+  `True pi0` = format_decimal(prior_table$true_pi0, 3),
+  `Estimated pi0` = format_decimal(prior_table$estimated_pi0, 3),
+  `Estimate minus truth` = format_decimal(prior_table$estimation_error, 3),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+
+knitr::kable(
+  prior_display,
+  align = c(&quot;l&quot;, &quot;l&quot;, &quot;l&quot;, &quot;r&quot;, &quot;r&quot;, &quot;r&quot;),
+  caption = paste(
+    &quot;Table 3. Focused-replication exact-null weights before and after BF&quot;,
+    &quot;updating. The estimand differs by IWP order as defined above.&quot;
+  )
+)</code></pre>
+<table>
+<caption>Table 3. Focused-replication exact-null weights before and
+after BF updating. The estimand differs by IWP order as defined
+above.</caption>
+<colgroup>
+<col width="7%" />
+<col width="26%" />
+<col width="13%" />
+<col width="10%" />
+<col width="16%" />
+<col width="25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Order</th>
+<th align="left">Target</th>
+<th align="left">Stage</th>
+<th align="right">True pi0</th>
+<th align="right">Estimated pi0</th>
+<th align="right">Estimate minus truth</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">IWP1</td>
+<td align="left">Dynamic (B or C)</td>
+<td align="left">Raw EB</td>
+<td align="right">0.800</td>
+<td align="right">0.782</td>
+<td align="right">-0.018</td>
+</tr>
+<tr class="even">
+<td align="left">IWP1</td>
+<td align="left">Dynamic (B or C)</td>
+<td align="left">BF updated</td>
+<td align="right">0.800</td>
+<td align="right">0.853</td>
+<td align="right">0.053</td>
+</tr>
+<tr class="odd">
+<td align="left">IWP2</td>
+<td align="left">Nonlinear dynamic (C)</td>
+<td align="left">Raw EB</td>
+<td align="right">0.900</td>
+<td align="right">0.850</td>
+<td align="right">-0.050</td>
+</tr>
+<tr class="even">
+<td align="left">IWP2</td>
+<td align="left">Nonlinear dynamic (C)</td>
+<td align="left">BF updated</td>
+<td align="right">0.900</td>
+<td align="right">0.927</td>
+<td align="right">0.027</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="provenance-and-reproducibility" class="section level2">
+<h2>Provenance and reproducibility</h2>
+<p>The retained family completed at 2026-08-22 04:53:56 UTC on Midway3.
+Its manifest records R R version 4.4.1 (2024-06-14) on
+x86_64-pc-linux-gnu. The local reporting loader verifies the package
+version and commit, helper and runner SHA-256 values, all retained
+output SHA-256 values, the 92-row grid contract, the 80-row focused
+alpha curve, and the seven explicitly identified raw-IWP1 boundary
+warnings. All older <code>data/appendixB/*.RData</code> files remain
+separate and unchanged.</p>
+<p>The expensive server run used the following entry point. This chunk
+is shown for reproducibility and is not evaluated by workflowr.</p>
+<pre class="bash"><code>cd /project/mstephens/ziangzhang/fash/workspace
+sbatch slurm/10_appendix_b_simulation.sbatch</code></pre>
+<p>After downloading the completed result family, validate its package,
+source, output, historical-cache, and numerical contracts with:</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/appendix_b/validate_appendix_b_cache.R</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -1262,11 +1409,11 @@ Platform: aarch64-apple-darwin20
 Running under: macOS Sequoia 15.6.1
 
 Matrix products: default
-BLAS:   /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib 
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
 LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
 
 locale:
-[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
 
 time zone: America/Chicago
 tzcode source: internal
@@ -1275,33 +1422,31 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] ggplot2_4.0.0   fashr_0.1.30    workflowr_1.7.2
+[1] ggplot2_4.0.3   workflowr_1.7.2
 
 loaded via a namespace (and not attached):
- [1] sass_0.4.10          generics_0.1.4       stringi_1.8.7       
- [4] lattice_0.22-7       digest_0.6.37        magrittr_2.0.4      
+ [1] sass_0.4.10          generics_0.1.4       lattice_0.22-7      
+ [4] stringi_1.8.9        digest_0.6.39        magrittr_2.0.5      
  [7] evaluate_1.0.5       grid_4.5.1           RColorBrewer_1.1-3  
-[10] fastmap_1.2.0        plyr_1.8.9           rprojroot_2.1.1     
-[13] jsonlite_2.0.0       Matrix_1.7-3         processx_3.8.6      
+[10] fastmap_1.2.0        plyr_1.8.9           Matrix_1.7-4        
+[13] rprojroot_2.1.1      jsonlite_2.0.0       processx_3.8.6      
 [16] whisker_0.4.1        mixsqp_0.3-54        ps_1.9.1            
-[19] promises_1.3.3       httr_1.4.7           scales_1.4.0        
-[22] textshaping_1.0.4    numDeriv_2016.8-1.1  jquerylib_0.1.4     
-[25] cli_3.6.5            rlang_1.1.6          LaplacesDemon_16.1.6
-[28] cowplot_1.2.0        withr_3.0.2          cachem_1.1.0        
-[31] yaml_2.3.10          tools_4.5.1          parallel_4.5.1      
-[34] reshape2_1.4.4       dplyr_1.1.4          httpuv_1.6.16       
-[37] vctrs_0.6.5          R6_2.6.1             lifecycle_1.0.4     
-[40] git2r_0.36.2         stringr_1.5.2        fs_1.6.6            
-[43] ragg_1.5.0           irlba_2.3.5.1        pkgconfig_2.0.3     
-[46] callr_3.7.6          pillar_1.11.1        bslib_0.9.0         
-[49] later_1.4.4          gtable_0.3.6         glue_1.8.0          
-[52] Rcpp_1.1.0           systemfonts_1.3.1    tidyselect_1.2.1    
-[55] xfun_0.53            tibble_3.3.0         rstudioapi_0.17.1   
-[58] knitr_1.50           dichromat_2.0-0.1    farver_2.1.2        
-[61] htmltools_0.5.8.1    labeling_0.4.3       rmarkdown_2.30      
-[64] TMB_1.9.18           compiler_4.5.1       getPass_0.2-4       
-[67] S7_0.2.0            </code></pre>
-</div>
+[19] promises_1.5.0       httr_1.4.7           scales_1.4.0        
+[22] numDeriv_2016.8-1.1  jquerylib_0.1.4      cli_3.6.6           
+[25] rlang_1.2.0          cowplot_1.2.0        LaplacesDemon_16.1.8
+[28] withr_3.0.3          cachem_1.1.0         yaml_2.3.12         
+[31] otel_0.2.0           tools_4.5.1          parallel_4.5.1      
+[34] reshape2_1.4.5       dplyr_1.1.4          httpuv_1.6.16       
+[37] vctrs_0.7.3          R6_2.6.1             lifecycle_1.0.5     
+[40] git2r_0.36.2         stringr_1.6.0        fs_1.6.6            
+[43] irlba_2.3.7          pkgconfig_2.0.3      callr_3.7.6         
+[46] pillar_1.11.1        bslib_0.9.0          later_1.4.4         
+[49] gtable_0.3.6         glue_1.8.1           Rcpp_1.1.1-1.1      
+[52] xfun_0.55            tibble_3.3.0         tidyselect_1.2.1    
+[55] rstudioapi_0.17.1    knitr_1.50           dichromat_2.0-0.1   
+[58] farver_2.1.2         htmltools_0.5.9      labeling_0.4.3      
+[61] rmarkdown_2.30       TMB_1.9.23           compiler_4.5.1      
+[64] getPass_0.2-4        S7_0.2.2             fashr_0.1.43        </code></pre>
 </div>
 </div>
 </div>
@@ -1359,6 +1504,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
 <script>
 $(document).ready(function ()  {

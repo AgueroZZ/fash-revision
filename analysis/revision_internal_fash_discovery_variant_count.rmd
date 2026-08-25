@@ -1,0 +1,169 @@
+---
+title: "Internal analysis: tested variants per gene by FASH discovery status"
+author: "Ziang Zhang"
+date: "2026-08-19"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 8.8,
+  fig.height = 6.8,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(file.path(
+  "code",
+  "revision_simulations",
+  "internal",
+  "fash_discovery_variant_count",
+  "reporting.R"
+))
+```
+
+<style>
+.variant-count-internal-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.variant-count-definition {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.variant-count-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.variant-count-table-scroll table {
+  margin-bottom: 1em;
+}
+.variant-count-path {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre,
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+
+<div class="variant-count-internal-banner">
+<strong>Internal analysis page.</strong> This page is not linked from the
+workflowr homepage, manuscript, or response letter.
+</div>
+
+## Analysis definition
+
+<div class="variant-count-definition">
+<ul>
+<li><strong>Tested universe:</strong> `r format_integer(expected_pair_count)`
+gene-variant pairs from `r format_integer(expected_gene_count)` genes.</li>
+<li><strong>FASH result:</strong> BF-adjusted FASH-IWP1 with cumulative-lfdr
+FDR `r format_decimal(analysis_alpha, 2L)`.</li>
+<li><strong>FASH-discovered gene:</strong> a gene with at least one called
+gene-variant pair.</li>
+<li><strong>Not-discovered gene:</strong> a tested gene with no called
+gene-variant pair.</li>
+<li><strong>Gene-level value:</strong> the number of tested variants associated
+with the gene in the full FASH analysis.</li>
+</ul>
+</div>
+
+The fixed FASH result contains
+`r format_integer(length(discovered_pair_indices))` called pairs from
+`r format_integer(length(discovered_gene_ids))` genes. The two comparison
+groups contain `r format_integer(group_summary$Genes[2])` FASH-discovered genes
+and `r format_integer(group_summary$Genes[1])` not-discovered genes.
+
+## Distribution
+
+Both panels apply `log(1 + x)` to each gene-level variant count. The upper
+panel shows boxplots and reports medians on the original count scale. The lower
+panel overlays the two histograms after normalizing each group to density.
+
+```{r variant-count-boxplot, fig.height=10.5, fig.cap="Boxplot and overlapping density-normalized histogram of log(1 + number of tested variants per gene) by BF-adjusted FASH-IWP1 discovery status."}
+plot_variant_count_distribution_panel()
+```
+
+## Group summary
+
+All values in the table below are computed on the original variant-count
+scale.
+
+```{r group-summary-table, results='asis'}
+render_internal_table(
+  group_summary_display,
+  align = "lrrrrr",
+  minimum_width = "780px"
+)
+```
+
+## One-sided non-parametric comparison
+
+The analysis uses a one-sided Wilcoxon rank-sum test on the original variant
+counts, with the FASH-discovered group supplied as the first sample and the
+not-discovered group supplied as the second sample.
+
+Test settings:
+
+- `alternative = "greater"`
+- `exact = FALSE`
+- `correct = TRUE`
+
+```{r wilcoxon-test-table, results='asis'}
+render_internal_table(
+  wilcoxon_test_table,
+  align = "lllllrr",
+  minimum_width = "1420px"
+)
+```
+
+## Input provenance
+
+```{r input-provenance-table, results='asis'}
+render_internal_table(
+  input_provenance_table,
+  align = "llrll",
+  minimum_width = "1320px"
+)
+```
+
+Page-specific source files:
+
+- <span class="variant-count-path">`code/revision_simulations/internal/fash_discovery_variant_count/reporting.R`</span>
+- <span class="variant-count-path">`code/revision_simulations/internal/fash_discovery_variant_count/test_reporting.R`</span>
+
+Reproduction commands from the workflowr project root:
+
+```{r reproduction-commands, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_discovery_variant_count/test_reporting.R
+
+Rscript --vanilla -e \
+  'workflowr::wflow_build("analysis/revision_internal_fash_discovery_variant_count.rmd")'
+```

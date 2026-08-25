@@ -127,6 +127,74 @@ make_long_loadings <- function(left_factor, sample_info) {
   loading_long
 }
 
+make_cell_line_by_time_matrix <- function(sample_info, values) {
+  if (nrow(sample_info) != length(values)) {
+    stop("Sample metadata and values have incompatible lengths.")
+  }
+  cell_lines <- levels(sample_info$cell_line)
+  time_grid <- sort(unique(sample_info$time))
+  row_index <- match(as.character(sample_info$cell_line), cell_lines)
+  column_index <- match(sample_info$time, time_grid)
+  if (anyNA(row_index) || anyNA(column_index) || anyDuplicated(
+    paste(row_index, column_index, sep = "_"))
+  ) {
+    stop("The sample metadata cannot be converted to a cell-line-by-time matrix.")
+  }
+  result <- matrix(
+    NA_real_,
+    nrow = length(cell_lines),
+    ncol = length(time_grid),
+    dimnames = list(cell_lines, paste0("time_", time_grid))
+  )
+  result[cbind(row_index, column_index)] <- values
+  result
+}
+
+matrix_to_time_long <- function(input_matrix, value_name) {
+  grid <- expand.grid(
+    row_index = seq_len(nrow(input_matrix)),
+    column_index = seq_len(ncol(input_matrix)),
+    KEEP.OUT.ATTRS = FALSE,
+    stringsAsFactors = FALSE
+  )
+  result <- data.frame(
+    time_row = as.integer(sub(
+      "^time_", "", rownames(input_matrix)[grid$row_index]
+    )),
+    time_column = as.integer(sub(
+      "^time_", "", colnames(input_matrix)[grid$column_index]
+    )),
+    stringsAsFactors = FALSE
+  )
+  result[[value_name]] <- input_matrix[cbind(
+    grid$row_index,
+    grid$column_index
+  )]
+  result
+}
+
+summarize_correlation_lags <- function(correlation_matrix, matrix_label) {
+  time_values <- as.integer(sub("^time_", "", colnames(correlation_matrix)))
+  do.call(rbind, lapply(0:max(time_values), function(lag_value) {
+    selected <- which(
+      upper.tri(correlation_matrix, diag = TRUE) &
+        abs(outer(time_values, time_values, "-")) == lag_value,
+      arr.ind = TRUE
+    )
+    correlations <- correlation_matrix[selected]
+    data.frame(
+      matrix = matrix_label,
+      lag = lag_value,
+      n_time_pairs = length(correlations),
+      mean_correlation = mean(correlations),
+      median_correlation = stats::median(correlations),
+      min_correlation = min(correlations),
+      max_correlation = max(correlations),
+      stringsAsFactors = FALSE
+    )
+  }))
+}
+
 workflowr_root <- find_workflowr_root()
 project_root <- normalizePath(file.path(workflowr_root, ".."), mustWork = TRUE)
 
@@ -301,6 +369,134 @@ factor_scores$direction <- ifelse(
   "Positive",
   "Negative"
 )
+selected_gene_standardized_expression <- as.numeric(
+  scale(expression_by_sample[, selected_gene_index], center = TRUE, scale = TRUE)
+)
+top_five_fitted_expression <- as.numeric(
+  saved_left_factor[, seq_len(5L), drop = FALSE] %*%
+    matched_alignment$gene_factor[selected_gene_index, seq_len(5L)]
+)
+top_five_residual_expression <-
+  selected_gene_standardized_expression - top_five_fitted_expression
+residual_trajectory <- data.frame(
+  sample_id = sample_info$sample_id,
+  cell_line = sample_info$cell_line,
+  time = sample_info$time,
+  standardized_log_expression = selected_gene_standardized_expression,
+  top_five_pc_fitted_expression = top_five_fitted_expression,
+  top_five_pc_residual = top_five_residual_expression,
+  stringsAsFactors = FALSE
+)
+residual_trajectory <- residual_trajectory[order(
+  residual_trajectory$cell_line,
+  residual_trajectory$time
+), ]
+residual_trajectory$trajectory_segment <- ave(
+  residual_trajectory$time,
+  residual_trajectory$cell_line,
+  FUN = function(time_values) cumsum(c(TRUE, diff(time_values) > 1L))
+)
+residual_trajectory$line_group <- interaction(
+  residual_trajectory$cell_line,
+  residual_trajectory$trajectory_segment,
+  drop = TRUE
+)
+total_sum_squares <- sum(selected_gene_standardized_expression^2)
+fitted_sum_squares <- sum(top_five_fitted_expression^2)
+residual_sum_squares <- sum(top_five_residual_expression^2)
+residual_summary <- data.frame(
+  gene_id = selected_gene_id,
+  n_sample_time_observations = nrow(residual_trajectory),
+  total_sum_squares = total_sum_squares,
+  top_five_pc_fitted_sum_squares = fitted_sum_squares,
+  top_five_pc_residual_sum_squares = residual_sum_squares,
+  fraction_sum_squares_explained_by_top_five =
+    fitted_sum_squares / total_sum_squares,
+  max_abs_inner_product_residual_with_top_five_pcs = max(abs(
+    crossprod(
+      saved_left_factor[, seq_len(5L), drop = FALSE],
+      top_five_residual_expression
+    )
+  )),
+  stringsAsFactors = FALSE
+)
+pca_scale_expression_matrix <- make_cell_line_by_time_matrix(
+  sample_info,
+  selected_gene_standardized_expression
+)
+top_five_residual_matrix <- make_cell_line_by_time_matrix(
+  sample_info,
+  top_five_residual_expression
+)
+pairwise_n_cell_lines <- crossprod(!is.na(top_five_residual_matrix))
+storage.mode(pairwise_n_cell_lines) <- "integer"
+dimnames(pairwise_n_cell_lines) <- list(
+  colnames(top_five_residual_matrix),
+  colnames(top_five_residual_matrix)
+)
+pca_scale_correlation <- stats::cor(
+  pca_scale_expression_matrix,
+  use = "pairwise.complete.obs",
+  method = "pearson"
+)
+top_five_residual_correlation <- stats::cor(
+  top_five_residual_matrix,
+  use = "pairwise.complete.obs",
+  method = "pearson"
+)
+if (any(!is.finite(pca_scale_correlation)) ||
+    any(!is.finite(top_five_residual_correlation)) ||
+    max(abs(diag(top_five_residual_correlation) - 1)) > 1e-12) {
+  stop("The selected gene cannot support valid pairwise residual correlations.")
+}
+top_five_residual_correlation_change <-
+  top_five_residual_correlation - pca_scale_correlation
+correlation_lag_summary <- rbind(
+  summarize_correlation_lags(
+    pca_scale_correlation,
+    "PCA-input expression"
+  ),
+  summarize_correlation_lags(
+    top_five_residual_correlation,
+    "Top-five-PC residual"
+  )
+)
+correlation_summary <- data.frame(
+  matrix = c("PCA-input expression", "Top-five-PC residual"),
+  mean_off_diagonal_correlation = c(
+    mean(pca_scale_correlation[upper.tri(pca_scale_correlation)]),
+    mean(top_five_residual_correlation[upper.tri(top_five_residual_correlation)])
+  ),
+  median_off_diagonal_correlation = c(
+    stats::median(pca_scale_correlation[upper.tri(pca_scale_correlation)]),
+    stats::median(
+      top_five_residual_correlation[upper.tri(top_five_residual_correlation)]
+    )
+  ),
+  min_off_diagonal_correlation = c(
+    min(pca_scale_correlation[upper.tri(pca_scale_correlation)]),
+    min(
+      top_five_residual_correlation[upper.tri(top_five_residual_correlation)]
+    )
+  ),
+  max_off_diagonal_correlation = c(
+    max(pca_scale_correlation[upper.tri(pca_scale_correlation)]),
+    max(
+      top_five_residual_correlation[upper.tri(top_five_residual_correlation)]
+    )
+  ),
+  minimum_eigenvalue = c(
+    min(eigen(pca_scale_correlation, symmetric = TRUE, only.values = TRUE)$values),
+    min(
+      eigen(
+        top_five_residual_correlation,
+        symmetric = TRUE,
+        only.values = TRUE
+      )$values
+    )
+  ),
+  stringsAsFactors = FALSE
+)
 
 utils::write.csv(
   sample_info,
@@ -315,6 +511,86 @@ utils::write.csv(
 utils::write.csv(
   factor_scores,
   file.path(output_dir, "selected_gene_factor_scores.csv"),
+  row.names = FALSE
+)
+utils::write.csv(
+  residual_trajectory,
+  file.path(output_dir, "selected_gene_top5_pc_residual_trajectories.csv"),
+  row.names = FALSE
+)
+utils::write.csv(
+  residual_summary,
+  file.path(output_dir, "selected_gene_top5_pc_residual_summary.csv"),
+  row.names = FALSE
+)
+utils::write.csv(
+  data.frame(
+    cell_line = rownames(pca_scale_expression_matrix),
+    pca_scale_expression_matrix,
+    check.names = FALSE
+  ),
+  file.path(output_dir, "selected_gene_pca_scale_expression_matrix.csv"),
+  row.names = FALSE
+)
+utils::write.csv(
+  data.frame(
+    cell_line = rownames(top_five_residual_matrix),
+    top_five_residual_matrix,
+    check.names = FALSE
+  ),
+  file.path(output_dir, "selected_gene_top5_pc_residual_matrix.csv"),
+  row.names = FALSE
+)
+utils::write.csv(
+  data.frame(
+    time = rownames(pca_scale_correlation),
+    pca_scale_correlation,
+    check.names = FALSE
+  ),
+  file.path(output_dir, "selected_gene_pca_scale_pairwise_correlation.csv"),
+  row.names = FALSE
+)
+utils::write.csv(
+  data.frame(
+    time = rownames(top_five_residual_correlation),
+    top_five_residual_correlation,
+    check.names = FALSE
+  ),
+  file.path(
+    output_dir,
+    "selected_gene_top5_pc_residual_pairwise_correlation.csv"
+  ),
+  row.names = FALSE
+)
+utils::write.csv(
+  data.frame(
+    time = rownames(top_five_residual_correlation_change),
+    top_five_residual_correlation_change,
+    check.names = FALSE
+  ),
+  file.path(
+    output_dir,
+    "selected_gene_top5_pc_residual_correlation_change.csv"
+  ),
+  row.names = FALSE
+)
+utils::write.csv(
+  data.frame(
+    time = rownames(pairwise_n_cell_lines),
+    pairwise_n_cell_lines,
+    check.names = FALSE
+  ),
+  file.path(output_dir, "selected_gene_pairwise_n_cell_lines.csv"),
+  row.names = FALSE
+)
+utils::write.csv(
+  correlation_lag_summary,
+  file.path(output_dir, "selected_gene_correlation_lag_summary.csv"),
+  row.names = FALSE
+)
+utils::write.csv(
+  correlation_summary,
+  file.path(output_dir, "selected_gene_correlation_summary.csv"),
   row.names = FALSE
 )
 utils::write.csv(
@@ -341,7 +617,17 @@ saveRDS(
     validation_table = validation_table,
     sample_info = sample_info,
     saved_left_factor = saved_left_factor,
-    aligned_gene_factor_for_selected_gene = factor_scores
+    aligned_gene_factor_for_selected_gene = factor_scores,
+    selected_gene_top_five_pc_residual_trajectory = residual_trajectory,
+    selected_gene_top_five_pc_residual_summary = residual_summary,
+    selected_gene_pca_scale_correlation = pca_scale_correlation,
+    selected_gene_top_five_pc_residual_correlation =
+      top_five_residual_correlation,
+    selected_gene_top_five_pc_residual_correlation_change =
+      top_five_residual_correlation_change,
+    selected_gene_pairwise_n_cell_lines = pairwise_n_cell_lines,
+    selected_gene_correlation_lag_summary = correlation_lag_summary,
+    selected_gene_correlation_summary = correlation_summary
   ),
   file.path(output_dir, "global_pca_factor_visualization.rds")
 )
@@ -428,6 +714,99 @@ factor_score_plot <- ggplot2::ggplot(
     panel.grid.minor = ggplot2::element_blank()
   )
 
+residual_trajectory_plot <- ggplot2::ggplot(
+  residual_trajectory,
+  ggplot2::aes(x = time, y = top_five_pc_residual, group = line_group)
+) +
+  ggplot2::geom_hline(
+    yintercept = 0,
+    colour = "grey65",
+    linewidth = 0.35
+  ) +
+  ggplot2::geom_line(
+    colour = "#0072B2",
+    linewidth = 0.65
+  ) +
+  ggplot2::geom_point(
+    colour = "#0072B2",
+    size = 1.25
+  ) +
+  ggplot2::facet_wrap(~ cell_line, ncol = 5L) +
+  ggplot2::scale_x_continuous(breaks = c(0L, 5L, 10L, 15L)) +
+  ggplot2::labs(
+    title = paste0(
+      "Residual trajectories after top-five global PCs: ", selected_gene_id
+    ),
+    subtitle = sprintf(
+      paste(
+        "Each panel is one cell line; PC1--PC5 explain %.1f%% of this gene's",
+        "global standardized log-expression sum of squares."
+      ),
+      100 * residual_summary$fraction_sum_squares_explained_by_top_five
+    ),
+    x = "Time",
+    y = "Standardized log-expression residual"
+  ) +
+  ggplot2::theme_minimal(base_size = 10) +
+  ggplot2::theme(
+    plot.title = ggplot2::element_text(face = "bold"),
+    strip.text = ggplot2::element_text(face = "bold")
+  )
+
+correlation_comparison_long <- rbind(
+  transform(
+    matrix_to_time_long(pca_scale_correlation, "correlation"),
+    matrix = "PCA-input expression"
+  ),
+  transform(
+    matrix_to_time_long(top_five_residual_correlation, "correlation"),
+    matrix = "Top-five-PC residual"
+  )
+)
+correlation_comparison_long$matrix <- factor(
+  correlation_comparison_long$matrix,
+  levels = c("PCA-input expression", "Top-five-PC residual")
+)
+correlation_comparison_plot <- ggplot2::ggplot(
+  correlation_comparison_long,
+  ggplot2::aes(x = time_column, y = time_row, fill = correlation)
+) +
+  ggplot2::geom_tile() +
+  ggplot2::geom_text(
+    ggplot2::aes(label = sprintf("%.2f", correlation)),
+    size = 2.25
+  ) +
+  ggplot2::facet_wrap(~ matrix, ncol = 2L) +
+  ggplot2::scale_x_continuous(breaks = 0:15) +
+  ggplot2::scale_y_reverse(breaks = 0:15) +
+  ggplot2::scale_fill_gradient2(
+    low = "#2166AC",
+    mid = "white",
+    high = "#B2182B",
+    midpoint = 0,
+    limits = c(-1, 1),
+    name = "Pearson r"
+  ) +
+  ggplot2::coord_fixed() +
+  ggplot2::labs(
+    title = paste0(
+      "Cross-time correlation after top-five global-PC removal: ",
+      selected_gene_id
+    ),
+    subtitle = paste(
+      "Each entry is Pearson correlation across pairwise matched cell lines;",
+      "the same standardized-log PCA scale is used in both panels."
+    ),
+    x = "Time (column)",
+    y = "Time (row)"
+  ) +
+  ggplot2::theme_minimal(base_size = 10) +
+  ggplot2::theme(
+    panel.grid = ggplot2::element_blank(),
+    plot.title = ggplot2::element_text(face = "bold"),
+    strip.text = ggplot2::element_text(face = "bold")
+  )
+
 ggplot2::ggsave(
   file.path(figure_dir, "global_pca_cell_line_loadings_over_time.png"),
   loading_plot,
@@ -440,6 +819,26 @@ ggplot2::ggsave(
   factor_score_plot,
   width = 8.5,
   height = 5.5,
+  dpi = 180
+)
+ggplot2::ggsave(
+  file.path(
+    figure_dir,
+    "selected_gene_top5_pc_residual_trajectory_grid.png"
+  ),
+  residual_trajectory_plot,
+  width = 13,
+  height = 10,
+  dpi = 180
+)
+ggplot2::ggsave(
+  file.path(
+    figure_dir,
+    "selected_gene_top5_pc_residual_correlation_comparison.png"
+  ),
+  correlation_comparison_plot,
+  width = 15.5,
+  height = 8.5,
   dpi = 180
 )
 

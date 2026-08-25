@@ -16,12 +16,58 @@ find_workflowr_root <- function(start = getwd()) {
   }
 }
 
+get_arg <- function(name, default = NULL) {
+  args <- commandArgs(trailingOnly = TRUE)
+  equals_prefix <- paste0(name, "=")
+  equals_hit <- which(startsWith(args, equals_prefix))
+  if (length(equals_hit) > 0L) {
+    return(substring(args[equals_hit[1L]], nchar(equals_prefix) + 1L))
+  }
+  hit <- which(args == name)
+  if (length(hit) == 0L || hit[1L] == length(args)) {
+    return(default)
+  }
+  args[hit[1L] + 1L]
+}
+
+sha256_file <- function(path) {
+  output <- system2(
+    "shasum",
+    args = c("-a", "256", normalizePath(path, mustWork = TRUE)),
+    stdout = TRUE,
+    stderr = TRUE
+  )
+  status <- attr(output, "status")
+  if ((!is.null(status) && status != 0L) || length(output) != 1L) {
+    stop("Could not compute SHA-256 for ", path, ".")
+  }
+  hash <- strsplit(output, "[[:space:]]+")[[1L]][1L]
+  if (!grepl("^[0-9a-f]{64}$", hash)) {
+    stop("Unexpected SHA-256 output for ", path, ".")
+  }
+  hash
+}
+
+package_provenance <- function(package) {
+  description <- utils::packageDescription(package)
+  remote_sha <- description[["RemoteSha"]]
+  if (is.null(remote_sha) || length(remote_sha) != 1L || is.na(remote_sha)) {
+    remote_sha <- ""
+  }
+  list(
+    package = package,
+    version = as.character(description[["Version"]]),
+    remote_sha = as.character(remote_sha)
+  )
+}
+
 file_provenance <- function(path) {
   information <- file.info(path)
   data.frame(
     path = normalizePath(path, winslash = "/", mustWork = TRUE),
     byte_size = unname(information$size),
     md5 = unname(tools::md5sum(path)),
+    sha256 = sha256_file(path),
     modified_at = format(information$mtime, tz = "UTC", usetz = TRUE),
     stringsAsFactors = FALSE
   )
@@ -57,6 +103,31 @@ matching_helper_path <- file.path(
 )
 source(helper_path)
 source(matching_helper_path)
+
+expected_output_id <- "fash_strober_enhancer_comparison_fashr0143"
+output_id <- get_arg("--output-id", expected_output_id)
+if (!identical(output_id, expected_output_id) ||
+    !nzchar(output_id) || grepl("/", output_id, fixed = TRUE)) {
+  stop(
+    "The retained R6 analysis requires output_id ",
+    expected_output_id, "."
+  )
+}
+if (!requireNamespace("fashr", quietly = TRUE)) {
+  stop("The fashr package is required.")
+}
+expected_fashr_provenance <- list(
+  package = "fashr",
+  version = "0.1.43",
+  remote_sha = "bf223df75da6e41ae48607a56b4cd12d7c3b24e7"
+)
+fashr_provenance <- package_provenance("fashr")
+if (!identical(fashr_provenance, expected_fashr_provenance)) {
+  stop(
+    "The retained R6 analysis requires fashr 0.1.43 at RemoteSha ",
+    expected_fashr_provenance$remote_sha, "."
+  )
+}
 
 current_fit_path <- file.path(
   workflowr_root, "output", "dynamic_eQTL_real", "fash_fit1_update.RData"
@@ -99,14 +170,33 @@ baseline_annotation_path <- file.path(
   "baseline_ld_variant_enrichment",
   "baseline_ld_binary_annotation_matrix.rds"
 )
-output_directory <- file.path(
+output_parent <- file.path(
   workflowr_root,
   "output",
   "revision_simulations",
-  "internal",
-  "fash_strober_enhancer_comparison"
+  "internal"
 )
-dir.create(output_directory, recursive = TRUE, showWarnings = FALSE)
+final_output_directory <- file.path(output_parent, output_id)
+staging_directory <- file.path(
+  output_parent,
+  paste0(".", output_id, "_staging_", Sys.getpid())
+)
+if (!dir.exists(output_parent)) {
+  stop("The retained revision output parent is missing.")
+}
+if (file.exists(final_output_directory)) {
+  stop("Refusing to overwrite the retained R6 output: ", final_output_directory)
+}
+if (file.exists(staging_directory)) {
+  stop("Unexpected R6 staging-directory collision: ", staging_directory)
+}
+cleanup_staging <- TRUE
+on.exit({
+  if (isTRUE(cleanup_staging) && dir.exists(staging_directory)) {
+    unlink(staging_directory, recursive = TRUE, force = TRUE)
+  }
+}, add = TRUE)
+output_directory <- staging_directory
 
 input_paths <- c(
   current_fit_path,
@@ -121,6 +211,21 @@ input_paths <- c(
 )
 if (any(!file.exists(input_paths))) {
   stop("At least one retained analysis input is missing.")
+}
+input_provenance <- do.call(rbind, lapply(input_paths, file_provenance))
+expected_current_fit <- c(
+  byte_size = 581123504,
+  sha256 = "7f0ca9ab0fbeab89a13c83d2a0fb7c24195f7b5a5835f209399cf0e359001f50"
+)
+current_fit_row <- input_provenance[
+  input_provenance$path == normalizePath(current_fit_path, winslash = "/"),
+  ,
+  drop = FALSE
+]
+if (nrow(current_fit_row) != 1L ||
+    current_fit_row$byte_size != as.numeric(expected_current_fit[["byte_size"]]) ||
+    current_fit_row$sha256 != expected_current_fit[["sha256"]]) {
+  stop("The corrected BF-updated FASH fit failed the retained R6 contract.")
 }
 
 alpha <- 0.05
@@ -164,7 +269,7 @@ rm(linear_result, quadratic_result)
 invisible(gc())
 
 expected_counts <- list(
-  current = c(9205L, 9139L, 1177L, 1170L),
+  current = c(9214L, 9148L, 1176L, 1169L),
   linear = c(5404L, 5387L, 550L, 548L),
   quadratic = c(6824L, 6797L, 693L, 690L)
 )
@@ -200,8 +305,8 @@ strober_union_variants <- union(linear$all_variants, quadratic$all_variants)
 # Lead selection happens BEFORE the exclusion. A gene whose best variant is also
 # a Strober discovery drops out entirely rather than falling back to a weaker
 # exclusive variant, so every variant here is genuinely FASH's top call for its
-# gene. (The reverse ordering was tried and gives near-identical enrichment while
-# substituting 78 weaker variants; see the 2026-08-09 log.)
+# gene. This ordering preserves the claim that every retained lead is genuinely
+# the focal method's top discovered variant for its gene.
 current_only_all_pairs <- current$all_pairs[
   !current$all_pairs$variant_id %in% strober_union_variants,
   ,
@@ -226,7 +331,7 @@ if (any(current_only$all_variants %in% strober_union_variants) ||
 if (!identical(
   c(nrow(current_only$all_pairs), length(current_only$all_variants),
     nrow(current_only$lead_pairs), length(current_only$lead_variants)),
-  c(8033L, 7972L, 1036L, 1030L)
+  c(8042L, 7981L, 1035L, 1029L)
 )) {
   stop("The FASH-only discovery counts changed unexpectedly.")
 }
@@ -517,14 +622,15 @@ runtime_summary <- data.frame(
   elapsed_seconds = c(custom_elapsed, baseline_elapsed, total_elapsed),
   stringsAsFactors = FALSE
 )
-input_provenance <- do.call(rbind, lapply(input_paths, file_provenance))
 roadmap_base <- paste0(
   "https://egg2.wustl.edu/roadmap/data/byFileType/chromhmmSegmentations/",
   "ChmmModels/coreMarks/jointModel/final/"
 )
 configuration <- list(
-  analysis_id = "revision_internal_fash_strober_enhancer_comparison",
+  analysis_id = "revision_internal_fash_strober_enhancer_comparison_fashr0143",
+  cache_id = output_id,
   generated_at = format(Sys.time(), tz = "UTC", usetz = TRUE),
+  package_provenance = fashr_provenance,
   fdr_threshold = alpha,
   controls_per_variant = controls_per_variant,
   matching_seed_count = length(matching_seeds),
@@ -535,8 +641,8 @@ configuration <- list(
     "quadratic/nonlinear discovery, regardless of the associated gene."
   ),
   strict_lead_definition = paste(
-    "Exclude all Strober-discovered rsIDs first, then select the lowest-lfdr",
-    "remaining focal-method pair per gene."
+    "Select the lowest-lfdr focal-method pair per gene first, then remove a",
+    "lead if its rsID appears in either Strober discovery set; do not fall back."
   ),
   multiplicity_statement = paste(
     "Exploratory analysis. Fold enrichment, 95% delete-one-autosome intervals,",
@@ -619,6 +725,10 @@ cache <- list(
 )
 
 message_step(9, 9, "Writing retained cache and reproducibility artifacts.")
+if (file.exists(final_output_directory) || file.exists(staging_directory)) {
+  stop("The retained or staging R6 output appeared during computation.")
+}
+dir.create(staging_directory, recursive = FALSE)
 saveRDS(cache, file.path(output_directory, "analysis_cache.rds"),
         compress = "gzip")
 saveRDS(selected_sets, file.path(output_directory, "discovery_sets.rds"),
@@ -646,9 +756,13 @@ write_output(input_provenance, "input_provenance.csv")
 write_output(configuration$annotation_provenance, "annotation_provenance.csv")
 write_output(discovery_export, "discovery_sets.csv")
 write_output(published_estimates, "published_estimates.csv")
+if (!file.rename(staging_directory, final_output_directory)) {
+  stop("Could not finalize the retained R6 output: ", final_output_directory)
+}
+cleanup_staging <- FALSE
 message(
   "Completed FASH/FASH-CL versus Strober enhancer comparison in ",
   round(total_elapsed, 1),
   " seconds: ",
-  file.path(output_directory, "analysis_cache.rds")
+  file.path(final_output_directory, "analysis_cache.rds")
 )

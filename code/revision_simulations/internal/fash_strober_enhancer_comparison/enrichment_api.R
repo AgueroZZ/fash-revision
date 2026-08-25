@@ -54,6 +54,7 @@ MATCHING_SEEDS <- seq.int(20260807L, length.out = 100L)
 CONTROLS_PER_VARIANT <- 5L
 AUTOSOMES <- as.character(1:22)
 MINIMUM_OVERLAP <- 10L
+PUBLISHED_CACHE_ID <- "fash_strober_enhancer_comparison_fashr0143"
 
 ENHANCER_GROUPS <- list(
   custom = c(
@@ -143,7 +144,7 @@ load_background <- function() {
 #' The eight published variant sets, as a named list of variant-ID vectors.
 load_variant_sets <- function() {
   path <- internal_path(
-    "fash_strober_enhancer_comparison", "discovery_sets.rds"
+    PUBLISHED_CACHE_ID, "discovery_sets.rds"
   )
   if (!file.exists(path)) {
     stop(
@@ -367,7 +368,7 @@ compute_enrichment <- function(variant_sets,
 #' wrapper drifting away from the analysis it is meant to describe.
 verify_against_published <- function(tolerance = 1e-8) {
   published <- utils::read.csv(
-    internal_path("fash_strober_enhancer_comparison", "published_estimates.csv"),
+    internal_path(PUBLISHED_CACHE_ID, "published_estimates.csv"),
     stringsAsFactors = FALSE,
     check.names = FALSE
   )

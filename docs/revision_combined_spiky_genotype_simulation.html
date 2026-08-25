@@ -11,9 +11,9 @@
 
 <meta name="author" content="Ziang Zhang" />
 
-<meta name="date" content="2026-07-30" />
+<meta name="date" content="2026-08-22" />
 
-<title>Revision Simulation R2: genotype-level eQTLs with spiky transient effects</title>
+<title>Revision Simulation R2: real-genotype eQTLs with spiky transient effects</title>
 
 <script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -363,10 +363,10 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Revision Simulation R2: genotype-level
-eQTLs with spiky transient effects</h1>
+<h1 class="title toc-ignore">Revision Simulation R2: real-genotype eQTLs
+with spiky transient effects</h1>
 <h4 class="author">Ziang Zhang</h4>
-<h4 class="date">2026-07-30</h4>
+<h4 class="date">2026-08-22</h4>
 
 </div>
 
@@ -395,7 +395,7 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2026-08-07
+<strong>Last updated:</strong> 2026-08-22
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -433,10 +433,10 @@ changes </a>
 <div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R
-Markdown file created these results, you’ll want to first commit it to
-the Git repo. If you’re still working on the analysis, you can ignore
-this warning. When you’re finished, you can run
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
 <code>wflow_publish</code> to commit the R Markdown file and build the
 HTML.</p>
 </div>
@@ -529,15 +529,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -547,7 +547,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -565,59 +565,92 @@ Ignored files:
     Ignored:    .DS_Store
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+    Ignored:    Rplots.pdf
     Ignored:    analysis/.DS_Store
     Ignored:    analysis/.Rhistory
     Ignored:    code/.DS_Store
     Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
     Ignored:    data/appendixB/
     Ignored:    data/dynamic_eQTL_real/
     Ignored:    data/revision_simulations/
     Ignored:    data/toy_example/
     Ignored:    output/dynamic_eQTL_real/
     Ignored:    output/pdf/
+    Ignored:    output/playwright/
     Ignored:    output/revision_simulations/
 
 Untracked files:
-    Untracked:  Rplots.pdf
-    Untracked:  analysis/revision_balanced_variant_thinning.rmd
-    Untracked:  analysis/revision_combined_spiky_genotype_simulation.rmd
-    Untracked:  analysis/revision_correlated_error_simulation.rmd
-    Untracked:  analysis/revision_functional_testing_simulation.rmd
-    Untracked:  analysis/revision_genotype_level_simulation.rmd
-    Untracked:  analysis/revision_internal_correlated_likelihood_sensitivity.rmd
-    Untracked:  analysis/revision_internal_mashr_mean_z_null_correlation.rmd
-    Untracked:  analysis/revision_internal_observational_null_set_pilot.rmd
-    Untracked:  analysis/revision_internal_one_variant_per_gene_refit.rmd
-    Untracked:  analysis/revision_internal_real_genotype_simulation.rmd
-    Untracked:  analysis/revision_internal_targeted_broad_calibration.rmd
-    Untracked:  analysis/revision_internal_variant_annotation_enrichment.rmd
-    Untracked:  analysis/revision_internal_zero_intercept_correlation.rmd
-    Untracked:  analysis/revision_ld_tagging_switch_example.rmd
-    Untracked:  code/00_eQTLs_CL.R
-    Untracked:  code/01_fash_CL.R
-    Untracked:  code/01_fash_CL.sbatch
-    Untracked:  code/09_penalty_sensitivity.R
-    Untracked:  code/09_penalty_sensitivity.sbatch
-    Untracked:  code/revision_simulations/
-    Untracked:  fash_prior_comparison_order1_after.pdf
-    Untracked:  fash_prior_comparison_order1_after.png
-    Untracked:  fash_prior_comparison_order1_before.pdf
-    Untracked:  fash_prior_comparison_order1_before.png
-    Untracked:  fash_prior_comparison_order2_after.pdf
-    Untracked:  fash_prior_comparison_order2_after.png
-    Untracked:  fash_prior_comparison_order2_before.pdf
-    Untracked:  fash_prior_comparison_order2_before.png
+    Untracked:  analysis/dynamic_eQTL_real_cl.rmd
+    Untracked:  analysis/nonlinear_dynamic_eQTL_real_cl.Rmd
+    Untracked:  analysis/revision_enhancer_enrichment_cl.rmd
+    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd
+    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity_middle_4_11.rmd
+    Untracked:  analysis/revision_internal_fash_cl_manuscript_impact.rmd
+    Untracked:  analysis/revision_internal_fash_discovery_variant_count.rmd
+    Untracked:  analysis/revision_internal_fash_linear_real_data_ablation.rmd
+    Untracked:  analysis/revision_internal_fashr_correlated_observation_model.rmd
+    Untracked:  analysis/revision_internal_matched_fash_linear_real_data.rmd
+    Untracked:  analysis/revision_internal_matched_fash_linear_real_data_cl.rmd
+    Untracked:  analysis/revision_internal_r1_normality_assumption.rmd
+    Untracked:  analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd
+    Untracked:  analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd
+    Untracked:  analysis/revision_internal_twenty_variant_per_gene_refit.rmd
+    Untracked:  apps/
+    Untracked:  code/02_dyn_lfsr.R
+    Untracked:  code/02_dyn_lfsr.sbatch
+    Untracked:  code/revision_simulations/appendix_b/
+    Untracked:  code/revision_simulations/internal/cl_pc_real_data_pages/
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_design_propagated_null_correlation.R
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_multigene_null_beta_covariance_exploration.R
+    Untracked:  code/revision_simulations/internal/early_window_sensitivity/
+    Untracked:  code/revision_simulations/internal/evaluation_grid_sensitivity/
+    Untracked:  code/revision_simulations/internal/fash_cl_manuscript_impact/
+    Untracked:  code/revision_simulations/internal/fash_discovery_variant_count/
+    Untracked:  code/revision_simulations/internal/fash_linear_real_data_ablation/
+    Untracked:  code/revision_simulations/internal/fash_strober_enhancer_comparison_cl/
+    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data/
+    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data_cl/
+    Untracked:  code/revision_simulations/internal/r0_linear_iwp_power_mechanism/
+    Untracked:  code/revision_simulations/internal/r0_linear_summary_statistic/
+    Untracked:  code/revision_simulations/internal/r1_known_truth_genotype_permutation/
+    Untracked:  code/revision_simulations/internal/r1_linear_truth_composition/
+    Untracked:  code/revision_simulations/internal/r1_normality_assumption/
+    Untracked:  code/revision_simulations/internal/residual_correlation_fash/
+    Untracked:  code/revision_simulations/internal/selected_signal_genotype_permutation/
+    Untracked:  code/revision_simulations/r1_r2_fashr0143/
+    Untracked:  code/revision_simulations/r5_one_variant_per_gene/
+    Untracked:  code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R
+    Untracked:  code/revision_simulations/shared/real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/test_linear_mixture_fash.R
+    Untracked:  code/revision_simulations/shared/test_real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_linear_mixture_pairing.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_real_genotype_pairing.R
+    Untracked:  figure/
 
 Unstaged changes:
-    Modified:   .gitignore
+    Modified:   analysis/appendixB.rmd
     Modified:   analysis/dynamic_eQTL_real.rmd
     Modified:   analysis/index.Rmd
     Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
-    Modified:   code/README.md
-    Modified:   output/toy_example/toy_example_11.pdf
-    Modified:   output/toy_example/toy_example_12.pdf
-    Modified:   output/toy_example/toy_example_21.pdf
-    Modified:   output/toy_example/toy_example_22.pdf
+    Modified:   analysis/revision_balanced_variant_thinning.rmd
+    Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
+    Modified:   analysis/revision_enhancer_enrichment.rmd
+    Modified:   analysis/revision_functional_testing_simulation.rmd
+    Modified:   analysis/revision_genotype_level_simulation.rmd
+    Modified:   code/revision_simulations/README.md
+    Modified:   code/revision_simulations/internal/covariance_estimation/run_global_pca_factor_visualization.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/reporting.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/run_fash_strober_enhancer_comparison.R
+    Modified:   code/revision_simulations/r1_random_bspline/reporting.R
+    Modified:   code/revision_simulations/r1_random_bspline/run_random_bspline_mc_replication.R
+    Modified:   code/revision_simulations/r2_spiky_transient/reporting.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_combined_spiky_genotype_simulation.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R
+    Modified:   code/revision_simulations/r3_functional_testing/reporting.R
+    Modified:   code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R
+    Modified:   code/revision_simulations/shared/simulation_functions.R
 
 </code></pre>
 <p>
@@ -633,21 +666,166 @@ have uncommitted changes.
 </div>
 <div id="versions" class="tab-pane fade">
 <p>
-There are no past versions. Publish this analysis with
-<code>wflow_publish()</code> to start tracking its development.
+These are the previous versions of the repository in which changes were
+made to the R Markdown
+(<code>analysis/revision_combined_spiky_genotype_simulation.rmd</code>)
+and HTML
+(<code>docs/revision_combined_spiky_genotype_simulation.html</code>)
+files. If you’ve configured a remote Git repository (see
+<code>?wflow_git_remote</code>), click on the hyperlinks in the table
+below to view the files as they were in that past version.
 </p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/analysis/revision_combined_spiky_genotype_simulation.rmd" target="_blank">c87957a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-10
+</td>
+<td>
+Add revision analyses: R1-R6 reviewer-facing pages and internal studies
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/revision_combined_spiky_genotype_simulation.html" target="_blank">c87957a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-10
+</td>
+<td>
+Add revision analyses: R1-R6 reviewer-facing pages and internal studies
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 <hr>
 </div>
 </div>
 </div>
+<style>
+@media (max-width: 767px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  .main-container table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .main-container .MathJax_Display {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+</style>
 <div id="overview" class="section level2">
 <h2>Overview</h2>
-<p>This genotype-level simulation evaluates dynamic-eQTL detection when
+<p>This real-genotype simulation evaluates dynamic-eQTL detection when
 the true effects are continuous but sharply localized and are not
 generated from the IWP prior used by FASH. It uses the same
 individual-level pipeline as the <a
 href="revision_genotype_level_simulation.html">broad random B-spline
 simulation</a>.</p>
+<div id="result-provenance-for-the-0.1.43-refresh"
+class="section level3">
+<h3>Result provenance for the 0.1.43 refresh</h3>
+<p>The FASH-IWP1 and FASH-linear rows were recomputed on the same five
+fixed simulation seeds with <code>fashr</code> 0.1.43 at RemoteSha
+<code>bf223df75da6e41ae48607a56b4cd12d7c3b24e7</code>. The targeted
+result family completed at 2026-08-22 06:47:48 UTC. The
+direct-interaction permutation tests were not rerun: their rows come
+from the unchanged formal historical cache. Before combining the rows,
+the report verifies every retained SHA-256 digest and requires exact
+selected-pair/genotype agreement plus numerical agreement of the
+simulated inputs to <code>1e-12</code>.</p>
+<pre class="r"><code>knitr::kable(
+  result_provenance_table,
+  align = &quot;l&quot;,
+  caption = paste(
+    &quot;Table R2.1: Computation source and validation status for each result&quot;,
+    &quot;component in the refreshed page.&quot;
+  )
+)</code></pre>
+<table>
+<caption>Table R2.1: Computation source and validation status for each
+result component in the refreshed page.</caption>
+<colgroup>
+<col width="29%" />
+<col width="18%" />
+<col width="33%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Result component</th>
+<th align="left">Retained source</th>
+<th align="left">Software provenance</th>
+<th align="left">Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">FASH-IWP1 and FASH-linear, Raw and BF</td>
+<td align="left">Targeted R1/R2 0.1.43 cache</td>
+<td align="left">fashr 0.1.43 @ bf223df75da6</td>
+<td align="left">Recomputed on Midway3</td>
+</tr>
+<tr class="even">
+<td align="left">Direct linear and quadratic interaction eFDR</td>
+<td align="left">Historical R2 formal cache</td>
+<td align="left">Historical direct LRT/eFDR cache; unchanged</td>
+<td align="left">Reused; not rerun</td>
+</tr>
+<tr class="odd">
+<td align="left">Representative seed-12345 simulation</td>
+<td align="left">Historical R2 formal cache</td>
+<td align="left">Numerically paired to the retained 0.1.43 payload</td>
+<td align="left">Strict pairing check passed</td>
+</tr>
+</tbody>
+</table>
 <p>For donor <span class="math inline">\(i\)</span>, variant <span
 class="math inline">\(j\)</span>, and time <span
 class="math inline">\(t\)</span>,</p>
@@ -656,37 +834,160 @@ Y_{ijt} = \alpha_{jt} + G_{ij}\beta_j(t) +
 X_i^T\gamma_{jt} + \epsilon_{ijt},
 \qquad \epsilon_{ijt} \sim N(0,1).
 \]</span></p>
-<p>For each variant, the minor-allele frequency is drawn from <span
-class="math inline">\(p_j\sim\mathrm{Uniform}(0.1,0.5)\)</span> and
-<span class="math inline">\(G_{ij}\sim\mathrm{Binomial}(2,p_j)\)</span>;
-monomorphic draws are repeated. The five columns of <span
-class="math inline">\(X\)</span> are generated independently from <span
-class="math inline">\(N(0,1)\)</span> and standardized across donors.
-Independently for each covariate, variant, and time, <span
-class="math inline">\(\gamma_{kjt}\sim N(0,0.5^2)\)</span>. The current
-simulation sets <span class="math inline">\(\alpha_{jt}=0\)</span>; each
-fitted regression still includes an intercept. Genotype, covariate,
-covariate-effect, and noise draws are mutually independent.</p>
+<p>The genotype matrix is taken from the real YRI data used in the
+manuscript. For each simulation seed, one tested cis variant is sampled
+uniformly from each of the <code>6,362</code> tested genes, and its
+observed dosage vector is retained for the same <code>19</code> donors.
+The resulting design has one locus-level unit per gene and an empirical
+MAF distribution; a variant tested for multiple genes may therefore
+appear more than once. R1, R2, R3A, and R3B use the exact same sampled
+gene-variant pairs and genotype matrix for a given seed.</p>
+<p>The five columns of <span class="math inline">\(X\)</span> remain
+simulated independently from <span class="math inline">\(N(0,1)\)</span>
+and are standardized across donors. Independently for each covariate,
+gene, and time, <span class="math inline">\(\gamma_{kjt}\sim
+N(0,0.5^2)\)</span>. The current simulation sets <span
+class="math inline">\(\alpha_{jt}=0\)</span>; each fitted regression
+still includes an intercept. Effect trajectories, covariates, covariate
+effects, and expression noise remain simulated.</p>
 <pre class="r"><code>seed &lt;- 12345
 component_seeds &lt;- revision_component_seeds(seed)
 
-genotype_sim &lt;- simulate_genotype_matrix(
-  n_donors = 19,
-  n_variants = 1000,
-  maf_range = c(0.1, 0.5),
-  seed = component_seeds[[&quot;genotype&quot;]]
+genotype_cache &lt;- readRDS(
+  &quot;output/revision_simulations/shared/real_genotype_one_per_gene_J6362_pilot5/genotype_samples.rds&quot;
 )
+genotype_sample &lt;- genotype_cache$samples[[as.character(seed)]]
+G &lt;- genotype_sample$G
 covariates &lt;- simulate_covariate_matrix(
   n_donors = 19,
   n_covariates = 5,
   seed = component_seeds[[&quot;covariates&quot;]]
 )</code></pre>
+</div>
+<div id="real-genotype-design-and-provenance" class="section level3">
+<h3>Real-genotype design and provenance</h3>
+<pre class="r"><code>knitr::kable(
+  genotype_provenance_table,
+  align = &quot;l&quot;,
+  caption = &quot;Table R2.2: Provenance and selection rule for the real-genotype simulation design.&quot;
+)</code></pre>
+<table>
+<caption>Table R2.2: Provenance and selection rule for the real-genotype
+simulation design.</caption>
+<colgroup>
+<col width="28%" />
+<col width="22%" />
+<col width="13%" />
+<col width="35%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Artifact</th>
+<th align="left">File</th>
+<th align="left">Size (bytes)</th>
+<th align="left">MD5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">YRI genotype VCF</td>
+<td align="left">YRI_genotype.vcf.gz</td>
+<td align="left">118,088,371</td>
+<td align="left">4f9eb383ce3512d867b42ab806d451a8</td>
+</tr>
+<tr class="even">
+<td align="left">Paper gene-variant summary</td>
+<td align="left">eqtl_summary.rds</td>
+<td align="left">93,591,244</td>
+<td align="left">23e7f6a0093309059424207872dfa1e0</td>
+</tr>
+<tr class="odd">
+<td align="left">Shared genotype cache</td>
+<td align="left">genotype_samples.rds</td>
+<td align="left">2,788,231</td>
+<td align="left">37a620ab8a99aeb16d2b977d0bbc2099</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>knitr::kable(
+  genotype_sampling_table,
+  align = &quot;l&quot;,
+  caption = paste(
+    &quot;Table R2.3: Per-seed genotype sampling summary. Repeated assignments&quot;,
+    &quot;refer to the same tested variant selected for more than one gene.&quot;
+  )
+)</code></pre>
+<table>
+<caption>Table R2.3: Per-seed genotype sampling summary. Repeated
+assignments refer to the same tested variant selected for more than one
+gene.</caption>
+<colgroup>
+<col width="7%" />
+<col width="7%" />
+<col width="16%" />
+<col width="40%" />
+<col width="15%" />
+<col width="13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Seed</th>
+<th align="left">Genes</th>
+<th align="left">Unique rsIDs</th>
+<th align="left">Repeated cross-gene assignments</th>
+<th align="left">MAF range</th>
+<th align="left">Median MAF</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">12345</td>
+<td align="left">6,362</td>
+<td align="left">6,345</td>
+<td align="left">17</td>
+<td align="left">0.101-0.500</td>
+<td align="left">0.254</td>
+</tr>
+<tr class="even">
+<td align="left">22345</td>
+<td align="left">6,362</td>
+<td align="left">6,342</td>
+<td align="left">20</td>
+<td align="left">0.100-0.500</td>
+<td align="left">0.243</td>
+</tr>
+<tr class="odd">
+<td align="left">32345</td>
+<td align="left">6,362</td>
+<td align="left">6,338</td>
+<td align="left">24</td>
+<td align="left">0.100-0.500</td>
+<td align="left">0.251</td>
+</tr>
+<tr class="even">
+<td align="left">42345</td>
+<td align="left">6,362</td>
+<td align="left">6,333</td>
+<td align="left">29</td>
+<td align="left">0.100-0.500</td>
+<td align="left">0.239</td>
+</tr>
+<tr class="odd">
+<td align="left">52345</td>
+<td align="left">6,362</td>
+<td align="left">6,338</td>
+<td align="left">24</td>
+<td align="left">0.100-0.500</td>
+<td align="left">0.257</td>
+</tr>
+</tbody>
+</table>
 <p>Each replicate has <code>19</code> donors, <code>16</code> time
-points, <code>1000</code> variants, and five PC-like covariates. There
-are <code>200</code> dynamic eQTLs, <code>400</code> constant eQTLs with
+points, <code>6,362</code> gene-level units, and five PC-like
+covariates. There are 1,272 dynamic eQTLs, 2,545 constant eQTLs with
 effects drawn from <span class="math inline">\(N(0,1)\)</span>, and
-<code>400</code> zero-effect variants. Therefore, the true dynamic-null
-proportion is <span class="math inline">\(\pi_0=0.8\)</span>.</p>
+2,545 zero-effect units. Therefore, the true dynamic-null proportion is
+<span class="math inline">\(\pi_0=5090/6362=\)</span> 0.8001.</p>
 <p>For a dynamic eQTL,</p>
 <p><span class="math display">\[
 \beta_j(t) = \mu_j + h_j(t),
@@ -724,7 +1025,7 @@ shape_cell_probs &lt;- c(
 evaluation_grid &lt;- seq(0, 15, by = 0.1)
 
 effect_sim &lt;- simulate_raised_cosine_multipeak_effect_set(
-  n_variants = 1000,
+  n_variants = 6362,
   time_grid = 0:15,
   evaluation_grid = evaluation_grid,
   class_probs = class_probs,
@@ -745,10 +1046,17 @@ effect_sim &lt;- simulate_raised_cosine_multipeak_effect_set(
   class_seed = component_seeds[[&quot;classes&quot;]],
   constant_seed = component_seeds[[&quot;constant_effects&quot;]],
   shape_seed = component_seeds[[&quot;functional_truth&quot;]],
-  scenario = &quot;r2_genotype_timed_cosine_one_two_three_peak_main_effect_dynamic_eqtl&quot;
+  scenario = &quot;r2_real_genotype_one_per_gene_timed_cosine_one_two_three_peak_main_effect_dynamic_eqtl&quot;
+)
+effect_sim &lt;- reassign_effect_simulation_by_maf(
+  effect_sim = effect_sim,
+  maf = genotype_sample$variant_info$observed_maf,
+  class_probs = class_probs,
+  seed = component_seeds[[&quot;classes&quot;]],
+  n_strata = 10
 )
 expression_sim &lt;- simulate_eqtl_expression_from_genotypes(
-  G = genotype_sim$G,
+  G = G,
   beta_matrix = effect_sim$beta_matrix,
   time_grid = 0:15,
   covariates = covariates,
@@ -757,23 +1065,24 @@ expression_sim &lt;- simulate_eqtl_expression_from_genotypes(
   intercept_sd = 0,
   seed = component_seeds[[&quot;expression&quot;]]
 )</code></pre>
-<p>The <code>200</code> dynamic variants are approximately balanced
-across one, two, and three peaks. Alternating peak signs describe
+<p>The 1,272 dynamic units are exactly balanced at <code>424</code> per
+one-, two-, and three-peak group. Alternating peak signs describe
 geometry only; this page tests global dynamic eQTL status and does not
 equate an alternating pattern with the manuscript’s switch functional.
 Functional testing is evaluated separately.</p>
+</div>
 <div id="dynamic-shape-and-timing-allocation" class="section level3">
 <h3>Dynamic shape and timing allocation</h3>
 <pre class="r"><code>knitr::kable(
   allocation_table,
   align = &quot;l&quot;,
   caption = paste(
-    &quot;Table R2.1: Allocation of dynamic eQTLs across peak counts, sign&quot;,
+    &quot;Table R2.4: Allocation of dynamic eQTLs across peak counts, sign&quot;,
     &quot;patterns, and primary timing windows in the spiky simulation.&quot;
   )
 )</code></pre>
 <table>
-<caption>Table R2.1: Allocation of dynamic eQTLs across peak counts,
+<caption>Table R2.4: Allocation of dynamic eQTLs across peak counts,
 sign patterns, and primary timing windows in the spiky
 simulation.</caption>
 <colgroup>
@@ -798,42 +1107,42 @@ simulation.</caption>
 <tr class="odd">
 <td align="left">k1__spiky__single</td>
 <td align="left">1 peak</td>
-<td align="left">23</td>
-<td align="left">22</td>
-<td align="left">22</td>
-<td align="left">67</td>
+<td align="left">142</td>
+<td align="left">141</td>
+<td align="left">141</td>
+<td align="left">424</td>
 </tr>
 <tr class="even">
 <td align="left">k2__spiky__alternating-sign</td>
 <td align="left">2 peaks; alternating sign</td>
-<td align="left">11</td>
-<td align="left">11</td>
-<td align="left">11</td>
-<td align="left">33</td>
+<td align="left">71</td>
+<td align="left">71</td>
+<td align="left">70</td>
+<td align="left">212</td>
 </tr>
 <tr class="odd">
 <td align="left">k2__spiky__same-sign</td>
 <td align="left">2 peaks; same sign</td>
-<td align="left">12</td>
-<td align="left">11</td>
-<td align="left">11</td>
-<td align="left">34</td>
+<td align="left">71</td>
+<td align="left">71</td>
+<td align="left">70</td>
+<td align="left">212</td>
 </tr>
 <tr class="even">
 <td align="left">k3__spiky__alternating-sign</td>
 <td align="left">3 peaks; alternating sign</td>
-<td align="left">11</td>
-<td align="left">11</td>
-<td align="left">11</td>
-<td align="left">33</td>
+<td align="left">71</td>
+<td align="left">71</td>
+<td align="left">70</td>
+<td align="left">212</td>
 </tr>
 <tr class="odd">
 <td align="left">k3__spiky__same-sign</td>
 <td align="left">3 peaks; same sign</td>
-<td align="left">11</td>
-<td align="left">11</td>
-<td align="left">11</td>
-<td align="left">33</td>
+<td align="left">71</td>
+<td align="left">71</td>
+<td align="left">70</td>
+<td align="left">212</td>
 </tr>
 </tbody>
 </table>
@@ -843,7 +1152,7 @@ correction uses <code>df = 19 - 7 = 12</code>. FASH receives only these
 per-time estimates and corrected standard errors. The direct interaction
 tests use the full individual-level data.</p>
 <pre class="r"><code>eqtl_summary &lt;- estimate_eqtl_summaries_from_genotypes(
-  G = genotype_sim$G,
+  G = G,
   expression = expression_sim$expression,
   covariates = covariates,
   apply_t_se_correction = TRUE
@@ -854,8 +1163,12 @@ datasets &lt;- make_fash_datasets_from_eqtl_summary(
   true_beta = effect_sim$beta_matrix,
   time_grid = 0:15,
   unit_info = effect_sim$unit_info,
-  scenario = &quot;r2_genotype_timed_cosine_one_two_three_peak_main_effect_dynamic_eqtl&quot;
+  scenario = &quot;r2_real_genotype_one_per_gene_timed_cosine_one_two_three_peak_main_effect_dynamic_eqtl&quot;
 )
+
+common_sd_grid &lt;- default_revision_grid()
+common_pred_step &lt;- 1
+common_penalty &lt;- 10
 
 fash_iwp1_raw &lt;- fashr::fash(
   Y = &quot;y&quot;,
@@ -863,26 +1176,72 @@ fash_iwp1_raw &lt;- fashr::fash(
   S = &quot;sd&quot;,
   data_list = datasets,
   order = 1,
-  grid = default_revision_grid(),
+  grid = common_sd_grid,
   num_basis = 20,
-  penalty = 10,
+  pred_step = common_pred_step,
+  penalty = common_penalty,
   num_cores = 4,
   verbose = FALSE
 )
 fash_iwp1_bf &lt;- fashr::BF_update(fash_iwp1_raw, plot = FALSE)
 
-linear_sigma_grid &lt;- exp(seq(log(0.05), log(5), length.out = 25))
-fash_linear_raw &lt;- fit_simplified_fash(
+fash_linear_raw &lt;- fit_linear_mixture_fash(
   datasets = datasets,
-  estimate_sigma = TRUE,
-  sigma_beta_grid = linear_sigma_grid,
-  scale_time = TRUE
+  grid = common_sd_grid,
+  pred_step = common_pred_step,
+  penalty = common_penalty
 )
-fash_linear_bf &lt;- BF_update_simplified_fash(fash_linear_raw)</code></pre>
+fash_linear_bf &lt;- BF_update_linear_mixture_fash(fash_linear_raw)</code></pre>
 <p>All tables and curves below average five independently simulated
 datasets with seeds <code>12345</code>, <code>22345</code>,
 <code>32345</code>, <code>42345</code>, and <code>52345</code>. The
 seed-12345 full fit is used only for representative trajectories.</p>
+<p>Truth labels are reassigned within empirical-MAF deciles so that
+dynamic, constant, and zero-effect units have closely matched MAF
+distributions.</p>
+<pre class="r"><code>knitr::kable(
+  truth_maf_balance_table,
+  align = &quot;l&quot;,
+  caption = &quot;Table R2.5: Empirical MAF balance across truth classes for each simulation seed.&quot;
+)</code></pre>
+<table>
+<caption>Table R2.5: Empirical MAF balance across truth classes for each
+simulation seed.</caption>
+<colgroup>
+<col width="16%" />
+<col width="20%" />
+<col width="29%" />
+<col width="33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Truth class</th>
+<th align="left">Units per seed</th>
+<th align="left">Mean MAF across seeds</th>
+<th align="left">Maximum absolute MAF SMD</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Dynamic</td>
+<td align="left">1,272</td>
+<td align="left">0.270</td>
+<td align="left">0.0010</td>
+</tr>
+<tr class="even">
+<td align="left">Constant</td>
+<td align="left">2,545</td>
+<td align="left">0.270</td>
+<td align="left">0.0034</td>
+</tr>
+<tr class="odd">
+<td align="left">Zero</td>
+<td align="left">2,545</td>
+<td align="left">0.270</td>
+<td align="left">0.0031</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div id="example-simulated-eqtls" class="section level2">
@@ -906,6 +1265,43 @@ bars span two corrected standard errors, and colored curves are the true
 effects.
 </p>
 </div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-null-examples-1">
+Past versions of null-examples-1.png
+</button>
+</p>
+<div id="fig-null-examples-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/figure/revision_combined_spiky_genotype_simulation.rmd/null-examples-1.png" target="_blank">c87957a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-10
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>The second figure shows one representative from each available
 shape-by-primary-window cell. Truth curves are drawn on a dense time
 grid so that compact peaks between the 16 observed time points remain
@@ -924,75 +1320,133 @@ sign-pattern, and primary-window cells. Points and error bars show the
 curves show the continuous truths.
 </p>
 </div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-dynamic-examples-1">
+Past versions of dynamic-examples-1.png
+</button>
+</p>
+<div id="fig-dynamic-examples-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/figure/revision_combined_spiky_genotype_simulation.rmd/dynamic-examples-1.png" target="_blank">c87957a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-10
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="comparison-1-iwp-versus-linear-fash" class="section level2">
 <h2>Comparison 1: IWP versus linear FASH</h2>
-<p><code>FASH-IWP1</code> uses the first-order IWP alternative.
-<code>FASH-linear</code> uses a constant-versus-linear model on time
-scaled to <span class="math inline">\([0,1]\)</span>: its alternative
-adds a slope <span class="math inline">\(b\sim
-N(0,\sigma_\beta^2)\)</span> to the unrestricted intercept. Within each
-seed, the fit profiles <span class="math inline">\(\pi_0\)</span>
-separately at each of 25 log-spaced candidate values of <span
-class="math inline">\(\sigma_\beta\)</span> from <code>0.05</code> to
-<code>5</code>, then selects the pair with the largest marginal
-likelihood. The BF adjustment updates the mixture weight while holding
-the selected <span class="math inline">\(\sigma_\beta\)</span> fixed.
-Across the five seeds, the selected slope SD has mean 0.563 and observed
-range [0.500, 0.606]. Both raw and BF-corrected fits use the same
-summary statistics and discovery rule.</p>
+<p>This comparison aligns the exact null, scale grid,
+<code>pred_step</code>, and null-favoring penalty.
+<code>FASH-IWP1</code> uses the first-order IWP alternative. For
+<code>FASH-linear</code>, let <span class="math inline">\(h=1\)</span>
+and <span class="math inline">\(z(t)=\{t-\min(t)\}/h\)</span>. Its prior
+is</p>
+<p><span class="math display">\[
+\beta_j(t)=a_j+\theta_j z(t),
+\qquad
+\theta_j\sim\pi_0\delta_0+
+\sum_{k=1}^{K}\pi_k N(0,\tau_k^2).
+\]</span></p>
+<p>The zero-grid component is the same unrestricted constant null used
+by IWP1. For each positive component, <span
+class="math inline">\(\tau_k\)</span> is the prior SD of the linear
+departure at <span class="math inline">\(\min(t)+h\)</span>. The
+complete grid is one exact zero plus 51 positive values from <span
+class="math inline">\(\exp(-5)\)</span> to <code>1</code>; all weights
+are estimated jointly with <code>penalty = 10</code>. IWP1 uses the same
+numerical grid for its one-step predictive SD. This matches the one-step
+marginal scale while leaving the linear and IWP covariance shapes
+different.</p>
+<p>In the BF-adjusted object, <code>fashr::BF_update()</code> does not
+simply retain the raw penalized non-null weights. It re-fits an
+unpenalized full-grid mixture, normalizes the positive-grid weights to
+define the conditional alternative, collapses that alternative into a
+Bayes factor, and then updates the total null weight. The table below
+summarizes both the number of active positive-grid components and their
+conditional RMS pred-step SD across the five seeds.</p>
 <div id="estimated-dynamic-null-proportion" class="section level3">
 <h3>Estimated dynamic-null proportion</h3>
 <pre class="r"><code>knitr::kable(
   pi0_table,
   align = &quot;l&quot;,
   caption = paste(
-    &quot;Table R2.2: Estimated dynamic-null proportions and selected linear slab&quot;,
-    &quot;scales across five spiky-effect simulation replicates.&quot;
+    &quot;Table R2.6: Estimated dynamic-null proportions and linear-mixture prior&quot;,
+    &quot;diagnostics across five spiky-effect simulation replicates.&quot;
   )
 )</code></pre>
 <table>
-<caption>Table R2.2: Estimated dynamic-null proportions and selected
-linear slab scales across five spiky-effect simulation
+<caption>Table R2.6: Estimated dynamic-null proportions and
+linear-mixture prior diagnostics across five spiky-effect simulation
 replicates.</caption>
 <colgroup>
-<col width="13%" />
-<col width="14%" />
-<col width="35%" />
-<col width="36%" />
+<col width="8%" />
+<col width="9%" />
+<col width="22%" />
+<col width="29%" />
+<col width="30%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th align="left">Method</th>
 <th align="left">Fit</th>
 <th align="left">Mean estimated pi0 (95% MC CI)</th>
-<th align="left">Selected slope SD: mean [range]</th>
+<th align="left">Active non-null components: mean [range]</th>
+<th align="left">Alternative RMS pred-step SD: mean [range]</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left">FASH-IWP1</td>
 <td align="left">Raw</td>
-<td align="left">0.807 [0.784, 0.831]</td>
+<td align="left">0.717 [0.676, 0.759]</td>
+<td align="left">—</td>
 <td align="left">—</td>
 </tr>
 <tr class="even">
 <td align="left">FASH-IWP1</td>
 <td align="left">BF-corrected</td>
-<td align="left">0.898 [0.888, 0.909]</td>
+<td align="left">0.898 [0.895, 0.901]</td>
+<td align="left">—</td>
 <td align="left">—</td>
 </tr>
 <tr class="odd">
 <td align="left">FASH-linear</td>
 <td align="left">Raw</td>
-<td align="left">0.743 [0.679, 0.808]</td>
-<td align="left">0.563 [0.500, 0.606]</td>
+<td align="left">0.761 [0.721, 0.801]</td>
+<td align="left">1.8 [1, 3]</td>
+<td align="left">0.039 [0.035, 0.041]</td>
 </tr>
 <tr class="even">
 <td align="left">FASH-linear</td>
 <td align="left">BF-corrected</td>
-<td align="left">0.965 [0.955, 0.974]</td>
-<td align="left">0.563 [0.500, 0.606]</td>
+<td align="left">0.967 [0.963, 0.970]</td>
+<td align="left">1.8 [1, 3]</td>
+<td align="left">0.039 [0.035, 0.041]</td>
 </tr>
 </tbody>
 </table>
@@ -1003,12 +1457,12 @@ replicates.</caption>
   fash_table,
   align = &quot;l&quot;,
   caption = paste(
-    &quot;Table R2.3: Monte Carlo power and empirical FDR at alpha 0.05 for IWP&quot;,
+    &quot;Table R2.7: Monte Carlo power and empirical FDR at alpha 0.05 for IWP&quot;,
     &quot;and linear FASH under compact spiky effects.&quot;
   )
 )</code></pre>
 <table>
-<caption>Table R2.3: Monte Carlo power and empirical FDR at alpha 0.05
+<caption>Table R2.7: Monte Carlo power and empirical FDR at alpha 0.05
 for IWP and linear FASH under compact spiky effects.</caption>
 <colgroup>
 <col width="18%" />
@@ -1027,27 +1481,27 @@ for IWP and linear FASH under compact spiky effects.</caption>
 <tbody>
 <tr class="odd">
 <td align="left">FASH-IWP1-Raw</td>
-<td align="left">126.4</td>
-<td align="left">0.625 [0.555, 0.695]</td>
-<td align="left">0.011 [0.002, 0.020]</td>
+<td align="left">814.8</td>
+<td align="left">0.630 [0.605, 0.654]</td>
+<td align="left">0.017 [0.012, 0.022]</td>
 </tr>
 <tr class="even">
 <td align="left">FASH-IWP1-BF</td>
-<td align="left">96.4</td>
-<td align="left">0.481 [0.383, 0.579]</td>
-<td align="left">0.002 [0.000, 0.008]</td>
+<td align="left">659.8</td>
+<td align="left">0.517 [0.500, 0.534]</td>
+<td align="left">0.004 [0.002, 0.006]</td>
 </tr>
 <tr class="odd">
 <td align="left">FASH-linear-Raw</td>
-<td align="left">19.8</td>
-<td align="left">0.091 [0.046, 0.136]</td>
-<td align="left">0.077 [0.011, 0.144]</td>
+<td align="left">97.4</td>
+<td align="left">0.070 [0.062, 0.078]</td>
+<td align="left">0.081 [0.055, 0.107]</td>
 </tr>
 <tr class="even">
 <td align="left">FASH-linear-BF</td>
-<td align="left">4.8</td>
-<td align="left">0.024 [0.000, 0.048]</td>
-<td align="left">0.000 [0.000, 0.000]</td>
+<td align="left">24.4</td>
+<td align="left">0.019 [0.013, 0.025]</td>
+<td align="left">0.009 [0.000, 0.033]</td>
 </tr>
 </tbody>
 </table>
@@ -1058,7 +1512,7 @@ for IWP and linear FASH under compact spiky effects.</caption>
   fash_alpha,
   metric = &quot;power&quot;,
   title = &quot;IWP versus linear FASH: Monte Carlo power&quot;,
-  subtitle = &quot;Five seeds; compact one-, two-, and three-peak effects&quot;,
+  subtitle = &quot;Five seeds; real YRI genotypes; N = 19, J = 6362 genes&quot;,
   style_profile = &quot;combined&quot;
 )</code></pre>
 <div class="figure" style="text-align: center">
@@ -1070,6 +1524,43 @@ raw and BF-updated methods in the in-figure legend; uncertainty
 summarizes five seeds.
 </p>
 </div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-fash-power-1">
+Past versions of fash-power-1.png
+</button>
+</p>
+<div id="fig-fash-power-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/figure/revision_combined_spiky_genotype_simulation.rmd/fash-power-1.png" target="_blank">c87957a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-10
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="empirical-fdr-as-a-function-of-alpha" class="section level3">
 <h3>Empirical FDR as a function of alpha</h3>
@@ -1077,7 +1568,7 @@ summarizes five seeds.
   fash_alpha,
   metric = &quot;fdr&quot;,
   title = &quot;IWP versus linear FASH: Monte Carlo empirical FDR&quot;,
-  subtitle = &quot;Five seeds; compact one-, two-, and three-peak effects&quot;,
+  subtitle = &quot;Five seeds; real YRI genotypes; N = 19, J = 6362 genes&quot;,
   legend_position = &quot;topleft&quot;,
   style_profile = &quot;combined&quot;
 )</code></pre>
@@ -1089,9 +1580,46 @@ linear FASH under compact spiky effects. Curves identify methods in the
 in-figure legend, and the diagonal reference marks nominal calibration.
 </p>
 </div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-fash-fdr-1">
+Past versions of fash-fdr-1.png
+</button>
+</p>
+<div id="fig-fash-fdr-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/figure/revision_combined_spiky_genotype_simulation.rmd/fash-fdr-1.png" target="_blank">c87957a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-10
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>At <span class="math inline">\(\alpha=0.05\)</span>, IWP-BF has mean
-power 0.481, compared with 0.024 for linear-BF. Their empirical FDR
-estimates are 0.002 and 0.000.</p>
+power 0.517, compared with 0.019 for linear-BF. Their empirical FDR
+estimates are 0.004 and 0.009.</p>
 </div>
 </div>
 <div id="comparison-2-iwp-fash-versus-direct-interaction-tests"
@@ -1101,8 +1629,13 @@ class="section level2">
 The direct quadratic LRT jointly tests linear and quadratic interaction
 terms. Their permutation eFDR calculations use <code>B=100</code>
 donor-level permutations and are supplied with the true <span
-class="math inline">\(\pi_0=0.8\)</span>, deliberately removing
+class="math inline">\(\pi_0=5090/6362\)</span>, deliberately removing
 null-proportion estimation uncertainty from the direct baselines.</p>
+<p>Only the IWP FASH rows in this section were recomputed with
+<code>fashr</code> 0.1.43. The direct linear and quadratic rows are read
+unchanged from the historical formal cache after the report confirms
+that its simulated genotype, covariates, truth, and expression agree
+with the retained 0.1.43 payload.</p>
 <pre class="r"><code>out &lt;- add_direct_interaction_efdr_results_to_genotype_output(
   out = out,
   n_permutations = 100,
@@ -1110,7 +1643,7 @@ null-proportion estimation uncertainty from the direct baselines.</p>
   seed = component_seeds[[&quot;permutations&quot;]],
   lambda = 0.5,
   pi0_method = &quot;conservative&quot;,
-  true_pi0 = 0.8,
+  true_pi0 = 5090 / 6362,
   include_true_pi0 = TRUE,
   permute_covariates_with_expression = TRUE,
   num_cores = 4,
@@ -1123,12 +1656,12 @@ null-proportion estimation uncertainty from the direct baselines.</p>
   direct_table,
   align = &quot;l&quot;,
   caption = paste(
-    &quot;Table R2.4: Monte Carlo power and empirical FDR at alpha 0.05 for IWP&quot;,
+    &quot;Table R2.8: Monte Carlo power and empirical FDR at alpha 0.05 for IWP&quot;,
     &quot;FASH and direct interaction tests under compact spiky effects.&quot;
   )
 )</code></pre>
 <table>
-<caption>Table R2.4: Monte Carlo power and empirical FDR at alpha 0.05
+<caption>Table R2.8: Monte Carlo power and empirical FDR at alpha 0.05
 for IWP FASH and direct interaction tests under compact spiky
 effects.</caption>
 <colgroup>
@@ -1148,27 +1681,27 @@ effects.</caption>
 <tbody>
 <tr class="odd">
 <td align="left">FASH-IWP1-Raw</td>
-<td align="left">126.4</td>
-<td align="left">0.625 [0.555, 0.695]</td>
-<td align="left">0.011 [0.002, 0.020]</td>
+<td align="left">814.8</td>
+<td align="left">0.630 [0.605, 0.654]</td>
+<td align="left">0.017 [0.012, 0.022]</td>
 </tr>
 <tr class="even">
 <td align="left">FASH-IWP1-BF</td>
-<td align="left">96.4</td>
-<td align="left">0.481 [0.383, 0.579]</td>
-<td align="left">0.002 [0.000, 0.008]</td>
+<td align="left">659.8</td>
+<td align="left">0.517 [0.500, 0.534]</td>
+<td align="left">0.004 [0.002, 0.006]</td>
 </tr>
 <tr class="odd">
 <td align="left">Direct-linear-LRT-eFDR-true-pi0</td>
-<td align="left">56.0</td>
-<td align="left">0.265 [0.250, 0.280]</td>
-<td align="left">0.053 [0.024, 0.081]</td>
+<td align="left">334.6</td>
+<td align="left">0.247 [0.231, 0.264]</td>
+<td align="left">0.060 [0.042, 0.077]</td>
 </tr>
 <tr class="even">
 <td align="left">Direct-quadratic-LRT-eFDR-true-pi0</td>
-<td align="left">80.4</td>
-<td align="left">0.385 [0.363, 0.407]</td>
-<td align="left">0.042 [0.021, 0.064]</td>
+<td align="left">480.2</td>
+<td align="left">0.357 [0.340, 0.375]</td>
+<td align="left">0.053 [0.043, 0.063]</td>
 </tr>
 </tbody>
 </table>
@@ -1179,7 +1712,7 @@ effects.</caption>
   direct_alpha,
   metric = &quot;power&quot;,
   title = &quot;IWP FASH versus direct interaction: Monte Carlo power&quot;,
-  subtitle = &quot;Five seeds; direct eFDR uses true pi0 = 0.8 and B = 100&quot;,
+  subtitle = &quot;Five seeds; direct eFDR uses true pi0 = 0.8001 and B = 100&quot;,
   style_profile = &quot;combined&quot;
 )</code></pre>
 <div class="figure" style="text-align: center">
@@ -1191,6 +1724,43 @@ effects. The in-figure legend identifies methods; direct-test eFDR uses
 the true pi0 and 100 permutations.
 </p>
 </div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-direct-power-1">
+Past versions of direct-power-1.png
+</button>
+</p>
+<div id="fig-direct-power-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/figure/revision_combined_spiky_genotype_simulation.rmd/direct-power-1.png" target="_blank">c87957a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-10
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="empirical-fdr-as-a-function-of-alpha-1" class="section level3">
 <h3>Empirical FDR as a function of alpha</h3>
@@ -1198,7 +1768,7 @@ the true pi0 and 100 permutations.
   direct_alpha,
   metric = &quot;fdr&quot;,
   title = &quot;IWP FASH versus direct interaction: Monte Carlo empirical FDR&quot;,
-  subtitle = &quot;Five seeds; direct eFDR uses true pi0 = 0.8 and B = 100&quot;,
+  subtitle = &quot;Five seeds; direct eFDR uses true pi0 = 0.8001 and B = 100&quot;,
   legend_position = &quot;bottomleft&quot;,
   style_profile = &quot;combined&quot;
 )</code></pre>
@@ -1211,17 +1781,54 @@ legend identifies methods, and the diagonal reference marks nominal
 calibration.
 </p>
 </div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-direct-fdr-1">
+Past versions of direct-fdr-1.png
+</button>
+</p>
+<div id="fig-direct-fdr-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/figure/revision_combined_spiky_genotype_simulation.rmd/direct-fdr-1.png" target="_blank">c87957a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-10
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>At <span class="math inline">\(\alpha=0.05\)</span>, mean power is
-0.481 for IWP-BF, 0.265 for direct linear, and 0.385 for direct
-quadratic. The corresponding empirical FDR estimates are 0.002, 0.053,
-and 0.042.</p>
+0.517 for IWP-BF, 0.247 for direct linear, and 0.357 for direct
+quadratic. The corresponding empirical FDR estimates are 0.004, 0.060,
+and 0.053.</p>
 </div>
 </div>
 <div id="power-by-number-of-peaks" class="section level2">
 <h2>Power by number of peaks</h2>
 <p>The global discovery threshold is fitted once across all
-<code>1000</code> variants. Power is then summarized within the true
-one-, two-, and three-peak dynamic subgroups; no subgroup-specific
+<code>6,362</code> gene-level units. Power is then summarized within the
+true one-, two-, and three-peak dynamic subgroups; no subgroup-specific
 threshold is estimated.</p>
 <div id="results-at-alpha-0.05-2" class="section level3">
 <h3>Results at alpha 0.05</h3>
@@ -1229,12 +1836,12 @@ threshold is estimated.</p>
   peak_table,
   align = &quot;l&quot;,
   caption = paste(
-    &quot;Table R2.5: Monte Carlo power at alpha 0.05 stratified by the true&quot;,
+    &quot;Table R2.9: Monte Carlo power at alpha 0.05 stratified by the true&quot;,
     &quot;number of compact peaks; all calls use the same global threshold.&quot;
   )
 )</code></pre>
 <table>
-<caption>Table R2.5: Monte Carlo power at alpha 0.05 stratified by the
+<caption>Table R2.9: Monte Carlo power at alpha 0.05 stratified by the
 true number of compact peaks; all calls use the same global
 threshold.</caption>
 <colgroup>
@@ -1255,56 +1862,56 @@ threshold.</caption>
 <tr class="odd">
 <td align="left">1</td>
 <td align="left">FASH-IWP1-BF</td>
-<td align="left">67</td>
-<td align="left">0.328 [0.232, 0.425]</td>
+<td align="left">424</td>
+<td align="left">0.365 [0.359, 0.370]</td>
 </tr>
 <tr class="even">
 <td align="left">1</td>
 <td align="left">Direct-linear-LRT-eFDR-true-pi0</td>
-<td align="left">67</td>
-<td align="left">0.316 [0.286, 0.347]</td>
+<td align="left">424</td>
+<td align="left">0.309 [0.284, 0.334]</td>
 </tr>
 <tr class="odd">
 <td align="left">1</td>
 <td align="left">Direct-quadratic-LRT-eFDR-true-pi0</td>
-<td align="left">67</td>
-<td align="left">0.451 [0.427, 0.475]</td>
+<td align="left">424</td>
+<td align="left">0.405 [0.388, 0.422]</td>
 </tr>
 <tr class="even">
 <td align="left">2</td>
 <td align="left">FASH-IWP1-BF</td>
-<td align="left">67</td>
-<td align="left">0.510 [0.349, 0.672]</td>
+<td align="left">424</td>
+<td align="left">0.568 [0.540, 0.597]</td>
 </tr>
 <tr class="odd">
 <td align="left">2</td>
 <td align="left">Direct-linear-LRT-eFDR-true-pi0</td>
-<td align="left">67</td>
-<td align="left">0.263 [0.220, 0.305]</td>
+<td align="left">424</td>
+<td align="left">0.265 [0.236, 0.293]</td>
 </tr>
 <tr class="even">
 <td align="left">2</td>
 <td align="left">Direct-quadratic-LRT-eFDR-true-pi0</td>
-<td align="left">67</td>
-<td align="left">0.400 [0.350, 0.450]</td>
+<td align="left">424</td>
+<td align="left">0.394 [0.360, 0.428]</td>
 </tr>
 <tr class="odd">
 <td align="left">3</td>
 <td align="left">FASH-IWP1-BF</td>
-<td align="left">66</td>
-<td align="left">0.606 [0.492, 0.720]</td>
+<td align="left">424</td>
+<td align="left">0.617 [0.589, 0.645]</td>
 </tr>
 <tr class="even">
 <td align="left">3</td>
 <td align="left">Direct-linear-LRT-eFDR-true-pi0</td>
-<td align="left">66</td>
-<td align="left">0.215 [0.168, 0.262]</td>
+<td align="left">424</td>
+<td align="left">0.168 [0.163, 0.173]</td>
 </tr>
 <tr class="odd">
 <td align="left">3</td>
 <td align="left">Direct-quadratic-LRT-eFDR-true-pi0</td>
-<td align="left">66</td>
-<td align="left">0.303 [0.273, 0.333]</td>
+<td align="left">424</td>
+<td align="left">0.273 [0.238, 0.308]</td>
 </tr>
 </tbody>
 </table>
@@ -1328,17 +1935,56 @@ count, curves identify methods in the in-figure legend, and the FDR
 threshold is fitted globally before subgrouping.
 </p>
 </div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-peak-power-1">
+Past versions of peak-power-1.png
+</button>
+</p>
+<div id="fig-peak-power-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/figure/revision_combined_spiky_genotype_simulation.rmd/peak-power-1.png" target="_blank">c87957a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-10
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </div>
 <div id="interpretation" class="section level2">
 <h2>Interpretation</h2>
-<p>For continuous but compact transient effects, IWP-BF is more powerful
-than linear-BF while maintaining comparable or lower empirical FDR.
-Relative to the direct baselines, the table and peak-stratified analysis
-show how performance changes as the trajectory contains one, two, or
-three localized features. The direct methods are given the true null
-proportion, whereas FASH estimates its mixture weights from the summary
-statistics.</p>
+<p>The regenerated tables and curves provide the paired comparison of
+IWP and linear covariance shapes after matching their exact null,
+one-step SD grid, and null-favoring penalty. The peak-stratified
+analysis reports how each method behaves as the trajectory contains one,
+two, or three localized features. The direct methods are given the true
+null proportion, whereas FASH estimates its mixture weights from the
+summary statistics. R1 and R2 are exactly paired on their sampled
+gene-variant units and real genotype matrices for every seed; only their
+simulated effect geometries differ.</p>
 </div>
 <div id="reproducibility" class="section level2">
 <h2>Reproducibility</h2>
@@ -1346,17 +1992,30 @@ statistics.</p>
 href="https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R">R2
 simulation driver</a> uses the <a
 href="https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/shared/simulation_functions.R">shared
-simulation functions</a>. The page-specific cache validation and
-formatting are in <a
+simulation functions</a>. Real-genotype selection, dosage extraction,
+validation, and MAF-balanced truth assignment are implemented in the <a
+href="https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/shared/real_genotype_one_per_gene.R">shared
+real-genotype helper</a>, and the versioned input cache is created by
+the <a
+href="https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R">shared
+cache builder</a>. The page-specific cache validation and formatting are
+in <a
 href="https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r2_spiky_transient/reporting.R">R2
-reporting code</a>. The following command regenerates the full five-seed
-cache. It is shown for reproducibility but is intentionally not
-evaluated during workflowr builds; the table and figure chunks above
-read the saved cache.</p>
+reporting code</a>. The shared <a
+href="https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r1_r2_fashr0143/reporting_overlay.R">0.1.43
+reporting overlay</a> validates the completed targeted cache and
+combines its FASH rows with only the direct rows from the historical
+cache. The following command regenerates the full historical-style
+five-seed cache, including direct tests. It is shown for reproducibility
+but is intentionally not evaluated during workflowr builds; the
+displayed FASH rows read the separate targeted 0.1.43 cache.</p>
 <p>The full five-seed cache can be regenerated with:</p>
 <pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R
+
+Rscript --vanilla \
   code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R \
-  --J 1000 \
+  --J 6362 \
   --n-donors 19 \
   --n-covariates 5 \
   --noise-sd 1 \
@@ -1365,11 +2024,25 @@ read the saved cache.</p>
   --target-centered-rms 0.9 \
   --efdr-permutations 100 \
   --seed-list 12345,22345,32345,42345,52345 \
-  --output-id r2_timed_cosine_one_two_three_peak_main_effect_profile_sigma_pilot5 \
+  --genotype-cache output/revision_simulations/shared/real_genotype_one_per_gene_J6362_pilot5/genotype_samples.rds \
+  --output-id r2_real_genotype_one_per_gene_J6362_timed_cosine_one_two_three_peak_main_effect_linear_mixture_predstep1_penalty10_pilot5 \
   --num-cores 4</code></pre>
-<p>Cached replicate metrics, summaries, plots, and the seed-12345 full
-fit are stored under:</p>
-<pre class="text"><code>output/revision_simulations/mc/r2_timed_cosine_one_two_three_peak_main_effect_profile_sigma_pilot5/</code></pre>
+<p>After the formal R1-R3 caches have been generated, exact pairing of
+every sampled gene-variant unit and genotype matrix is validated
+with:</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/shared/validate_r1_r2_real_genotype_pairing.R \
+  --r1-output-id r1_real_genotype_one_per_gene_J6362_random_bspline_main_effect_linear_mixture_predstep1_penalty10_pilot5 \
+  --r2-output-id r2_real_genotype_one_per_gene_J6362_timed_cosine_one_two_three_peak_main_effect_linear_mixture_predstep1_penalty10_pilot5 \
+  --r3-output-id r3_real_genotype_one_per_gene_J6362_matched_functional_relative_clearance_main_effect_pilot5</code></pre>
+<p>The report requires a successful
+<code>summary/real_genotype_pairing_validation.csv</code> artifact and
+will stop if the R1/R2/R3 genotype designs are not exactly paired.</p>
+<p>The recomputed FASH result family is stored under:</p>
+<pre class="text"><code>output/revision_simulations/mc/r1_r2_fashr0143/</code></pre>
+<p>The unchanged historical full fit and direct-interaction results are
+stored under:</p>
+<pre class="text"><code>output/revision_simulations/mc/r2_real_genotype_one_per_gene_J6362_timed_cosine_one_two_three_peak_main_effect_linear_mixture_predstep1_penalty10_pilot5/</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -1401,7 +2074,7 @@ other attached packages:
 
 loaded via a namespace (and not attached):
  [1] vctrs_0.7.3       httr_1.4.7        cli_3.6.6         knitr_1.50       
- [5] rlang_1.2.0       xfun_0.55         stringi_1.8.7     otel_0.2.0       
+ [5] rlang_1.2.0       xfun_0.55         stringi_1.8.9     otel_0.2.0
  [9] processx_3.8.6    promises_1.5.0    jsonlite_2.0.0    glue_1.8.1       
 [13] rprojroot_2.1.1   git2r_0.36.2      htmltools_0.5.9   httpuv_1.6.16    
 [17] ps_1.9.1          sass_0.4.10       rmarkdown_2.30    jquerylib_0.1.4  

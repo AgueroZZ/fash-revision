@@ -11,7 +11,7 @@
 
 <meta name="author" content="Ziang Zhang" />
 
-<meta name="date" content="2026-08-09" />
+<meta name="date" content="2026-08-21" />
 
 <title>Revision Real-data Analysis R6: enhancer enrichment of FASH dynamic eQTLs</title>
 
@@ -345,7 +345,7 @@ div.tocify {
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -366,7 +366,7 @@ div.tocify {
 <h1 class="title toc-ignore">Revision Real-data Analysis R6: enhancer
 enrichment of FASH dynamic eQTLs</h1>
 <h4 class="author">Ziang Zhang</h4>
-<h4 class="date">2026-08-09</h4>
+<h4 class="date">2026-08-21</h4>
 
 </div>
 
@@ -395,7 +395,7 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2026-08-10
+<strong>Last updated:</strong> 2026-08-21
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -433,10 +433,10 @@ changes </a>
 <div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R
-Markdown file created these results, you’ll want to first commit it to
-the Git repo. If you’re still working on the analysis, you can ignore
-this warning. When you’re finished, you can run
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
 <code>wflow_publish</code> to commit the R Markdown file and build the
 HTML.</p>
 </div>
@@ -529,15 +529,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertree9fbd8638066b75b3a9bce0daf3f8c69fa59bc533targetblank9fbd863a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -547,7 +547,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/stephenslab/fashr-paper/tree/9fbd8638066b75b3a9bce0daf3f8c69fa59bc533" target="_blank">9fbd863</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -565,63 +565,82 @@ Ignored files:
     Ignored:    .DS_Store
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+    Ignored:    Rplots.pdf
     Ignored:    analysis/.DS_Store
     Ignored:    analysis/.Rhistory
     Ignored:    code/.DS_Store
     Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
     Ignored:    data/appendixB/
     Ignored:    data/dynamic_eQTL_real/
     Ignored:    data/revision_simulations/
     Ignored:    data/toy_example/
     Ignored:    output/dynamic_eQTL_real/
     Ignored:    output/pdf/
+    Ignored:    output/playwright/
     Ignored:    output/revision_simulations/
 
 Untracked files:
-    Untracked:  Rplots.pdf
-    Untracked:  analysis/revision_balanced_variant_thinning.rmd
-    Untracked:  analysis/revision_combined_spiky_genotype_simulation.rmd
-    Untracked:  analysis/revision_correlated_error_simulation.rmd
-    Untracked:  analysis/revision_enhancer_enrichment.rmd
-    Untracked:  analysis/revision_functional_testing_simulation.rmd
-    Untracked:  analysis/revision_genotype_level_simulation.rmd
-    Untracked:  analysis/revision_internal_baseline_ld_variant_enrichment.rmd
-    Untracked:  analysis/revision_internal_correlated_likelihood_sensitivity.rmd
-    Untracked:  analysis/revision_internal_fash_cl_variant_enrichment_comparison.rmd
-    Untracked:  analysis/revision_internal_mashr_mean_z_null_correlation.rmd
-    Untracked:  analysis/revision_internal_observational_null_set_pilot.rmd
-    Untracked:  analysis/revision_internal_one_variant_per_gene_refit.rmd
-    Untracked:  analysis/revision_internal_real_genotype_simulation.rmd
-    Untracked:  analysis/revision_internal_targeted_broad_calibration.rmd
-    Untracked:  analysis/revision_internal_variant_annotation_enrichment.rmd
-    Untracked:  analysis/revision_internal_zero_intercept_correlation.rmd
-    Untracked:  analysis/revision_ld_tagging_switch_example.rmd
-    Untracked:  code/00_eQTLs_CL.R
-    Untracked:  code/01_fash_CL.R
-    Untracked:  code/01_fash_CL.sbatch
-    Untracked:  code/09_penalty_sensitivity.R
-    Untracked:  code/09_penalty_sensitivity.sbatch
-    Untracked:  code/revision_simulations/
-    Untracked:  fash_prior_comparison_order1_after.pdf
-    Untracked:  fash_prior_comparison_order1_after.png
-    Untracked:  fash_prior_comparison_order1_before.pdf
-    Untracked:  fash_prior_comparison_order1_before.png
-    Untracked:  fash_prior_comparison_order2_after.pdf
-    Untracked:  fash_prior_comparison_order2_after.png
-    Untracked:  fash_prior_comparison_order2_before.pdf
-    Untracked:  fash_prior_comparison_order2_before.png
+    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd
+    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity_middle_4_11.rmd
+    Untracked:  analysis/revision_internal_fash_cl_manuscript_impact.rmd
+    Untracked:  analysis/revision_internal_fash_discovery_variant_count.rmd
+    Untracked:  analysis/revision_internal_fash_linear_real_data_ablation.rmd
+    Untracked:  analysis/revision_internal_fashr_correlated_observation_model.rmd
+    Untracked:  analysis/revision_internal_matched_fash_linear_real_data.rmd
+    Untracked:  analysis/revision_internal_r1_normality_assumption.rmd
+    Untracked:  analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd
+    Untracked:  analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd
+    Untracked:  analysis/revision_internal_twenty_variant_per_gene_refit.rmd
+    Untracked:  apps/
+    Untracked:  code/02_dyn_lfsr.R
+    Untracked:  code/02_dyn_lfsr.sbatch
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_design_propagated_null_correlation.R
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_multigene_null_beta_covariance_exploration.R
+    Untracked:  code/revision_simulations/internal/early_window_sensitivity/
+    Untracked:  code/revision_simulations/internal/evaluation_grid_sensitivity/
+    Untracked:  code/revision_simulations/internal/fash_cl_manuscript_impact/
+    Untracked:  code/revision_simulations/internal/fash_discovery_variant_count/
+    Untracked:  code/revision_simulations/internal/fash_linear_real_data_ablation/
+    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data/
+    Untracked:  code/revision_simulations/internal/r0_linear_iwp_power_mechanism/
+    Untracked:  code/revision_simulations/internal/r0_linear_summary_statistic/
+    Untracked:  code/revision_simulations/internal/r1_known_truth_genotype_permutation/
+    Untracked:  code/revision_simulations/internal/r1_linear_truth_composition/
+    Untracked:  code/revision_simulations/internal/r1_normality_assumption/
+    Untracked:  code/revision_simulations/internal/residual_correlation_fash/
+    Untracked:  code/revision_simulations/internal/selected_signal_genotype_permutation/
+    Untracked:  code/revision_simulations/r5_one_variant_per_gene/
+    Untracked:  code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R
+    Untracked:  code/revision_simulations/shared/real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/test_linear_mixture_fash.R
+    Untracked:  code/revision_simulations/shared/test_real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_linear_mixture_pairing.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_real_genotype_pairing.R
+    Untracked:  figure/
 
 Unstaged changes:
-    Modified:   .gitignore
-    Modified:   analysis/appendixB.rmd
     Modified:   analysis/dynamic_eQTL_real.rmd
     Modified:   analysis/index.Rmd
     Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
-    Modified:   code/README.md
-    Modified:   output/toy_example/toy_example_11.pdf
-    Modified:   output/toy_example/toy_example_12.pdf
-    Modified:   output/toy_example/toy_example_21.pdf
-    Modified:   output/toy_example/toy_example_22.pdf
+    Modified:   analysis/revision_balanced_variant_thinning.rmd
+    Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
+    Modified:   analysis/revision_enhancer_enrichment.rmd
+    Modified:   analysis/revision_functional_testing_simulation.rmd
+    Modified:   analysis/revision_genotype_level_simulation.rmd
+    Modified:   code/revision_simulations/README.md
+    Modified:   code/revision_simulations/internal/covariance_estimation/run_global_pca_factor_visualization.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/reporting.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/run_fash_strober_enhancer_comparison.R
+    Modified:   code/revision_simulations/r1_random_bspline/reporting.R
+    Modified:   code/revision_simulations/r1_random_bspline/run_random_bspline_mc_replication.R
+    Modified:   code/revision_simulations/r2_spiky_transient/reporting.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_combined_spiky_genotype_simulation.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R
+    Modified:   code/revision_simulations/r3_functional_testing/reporting.R
+    Modified:   code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R
+    Modified:   code/revision_simulations/shared/simulation_functions.R
 
 </code></pre>
 <p>
@@ -637,14 +656,83 @@ have uncommitted changes.
 </div>
 <div id="versions" class="tab-pane fade">
 <p>
-There are no past versions. Publish this analysis with
-<code>wflow_publish()</code> to start tracking its development.
+These are the previous versions of the repository in which changes were
+made to the R Markdown
+(<code>analysis/revision_enhancer_enrichment.rmd</code>) and HTML
+(<code>docs/revision_enhancer_enrichment.html</code>) files. If you’ve
+configured a remote Git repository (see <code>?wflow_git_remote</code>),
+click on the hyperlinks in the table below to view the files as they
+were in that past version.
 </p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/analysis/revision_enhancer_enrichment.rmd" target="_blank">c87957a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-10
+</td>
+<td>
+Add revision analyses: R1-R6 reviewer-facing pages and internal studies
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/revision_enhancer_enrichment.html" target="_blank">c87957a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-10
+</td>
+<td>
+Add revision analyses: R1-R6 reviewer-facing pages and internal studies
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 <hr>
 </div>
 </div>
 </div>
 <style>
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
 .fash-strober-key-result {
   margin: 1.2em 0 1.5em;
   padding: 1em 1.15em;
@@ -721,11 +809,15 @@ rather than falling back to a weaker one.</p>
 <h2>Discovery-set construction</h2>
 <pre class="r"><code>render_scrollable_table(
   discovery_table,
+  caption = &quot;Table 1. Discovery sets used in the enhancer-enrichment analysis.&quot;,
   align = &quot;rlllrrr&quot;,
   minimum_width = &quot;1120px&quot;
 )</code></pre>
 <div class="fash-strober-table-scroll">
 <table class="table table-striped table-hover" style="min-width:1120px;">
+<caption>
+Table 1. Discovery sets used in the enhancer-enrichment analysis.
+</caption>
 <thead>
 <tr>
 <th style="text-align:right;">
@@ -766,13 +858,13 @@ Current FASH
 All variants
 </td>
 <td style="text-align:right;">
-9205
+9214
 </td>
 <td style="text-align:right;">
-9139
+9148
 </td>
 <td style="text-align:right;">
-1177
+1176
 </td>
 </tr>
 <tr>
@@ -789,13 +881,13 @@ Current FASH
 One lead variant per gene
 </td>
 <td style="text-align:right;">
-1177
+1176
 </td>
 <td style="text-align:right;">
-1170
+1169
 </td>
 <td style="text-align:right;">
-1177
+1176
 </td>
 </tr>
 <tr>
@@ -904,10 +996,10 @@ Current FASH
 All variants
 </td>
 <td style="text-align:right;">
-8033
+8042
 </td>
 <td style="text-align:right;">
-7972
+7981
 </td>
 <td style="text-align:right;">
 1116
@@ -927,20 +1019,20 @@ Current FASH
 One lead variant per gene
 </td>
 <td style="text-align:right;">
-1036
+1035
 </td>
 <td style="text-align:right;">
-1030
+1029
 </td>
 <td style="text-align:right;">
-1036
+1035
 </td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>Of the 9,139 variants FASH discovers, 1,167 were also discovered by
-Strober linear or quadratic/nonlinear and are removed, leaving 7,972
+<p>Of the 9,148 variants FASH discovers, 1,167 were also discovered by
+Strober linear or quadratic/nonlinear and are removed, leaving 7,981
 that only FASH found.</p>
 <details>
 <summary>
@@ -948,11 +1040,15 @@ that only FASH found.</p>
 </summary>
 <pre class="r"><code>render_scrollable_table(
   coverage_table,
+  caption = &quot;Table 2. Annotation coverage for all eight discovery sets.&quot;,
   align = &quot;llllrrr&quot;,
   minimum_width = &quot;1240px&quot;
 )</code></pre>
 <div class="fash-strober-table-scroll">
 <table class="table table-striped table-hover" style="min-width:1240px;">
+<caption>
+Table 2. Annotation coverage for all eight discovery sets.
+</caption>
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -993,10 +1089,10 @@ Current FASH
 All variants
 </td>
 <td style="text-align:right;">
-9139
+9148
 </td>
 <td style="text-align:right;">
-9139
+9148
 </td>
 <td style="text-align:right;">
 100.0%
@@ -1016,10 +1112,10 @@ Current FASH
 All variants
 </td>
 <td style="text-align:right;">
-9139
+9148
 </td>
 <td style="text-align:right;">
-7075
+7076
 </td>
 <td style="text-align:right;">
 77.4%
@@ -1039,10 +1135,10 @@ Current FASH
 One lead variant per gene
 </td>
 <td style="text-align:right;">
-1170
+1169
 </td>
 <td style="text-align:right;">
-1170
+1169
 </td>
 <td style="text-align:right;">
 100.0%
@@ -1062,13 +1158,13 @@ Current FASH
 One lead variant per gene
 </td>
 <td style="text-align:right;">
-1170
+1169
 </td>
 <td style="text-align:right;">
-918
+917
 </td>
 <td style="text-align:right;">
-78.5%
+78.4%
 </td>
 </tr>
 <tr>
@@ -1269,10 +1365,10 @@ Current FASH
 All variants
 </td>
 <td style="text-align:right;">
-7972
+7981
 </td>
 <td style="text-align:right;">
-7972
+7981
 </td>
 <td style="text-align:right;">
 100.0%
@@ -1292,13 +1388,13 @@ Current FASH
 All variants
 </td>
 <td style="text-align:right;">
-7972
+7981
 </td>
 <td style="text-align:right;">
-6114
+6115
 </td>
 <td style="text-align:right;">
-76.7%
+76.6%
 </td>
 </tr>
 <tr>
@@ -1315,10 +1411,10 @@ Current FASH
 One lead variant per gene
 </td>
 <td style="text-align:right;">
-1030
+1029
 </td>
 <td style="text-align:right;">
-1030
+1029
 </td>
 <td style="text-align:right;">
 100.0%
@@ -1338,13 +1434,13 @@ Current FASH
 One lead variant per gene
 </td>
 <td style="text-align:right;">
-1030
+1029
 </td>
 <td style="text-align:right;">
-806
+805
 </td>
 <td style="text-align:right;">
-78.3%
+78.2%
 </td>
 </tr>
 </tbody>
@@ -1365,9 +1461,46 @@ correction. Chevrons mark intervals extending beyond the plotted range;
 exact bounds are returned by compute_enrichment().
 </p>
 </div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-section1-1">
+Past versions of section1-1.png
+</button>
+</p>
+<div id="fig-section1-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/figure/revision_enhancer_enrichment.rmd/section1-1.png" target="_blank">c87957a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-10
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Under lead-per-gene selection the ordering reverses at the E013
 mesoderm enhancer, where FASH holds the strongest estimate of the three
-methods: 1.38-fold (95% CI 1.09-1.74, nominal p = 0.0064, 93/1,170
+methods: 1.37-fold (95% CI 1.08-1.74, nominal p = 0.0094, 92/1,169
 variants), against 1.18-fold for Strober linear and 1.25-fold for
 Strober quadratic.</p>
 </div>
@@ -1386,17 +1519,54 @@ Chevrons mark intervals extending beyond the plotted range; exact bounds
 are returned by compute_enrichment().
 </p>
 </div>
-<p><strong>All variants</strong> (7,972 variants): every FASH discovery
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-section2-1">
+Past versions of section2-1.png
+</button>
+</p>
+<div id="fig-section2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/figure/revision_enhancer_enrichment.rmd/section2-1.png" target="_blank">c87957a</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-10
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>All variants</strong> (7,981 variants): every FASH discovery
 at a variant Strober never found. Here no enhancer annotation reaches
 nominal p &lt; 0.05.</p>
-<p><strong>One lead variant per gene</strong> (1,030 variants): FASH’s
+<p><strong>One lead variant per gene</strong> (1,029 variants): FASH’s
 lowest-lfdr variant for each gene, keeping only those Strober never
 found. A gene whose best variant Strober also discovered drops out
-rather than falling back to a weaker one, so 1,036 of FASH’s 1,177 genes
+rather than falling back to a weaker one, so 1,035 of FASH’s 1,176 genes
 survive. Here the enriched annotations are Enhancer (Hoffman)
-(baselineLD v2.2) at 1.36-fold, 95% CI 1.12-1.65, p = 0.002, 94/806
-variants; E013 enhancer (mesoderm) (Custom regulatory) at 1.30-fold, 95%
-CI 1.06-1.59, p = 0.01, 77/1,030 variants.</p>
+(baselineLD v2.2) at 1.37-fold, 95% CI 1.13-1.67, p = 0.0016, 94/805
+variants; E013 enhancer (mesoderm) (Custom regulatory) at 1.29-fold, 95%
+CI 1.05-1.58, p = 0.016, 76/1,029 variants.</p>
 <div class="fash-strober-caution">
 <p><strong>Exploratory, uncorrected.</strong> Fold enrichment, 95%
 intervals, and nominal p-values are reported for 69 estimable enhancer
@@ -1429,12 +1599,16 @@ code.</p>
 <h3>Annotation provenance</h3>
 <pre class="r"><code>render_scrollable_table(
   provenance_table,
+  caption = &quot;Table 3. Provenance of the enhancer annotations.&quot;,
   align = &quot;llllllll&quot;,
   minimum_width = &quot;1560px&quot;,
   escape = FALSE
 )</code></pre>
 <div class="fash-strober-table-scroll">
 <table class="table table-striped table-hover" style="min-width:1560px;">
+<caption>
+Table 3. Provenance of the enhancer annotations.
+</caption>
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -1840,8 +2014,8 @@ compute_enrichment(sets[&quot;current_all&quot;], background, annotations,
 than the average tested variant, and enhancers are themselves
 TSS-proximal, so the plain comparison attributes some purely positional
 signal to biology. For FASH’s all-variant set at the E095 enhancer the
-plain fold is 1.22 with a Fisher p of 2e-08, while the matched fold is
-1.13 at p = 0.16. Every headline number on this page uses
+plain fold is 1.22, while the matched fold is 1.13 at nominal
+chromosome-jackknife p = 0.16. Every headline number on this page uses
 <code>controls = "matched"</code>.</p>
 </div>
 <div id="available-annotation-groups" class="section level3">
@@ -1882,11 +2056,15 @@ not tracked in git - the repository carries code, not data.</p>
 </summary>
 <pre class="r"><code>render_scrollable_table(
   input_provenance,
-  align = &quot;lrrl&quot;,
+  caption = &quot;Table 4. Provenance of every retained R6 analysis input.&quot;,
+  align = &quot;lrlll&quot;,
   minimum_width = &quot;1360px&quot;
 )</code></pre>
 <div class="fash-strober-table-scroll">
 <table class="table table-striped table-hover" style="min-width:1360px;">
+<caption>
+Table 4. Provenance of every retained R6 analysis input.
+</caption>
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -1895,8 +2073,11 @@ path
 <th style="text-align:right;">
 byte_size
 </th>
-<th style="text-align:right;">
+<th style="text-align:left;">
 md5
+</th>
+<th style="text-align:left;">
+sha256
 </th>
 <th style="text-align:left;">
 modified_at
@@ -1909,13 +2090,16 @@ modified_at
 /Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/dynamic_eQTL_real/fash_fit1_update.RData
 </td>
 <td style="text-align:right;">
-581122554
-</td>
-<td style="text-align:right;">
-af46b39a04b241cf1e6116a645dbcc3e
+581123504
 </td>
 <td style="text-align:left;">
-2026-01-20 20:29:11 UTC
+32736f109a93fbcdd82ed268eee07faf
+</td>
+<td style="text-align:left;">
+7f0ca9ab0fbeab89a13c83d2a0fb7c24195f7b5a5835f209399cf0e359001f50
+</td>
+<td style="text-align:left;">
+2026-08-21 07:23:05 UTC
 </td>
 </tr>
 <tr>
@@ -1925,8 +2109,11 @@ af46b39a04b241cf1e6116a645dbcc3e
 <td style="text-align:right;">
 63118432
 </td>
-<td style="text-align:right;">
+<td style="text-align:left;">
 0046a033a3c6e2e6096c3551702353da
+</td>
+<td style="text-align:left;">
+9f1f8a425022a52b9b27733509e2bf02398bf4a98c8503750b47ee3e3b7f1b47
 </td>
 <td style="text-align:left;">
 2019-03-12 17:12:30 UTC
@@ -1939,8 +2126,11 @@ af46b39a04b241cf1e6116a645dbcc3e
 <td style="text-align:right;">
 63148959
 </td>
-<td style="text-align:right;">
+<td style="text-align:left;">
 dd38af583983ab6a670ac1ffa773bdee
+</td>
+<td style="text-align:left;">
+847628a4bd1fa57983c65b757fd3a0c74823a2d2ac49430b58d3f3a2d91fbd8d
 </td>
 <td style="text-align:left;">
 2019-03-12 17:12:38 UTC
@@ -1953,8 +2143,11 @@ dd38af583983ab6a670ac1ffa773bdee
 <td style="text-align:right;">
 19645476
 </td>
-<td style="text-align:right;">
+<td style="text-align:left;">
 66ae877fa1e335392dd29e6c2be25295
+</td>
+<td style="text-align:left;">
+e44bc2712fe9d0702d5c74aba2e4b0a3ec0d5bd99e1589ffd56ce71469357ce7
 </td>
 <td style="text-align:left;">
 2026-08-07 20:42:40 UTC
@@ -1967,8 +2160,11 @@ dd38af583983ab6a670ac1ffa773bdee
 <td style="text-align:right;">
 5549354
 </td>
-<td style="text-align:right;">
+<td style="text-align:left;">
 9bcddaa32023a2f3c7c8affedc8add14
+</td>
+<td style="text-align:left;">
+60ef30e6dda18b334459824ef08d58b1d627d63e4a33dd6642946f2afd0603b6
 </td>
 <td style="text-align:left;">
 2026-08-07 20:42:41 UTC
@@ -1981,8 +2177,11 @@ dd38af583983ab6a670ac1ffa773bdee
 <td style="text-align:right;">
 7542970
 </td>
-<td style="text-align:right;">
+<td style="text-align:left;">
 82e6af8db64d9c6a4fac263a6d3d6f78
+</td>
+<td style="text-align:left;">
+9e85ba1b4f638769ba12ed8a00c010039e17c0a3e264bcdb413ad809d69a5abc
 </td>
 <td style="text-align:left;">
 2026-08-07 21:51:39 UTC
@@ -1995,8 +2194,11 @@ dd38af583983ab6a670ac1ffa773bdee
 <td style="text-align:right;">
 8561
 </td>
-<td style="text-align:right;">
+<td style="text-align:left;">
 8100838dab3748b03e88dfd3abe20a2a
+</td>
+<td style="text-align:left;">
+a58f20cf7cca615bac26e7b6c14fbb3a2e2c2a638374335b651aa381930f4987
 </td>
 <td style="text-align:left;">
 2026-08-10 04:41:45 UTC
@@ -2007,13 +2209,16 @@ dd38af583983ab6a670ac1ffa773bdee
 /Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/code/revision_simulations/internal/fash_strober_enhancer_comparison/run_fash_strober_enhancer_comparison.R
 </td>
 <td style="text-align:right;">
-22905
-</td>
-<td style="text-align:right;">
-05c790cfb885f43e10ee06e1dec612c6
+26646
 </td>
 <td style="text-align:left;">
-2026-08-10 04:41:45 UTC
+ec3aa940c5d6c5550f4cc324c3f34b26
+</td>
+<td style="text-align:left;">
+3ce3423da87291bc7ef63c8bf70230113a81ae8d44d9f189b11a1e366bf14641
+</td>
+<td style="text-align:left;">
+2026-08-21 16:58:00 UTC
 </td>
 </tr>
 <tr>
@@ -2023,8 +2228,11 @@ dd38af583983ab6a670ac1ffa773bdee
 <td style="text-align:right;">
 42396
 </td>
-<td style="text-align:right;">
+<td style="text-align:left;">
 afd317f14ace80ff04c545b9c35da74f
+</td>
+<td style="text-align:left;">
+5884173b21aaeb50c8905d2164d24c264634fcf8f950cee5e647f724c2147719
 </td>
 <td style="text-align:left;">
 2026-08-09 16:39:27 UTC
@@ -2034,6 +2242,28 @@ afd317f14ace80ff04c545b9c35da74f
 </table>
 </div>
 </details>
+</div>
+</div>
+<div id="reproducibility" class="section level2">
+<h2>Reproducibility</h2>
+<p>Routine page builds read the retained fashr 0.1.43 cache at:</p>
+<p><code>output/revision_simulations/internal/fash_strober_enhancer_comparison_fashr0143/</code></p>
+<p>The earlier cache remains unchanged for historical comparison. The
+retained configuration records the corrected BF-updated fit SHA-256,
+exact package version and RemoteSha, matching seeds, control ratio, and
+input checksums.</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/internal/fash_strober_enhancer_comparison/test_fash_strober_enhancer_helpers.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_strober_enhancer_comparison/run_fash_strober_enhancer_comparison.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R \
+  --verify
+
+Rscript --vanilla -e \
+  &#39;workflowr::wflow_build(&quot;analysis/revision_enhancer_enrichment.rmd&quot;)&#39;</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -2048,33 +2278,36 @@ Platform: aarch64-apple-darwin20
 Running under: macOS Sequoia 15.6.1
 
 Matrix products: default
-BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
 LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
 
 locale:
-[1] en_CA/en_CA/en_CA/C/en_CA/en_CA
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
 
 time zone: America/Chicago
 tzcode source: internal
 
 attached base packages:
-[1] stats     graphics  grDevices utils     datasets  methods   base     
+[1] stats     graphics  grDevices utils     datasets  methods   base
+
+other attached packages:
+[1] workflowr_1.7.2
 
 loaded via a namespace (and not attached):
- [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.1.4        compiler_4.5.1    
- [5] promises_1.5.0     tidyselect_1.2.1   Rcpp_1.1.1-1.1     stringr_1.6.0     
- [9] git2r_0.36.2       dichromat_2.0-0.1  later_1.4.4        jquerylib_0.1.4   
-[13] scales_1.4.0       yaml_2.3.12        fastmap_1.2.0      ggplot2_4.0.1     
-[17] R6_2.6.1           labeling_0.4.3     generics_0.1.4     workflowr_1.7.2   
-[21] knitr_1.50         tibble_3.3.0       rprojroot_2.1.1    bslib_0.9.0       
-[25] pillar_1.11.1      RColorBrewer_1.1-3 rlang_1.2.0        cachem_1.1.0      
-[29] stringi_1.8.7      httpuv_1.6.16      xfun_0.55          S7_0.2.1          
-[33] fs_1.6.6           sass_0.4.10        otel_0.2.0         cli_3.6.6         
-[37] withr_3.0.2        magrittr_2.0.5     digest_0.6.39      grid_4.5.1        
-[41] rstudioapi_0.17.1  lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5    
-[45] glue_1.8.1         farver_2.1.2       rmarkdown_2.30     tools_4.5.1       
-[49] pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
-</div>
+ [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.1.4        compiler_4.5.1
+ [5] promises_1.5.0     tidyselect_1.2.1   Rcpp_1.1.1-1.1     stringr_1.6.0
+ [9] git2r_0.36.2       dichromat_2.0-0.1  callr_3.7.6        later_1.4.4
+[13] jquerylib_0.1.4    scales_1.4.0       yaml_2.3.12        fastmap_1.2.0
+[17] ggplot2_4.0.3      R6_2.6.1           labeling_0.4.3     generics_0.1.4
+[21] knitr_1.50         tibble_3.3.0       rprojroot_2.1.1    RColorBrewer_1.1-3
+[25] bslib_0.9.0        pillar_1.11.1      rlang_1.2.0        cachem_1.1.0
+[29] stringi_1.8.9      httpuv_1.6.16      xfun_0.55          S7_0.2.2
+[33] getPass_0.2-4      fs_1.6.6           sass_0.4.10        otel_0.2.0
+[37] cli_3.6.6          withr_3.0.3        magrittr_2.0.5     ps_1.9.1
+[41] grid_4.5.1         digest_0.6.39      processx_3.8.6     rstudioapi_0.17.1
+[45] lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5     glue_1.8.1
+[49] farver_2.1.2       whisker_0.4.1      rmarkdown_2.30     httr_1.4.7
+[53] tools_4.5.1        pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
 </div>
 </div>
 </div>

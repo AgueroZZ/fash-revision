@@ -345,7 +345,7 @@ div.tocify {
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        
+
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -374,7 +374,7 @@ iPSC</h1>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-ok text-success"
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -385,8 +385,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
-</a>
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -395,17 +395,17 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2026-01-21
+<strong>Last updated:</strong> 2026-08-21
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 0
+aria-hidden="true"></span> 1
 </p>
 <p>
-<strong>Knit directory:</strong> <code>fashr-paper-stephenslab/</code>
-<span class="glyphicon glyphicon-question-sign" aria-hidden="true"
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
 title="This is the local directory in which the code in this file was executed.">
 </span>
 </p>
@@ -424,18 +424,21 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
-<span class="glyphicon glyphicon-ok text-success"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
-</a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate"
+<div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git
-repository, you know the exact version of the code that produced these
-results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
 </div>
 </div>
 </div>
@@ -526,15 +529,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertreecb89e718d4f5a294261a170acd2d5bf82ee78999targetblankcb89e71a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/stephenslab/fashr-paper/tree/cb89e718d4f5a294261a170acd2d5bf82ee78999" target="_blank">cb89e71</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomstephenslabfashrpapertreecb89e718d4f5a294261a170acd2d5bf82ee78999targetblankcb89e71a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -544,7 +547,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/stephenslab/fashr-paper/tree/cb89e718d4f5a294261a170acd2d5bf82ee78999" target="_blank">cb89e71</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -562,17 +565,75 @@ Ignored files:
     Ignored:    .DS_Store
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+    Ignored:    Rplots.pdf
     Ignored:    analysis/.DS_Store
     Ignored:    analysis/.Rhistory
     Ignored:    code/.DS_Store
     Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
     Ignored:    data/appendixB/
     Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/revision_simulations/
     Ignored:    data/toy_example/
     Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/playwright/
+    Ignored:    output/revision_simulations/
+
+Untracked files:
+    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd
+    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity_middle_4_11.rmd
+    Untracked:  analysis/revision_internal_fash_cl_manuscript_impact.rmd
+    Untracked:  analysis/revision_internal_fash_discovery_variant_count.rmd
+    Untracked:  analysis/revision_internal_fash_linear_real_data_ablation.rmd
+    Untracked:  analysis/revision_internal_fashr_correlated_observation_model.rmd
+    Untracked:  analysis/revision_internal_r1_normality_assumption.rmd
+    Untracked:  analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd
+    Untracked:  analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd
+    Untracked:  analysis/revision_internal_twenty_variant_per_gene_refit.rmd
+    Untracked:  apps/
+    Untracked:  code/02_dyn_lfsr.R
+    Untracked:  code/02_dyn_lfsr.sbatch
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_design_propagated_null_correlation.R
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_multigene_null_beta_covariance_exploration.R
+    Untracked:  code/revision_simulations/internal/early_window_sensitivity/
+    Untracked:  code/revision_simulations/internal/evaluation_grid_sensitivity/
+    Untracked:  code/revision_simulations/internal/fash_cl_manuscript_impact/
+    Untracked:  code/revision_simulations/internal/fash_discovery_variant_count/
+    Untracked:  code/revision_simulations/internal/fash_linear_real_data_ablation/
+    Untracked:  code/revision_simulations/internal/r0_linear_iwp_power_mechanism/
+    Untracked:  code/revision_simulations/internal/r0_linear_summary_statistic/
+    Untracked:  code/revision_simulations/internal/r1_known_truth_genotype_permutation/
+    Untracked:  code/revision_simulations/internal/r1_linear_truth_composition/
+    Untracked:  code/revision_simulations/internal/r1_normality_assumption/
+    Untracked:  code/revision_simulations/internal/residual_correlation_fash/
+    Untracked:  code/revision_simulations/internal/selected_signal_genotype_permutation/
+    Untracked:  code/revision_simulations/r5_one_variant_per_gene/
+    Untracked:  code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R
+    Untracked:  code/revision_simulations/shared/real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/test_linear_mixture_fash.R
+    Untracked:  code/revision_simulations/shared/test_real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_linear_mixture_pairing.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_real_genotype_pairing.R
 
 Unstaged changes:
-    Modified:   .gitignore
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Modified:   analysis/revision_balanced_variant_thinning.rmd
+    Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
+    Modified:   analysis/revision_functional_testing_simulation.rmd
+    Modified:   analysis/revision_genotype_level_simulation.rmd
+    Modified:   code/revision_simulations/README.md
+    Modified:   code/revision_simulations/internal/covariance_estimation/run_global_pca_factor_visualization.R
+    Modified:   code/revision_simulations/r1_random_bspline/reporting.R
+    Modified:   code/revision_simulations/r1_random_bspline/run_random_bspline_mc_replication.R
+    Modified:   code/revision_simulations/r2_spiky_transient/reporting.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_combined_spiky_genotype_simulation.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R
+    Modified:   code/revision_simulations/r3_functional_testing/reporting.R
+    Modified:   code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R
+    Modified:   code/revision_simulations/shared/simulation_functions.R
 
 </code></pre>
 <p>
@@ -623,16 +684,16 @@ Message
 Rmd
 </td>
 <td>
-<a href="https://github.com/stephenslab/fashr-paper/blob/cb89e718d4f5a294261a170acd2d5bf82ee78999/analysis/nonlinear_dynamic_eQTL_real.Rmd" target="_blank">cb89e71</a>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/analysis/nonlinear_dynamic_eQTL_real.Rmd" target="_blank">c87957a</a>
 </td>
 <td>
 Ziang Zhang
 </td>
 <td>
-2026-01-21
+2026-08-10
 </td>
 <td>
-workflowr::wflow_publish("analysis/nonlinear_dynamic_eQTL_real.Rmd")
+Add revision analyses: R1-R6 reviewer-facing pages and internal studies
 </td>
 </tr>
 <tr>
@@ -640,7 +701,7 @@ workflowr::wflow_publish("analysis/nonlinear_dynamic_eQTL_real.Rmd")
 html
 </td>
 <td>
-<a href="https://rawcdn.githack.com/stephenslab/fashr-paper/477f905e3551e5f5ed7e7fd15d41a7a718db6d0f/docs/nonlinear_dynamic_eQTL_real.html" target="_blank">477f905</a>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/3448aa3b4500b165540698b0d213f2ff9fd8d5f8/docs/nonlinear_dynamic_eQTL_real.html" target="_blank">3448aa3</a>
 </td>
 <td>
 Ziang Zhang
@@ -657,7 +718,41 @@ Build site.
 Rmd
 </td>
 <td>
-<a href="https://github.com/stephenslab/fashr-paper/blob/c93c53bf949f5dc5448647f9fe2d9a34ffb46a43/analysis/nonlinear_dynamic_eQTL_real.Rmd" target="_blank">c93c53b</a>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/cb89e718d4f5a294261a170acd2d5bf82ee78999/analysis/nonlinear_dynamic_eQTL_real.Rmd" target="_blank">cb89e71</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-01-21
+</td>
+<td>
+workflowr::wflow_publish("analysis/nonlinear_dynamic_eQTL_real.Rmd")
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/477f905e3551e5f5ed7e7fd15d41a7a718db6d0f/docs/nonlinear_dynamic_eQTL_real.html" target="_blank">477f905</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-01-21
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/c93c53bf949f5dc5448647f9fe2d9a34ffb46a43/analysis/nonlinear_dynamic_eQTL_real.Rmd" target="_blank">c93c53b</a>
 </td>
 <td>
 Ziang Zhang
@@ -674,7 +769,7 @@ workflowr::wflow_publish("analysis/nonlinear_dynamic_eQTL_real.Rmd")
 Rmd
 </td>
 <td>
-<a href="https://github.com/stephenslab/fashr-paper/blob/4c1c6ec65e3e52550d1d561f519ac170e1bd2073/analysis/nonlinear_dynamic_eQTL_real.Rmd" target="_blank">4c1c6ec</a>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/4c1c6ec65e3e52550d1d561f519ac170e1bd2073/analysis/nonlinear_dynamic_eQTL_real.Rmd" target="_blank">4c1c6ec</a>
 </td>
 <td>
 Ziang Zhang
@@ -691,7 +786,7 @@ rerun using 5 pcs
 Rmd
 </td>
 <td>
-<a href="https://github.com/stephenslab/fashr-paper/blob/885ee18a1f3a8797bd61fd1b9ef77b398d01f8a5/analysis/nonlinear_dynamic_eQTL_real.Rmd" target="_blank">885ee18</a>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/885ee18a1f3a8797bd61fd1b9ef77b398d01f8a5/analysis/nonlinear_dynamic_eQTL_real.Rmd" target="_blank">885ee18</a>
 </td>
 <td>
 Ziang Zhang
@@ -708,7 +803,7 @@ update code for non-linear dynamic
 html
 </td>
 <td>
-<a href="https://rawcdn.githack.com/stephenslab/fashr-paper/885ee18a1f3a8797bd61fd1b9ef77b398d01f8a5/docs/nonlinear_dynamic_eQTL_real.html" target="_blank">885ee18</a>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/885ee18a1f3a8797bd61fd1b9ef77b398d01f8a5/docs/nonlinear_dynamic_eQTL_real.html" target="_blank">885ee18</a>
 </td>
 <td>
 Ziang Zhang
@@ -725,7 +820,7 @@ update code for non-linear dynamic
 html
 </td>
 <td>
-<a href="https://rawcdn.githack.com/stephenslab/fashr-paper/d3372e12fbe49ef356f6255a74be92ad04fb6220/docs/nonlinear_dynamic_eQTL_real.html" target="_blank">d3372e1</a>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/d3372e12fbe49ef356f6255a74be92ad04fb6220/docs/nonlinear_dynamic_eQTL_real.html" target="_blank">d3372e1</a>
 </td>
 <td>
 Ziang Zhang
@@ -742,7 +837,7 @@ Build site.
 html
 </td>
 <td>
-<a href="https://rawcdn.githack.com/stephenslab/fashr-paper/1c558a195c3a6f8d9d0db2314d49bfbb88ccc09a/docs/nonlinear_dynamic_eQTL_real.html" target="_blank">1c558a1</a>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/1c558a195c3a6f8d9d0db2314d49bfbb88ccc09a/docs/nonlinear_dynamic_eQTL_real.html" target="_blank">1c558a1</a>
 </td>
 <td>
 Ziang Zhang
@@ -759,7 +854,7 @@ Build site.
 html
 </td>
 <td>
-<a href="https://rawcdn.githack.com/stephenslab/fashr-paper/e9f6ed7748c1427db83227d85d276c9e3df12f5d/docs/nonlinear_dynamic_eQTL_real.html" target="_blank">e9f6ed7</a>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/e9f6ed7748c1427db83227d85d276c9e3df12f5d/docs/nonlinear_dynamic_eQTL_real.html" target="_blank">e9f6ed7</a>
 </td>
 <td>
 Ziang Zhang
@@ -778,13 +873,16 @@ Build site.
 </div>
 </div>
 </div>
-<pre class="r"><code>knitr::opts_chunk$set(fig.width = 8, fig.height = 6)
+<pre class="r"><code>knitr::opts_chunk$set(fig.width = 8, fig.height = 6, message = FALSE, warning = FALSE)
 library(fashr)
 library(biomaRt)
+library(dplyr)
+library(ggplot2)
+library(tibble)
 mart &lt;- useEnsembl(biomart = &quot;genes&quot;, dataset = &quot;hsapiens_gene_ensembl&quot;)
-result_dir &lt;- paste0(getwd(), &quot;/output/dynamic_eQTL_real&quot;)
-data_dir &lt;- paste0(getwd(), &quot;/data/dynamic_eQTL_real&quot;)
-code_dir &lt;- paste0(getwd(), &quot;/code/dynamic_eQTL_real&quot;)
+result_dir &lt;- file.path(getwd(), &quot;output&quot;, &quot;dynamic_eQTL_real&quot;)
+data_dir &lt;- file.path(getwd(), &quot;data&quot;, &quot;dynamic_eQTL_real&quot;)
+code_dir &lt;- file.path(getwd(), &quot;code&quot;, &quot;dynamic_eQTL_real&quot;)
 log_prec &lt;- seq(0,10, by = 0.2)
 fine_grid &lt;- sort(c(0, exp(-0.5*log_prec)))</code></pre>
 <div id="obtain-the-effect-size-of-eqtls" class="section level2">
@@ -794,7 +892,7 @@ href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6623972/">Strober
 et.al, 2019</a> to perform the eQTL analysis.</p>
 <p>For the association testing, we use a linear regression model for
 each gene-variant pair at each time point. Following the practice in
-Strober et.al, we adjust for the first 3 PCs.</p>
+Strober et.al, we adjust for the first 5 PCs.</p>
 <p>The code to perform this step can be found in the script
 <code>dynamic_eQTL_real/00_eQTLs.R</code> from the code directory.</p>
 <p>After this step, we have the effect size of eQTLs for each
@@ -817,6 +915,8 @@ nonlinear-dynamic eQTLs: <span class="math inline">\(H_0:
 <p>We will directly load the fitted FASH models from the output
 directory.</p>
 <pre class="r"><code>load(paste0(result_dir, &quot;/fash_fit2_all.RData&quot;))</code></pre>
+<pre class="r"><code># # The version using CL-based PCs
+# load(file.path(result_dir, &quot;fash_fit2_all_CL.RData&quot;))</code></pre>
 <p>We will load the datasets from the fitted FASH object:</p>
 <pre class="r"><code>datasets &lt;- fash_fit2$fash_data$data_list
 for (i in 1:length(datasets)) {
@@ -872,8 +972,65 @@ class="math inline">\(\pi_0\)</span> based on the BF procedure:</p>
 <pre class="r"><code>fash_fit2_update &lt;- BF_update(fash_fit2, plot = FALSE)
 fash_fit2_update$prior_weights
 save(fash_fit2_update, file = paste0(result_dir, &quot;/fash_fit2_update.RData&quot;))</code></pre>
-<p>The conservative estimate is 0.9995927, which is much more
-conservative.</p>
+<pre class="r"><code># # The version using CL-based PCs
+# load(file.path(result_dir, &quot;fash_fit2_all_CL.RData&quot;))
+# fash_fit2_update &lt;- BF_update(fash_fit2, plot = FALSE)</code></pre>
+<p>All BF-adjusted results below use the retained fit recomputed with
+<code>fashr</code> 0.1.43. The conservative estimate is 0.9995927, which
+is much more conservative.</p>
+<pre class="r"><code># set.seed(1)
+set.seed(1)
+g_after &lt;- visualize_fash_prior(fash_fit2_update, M = 5000)
+set.seed(1234)
+g_before &lt;- visualize_fash_prior(fash_fit2, M = 5000)
+
+g_after &lt;- g_after +
+  coord_cartesian(ylim = c(-5,5)) +
+  ggtitle(&quot;Linear baseline model: after BF update&quot;) +
+  theme(
+    plot.title = element_text(size = 14, face = &quot;bold&quot;),
+    axis.title = element_text(size = 12),
+    legend.text = element_text(size = 12),
+    axis.text = element_text(size = 12)
+  ) +
+    scale_colour_discrete(
+    labels = function(x) sprintf(&quot;%.3f&quot;, as.numeric(x))
+  ) +
+  scale_linetype_discrete(
+    labels = function(x) sprintf(&quot;%.3f&quot;, as.numeric(x))
+  )
+
+g_before &lt;- g_before +
+  coord_cartesian(ylim = c(-5,5)) +
+  ggtitle(&quot;Linear baseline model: before BF update&quot;) +
+  theme(
+    plot.title = element_text(size = 14, face = &quot;bold&quot;),
+    axis.title = element_text(size = 12),
+    legend.text = element_text(size = 12),
+    axis.text = element_text(size = 12)
+  ) +
+    scale_colour_discrete(
+    labels = function(x) sprintf(&quot;%.3f&quot;, as.numeric(x))
+  ) +
+  scale_linetype_discrete(
+    labels = function(x) sprintf(&quot;%.3f&quot;, as.numeric(x))
+  )
+
+ggsave(filename = file.path(result_dir, &quot;fash_prior_comparison_order2_before.png&quot;),
+       plot = g_before,
+       width = 8, height = 6)
+
+ggsave(filename = file.path(result_dir, &quot;fash_prior_comparison_order2_after.png&quot;),
+       plot = g_after,
+       width = 8, height = 6)
+
+ggsave(filename = file.path(result_dir, &quot;fash_prior_comparison_order2_before.pdf&quot;),
+       plot = g_before,
+       width = 8, height = 6)
+
+ggsave(filename = file.path(result_dir, &quot;fash_prior_comparison_order2_after.pdf&quot;),
+       plot = g_after,
+       width = 8, height = 6)</code></pre>
 </div>
 <div id="detecting-nonlinear-dynamic-eqtls" class="section level2">
 <h2>Detecting Nonlinear dynamic eQTLs</h2>
@@ -920,20 +1077,6 @@ length(genes_highlighted2_before)</code></pre>
 <h2>Comparing with Strober et.al</h2>
 <p>We will compare the detected dynamic eQTLs with the results from
 Strober et.al.</p>
-<pre><code>Warning: package &#39;ggplot2&#39; was built under R version 4.5.2</code></pre>
-<pre><code>Warning: package &#39;readr&#39; was built under R version 4.5.2</code></pre>
-<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ dplyr     1.1.4     ✔ readr     2.1.6
-✔ forcats   1.0.1     ✔ stringr   1.6.0
-✔ ggplot2   4.0.1     ✔ tibble    3.3.0
-✔ lubridate 1.9.4     ✔ tidyr     1.3.1
-✔ purrr     1.2.0     
-── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::filter() masks stats::filter()
-✖ dplyr::lag()    masks stats::lag()
-✖ dplyr::select() masks biomaRt::select()
-✖ tidyr::unite()  masks ggVennDiagram::unite()
-ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
 <p>Let’s take a look at the 4 pairs that are least significant from
 FASH:</p>
 <p><img src="figure/nonlinear_dynamic_eQTL_real.Rmd/only_fash_least-1.png" width="768" style="display: block; margin: auto;" /></p>
@@ -953,26 +1096,30 @@ three days: <span class="math inline">\(\max_{t\leq3} |\beta(t)| -
 <li><p><em>Late</em>: eQTLs with strongest effect during the last four
 days: <span class="math inline">\(\max_{t\geq 12} |\beta(t)| -
 \max_{t&lt; 12} |\beta(t)| &gt; 0\)</span>.</p></li>
-<li><p><em>Middle</em>: eQTLs with strongest effect during days 4-11:
-<span class="math inline">\(\max_{4\leq t\leq 11} |\beta(t)| -
-\max_{t&gt; 11 | t&lt; 4} |\beta(t)| &gt; 0\)</span>.</p></li>
+<li><p><em>Middle</em>: eQTLs with strongest effect in the open middle
+interval: <span class="math inline">\(\max_{3&lt;t&lt;12} |\beta(t)| -
+\max_{t\leq3\;\text{or}\;t\geq12} |\beta(t)| &gt; 0\)</span>.</p></li>
 <li><p><em>Switch</em>: eQTLs with effect sign switch during the time
-course: ${(t)<sup>+,(t)</sup>-}-c $ where <span
-class="math inline">\(c\)</span> is a threshold that we set to 0.25
-(which means with two alleles, the maximal difference of effect size is
-at least <span class="math inline">\(\geq
+course such that <span
+class="math inline">\(\min\{\max\beta(t)^+,\max\beta(t)^-\}-c&gt;0\)</span>
+where <span class="math inline">\(c\)</span> is a threshold that we set
+to 0.25 (which means with two alleles, the maximal difference of effect
+size is at least <span class="math inline">\(\geq
 2\times\min\{\max\beta(t)^+,\max\beta(t)^-\}\times2 \geq  2 \times
 0.25  \times 2 = 1\)</span>).</p></li>
 </ul>
-<p>We first take a look at the significant pairs detected by FASH (order
-2), and classify them based on the false sign rate (lfsr):</p>
+<p>The retained classification files were recomputed from
+<code>fash_fit2_update</code> using one shared set of 3,000 posterior
+draws per pair across the four functionals. We first take a look at the
+significant pairs detected by FASH (order 2), and classify them based on
+the false sign rate (lfsr):</p>
 <pre class="r"><code>smooth_var_refined = seq(0,15, by = 0.1)
 functional_early &lt;- function(x){
   max(abs(x[smooth_var_refined &lt;= 3])) - max(abs(x[smooth_var_refined &gt; 3]))
 }
 testing_early_nonlin_dyn &lt;- testing_functional(functional_early,
                                               lfsr_cal = function(x){mean(x &lt;= 0)},
-                                              fash = fash_fit2,
+                                              fash = fash_fit2_update,
                                               indices = fash_highlighted2,
                                               smooth_var = smooth_var_refined)</code></pre>
 <p>How many pairs and how many unique genes are classified as early
@@ -986,31 +1133,32 @@ length(early_genes)</code></pre>
 <pre><code>[1] 0</code></pre>
 <p>How many pairs are classified as middle dynamic eQTLs?</p>
 <pre class="r"><code>functional_middle &lt;- function(x){
-  max(abs(x[smooth_var_refined &lt;= 11 &amp; smooth_var_refined &gt;= 4])) - max(abs(x[smooth_var_refined &gt; 11]), abs(x[smooth_var_refined &lt; 4]))
+  max(abs(x[smooth_var_refined &gt; 3 &amp; smooth_var_refined &lt; 12])) -
+    max(abs(x[smooth_var_refined &lt;= 3 | smooth_var_refined &gt;= 12]))
 }
-testing_middle_nonlin_dyn &lt;- testing_functional(functional_middle, 
+testing_middle_nonlin_dyn &lt;- testing_functional(functional_middle,
                                                lfsr_cal = function(x){mean(x &lt;= 0)},
-                                               fash = fash_fit2, 
-                                               indices = fash_highlighted2, 
+                                               fash = fash_fit2_update,
+                                               indices = fash_highlighted2,
                                                num_cores = num_cores,
                                                smooth_var = smooth_var_refined)</code></pre>
 <pre class="r"><code>load(paste0(result_dir, &quot;/classify_nonlin_dyn_eQTLs_middle.RData&quot;))
 middle_indices &lt;- testing_middle_nonlin_dyn$indices[testing_middle_nonlin_dyn$cfsr &lt;= alpha]
 length(middle_indices)</code></pre>
-<pre><code>[1] 19</code></pre>
+<pre><code>[1] 20</code></pre>
 <pre class="r"><code>middle_genes &lt;- unique(sapply(strsplit(names(datasets)[middle_indices], &quot;_&quot;), &quot;[[&quot;, 1))
 length(middle_genes)</code></pre>
-<pre><code>[1] 3</code></pre>
+<pre><code>[1] 4</code></pre>
 <p>Take a look at their results:</p>
 <p><img src="figure/nonlinear_dynamic_eQTL_real.Rmd/middle_examples-1.png" width="768" style="display: block; margin: auto;" /></p>
 <p>How many pairs are classified as late dynamic eQTLs?</p>
 <pre class="r"><code>functional_late &lt;- function(x){
   max(abs(x[smooth_var_refined &gt;= 12])) - max(abs(x[smooth_var_refined &lt; 12]))
 }
-testing_late_nonlin_dyn &lt;- testing_functional(functional_late, 
+testing_late_nonlin_dyn &lt;- testing_functional(functional_late,
                                              lfsr_cal = function(x){mean(x &lt;= 0)},
-                                             fash = fash_fit2, 
-                                             indices = fash_highlighted2, 
+                                             fash = fash_fit2_update,
+                                             indices = fash_highlighted2,
                                              num_cores = num_cores,
                                              smooth_var = smooth_var_refined)</code></pre>
 <pre class="r"><code>load(paste0(result_dir, &quot;/classify_nonlin_dyn_eQTLs_late.RData&quot;))
@@ -1034,10 +1182,10 @@ functional_switch &lt;- function(x){
   }
   min(max(abs(x_pos)), max(abs(x_neg))) - switch_threshold
 }
-testing_switch_nonlin_dyn &lt;- testing_functional(functional_switch, 
+testing_switch_nonlin_dyn &lt;- testing_functional(functional_switch,
                                                lfsr_cal = function(x){mean(x &lt;= 0)},
-                                               fash = fash_fit2, 
-                                               indices = fash_highlighted2, 
+                                               fash = fash_fit2_update,
+                                               indices = fash_highlighted2,
                                                num_cores = num_cores,
                                                smooth_var = smooth_var_refined)</code></pre>
 <pre class="r"><code>load(paste0(result_dir, &quot;/classify_nonlin_dyn_eQTLs_switch.RData&quot;))
@@ -1059,15 +1207,15 @@ library(org.Hs.eg.db)  # Assuming human genes
 library(biomaRt)
 library(cowplot)
 # Retrieve Hallmark gene sets for Homo sapiens
-m_t2g &lt;- msigdbr(species = &quot;Homo sapiens&quot;, category = &quot;H&quot;) %&gt;% 
+m_t2g &lt;- msigdbr(species = &quot;Homo sapiens&quot;, category = &quot;H&quot;) %&gt;%
   dplyr::select(gs_name, entrez_gene)
 mart &lt;- useMart(&quot;ensembl&quot;, dataset = &quot;hsapiens_gene_ensembl&quot;)
 
 ## A function to check gene-enrichment
 ## Retrieve Hallmark gene sets for Homo sapiens (use Ensembl IDs)
-m_t2g &lt;- msigdbr(species = &quot;Homo sapiens&quot;, category = &quot;H&quot;) %&gt;% 
-  mutate(ensembl_use = dplyr::coalesce(ensembl_gene, db_ensembl_gene)) %&gt;% 
-  dplyr::filter(!is.na(ensembl_use)) %&gt;% 
+m_t2g &lt;- msigdbr(species = &quot;Homo sapiens&quot;, category = &quot;H&quot;) %&gt;%
+  mutate(ensembl_use = dplyr::coalesce(ensembl_gene, db_ensembl_gene)) %&gt;%
+  dplyr::filter(!is.na(ensembl_use)) %&gt;%
   dplyr::select(gs_name, ensembl_use) %&gt;%
   dplyr::distinct()    # one row per (pathway, Ensembl) pair
 
@@ -1149,7 +1297,7 @@ enrich_set &lt;- function(genes_selected,
 }</code></pre>
 <p>Among all the genes highlighted by FASH:</p>
 <pre class="r"><code>result &lt;- enrich_set(genes_selected = genes_highlighted2, background_gene = all_genes)
-result@result %&gt;% 
+result@result %&gt;%
   filter(pvalue &lt; 0.05) %&gt;%
   dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)</code></pre>
 <pre><code>                                   GeneRatio BgRatio     pvalue     qvalue
@@ -1159,20 +1307,20 @@ HALLMARK_ALLOGRAFT_REJECTION             1/9 36/6362 0.04982039 0.05555675</code
 <p>Among the genes highlighted by FASH that are classified as having
 middle dynamic eQTLs:</p>
 <pre class="r"><code>result &lt;- enrich_set(genes_selected = middle_genes, background_gene = all_genes)
-result@result %&gt;% 
+result@result %&gt;%
   filter(pvalue &lt; 0.05) %&gt;%
   dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)</code></pre>
 <pre><code>                                   GeneRatio BgRatio     pvalue qvalue
-HALLMARK_INTERFERON_ALPHA_RESPONSE       1/3 27/6362 0.01267987     NA
-HALLMARK_ALLOGRAFT_REJECTION             1/3 36/6362 0.01688255     NA
-HALLMARK_INFLAMMATORY_RESPONSE           1/3 43/6362 0.02014305     NA
-HALLMARK_INTERFERON_GAMMA_RESPONSE       1/3 56/6362 0.02617911     NA
-HALLMARK_TNFA_SIGNALING_VIA_NFKB         1/3 58/6362 0.02710553     NA
-HALLMARK_ESTROGEN_RESPONSE_LATE          1/3 79/6362 0.03679748     NA</code></pre>
+HALLMARK_INTERFERON_ALPHA_RESPONSE       1/4 27/6362 0.01687199     NA
+HALLMARK_ALLOGRAFT_REJECTION             1/4 36/6362 0.02244825     NA
+HALLMARK_INFLAMMATORY_RESPONSE           1/4 43/6362 0.02676891     NA
+HALLMARK_INTERFERON_GAMMA_RESPONSE       1/4 56/6362 0.03475498     NA
+HALLMARK_TNFA_SIGNALING_VIA_NFKB         1/4 58/6362 0.03597923     NA
+HALLMARK_ESTROGEN_RESPONSE_LATE          1/4 79/6362 0.04876367     NA</code></pre>
 <p>Among the genes highlighted by FASH that are classified as having
 late dynamic eQTLs:</p>
 <pre class="r"><code>result &lt;- enrich_set(genes_selected = late_genes, background_gene = all_genes)
-result@result %&gt;% 
+result@result %&gt;%
   filter(pvalue &lt; 0.05) %&gt;%
   dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)</code></pre>
 <pre><code>                                 GeneRatio BgRatio     pvalue qvalue
@@ -1191,70 +1339,71 @@ Platform: aarch64-apple-darwin20
 Running under: macOS Sequoia 15.6.1
 
 Matrix products: default
-BLAS:   /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib 
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
 LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
 
 locale:
-[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
 
 time zone: America/Chicago
 tzcode source: internal
 
 attached base packages:
-[1] stats4    stats     graphics  grDevices utils     datasets  methods  
-[8] base     
+[1] stats4    stats     graphics  grDevices utils     datasets  methods
+[8] base
 
 other attached packages:
- [1] cowplot_1.2.0          org.Hs.eg.db_3.21.0    AnnotationDbi_1.70.0  
- [4] IRanges_2.42.0         S4Vectors_0.46.0       Biobase_2.68.0        
- [7] BiocGenerics_0.54.1    generics_0.1.4         msigdbr_25.1.1        
-[10] clusterProfiler_4.16.0 lubridate_1.9.4        forcats_1.0.1         
-[13] stringr_1.6.0          dplyr_1.1.4            purrr_1.2.0           
-[16] readr_2.1.6            tidyr_1.3.1            tibble_3.3.0          
-[19] ggplot2_4.0.1          tidyverse_2.0.0        ggVennDiagram_1.5.4   
-[22] biomaRt_2.64.0         fashr_0.1.42           workflowr_1.7.2       
+ [1] cowplot_1.2.0          org.Hs.eg.db_3.21.0    AnnotationDbi_1.70.0
+ [4] IRanges_2.42.0         S4Vectors_0.46.0       Biobase_2.68.0
+ [7] BiocGenerics_0.54.1    generics_0.1.4         msigdbr_25.1.1
+[10] clusterProfiler_4.16.0 lubridate_1.9.4        forcats_1.0.1
+[13] stringr_1.6.0          purrr_1.2.0            readr_2.1.6
+[16] tidyr_1.3.1            tidyverse_2.0.0        ggVennDiagram_1.5.4
+[19] tibble_3.3.0           ggplot2_4.0.3          dplyr_1.1.4
+[22] biomaRt_2.64.0         fashr_0.1.43           workflowr_1.7.2
 
 loaded via a namespace (and not attached):
-  [1] RColorBrewer_1.1-3      rstudioapi_0.17.1       jsonlite_2.0.0         
-  [4] magrittr_2.0.4          ggtangle_0.0.9          farver_2.1.2           
-  [7] rmarkdown_2.30          fs_1.6.6                vctrs_0.6.5            
- [10] memoise_2.0.1           ggtree_3.16.3           mixsqp_0.3-54          
- [13] htmltools_0.5.9         progress_1.2.3          curl_7.0.0             
- [16] gridGraphics_0.5-1      sass_0.4.10             bslib_0.9.0            
- [19] plyr_1.8.9              httr2_1.2.2             cachem_1.1.0           
- [22] TMB_1.9.19              igraph_2.2.1            whisker_0.4.1          
- [25] lifecycle_1.0.4         pkgconfig_2.0.3         gson_0.1.0             
- [28] Matrix_1.7-4            R6_2.6.1                fastmap_1.2.0          
- [31] GenomeInfoDbData_1.2.14 digest_0.6.39           numDeriv_2016.8-1.1    
- [34] aplot_0.2.9             enrichplot_1.28.4       colorspace_2.1-2       
- [37] patchwork_1.3.2         ps_1.9.1                rprojroot_2.1.1        
- [40] irlba_2.3.5.1           RSQLite_2.4.5           filelock_1.0.3         
- [43] timechange_0.3.0        httr_1.4.7              compiler_4.5.1         
- [46] bit64_4.6.0-1           withr_3.0.2             S7_0.2.1               
- [49] BiocParallel_1.42.2     DBI_1.2.3               R.utils_2.13.0         
- [52] rappdirs_0.3.3          tools_4.5.1             otel_0.2.0             
- [55] ape_5.8-1               httpuv_1.6.16           R.oo_1.27.1            
- [58] glue_1.8.0              callr_3.7.6             nlme_3.1-168           
- [61] GOSemSim_2.34.0         promises_1.5.0          grid_4.5.1             
- [64] getPass_0.2-4           reshape2_1.4.5          fgsea_1.34.2           
- [67] gtable_0.3.6            tzdb_0.5.0              R.methodsS3_1.8.2      
- [70] data.table_1.17.8       hms_1.1.4               xml2_1.5.1             
- [73] XVector_0.48.0          ggrepel_0.9.6           pillar_1.11.1          
- [76] babelgene_22.9          yulab.utils_0.2.3       later_1.4.4            
- [79] splines_4.5.1           treeio_1.32.0           BiocFileCache_2.16.2   
- [82] lattice_0.22-7          bit_4.6.0               tidyselect_1.2.1       
- [85] GO.db_3.21.0            Biostrings_2.76.0       knitr_1.50             
- [88] git2r_0.36.2            xfun_0.55               LaplacesDemon_16.1.6   
- [91] stringi_1.8.7           UCSC.utils_1.4.0        lazyeval_0.2.2         
- [94] ggfun_0.2.0             yaml_2.3.12             evaluate_1.0.5         
- [97] codetools_0.2-20        qvalue_2.40.0           ggplotify_0.1.3        
-[100] cli_3.6.5               processx_3.8.6          jquerylib_0.1.4        
-[103] dichromat_2.0-0.1       Rcpp_1.1.0              GenomeInfoDb_1.44.3    
-[106] dbplyr_2.5.1            png_0.1-8               parallel_4.5.1         
-[109] assertthat_0.2.1        blob_1.2.4              prettyunits_1.2.0      
-[112] DOSE_4.2.0              tidytree_0.4.6          scales_1.4.0           
-[115] crayon_1.5.3            rlang_1.1.6             fastmatch_1.1-6        
-[118] KEGGREST_1.48.1        </code></pre>
+  [1] RColorBrewer_1.1-3      rstudioapi_0.17.1       jsonlite_2.0.0
+  [4] magrittr_2.0.5          ggtangle_0.0.9          farver_2.1.2
+  [7] rmarkdown_2.30          fs_1.6.6                ragg_1.5.0
+ [10] vctrs_0.7.3             memoise_2.0.1           ggtree_3.16.3
+ [13] mixsqp_0.3-54           htmltools_0.5.9         progress_1.2.3
+ [16] curl_7.0.0              gridGraphics_0.5-1      sass_0.4.10
+ [19] bslib_0.9.0             plyr_1.8.9              httr2_1.2.2
+ [22] cachem_1.1.0            TMB_1.9.23              igraph_2.3.2
+ [25] whisker_0.4.1           lifecycle_1.0.5         pkgconfig_2.0.3
+ [28] gson_0.1.0              Matrix_1.7-4            R6_2.6.1
+ [31] fastmap_1.2.0           GenomeInfoDbData_1.2.14 digest_0.6.39
+ [34] numDeriv_2016.8-1.1     aplot_0.2.9             enrichplot_1.28.4
+ [37] colorspace_2.1-2        patchwork_1.3.2         ps_1.9.1
+ [40] rprojroot_2.1.1         irlba_2.3.7             textshaping_1.0.4
+ [43] RSQLite_2.4.5           filelock_1.0.3          labeling_0.4.3
+ [46] timechange_0.3.0        httr_1.4.7              compiler_4.5.1
+ [49] bit64_4.6.0-1           withr_3.0.3             S7_0.2.2
+ [52] BiocParallel_1.42.2     DBI_1.2.3               R.utils_2.13.0
+ [55] rappdirs_0.3.3          tools_4.5.1             otel_0.2.0
+ [58] ape_5.8-1               httpuv_1.6.16           R.oo_1.27.1
+ [61] glue_1.8.1              callr_3.7.6             nlme_3.1-168
+ [64] GOSemSim_2.34.0         promises_1.5.0          grid_4.5.1
+ [67] getPass_0.2-4           reshape2_1.4.5          fgsea_1.34.2
+ [70] gtable_0.3.6            tzdb_0.5.0              R.methodsS3_1.8.2
+ [73] data.table_1.17.8       hms_1.1.4               xml2_1.5.1
+ [76] XVector_0.48.0          ggrepel_0.9.6           pillar_1.11.1
+ [79] babelgene_22.9          yulab.utils_0.2.3       later_1.4.4
+ [82] splines_4.5.1           treeio_1.32.0           BiocFileCache_2.16.2
+ [85] lattice_0.22-7          bit_4.6.0               tidyselect_1.2.1
+ [88] GO.db_3.21.0            Biostrings_2.76.0       knitr_1.50
+ [91] git2r_0.36.2            xfun_0.55               LaplacesDemon_16.1.8
+ [94] stringi_1.8.9           UCSC.utils_1.4.0        lazyeval_0.2.2
+ [97] ggfun_0.2.0             yaml_2.3.12             evaluate_1.0.5
+[100] codetools_0.2-20        qvalue_2.40.0           ggplotify_0.1.3
+[103] cli_3.6.6               systemfonts_1.3.1       processx_3.8.6
+[106] jquerylib_0.1.4         dichromat_2.0-0.1       Rcpp_1.1.1-1.1
+[109] GenomeInfoDb_1.44.3     dbplyr_2.5.1            png_0.1-8
+[112] parallel_4.5.1          assertthat_0.2.1        blob_1.2.4
+[115] prettyunits_1.2.0       DOSE_4.2.0              tidytree_0.4.6
+[118] scales_1.4.0            crayon_1.5.3            rlang_1.2.0
+[121] fastmatch_1.1-6         KEGGREST_1.48.1        </code></pre>
 </div>
 </div>
 </div>

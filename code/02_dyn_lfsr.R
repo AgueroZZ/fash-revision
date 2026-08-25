@@ -1,0 +1,544 @@
+#!/usr/bin/env Rscript
+
+# Recompute functional local false sign rates for the real-data dynamic eQTLs.
+#
+# The default production task recomputes only the Middle category using the
+# presentation-oriented open interval 3 < t < 12. Early, Late, and Switch are
+# available through --categories all, but their definitions are unchanged.
+
+parse_arguments <- function(args) {
+  defaults <- list(
+    fit_file = NA_character_,
+    output_dir = NA_character_,
+    categories = "middle",
+    grid_step = 0.10,
+    posterior_draws = 3000L,
+    num_cores = as.integer(Sys.getenv("SLURM_CPUS_PER_TASK", unset = "4")),
+    seed = 20260820L,
+    alpha = 0.05,
+    switch_threshold = 0.25,
+    expected_pairs = 9205L,
+    allow_bf_update = FALSE,
+    dry_run = FALSE,
+    help = FALSE
+  )
+
+  value_arguments <- c(
+    "--fit-file" = "fit_file",
+    "--output-dir" = "output_dir",
+    "--categories" = "categories",
+    "--grid-step" = "grid_step",
+    "--posterior-draws" = "posterior_draws",
+    "--num-cores" = "num_cores",
+    "--seed" = "seed",
+    "--alpha" = "alpha",
+    "--switch-threshold" = "switch_threshold",
+    "--expected-pairs" = "expected_pairs"
+  )
+
+  i <- 1L
+  while (i <= length(args)) {
+    argument <- args[[i]]
+    if (argument %in% c("--allow-bf-update", "--dry-run", "--help", "-h")) {
+      if (argument == "--allow-bf-update") defaults$allow_bf_update <- TRUE
+      if (argument == "--dry-run") defaults$dry_run <- TRUE
+      if (argument %in% c("--help", "-h")) defaults$help <- TRUE
+      i <- i + 1L
+      next
+    }
+    if (!argument %in% names(value_arguments) || i == length(args)) {
+      stop("Unknown or incomplete command-line argument: ", argument)
+    }
+    defaults[[value_arguments[[argument]]]] <- args[[i + 1L]]
+    i <- i + 2L
+  }
+
+  defaults$grid_step <- as.numeric(defaults$grid_step)
+  defaults$posterior_draws <- as.integer(defaults$posterior_draws)
+  defaults$num_cores <- as.integer(defaults$num_cores)
+  defaults$seed <- as.integer(defaults$seed)
+  defaults$alpha <- as.numeric(defaults$alpha)
+  defaults$switch_threshold <- as.numeric(defaults$switch_threshold)
+  defaults$expected_pairs <- as.integer(defaults$expected_pairs)
+  defaults
+}
+
+print_usage <- function() {
+  cat(paste(
+    "Usage:",
+    "  Rscript code/02_dyn_lfsr.R [options]",
+    "",
+    "Core options:",
+    "  --fit-file PATH          BF-adjusted or raw FASH .RData file.",
+    "                           If omitted, standard output/ and results/ paths",
+    "                           are searched, preferring fash_fit1_update.RData.",
+    "  --output-dir PATH        New directory for classification files.",
+    "                           Required unless --dry-run is used.",
+    "  --categories VALUE       middle (default), all, or a comma-separated",
+    "                           subset of early,middle,late,switch.",
+    "  --grid-step VALUE        Evaluation-grid step; default 0.10.",
+    "  --posterior-draws N      Posterior draws per pair; default 3000.",
+    "  --num-cores N            Forked workers; defaults to SLURM_CPUS_PER_TASK",
+    "                           or 4 outside Slurm.",
+    "  --seed N                 Base seed; default 20260820.",
+    "  --alpha VALUE            Discovery and cumulative-FSR cutoff; default 0.05.",
+    "  --switch-threshold VALUE Switch amplitude threshold; default 0.25.",
+    "  --expected-pairs N       Expected dynamic discovery count; default 9205.",
+    "                           Use 0 to disable this provenance check.",
+    "  --allow-bf-update        Explicitly permit BF_update() when only raw",
+    "                           fash_fit1 is available. This can change the",
+    "                           retained discovery universe and is off by default.",
+    "  --dry-run                Validate inputs and discoveries without sampling.",
+    "  --help                    Print this message.",
+    sep = "\n"
+  ))
+}
+
+normalize_existing_file <- function(path) {
+  if (is.na(path) || !nzchar(path) || !file.exists(path)) return(NA_character_)
+  normalizePath(path, mustWork = TRUE)
+}
+
+find_default_fit <- function() {
+  candidates <- c(
+    file.path("output", "dynamic_eQTL_real", "fash_fit1_update.RData"),
+    file.path("results", "fash_fit1_update.RData"),
+    file.path("output", "dynamic_eQTL_real", "fash_fit1_all.RData"),
+    file.path("results", "fash_fit1_all.RData")
+  )
+  existing <- candidates[file.exists(candidates)]
+  if (length(existing) == 0L) {
+    stop(
+      "Could not find a standard FASH fit. Supply --fit-file explicitly."
+    )
+  }
+  normalizePath(existing[[1L]], mustWork = TRUE)
+}
+
+load_analysis_fit <- function(fit_file, allow_bf_update) {
+  fit_environment <- new.env(parent = emptyenv())
+  loaded_names <- load(fit_file, envir = fit_environment)
+
+  if ("fash_fit1_update" %in% loaded_names) {
+    fit <- fit_environment$fash_fit1_update
+    fit_treatment <- "retained BF-adjusted fash_fit1_update"
+  } else if ("fash_fit1" %in% loaded_names) {
+    if (!allow_bf_update) {
+      stop(
+        "The input contains raw fash_fit1 but not the retained ",
+        "fash_fit1_update. An exact classification-only rerun requires the ",
+        "retained BF-adjusted fit. Supply that file, or use ",
+        "--allow-bf-update only if changing the discovery universe is acceptable."
+      )
+    }
+    message(
+      "The input contains raw fash_fit1 but not fash_fit1_update; ",
+      "applying fashr::BF_update() once."
+    )
+    fit <- fashr::BF_update(fit_environment$fash_fit1, plot = FALSE)
+    fit_treatment <- "fash_fit1 followed by BF_update"
+  } else {
+    stop(
+      "The fit file must contain fash_fit1_update or fash_fit1. Loaded: ",
+      paste(loaded_names, collapse = ", ")
+    )
+  }
+
+  if (!inherits(fit, "fash")) {
+    stop("The selected fitted object does not inherit from class 'fash'.")
+  }
+  list(fit = fit, treatment = fit_treatment)
+}
+
+parse_categories <- function(value) {
+  category_order <- c("early", "middle", "late", "switch")
+  requested <- trimws(tolower(strsplit(value, ",", fixed = TRUE)[[1L]]))
+  if (identical(requested, "all")) requested <- category_order
+  requested <- unique(requested)
+  if (length(requested) == 0L || any(!requested %in% category_order)) {
+    stop(
+      "--categories must be middle, all, or a comma-separated subset of: ",
+      paste(category_order, collapse = ", ")
+    )
+  }
+  category_order[category_order %in% requested]
+}
+
+validate_grid <- function(grid_step) {
+  if (length(grid_step) != 1L || !is.finite(grid_step) || grid_step <= 0) {
+    stop("--grid-step must be one finite positive number.")
+  }
+  n_intervals <- 15 / grid_step
+  if (abs(n_intervals - round(n_intervals)) > 1e-8) {
+    stop("--grid-step must divide the 0-to-15 time range exactly.")
+  }
+  seq(0, 15, by = grid_step)
+}
+
+build_functionals <- function(time_grid, switch_threshold) {
+  list(
+    early = function(x) {
+      max(abs(x[time_grid <= 3])) - max(abs(x[time_grid > 3]))
+    },
+    middle = function(x) {
+      max(abs(x[time_grid > 3 & time_grid < 12])) -
+        max(abs(x[time_grid <= 3 | time_grid >= 12]))
+    },
+    late = function(x) {
+      max(abs(x[time_grid >= 12])) - max(abs(x[time_grid < 12]))
+    },
+    switch = function(x) {
+      positive <- x[x > 0]
+      negative <- x[x < 0]
+      if (length(positive) == 0L || length(negative) == 0L) return(0)
+      min(max(abs(positive)), max(abs(negative))) - switch_threshold
+    }
+  )
+}
+
+pair_seed <- function(base_seed, pair_index) {
+  seed <- (as.double(base_seed) + as.double(pair_index)) %%
+    as.double(.Machine$integer.max)
+  if (seed < 1) seed <- seed + 1
+  as.integer(seed)
+}
+
+compute_pair_lfsr <- function(pair_index,
+                              fit,
+                              time_grid,
+                              posterior_draws,
+                              category_functionals,
+                              base_seed) {
+  set.seed(pair_seed(base_seed, pair_index))
+  posterior_samples <- predict(
+    fit,
+    index = pair_index,
+    smooth_var = time_grid,
+    only.samples = TRUE,
+    M = posterior_draws
+  )
+  if (!is.matrix(posterior_samples) ||
+      nrow(posterior_samples) != length(time_grid) ||
+      ncol(posterior_samples) != posterior_draws) {
+    stop("Unexpected posterior-sample dimensions for pair index ", pair_index)
+  }
+
+  vapply(category_functionals, function(functional) {
+    statistic_draws <- apply(posterior_samples, 2L, functional)
+    mean(statistic_draws <= 0)
+  }, numeric(1L))
+}
+
+make_testing_table <- function(indices, pair_names, lfsr) {
+  result <- data.frame(
+    indices = as.integer(indices),
+    lfsr = as.numeric(lfsr),
+    stringsAsFactors = FALSE
+  )
+  rownames(result) <- pair_names
+
+  # Match fashr::testing_functional() exactly: rank by LFSR using the original
+  # discovery order for ties, compute cumulative FSR, and finally return rows
+  # in fitted-index order.
+  ranked_order <- order(result$lfsr)
+  ranked_cfsr <- cumsum(result$lfsr[ranked_order]) / seq_along(ranked_order)
+  result$cfsr <- NA_real_
+  result$cfsr[ranked_order] <- ranked_cfsr
+  result[order(result$indices), , drop = FALSE]
+}
+
+write_atomic_outputs <- function(output_dir,
+                                 category_tables,
+                                 configuration,
+                                 summary_table) {
+  if (file.exists(output_dir) || dir.exists(output_dir)) {
+    stop("Refusing to overwrite an existing output path: ", output_dir)
+  }
+
+  parent_directory <- dirname(output_dir)
+  dir.create(parent_directory, recursive = TRUE, showWarnings = FALSE)
+  staging_directory <- paste0(output_dir, ".staging-", Sys.getpid())
+  if (file.exists(staging_directory) || dir.exists(staging_directory)) {
+    stop("Staging path already exists: ", staging_directory)
+  }
+  dir.create(staging_directory, recursive = TRUE, showWarnings = FALSE)
+  completed <- FALSE
+  on.exit({
+    if (!completed && dir.exists(staging_directory)) {
+      unlink(staging_directory, recursive = TRUE, force = TRUE)
+    }
+  }, add = TRUE)
+
+  object_names <- c(
+    early = "testing_early_dyn",
+    middle = "testing_middle_dyn",
+    late = "testing_late_dyn",
+    switch = "testing_switch_dyn"
+  )
+  file_names <- c(
+    early = "classify_dyn_eQTLs_early.RData",
+    middle = "classify_dyn_eQTLs_middle.RData",
+    late = "classify_dyn_eQTLs_late.RData",
+    switch = "classify_dyn_eQTLs_switch.RData"
+  )
+
+  for (category in names(category_tables)) {
+    output_environment <- new.env(parent = emptyenv())
+    assign(
+      object_names[[category]],
+      category_tables[[category]],
+      envir = output_environment
+    )
+    save(
+      list = object_names[[category]],
+      file = file.path(staging_directory, file_names[[category]]),
+      envir = output_environment
+    )
+  }
+
+  saveRDS(configuration, file.path(staging_directory, "run_configuration.rds"))
+  write.csv(
+    summary_table,
+    file.path(staging_directory, "classification_summary.csv"),
+    row.names = FALSE
+  )
+  writeLines(
+    capture.output(sessionInfo()),
+    file.path(staging_directory, "session_info.txt")
+  )
+
+  if (!file.rename(staging_directory, output_dir)) {
+    stop("Could not atomically move the staging directory to: ", output_dir)
+  }
+  completed <- TRUE
+  invisible(output_dir)
+}
+
+arguments <- parse_arguments(commandArgs(trailingOnly = TRUE))
+if (arguments$help) {
+  print_usage()
+  quit(save = "no", status = 0L)
+}
+
+Sys.setenv(
+  OMP_NUM_THREADS = "1",
+  OPENBLAS_NUM_THREADS = "1",
+  MKL_NUM_THREADS = "1",
+  VECLIB_MAXIMUM_THREADS = "1"
+)
+suppressPackageStartupMessages(library(fashr))
+
+if (is.na(arguments$num_cores) || arguments$num_cores < 1L ||
+    is.na(arguments$posterior_draws) || arguments$posterior_draws < 100L ||
+    is.na(arguments$seed) || arguments$seed < 1L ||
+    !is.finite(arguments$alpha) || arguments$alpha <= 0 ||
+    arguments$alpha >= 1 ||
+    !is.finite(arguments$switch_threshold) ||
+    arguments$switch_threshold <= 0 ||
+    is.na(arguments$expected_pairs) || arguments$expected_pairs < 0L) {
+  stop("One or more numerical command-line arguments are invalid.")
+}
+
+slurm_cores <- suppressWarnings(as.integer(Sys.getenv("SLURM_CPUS_PER_TASK")))
+if (!is.na(slurm_cores) && arguments$num_cores > slurm_cores) {
+  stop(
+    "--num-cores exceeds SLURM_CPUS_PER_TASK (", slurm_cores, ")."
+  )
+}
+if (!arguments$dry_run &&
+    (is.na(arguments$output_dir) || !nzchar(arguments$output_dir))) {
+  stop("--output-dir is required unless --dry-run is used.")
+}
+
+categories <- parse_categories(arguments$categories)
+time_grid <- validate_grid(arguments$grid_step)
+fit_file <- if (is.na(arguments$fit_file)) {
+  find_default_fit()
+} else {
+  normalized <- normalize_existing_file(arguments$fit_file)
+  if (is.na(normalized)) {
+    stop("--fit-file does not exist: ", arguments$fit_file)
+  }
+  normalized
+}
+
+message("Loading fitted model: ", fit_file)
+load_start <- proc.time()[["elapsed"]]
+fit_record <- load_analysis_fit(
+  fit_file = fit_file,
+  allow_bf_update = arguments$allow_bf_update
+)
+fit <- fit_record$fit
+load_seconds <- proc.time()[["elapsed"]] - load_start
+
+discovery_result <- fashr::fdr_control(
+  fit,
+  alpha = arguments$alpha,
+  plot = FALSE
+)
+selected_indices <- as.integer(
+  discovery_result$fdr_results$index[
+    discovery_result$fdr_results$FDR <= arguments$alpha
+  ]
+)
+if (length(selected_indices) == 0L || anyDuplicated(selected_indices)) {
+  stop("The dynamic-eQTL discovery universe is empty or duplicated.")
+}
+if (arguments$expected_pairs > 0L &&
+    length(selected_indices) != arguments$expected_pairs) {
+  stop(
+    "Expected ", arguments$expected_pairs,
+    " dynamic pairs but reconstructed ", length(selected_indices), "."
+  )
+}
+
+all_pair_names <- names(fit$fash_data$data_list)
+if (is.null(all_pair_names) || anyNA(all_pair_names[selected_indices]) ||
+    any(!nzchar(all_pair_names[selected_indices]))) {
+  stop("The selected fitted datasets do not have complete pair names.")
+}
+selected_pair_names <- all_pair_names[selected_indices]
+
+message("Fit treatment: ", fit_record$treatment)
+message("Dynamic discovery pairs: ", length(selected_indices))
+message("Requested categories: ", paste(categories, collapse = ", "))
+message(
+  "Numerical setting: grid step ", arguments$grid_step,
+  ", posterior draws ", arguments$posterior_draws,
+  ", base seed ", arguments$seed
+)
+message("Middle definition: 3 < t < 12")
+message(sprintf("Fit load and discovery reconstruction: %.1f seconds", load_seconds))
+
+if (arguments$dry_run) {
+  message("Dry-run complete; posterior sampling and output writing were skipped.")
+  quit(save = "no", status = 0L)
+}
+
+functionals <- build_functionals(
+  time_grid = time_grid,
+  switch_threshold = arguments$switch_threshold
+)
+requested_functionals <- functionals[categories]
+
+compute_one <- function(pair_index) {
+  tryCatch(
+    list(
+      index = pair_index,
+      lfsr = compute_pair_lfsr(
+        pair_index = pair_index,
+        fit = fit,
+        time_grid = time_grid,
+        posterior_draws = arguments$posterior_draws,
+        category_functionals = requested_functionals,
+        base_seed = arguments$seed
+      ),
+      error = NA_character_
+    ),
+    error = function(error) {
+      list(
+        index = pair_index,
+        lfsr = rep(NA_real_, length(categories)),
+        error = conditionMessage(error)
+      )
+    }
+  )
+}
+
+sampling_start <- proc.time()[["elapsed"]]
+if (arguments$num_cores > 1L && .Platform$OS.type != "windows") {
+  pair_results <- parallel::mclapply(
+    selected_indices,
+    compute_one,
+    mc.cores = arguments$num_cores,
+    mc.set.seed = FALSE,
+    mc.preschedule = TRUE
+  )
+} else {
+  pair_results <- lapply(selected_indices, compute_one)
+}
+sampling_seconds <- proc.time()[["elapsed"]] - sampling_start
+
+failed <- vapply(pair_results, function(result) {
+  !is.na(result$error) || any(!is.finite(result$lfsr))
+}, logical(1L))
+if (any(failed)) {
+  first_failure <- pair_results[[which(failed)[1L]]]
+  stop(
+    "Posterior sampling failed for ", sum(failed), " pair(s). First failure: ",
+    first_failure$index, " — ", first_failure$error
+  )
+}
+
+observed_indices <- vapply(pair_results, `[[`, integer(1L), "index")
+if (!identical(observed_indices, selected_indices)) {
+  stop("Parallel output order does not match the selected pair order.")
+}
+lfsr_matrix <- do.call(rbind, lapply(pair_results, `[[`, "lfsr"))
+colnames(lfsr_matrix) <- categories
+
+category_tables <- setNames(lapply(categories, function(category) {
+  make_testing_table(
+    indices = selected_indices,
+    pair_names = selected_pair_names,
+    lfsr = lfsr_matrix[, category]
+  )
+}), categories)
+
+summary_table <- do.call(rbind, lapply(categories, function(category) {
+  table <- category_tables[[category]]
+  selected <- table$cfsr <= arguments$alpha
+  data.frame(
+    category = category,
+    candidate_pairs = nrow(table),
+    selected_pairs = sum(selected),
+    minimum_lfsr = min(table$lfsr),
+    maximum_selected_lfsr = if (any(selected)) {
+      max(table$lfsr[selected])
+    } else {
+      NA_real_
+    },
+    maximum_selected_cfsr = if (any(selected)) {
+      max(table$cfsr[selected])
+    } else {
+      NA_real_
+    },
+    stringsAsFactors = FALSE
+  )
+}))
+rownames(summary_table) <- NULL
+
+output_dir <- normalizePath(
+  arguments$output_dir,
+  mustWork = FALSE
+)
+configuration <- list(
+  generated_at = format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"),
+  fit_file = fit_file,
+  fit_treatment = fit_record$treatment,
+  categories = categories,
+  middle_definition = "3 < t < 12",
+  middle_complement = "t <= 3 or t >= 12",
+  grid = time_grid,
+  grid_step = arguments$grid_step,
+  posterior_draws = arguments$posterior_draws,
+  num_cores = arguments$num_cores,
+  seed = arguments$seed,
+  pair_seed_rule = "base seed plus fitted pair index",
+  alpha = arguments$alpha,
+  switch_threshold = arguments$switch_threshold,
+  dynamic_pair_count = length(selected_indices),
+  fit_load_and_discovery_seconds = load_seconds,
+  posterior_sampling_seconds = sampling_seconds
+)
+
+write_atomic_outputs(
+  output_dir = output_dir,
+  category_tables = category_tables,
+  configuration = configuration,
+  summary_table = summary_table
+)
+
+message(sprintf("Posterior sampling: %.1f seconds", sampling_seconds))
+message("Completed output: ", output_dir)
+print(summary_table, row.names = FALSE)

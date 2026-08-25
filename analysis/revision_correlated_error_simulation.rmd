@@ -1,7 +1,7 @@
 ---
-title: "Revision Real-data Sensitivity R4: temporal correlation"
+title: "Revision R4: unit-specific null correlations"
 author: "Ziang Zhang"
-date: "2026-08-05"
+date: "2026-08-24"
 output:
   workflowr::wflow_html:
     code_folding: hide
@@ -13,7 +13,7 @@ editor_options:
 knitr::opts_chunk$set(
   echo = TRUE,
   fig.width = 10,
-  fig.height = 6.5,
+  fig.height = 5.5,
   dpi = 180,
   fig.retina = 2,
   fig.align = "center",
@@ -21,511 +21,124 @@ knitr::opts_chunk$set(
   warning = FALSE
 )
 
+source("code/revision_simulations/internal/covariance_estimation/donor_null_permutation_helpers.R")
+source("code/revision_simulations/r4_correlated_errors/unit_specific_residual_permutation_helpers.R")
 source("code/revision_simulations/r4_correlated_errors/reporting.R")
 ```
 
-<style>
-.r4-table-scroll {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-.r4-table-scroll table {
-  margin-bottom: 1em;
-}
-.MathJax_Display {
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-</style>
+## Question and estimand
 
-## Question
-
-The FASH-IWP1 likelihood treats the 16 effect estimates within a trajectory as
-conditionally independent given its true effect function. The real data reuse
-the same donors at multiple times, so this assumption is not exact. This page
-asks three increasingly targeted questions:
-
-1. What full within-trajectory dependence patterns are visible among the 500
-   most null-like gene-variant pairs?
-2. Does FASH-IWP1 remain calibrated when the complete estimated 16 by 16
-   patterns are inserted into the R1 data-generating mechanism?
-3. How do power, empirical FDR, and the estimated dynamic-null proportion
-   change as a local lag-1 correlation varies from `-0.3` to `0.3`?
-
-Only FASH-IWP1 before and after BF adjustment is reported. The purpose is to
-test whether the fitted method used in the main analysis is sensitive to
-moderate violations of its conditional-independence working model.
-
-## Real-data dependence pattern
-
-### Null-like one-pair-per-gene subset
-
-The BF-adjusted FASH fit contains more than one variant for many genes. To
-avoid allowing a gene with many variants to dominate the diagnostic, we first
-retain the variant with the **highest BF-adjusted lfdr within each gene** and
-then take the 500 representatives with the highest lfdr overall. The selected
-lfdr values range from
-`r format_decimal(min(real_analysis$selected_units$lfdr))` to
-`r format_decimal(max(real_analysis$selected_units$lfdr))`.
-
-For FASH-IWP1, a high lfdr supports a constant effect trajectory, not
-necessarily a zero effect. Two complementary full-matrix estimators are
-therefore considered.
-
-### Direct centered estimator
-
-For unit $j$, let $\widehat\beta_j(t)$ and $s_j(t)$ be the effect estimate and
-the t-adjusted standard error supplied to FASH. We estimate its unknown
-constant effect by inverse-variance weighting,
+For a single gene--variant unit $j$, we estimate the null correlation of its
+16 t-adjusted z-scores,
 
 $$
-\widehat\mu_j =
-\frac{\sum_t \widehat\beta_j(t)/s_j^2(t)}
-{\sum_t 1/s_j^2(t)},
-\qquad
-z_j(t)=\frac{\widehat\beta_j(t)-\widehat\mu_j}{s_j(t)},
+\operatorname{Corr}\{\widehat z_j(t),\widehat z_j(s)
+\mid G_j, X, \text{donor coverage};\ \beta_j=0\}.
 $$
 
-and compute the empirical correlation matrix across the 500 rows of $z_j(t)$.
-This is a descriptive correlation of **centered** residual trajectories.
-Estimating and removing $\widehat\mu_j$ itself induces negative dependence, so
-this matrix should not be interpreted as an uncentered error covariance.
+This is intentionally a **per-unit** diagnostic. It does not pool units to
+produce a common real-data covariance matrix, and it is not an estimate of a
+population-average correlation. The six units below were selected uniformly at
+random from the BF-adjusted FASH fit with a fixed seed. Whether a selected unit
+is a genuine biological null is not the identifying assumption: the
+randomization removes its fitted genotype effect before generating the null
+draws.
 
-### Pairwise-difference estimator
+## Signal-stripped residual randomization
 
-An alternative removes the unknown constant without explicitly estimating it.
-For each time pair $(t,s)$, define
+At every time point, we fit the original model
+`expression ~ 1 + PC1 + ... + PC5 + genotype`. For each permutation, we retain
+the fitted intercept-and-PC component, remove the fitted genotype component,
+and add a donor-permuted full-model residual. One donor map is used for all 16
+time points of a draw, so each donor's residual trajectory remains intact.
+Maps are restricted to donors with the same observed-time pattern, preserving
+the original missingness structure. The null response is then refit against the
+original genotype and covariates.
 
-$$
-a_j=s_j^2(t)+s_j^2(s),\qquad
-c_j=\frac{2s_j(t)s_j(s)}{a_j},\qquad
-q_j=\frac{\{\widehat\beta_j(t)-\widehat\beta_j(s)\}^2}{a_j}.
-$$
+For each refit, its raw regression SE is converted by the same t-to-normal
+adjustment used for the FASH input, and
+$\widehat z_j(t)=\widehat\beta_j(t)/\widehat{\mathrm{SE}}_{\mathrm{t-adjusted},j}(t)$.
+Each unit has 400 independently sampled donor maps; the empirical correlation
+matrix is the correlation across its 400 resulting null z-score vectors. The
+procedure conditions on observed $G_j$ and $X$, but not on an unobserved true
+genetic effect.
 
-Under a constant truth and conditionally Gaussian errors with correlation
-$R_{ts}$, $E(1-q_j)=c_jR_{ts}$. We therefore use the through-origin
-method-of-moments estimate
-
-$$
-\widehat R_{ts}=
-\frac{\sum_j c_j(1-q_j)}{\sum_j c_j^2}.
-$$
-
-Both symmetric estimates are projected to the nearest positive-definite
-correlation matrix before simulation.
-
-```{r real-correlation-heatmaps, fig.width=10, fig.height=9.2, fig.cap="Figure R4.1: Real-data within-trajectory correlation diagnostics from 500 null-like one-pair-per-gene representatives. Panels distinguish the direct-centered and pairwise-difference estimators before and after nearest-positive-definite projection; color encodes correlation."}
-plot_r4_real_data_correlation_heatmaps(real_analysis)
-```
-
-```{r projection-diagnostics-table, results='asis'}
-render_scrollable_table(
-  projection_table,
+```{r selected-units, results='asis'}
+knitr::kable(
+  r4_selected_units[, c(
+    "unit", "pair_key", "source_bf_lfdr", "maximum_observed_beta_difference"
+  )],
   caption = paste(
-    "Table R4.1: Positive-definite projection diagnostics for the two",
-    "real-data 16 by 16 correlation estimates."
+    "Table 1. Six randomly selected units. The final column verifies that",
+    "the raw-data refit reproduces the saved FASH beta estimates."
   ),
-  align = "lrrrrrr",
-  minimum_width = "980px"
+  align = "llll"
 )
 ```
 
-The direct matrix is already positive definite. The pairwise matrix has a
-slightly negative minimum eigenvalue, but nearest-PD projection changes any
-entry by at most
-`r format_decimal(real_analysis$projection_diagnostics$maximum_absolute_change[real_analysis$projection_diagnostics$matrix_id == "pairwise_adjusted"], 6)`.
-Thus the projection enforces a valid generating matrix without materially
-changing its pattern.
+## Example unit-specific null correlation matrices
 
-### Why a matched independence benchmark is necessary
+The following two panels show the first two units in the fixed random sample.
+They are examples rather than representative or averaged correlation patterns.
 
-The pairwise moment equation is valid before selecting unusually flat
-trajectories. Ranking by a dynamic-null lfdr is itself a selection on
-within-trajectory variation. To expose this ascertainment effect, we generated
-independent standard-normal errors with the observed SE patterns and compared:
-
-- the fixed top-500 SE patterns without re-selection; and
-- the 500 flattest trajectories selected from all 6,362 one-per-gene SE
-  patterns.
-
-```{r real-lag1-benchmark-table, results='asis'}
-render_scrollable_table(
-  benchmark_lag1_table,
-  caption = paste(
-    "Table R4.2: Observed lag-1 dependence and matched independent-error",
-    "benchmarks for the direct-centered and pairwise-difference estimators."
-  ),
-  align = "lrrr",
-  minimum_width = "1080px"
-)
+```{r unit-null-correlation-heatmaps, fig.width=11, fig.height=5.3, fig.cap="Figure 1. Estimated 16 by 16 t-adjusted null z-score correlation matrices from 400 signal-stripped residual-trajectory permutations for two randomly selected units. Each unit has its own donor maps and correlation estimate."}
+plot_r4_unit_null_heatmaps(r4_analysis$unit_results[1:2])
 ```
 
-For the direct estimator, observed lag-1 correlation is
-`r format_interval(
-  get_real_lag_metric("Direct centered", "mean_correlation_observed"),
-  get_real_lag_metric("Direct centered", "correlation_ci_lower"),
-  get_real_lag_metric("Direct centered", "correlation_ci_upper")
-)`, compared with
-`r format_interval(
-  get_benchmark_metric("Direct centered", "Fixed selected SE patterns", "mean_correlation"),
-  get_benchmark_metric("Direct centered", "Fixed selected SE patterns", "correlation_ci_lower"),
-  get_benchmark_metric("Direct centered", "Fixed selected SE patterns", "correlation_ci_upper")
-)` under independent errors with the same centering and SE patterns. The
-additional short-lag negative dependence is therefore modest.
+## Estimated variograms
 
-The raw pairwise estimate is strongly positive,
-`r format_interval(
-  get_real_lag_metric("Pairwise difference", "mean_correlation_observed"),
-  get_real_lag_metric("Pairwise difference", "correlation_ci_lower"),
-  get_real_lag_metric("Pairwise difference", "correlation_ci_upper")
-)`, but the flatness-selected independence benchmark is already
-`r format_interval(
-  get_benchmark_metric("Pairwise difference", "Flatness-selected gene representatives", "mean_correlation"),
-  get_benchmark_metric("Pairwise difference", "Flatness-selected gene representatives", "correlation_ci_lower"),
-  get_benchmark_metric("Pairwise difference", "Flatness-selected gene representatives", "correlation_ci_upper")
-)`. Consequently, the pairwise matrix is retained as a deliberately
-conservative full-matrix stress pattern, not presented as an unbiased estimate
-of the unselected residual correlation.
-
-The conclusion is not driven by the t-to-normal SE adjustment. Inverting that
-adjustment gives the following lag-1 sensitivity:
-
-```{r se-scale-sensitivity-table, results='asis'}
-render_scrollable_table(
-  se_sensitivity_table,
-  caption = paste(
-    "Table R4.3: Sensitivity of the real-data lag-1 diagnostics to the",
-    "t-to-normal standard-error scaling."
-  ),
-  align = "llrr",
-  minimum_width = "700px"
-)
-```
-
-### Variograms with 95% intervals
-
-For a unit-diagonal correlation matrix, the standardized semivariogram at lag
-$h$ is
+For each unit, the standardized semivariogram at lag $h$ is
 
 $$
-\gamma(h)=1-\frac{1}{16-h}\sum_{t=1}^{16-h}R_{t,t+h}.
+\widehat\gamma_j(h) = 1 -
+\frac{1}{16-h}\sum_{t=1}^{16-h}\widehat R_j(t,t+h).
 $$
 
-The blue bands below are percentile intervals from 1,000 gene bootstraps. The
-gray and orange bands are 1,000 matched independent-error replications.
+Under a lag-independent correlation of zero it is one. The curves display
+within-unit variation in the null dependence rather than a fitted common
+time-series model. The shaded intervals are 95% joint-draw bootstrap percentile
+intervals: each bootstrap replication resamples whole 16-time z-score
+draws, so it retains their cross-time structure. They quantify Monte Carlo
+uncertainty from the 400 permutations, not between-unit uncertainty.
 
-```{r real-data-variograms, fig.width=11, fig.height=5.2, fig.cap="Figure R4.2: Lag-specific real-data correlation and semivariogram diagnostics. Blue curves and bands are observed estimates with 95% gene-bootstrap intervals; grey and orange curves and bands are the two matched independent-error benchmarks identified in the in-figure legend."}
-plot_r4_real_data_variograms(
-  real_analysis$bootstrap_lags,
-  real_analysis$independence_benchmark
+```{r unit-null-variograms, fig.width=10, fig.height=5.5, fig.cap="Figure 2. Unit-specific null variograms estimated from 400 residual-permutation draws per randomly selected unit. Shaded bands are 95% joint-draw bootstrap percentile intervals; the dashed line is the value under zero correlation."}
+plot_r4_unit_null_variograms(r4_analysis$unit_results)
+```
+
+```{r variogram-summary, results='asis'}
+knitr::kable(
+  r4_variogram_summary,
+  caption = "Table 2. Short- and long-lag summaries of the unit-specific null correlations.",
+  align = "llrr"
 )
 ```
 
-The direct centered diagnostic shows its largest departure at lag 1 and moves
-toward its matched independence benchmark at longer lags, although the pattern
-is not exactly lag-1-only. The pairwise diagnostic is dominated by a broad
-positive common mode that is nearly reproduced by flatness selection under
-independence. These observations motivate testing both complete matrices first;
-the subsequent one-parameter sweep uses lag 1 as a parsimonious local
-sensitivity direction rather than as a fitted time-series model.
+## Interpretation and scope
 
-## Paired R1 simulation with the complete matrices
+The heatmaps and variograms answer a narrow question: conditional on the
+observed design for a particular unit, what temporal dependence appears in
+effect estimates when the fitted genotype signal is removed and residual donor
+trajectories are randomized? They are useful for checking that a single common
+correlation matrix would hide meaningful unit-to-unit heterogeneity.
 
-### Data-generating mechanism
-
-The full-matrix experiment reuses R1 without changing its scientific setting:
-19 donors, 16 times, 1,000 variants, five PC-like covariates, and exact class
-counts of 200 random B-spline dynamic effects, 400 constant effects, and 400
-zero effects. Thus the true dynamic-null proportion is $\pi_0=0.8$.
-
-At every time, `Y ~ G + PC1 + ... + PC5` is fitted and the genotype standard
-error receives the same t-to-normal correction used in R1 and the real-data
-analysis. Within each seed, the independent, direct-full, and pairwise-full
-conditions share the exact same genotype, covariates, truth, nuisance effects,
-and Gaussian innovations. Only the Cholesky transform of the expression errors
-changes.
-
-```{r full-matrix-r1-setting, eval=FALSE}
-correlation_matrices <- readRDS(file.path(
-  "output",
-  "revision_simulations",
-  "real_data",
-  "r4_null_like_top500_full_correlations",
-  "simulation_correlation_matrices.rds"
-))
-
-out <- run_genotype_level_bspline_eqtl_simulation(
-  n_donors = 19,
-  n_variants = 1000,
-  time_grid = 0:15,
-  n_covariates = 5,
-  class_probs = c(
-    dynamic_bspline = 0.20,
-    constant = 0.40,
-    zero = 0.40
-  ),
-  expression_noise_sd = 1,
-  dynamic_main_effect_sd = 1,
-  seed = seed,
-  num_basis = 20,
-  expression_error_correlation = correlation,
-  save_outputs = FALSE
-)
-```
-
-### Target-versus-realized dependence
-
-```{r full-matrix-target-realized, fig.width=10, fig.height=9.2, fig.cap="Figure R4.3: Target and realized dependence in the paired R1 complete-matrix simulations. Panels distinguish independent, direct-centered, and pairwise-difference conditions and the relevant error scale; color encodes correlation."}
-plot_r4_full_matrix_target_realized(
-  full_configuration,
-  full_matrix_summary
-)
-```
-
-```{r full-matrix-lag1-table, results='asis'}
-render_scrollable_table(
-  full_lag1_table,
-  caption = paste(
-    "Table R4.4: Target and realized mean lag-1 correlations in the paired",
-    "complete-matrix R1 simulations."
-  ),
-  align = "lrrrr",
-  minimum_width = "1120px"
-)
-```
-
-The realized expression-error and truth-known beta-hat error correlations track
-both complete targets closely. Centering the dynamic-null beta-hat trajectories
-again shifts the correlations, which is why the target matrix should not be
-compared directly with a post-centering diagnostic without reproducing the same
-operation.
-
-### Power, empirical FDR, and estimated pi0
-
-```{r full-matrix-metrics-figure, fig.width=12, fig.height=5.2, fig.cap="Figure R4.4: Power, empirical FDR, and estimated pi0 for paired R1 simulations using independent errors or either complete real-data-derived correlation matrix. Colors identify conditions and symbols identify raw versus BF-updated FASH in the in-figure legend; interval bars summarize five paired seeds."}
-plot_r4_full_matrix_metrics(
-  full_condition_alpha,
-  full_condition_pi0,
-  true_pi0 = 0.8,
-  nominal_alpha = 0.05
-)
-```
-
-```{r full-matrix-results-table, results='asis'}
-render_scrollable_table(
-  full_results_table,
-  caption = paste(
-    "Table R4.5: Monte Carlo performance and paired changes for raw and",
-    "BF-updated IWP FASH under the complete correlation matrices."
-  ),
-  align = "llrrrrrr",
-  minimum_width = "1450px"
-)
-```
-
-For the primary BF-adjusted IWP1 fit, the direct full matrix changes power from
-`r format_decimal(get_full_metric("Independent", "FASH-IWP1-BF", "mean_power"))`
-to
-`r format_decimal(get_full_metric("Direct centered full matrix", "FASH-IWP1-BF", "mean_power"))`
-and empirical FDR from
-`r format_decimal(get_full_metric("Independent", "FASH-IWP1-BF", "mean_fdr"))`
-to
-`r format_decimal(get_full_metric("Direct centered full matrix", "FASH-IWP1-BF", "mean_fdr"))`.
-The paired changes are
-`r format_signed_interval(
-  get_full_metric("Direct centered full matrix", "FASH-IWP1-BF", "mean_delta_power"),
-  get_full_metric("Direct centered full matrix", "FASH-IWP1-BF", "power_delta_ci_lower"),
-  get_full_metric("Direct centered full matrix", "FASH-IWP1-BF", "power_delta_ci_upper")
-)` for power and
-`r format_signed_interval(
-  get_full_metric("Direct centered full matrix", "FASH-IWP1-BF", "mean_delta_fdr"),
-  get_full_metric("Direct centered full matrix", "FASH-IWP1-BF", "fdr_delta_ci_lower"),
-  get_full_metric("Direct centered full matrix", "FASH-IWP1-BF", "fdr_delta_ci_upper")
-)` for FDR. Estimated pi0 is
-`r format_decimal(get_full_metric("Direct centered full matrix", "FASH-IWP1-BF", "mean_estimated_pi0"))`,
-compared with
-`r format_decimal(get_full_metric("Independent", "FASH-IWP1-BF", "mean_estimated_pi0"))`
-under independence.
-
-The selection-sensitive pairwise stress pattern is also conservative: its
-BF-adjusted power is
-`r format_decimal(get_full_metric("Pairwise-difference full matrix", "FASH-IWP1-BF", "mean_power"))`,
-its mean realized FDP is
-`r format_decimal(get_full_metric("Pairwise-difference full matrix", "FASH-IWP1-BF", "mean_fdr"))`,
-and its estimated pi0 is
-`r format_decimal(get_full_metric("Pairwise-difference full matrix", "FASH-IWP1-BF", "mean_estimated_pi0"))`.
-Zero false discoveries in five replicates should be read as conservative
-behavior in this focused experiment, not as proof that the population FDR is
-exactly zero.
-
-Thus neither complete matrix produces FDR inflation. The empirically relevant
-direct pattern yields essentially unchanged power and pi0, while the much
-stronger common-mode pairwise stress pattern is slightly less powerful and more
-conservative.
-
-## Sensitivity across lag-1 correlation strengths
-
-The complete-matrix results address the observed structures directly. To make
-the robustness boundary interpretable, we next vary only the first
-off-diagonal correlation,
-
-$$
-R_{tt}=1,\qquad R_{t,t+1}=R_{t+1,t}=\rho,\qquad
-R_{ts}=0\ \text{for }|t-s|>1,
-$$
-
-over $\rho\in\{-0.3,-0.2,\ldots,0.3\}$. This is a lag-1-only sensitivity model,
-not AR(1). The same five seeds and common innovations are used at every rho.
-
-```{r lag1-sweep-setting, eval=FALSE}
-rho_grid <- seq(-0.3, 0.3, by = 0.1)
-correlation_matrices <- lapply(
-  rho_grid,
-  function(rho) make_lag1_correlation(16, rho)
-)
-```
-
-```{r lag1-sweep-power-fdr, fig.width=11, fig.height=5.2, fig.cap="Figure R4.5: Power and empirical FDR across the lag-1-only correlation sweep. Curves identify raw and BF-updated IWP FASH in the in-figure legend; the vertical reference marks the approximate real-data direct-centered estimate and the horizontal FDR reference marks 0.05."}
-plot_r4_correlation_sweep(
-  sweep_alpha_005,
-  empirical_rho = -0.09,
-  nominal_alpha = 0.05,
-  methods = c("FASH-IWP1-Raw", "FASH-IWP1-BF")
-)
-```
-
-```{r lag1-sweep-pi0, fig.width=10, fig.height=5.2, fig.cap="Figure R4.6: Estimated dynamic-null proportion across the lag-1-only correlation sweep. Curves identify raw and BF-updated IWP FASH, the vertical reference marks the approximate real-data direct-centered estimate, and the horizontal reference marks the true pi0 of 0.8."}
-plot_r4_correlation_sweep_pi0(
-  sweep_pi0,
-  empirical_rho = -0.09,
-  true_pi0 = 0.8
-)
-```
-
-```{r lag1-sweep-primary-table, results='asis'}
-render_scrollable_table(
-  sweep_primary_table,
-  caption = paste(
-    "Table R4.6: BF-updated IWP FASH performance and paired changes across",
-    "the lag-1-only correlation sensitivity grid."
-  ),
-  align = "rrrrrrr",
-  minimum_width = "1400px"
-)
-```
-
-Negative adjacent correlation is conservative in this setting. Near the
-real-data direct estimate, `rho = -0.1`, BF-adjusted IWP1 has power
-`r format_decimal(get_sweep_metric(-0.1, "mean_power"))`, empirical FDR
-`r format_decimal(get_sweep_metric(-0.1, "mean_fdr"))`, and estimated pi0
-`r format_decimal(get_sweep_pi0_metric(-0.1))`.
-
-At mild positive correlation, `rho = +0.1`, power is
-`r format_decimal(get_sweep_metric(0.1, "mean_power"))`, the paired power change
-is
-`r format_signed_interval(
-  get_sweep_paired_metric(0.1, "mean_delta_power"),
-  get_sweep_paired_metric(0.1, "power_delta_ci_lower"),
-  get_sweep_paired_metric(0.1, "power_delta_ci_upper")
-)`, empirical FDR is
-`r format_decimal(get_sweep_metric(0.1, "mean_fdr"))`, and estimated pi0 remains
-`r format_decimal(get_sweep_pi0_metric(0.1))`.
-
-Inflation becomes visible only as positive correlation grows. At `rho = +0.2`,
-BF-adjusted empirical FDR is
-`r format_decimal(get_sweep_metric(0.2, "mean_fdr"))`; at `rho = +0.3`, it is
-`r format_decimal(get_sweep_metric(0.3, "mean_fdr"))`, with paired change
-`r format_signed_interval(
-  get_sweep_paired_metric(0.3, "mean_delta_fdr"),
-  get_sweep_paired_metric(0.3, "fdr_delta_ci_lower"),
-  get_sweep_paired_metric(0.3, "fdr_delta_ci_upper")
-)`. BF adjustment substantially attenuates this failure mode: at `rho = +0.3`,
-Raw IWP1 FDR is
-`r format_decimal(get_sweep_metric(0.3, "mean_fdr", "FASH-IWP1-Raw"))`,
-versus
-`r format_decimal(get_sweep_metric(0.3, "mean_fdr", "FASH-IWP1-BF"))`
-after BF adjustment.
-
-The pi0 diagnostic tells the same story more sharply. At `rho = +0.3`, the Raw
-estimate falls to
-`r format_decimal(get_sweep_pi0_metric(0.3, method = "FASH-IWP1-Raw"))`, while
-the BF-adjusted estimate remains
-`r format_decimal(get_sweep_pi0_metric(0.3, method = "FASH-IWP1-BF"))`, close
-to the true value 0.8.
-
-## Interpretation and limitations
-
-Together, the diagnostics support a local robustness claim:
-
-- the centered real-data pattern shows modest additional negative short-lag
-  dependence beyond the matched centering benchmark;
-- inserting its complete 16 by 16 matrix into R1 does not inflate FDR or
-  materially change power or estimated pi0;
-- an intentionally strong, broad positive full-matrix stress pattern is also
-  conservative; and
-- in the controlled lag-1 sweep, mild negative or positive correlation has a
-  small effect after BF adjustment, whereas moderate positive correlation
-  eventually lowers power and inflates FDR.
-
-Several boundaries matter. The top-lfdr subset is selected for flatness, so the
-pairwise moment estimator is not unbiased after selection; its matched
-benchmark is shown explicitly. The direct matrix is a post-centering
-description rather than an identified raw covariance. Monte Carlo intervals
-use only five paired seeds and are therefore imprecise, especially for realized
-FDP. Finally, these experiments vary within-trajectory Gaussian correlation;
-they do not establish robustness to arbitrary dependence, non-Gaussian errors,
-or dependence across genes and variants.
+They do not establish a population covariance model, calibrate FASH discovery
+FDR, or imply that every selected observed unit is biologically null. A formal
+simulation or calibration analysis would require a separate target estimand and
+repeated datasets.
 
 ## Reproducibility
 
-The implementation is in the
-[R4 correlation directory](https://github.com/stephenslab/fashr-paper/tree/master/code/revision_simulations/r4_correlated_errors).
-Routine workflowr builds read the completed versioned caches and do not rerun
-the real-data bootstrap or Monte Carlo fits.
+The cache was generated from the retained BF-adjusted FASH fit and the original
+YRI dosage, expression, and time-specific PC inputs. It records input hashes,
+the six selected pair keys, all 2,400 donor maps, and the 2,400 t-adjusted
+null z-score draws. Recreate it from the workflowr root with:
 
-The real-data matrices can be regenerated with:
-
-```{bash regenerate-real-data-correlations, eval=FALSE}
+```{bash, eval=FALSE}
 Rscript --vanilla \
-  code/revision_simulations/r4_correlated_errors/estimate_real_data_error_correlations.R \
-  --top-n 500 \
-  --bootstrap-reps 1000 \
-  --benchmark-reps 1000 \
-  --output-id r4_null_like_top500_full_correlations
-```
-
-The paired complete-matrix experiment can be regenerated with:
-
-```{bash regenerate-full-matrix-r4, eval=FALSE}
-Rscript --vanilla \
-  code/revision_simulations/r4_correlated_errors/run_full_empirical_correlation_mc.R \
-  --J 1000 \
-  --seed-list 12345,22345,32345,42345,52345 \
-  --output-id r4_full_empirical_correlations_top500_pilot5 \
-  --num-cores 4
-```
-
-The lag-1 sweep with pi0 summaries can be regenerated with:
-
-```{bash regenerate-lag1-pi0-sweep, eval=FALSE}
-Rscript --vanilla \
-  code/revision_simulations/r4_correlated_errors/run_lag1_correlation_sweep.R \
-  --J 1000 \
-  --rho-list=-0.3,-0.2,-0.1,0,0.1,0.2,0.3 \
-  --seed-list 12345,22345,32345,42345,52345 \
-  --output-id r4_lag1_correlation_sweep_m0p3_to_p0p3_pi0_pilot5 \
-  --num-cores 4
-```
-
-The versioned caches are:
-
-```text
-output/revision_simulations/real_data/
-  r4_null_like_top500_full_correlations/
-
-output/revision_simulations/mc/
-  r4_full_empirical_correlations_top500_pilot5/
-  r4_lag1_correlation_sweep_m0p3_to_p0p3_pi0_pilot5/
+  code/revision_simulations/r4_correlated_errors/run_unit_specific_residual_permutation.R \
+  --n-units 6 \
+  --n-permutations 400 \
+  --selection-seed 20260824 \
+  --permutation-seed 20260825 \
+  --output-id r4_unit_specific_residual_permutation_z
 ```

@@ -1,7 +1,7 @@
 ---
-title: "Revision Real-data Sensitivity R5: balanced variant thinning"
+title: "Revision Real-data Sensitivity R5: one random variant per gene"
 author: "Ziang Zhang"
-date: "2026-08-07"
+date: "2026-08-21"
 output:
   workflowr::wflow_html:
     code_folding: hide
@@ -12,8 +12,8 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,
-  fig.width = 9,
-  fig.height = 5.4,
+  fig.width = 8,
+  fig.height = 4.8,
   dpi = 180,
   fig.retina = 2,
   fig.align = "center",
@@ -21,12 +21,19 @@ knitr::opts_chunk$set(
   warning = FALSE
 )
 
+# This script loads the retained cache, validates its provenance and dimensions,
+# and exposes the cache-backed data frames used below.
 source(
-  "code/revision_simulations/r5_balanced_thinning/reporting.R"
+  "code/revision_simulations/r5_one_variant_per_gene/reporting.R"
 )
 ```
 
 <style>
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
 .r5-key-result {
   margin: 1.2em 0 1.5em;
   padding: 1em 1.15em;
@@ -35,27 +42,36 @@ source(
   background: #eef7fc;
   color: #173f54;
 }
-.r5-note {
-  margin: 1.2em 0 1.5em;
-  padding: 0.9em 1.05em;
-  border-left: 5px solid #e69f00;
-  border-radius: 4px;
-  background: #fff8e8;
-  color: #4a3b1c;
-}
 .r5-table-scroll {
+  box-sizing: border-box;
   width: 100%;
+  max-width: 100%;
+  margin: 0.8em 0 1.4em;
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
 }
 .r5-table-scroll table {
-  margin-bottom: 1em;
+  margin-bottom: 0;
 }
-.main-container img {
+.r5-inline-path {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.main-container .figure {
+  max-width: 820px;
+  margin: 1.4em auto;
+  text-align: center;
+}
+.main-container .figure img {
+  display: block;
   max-width: 100%;
   height: auto;
+  margin: 0 auto;
 }
 pre {
+  box-sizing: border-box;
   max-width: 100%;
   overflow-x: auto;
 }
@@ -66,349 +82,670 @@ pre {
 }
 </style>
 
-## Question and main result
+## Question and analysis
 
-The complete FASH(1) analysis treats each tested gene-variant pair as one
-empirical-Bayes unit. Because genes contribute different numbers of tested cis
-variants, genes with more variants have greater representation in the fitted
-mixture. This real-data sensitivity analysis asks whether the BF-updated prior
-weights and pair-level local false discovery rates (lfdr) change materially
-when that representation is balanced.
+The complete FASH(1) analysis treats each tested gene--variant pair as one
+empirical-Bayes unit. Its 1,009,173 pairs come from 6,362 genes, so genes
+contribute unequal numbers of units. The reviewer suggested repeating key
+summaries with one representative variant per gene.
 
-Every eligible gene is represented by exactly 20 uniformly sampled variants
-in each refit. This retains substantially more information than a
-one-variant-per-gene analysis while giving every included gene the same number
-of units.
+For each of 100 prespecified seeds, we uniformly sampled one tested variant
+from every gene without using beta estimates, standard errors, likelihoods,
+lfdr values, or discovery calls. We then re-estimated the FASH mixture weights
+on the 6,362 selected likelihood rows with the original penalty of 10 and
+applied the same BF prior update used in the paper.
 
 <div class="r5-key-result">
-<strong>Main result.</strong> Across ten prespecified random selections, the
-BF-updated null weight is `r format_range(seed_summary$thinned_pi0, 4)` versus
-`r format_decimal(full_pi0, 4)` in the full analysis. Paired lfdr Spearman
-correlations are `r format_range(lfdr_spearman_range, 4)`, and mean absolute
-lfdr differences are `r format_range(lfdr_mae_range, 4)`. Thus, the fitted
-null weight and the lfdr assigned to retained pairs are practically unchanged
-by balancing the number of variants per gene at 20.
+<strong>Observed summaries.</strong> Across the 100 representative-variant
+selections, the BF-updated null weight ranges from
+`r format_decimal(min(seed_summary$thinned_pi0), 4)` to
+`r format_decimal(max(seed_summary$thinned_pi0), 4)`; the complete-data value is
+`r format_decimal(full_pi0, 4)`. Paired lfdr Spearman correlations range from
+`r format_decimal(min(seed_summary$spearman_lfdr), 4)` to
+`r format_decimal(max(seed_summary$spearman_lfdr), 4)`, and paired lfdr mean
+absolute differences range from
+`r format_decimal(min(seed_summary$mean_absolute_lfdr_difference), 4)` to
+`r format_decimal(max(seed_summary$mean_absolute_lfdr_difference), 4)`.
+Within-sampled-universe discovery Jaccard values range from
+`r format_decimal(min(seed_summary$fdr_call_jaccard), 4)` to
+`r format_decimal(max(seed_summary$fdr_call_jaccard), 4)`.
 </div>
 
-This page reports only the paper's BF-updated fit. The raw empirical-Bayes
-penalty remains fixed at its original value of 10 before every BF update.
+This page reports the BF-updated fit. The 100 seeds repeat the random choice of
+representative variants; they do not resample cell lines.
 
-## Balanced-thinning design
+## One-variant-per-gene design
+
+The complete fit is pair-weighted: a gene contributes once for every tested
+cis variant. A thinned fit contains one uniformly sampled pair from each gene,
+so each gene contributes one empirical-Bayes unit.
 
 ```{r design-table, results='asis'}
+# Record the fixed analysis choices shown in Table 1.
+design_summary <- data.frame(
+  Item = c(
+    "Full-data empirical-Bayes units",
+    "Genes represented in every refit",
+    "Representative variants per gene",
+    "Prespecified thinning seeds",
+    "Selection rule",
+    "Reported fit",
+    "Raw empirical-Bayes penalty",
+    "Discovery threshold",
+    "Meaning of seed variation"
+  ),
+  Value = c(
+    paste0(format_integer(expected_full_units), " gene-variant pairs"),
+    format_integer(expected_full_genes),
+    "Exactly one",
+    paste0(
+      length(expected_seeds), " (", min(expected_seeds), " to ",
+      max(expected_seeds), ")"
+    ),
+    paste(
+      "Uniform within gene and independent of beta, SE, likelihood, lfdr,",
+      "and calls"
+    ),
+    "BF-updated FASH(1) only",
+    format_integer(expected_penalty),
+    "Cumulative-lfdr FDR 0.05 within each specified universe",
+    "Monte Carlo variation over representative-variant choice"
+  ),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+
 render_scrollable_table(
-  design_table,
+  design_summary,
   caption = paste(
-    "Table R5.1: Design of the balanced-variant thinning sensitivity",
-    "analysis. All ten refits use the BF-updated reporting version."
+    "Table 1. Fixed design of the one-variant-per-gene analysis.",
+    "Every refit reports the BF-updated FASH(1) result."
   ),
   align = "ll",
-  minimum_width = "900px"
+  minimum_width = "820px"
 )
 ```
 
-### Full-data FASH settings and matched penalty
+### Exact sampling and refitting steps
 
-Yes: the full-data fit and every balanced-thinning refit use the same
-empirical-Bayes penalty, `penalty = 10`. The following call makes all settings
-used to construct the full-data likelihood matrix explicit. It matches the
-code on the main
-[dynamic eQTL analysis page](https://stephenslab.github.io/fashr-paper/dynamic_eQTL_real.html);
-the Gaussian likelihood was the default in the original call and is written
-explicitly here for clarity.
+The retained analysis used the code path shown below. The expensive
+gene--variant likelihood rows were computed once in the complete FASH fit. For
+each seed, the analysis selected one row per gene, re-estimated the mixture
+weights on those rows, and then applied `BF_update()`.
 
-```{r full-data-fash-settings, eval=FALSE}
-log_prec <- seq(0, 10, by = 0.2)
-fine_grid <- sort(c(0, exp(-0.5 * log_prec)))
-
-fash_fit1 <- fashr::fash(
-  Y = "beta",
-  smooth_var = "time",
-  S = "SE",
-  data_list = datasets,
-  num_basis = 20,
-  order = 1,
-  betaprec = 0,
-  pred_step = 1,
-  likelihood = "gaussian",
-  penalty = 10,
-  grid = fine_grid,
-  num_cores = num_cores,
-  verbose = TRUE
-)
-
-fash_fit1_update <- fashr::BF_update(fash_fit1, plot = FALSE)
-```
-
-The retained raw object records these settings as `num_basis = 20`,
-`order = 1`, `betaprec = 0`, `pred_step = 1`,
-`likelihood = "gaussian"`, and `penalty = 10`. Its PSD grid has 52 values,
-including the null value zero.
-
-### Exact sampling procedure
-
-For each seed, the selection is performed as follows.
-
-1. Read the ordered gene-variant keys from the current full FASH object and
-   separate each key into its Ensembl gene ID and variant ID.
-2. Partition all `r format_integer(expected_full_units)` pair indices by gene.
-3. Keep the `r format_integer(expected_eligible_genes)` genes having at least
-   20 tested variants. The remaining `r format_integer(expected_excluded_genes)`
-   genes are omitted; none is among the genes discovered by the full BF-updated
-   analysis.
-4. Within each eligible gene, sample exactly 20 pair indices uniformly without
-   replacement. Sampling is independent across genes and does not use beta,
-   SE, likelihood, lfdr, or significance.
-5. Subset the corresponding rows of the already computed likelihood matrix,
-   re-estimate the mixture weights with the original penalty of 10, and apply
-   the same BF update used in the paper.
-
-```{r balanced-selection-code, eval=FALSE}
-full_raw_fit <- fash_fit1
-full_bf_fit <- fash_fit1_update
+```{r one-per-gene-refit, eval=FALSE}
+# Identify every tested pair and partition row indices by gene.
 pair_keys <- names(full_raw_fit$fash_data$data_list)
-
+gene_id <- sub("_.*$", "", pair_keys)
 gene_index <- split(
   seq_along(pair_keys),
-  sub("_.*$", "", pair_keys)
-)
-eligible_gene_index <- gene_index[lengths(gene_index) >= 20L]
-
-set.seed(seed)
-selected_indices <- unlist(
-  lapply(
-    eligible_gene_index,
-    function(indices) sample(indices, size = 20L, replace = FALSE)
-  ),
-  use.names = FALSE
+  factor(gene_id, levels = sort(unique(gene_id), method = "radix")
 )
 
-stopifnot(
-  full_raw_fit$settings$num_basis == 20,
-  full_raw_fit$settings$order == 1,
-  full_raw_fit$settings$betaprec == 0,
-  full_raw_fit$settings$pred_step == 1,
-  identical(full_raw_fit$settings$likelihood, "gaussian"),
-  full_raw_fit$settings$penalty == 10
-)
+seeds <- seq(12345L, by = 10000L, length.out = 100L)
 
-selected_pair_keys <- pair_keys[selected_indices]
-selected_likelihood <- full_raw_fit$L_matrix[
-  selected_indices,
-  ,
-  drop = FALSE
-]
-rownames(selected_likelihood) <- selected_pair_keys
+for (seed in seeds) {
+  # Uniformly choose one tested pair from every gene.
+  set.seed(seed)
+  selected_indices <- vapply(
+    gene_index,
+    function(indices) sample(indices, size = 1L, replace = FALSE),
+    integer(1)
+  )
+  selected_pair_keys <- pair_keys[selected_indices]
 
-# Use exactly the same penalty as the full-data fit.
-thinned_eb <- fashr::fash_eb_est(
-  L_matrix = selected_likelihood,
-  grid = full_raw_fit$psd_grid,
-  penalty = full_raw_fit$settings$penalty
-)
-rownames(thinned_eb$posterior_weight) <- selected_pair_keys
-null_column <- which(thinned_eb$prior_weight$psd == 0)
+  stopifnot(
+    length(selected_indices) == 6362L,
+    anyDuplicated(selected_indices) == 0L
+  )
 
-thinned_raw_fit <- structure(
-  list(
-    prior_weights = thinned_eb$prior_weight,
-    posterior_weights = thinned_eb$posterior_weight,
-    psd_grid = full_raw_fit$psd_grid,
-    lfdr = thinned_eb$posterior_weight[, null_column],
-    L_matrix = selected_likelihood
-  ),
-  class = "fash"
-)
-thinned_bf_fit <- fashr::BF_update(thinned_raw_fit, plot = FALSE)
+  # Subset the exact cached likelihood rows for the selected pairs.
+  selected_likelihood <- full_raw_fit$L_matrix[
+    selected_indices,
+    ,
+    drop = FALSE
+  ]
+  rownames(selected_likelihood) <- selected_pair_keys
 
-paired_lfdr <- data.frame(
-  pair_key = selected_pair_keys,
-  full_lfdr = full_bf_fit$lfdr[selected_indices],
-  thinned_lfdr = thinned_bf_fit$lfdr
-)
+  # Re-estimate mixture weights with the complete fit's grid and penalty.
+  thinned_eb <- fashr::fash_eb_est(
+    L_matrix = selected_likelihood,
+    grid = full_raw_fit$psd_grid,
+    penalty = 10
+  )
+  rownames(thinned_eb$posterior_weight) <- selected_pair_keys
+  null_column <- which(thinned_eb$prior_weight$psd == 0)
+
+  # Construct the minimal FASH object required by the paper's BF update.
+  thinned_raw_fit <- structure(
+    list(
+      prior_weights = thinned_eb$prior_weight,
+      posterior_weights = thinned_eb$posterior_weight,
+      psd_grid = full_raw_fit$psd_grid,
+      lfdr = thinned_eb$posterior_weight[, null_column],
+      L_matrix = selected_likelihood
+    ),
+    class = "fash"
+  )
+  thinned_bf_fit <- fashr::BF_update(thinned_raw_fit, plot = FALSE)
+
+  # Compare the refitted lfdr with the complete-data lfdr on the same pairs.
+  paired_lfdr <- data.frame(
+    pair_key = selected_pair_keys,
+    full_lfdr = full_bf_fit$lfdr[selected_indices],
+    thinned_lfdr = thinned_bf_fit$lfdr
+  )
+}
 ```
 
-Reusing likelihood rows is exact for this comparison: beta estimates, standard
-errors, basis settings, and the PSD grid are fixed, so thinning only changes
-which likelihood contributions enter the mixture-weight
-optimization. It does not approximate or recompute those per-pair likelihoods.
-The penalty is used when estimating the raw empirical-Bayes mixture in both
-analyses; the same `BF_update(..., plot = FALSE)` step is then applied to the
-full and thinned raw fits. No seed-specific penalty is introduced.
+The complete and thinned fits use the same 52-component PSD grid, Gaussian
+likelihood, 20 basis functions, order 1, `betaprec = 0`, `pred_step = 1`, and
+raw empirical-Bayes `penalty = 10`.
 
-## Number of variants per gene
+## Unequal numbers of tested variants
 
 ```{r variant-count-summary, results='asis'}
-render_scrollable_table(
-  variant_count_summary_table,
-  caption = paste(
-    "Table R5.2: Distribution summary for the number of tested variants",
-    "contributed by each of the 6,362 genes in the full FASH analysis."
+# Summarize how many tested variants each of the 6,362 genes contributes.
+variant_count_quantiles <- stats::quantile(
+  variant_count_by_gene$n_tested_variants,
+  probs = c(0, 0.25, 0.5, 0.75, 1),
+  names = FALSE,
+  type = 7
+)
+variant_count_summary <- data.frame(
+  Statistic = c("Minimum", "Q1", "Median", "Mean", "Q3", "Maximum"),
+  `Tested variants per gene` = c(
+    variant_count_quantiles[1:3],
+    mean(variant_count_by_gene$n_tested_variants),
+    variant_count_quantiles[4:5]
   ),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+variant_count_summary$`Tested variants per gene` <- vapply(
+  variant_count_summary$`Tested variants per gene`,
+  function(value) {
+    if (abs(value - round(value)) < 1e-10) {
+      format_integer(value)
+    } else {
+      format_decimal(value, 1)
+    }
+  },
+  character(1)
+)
+
+render_scrollable_table(
+  variant_count_summary,
+  caption = "Table 2. Tested variants per gene in the complete analysis.",
   align = "lr",
-  minimum_width = "680px"
+  minimum_width = "520px"
 )
 ```
 
-The median gene contributes `r format_integer(variant_count_median)` tested
-variants (IQR `r format_integer(variant_count_q1)`--`r format_integer(variant_count_q3)`),
-whereas the minimum is `r format_integer(variant_count_min)`. Exactly
-`r format_integer(expected_excluded_genes)` genes fall below the target of 20.
+```{r variants-per-gene-histogram, fig.width=7.4, fig.height=4.5, out.width='82%', fig.cap="Figure 1. Distribution of tested variants per gene in the complete FASH analysis. The horizontal axis is logarithmic; every sensitivity refit uses one uniformly selected pair from each gene."}
+# Plot one row per gene using the cached tested-variant counts.
+variant_histogram_data <- variant_count_by_gene
 
-```{r variants-per-gene-histogram, fig.width=9.2, fig.height=5.4, fig.cap="Figure R5.1: Distribution of tested variants per gene in the full FASH analysis. Blue bars count genes; the orange dashed line marks the retention target of 20 variants. The horizontal axis is logarithmic to display both the main distribution and the long right tail."}
-plot_variants_per_gene_histogram()
+ggplot2::ggplot(
+  variant_histogram_data,
+  ggplot2::aes(x = n_tested_variants)
+) +
+  ggplot2::geom_histogram(
+    bins = 45,
+    fill = r5_blue,
+    color = "white",
+    linewidth = 0.25
+  ) +
+  ggplot2::scale_x_log10(
+    breaks = c(2, 5, 10, 20, 50, 100, 250, 500, 1000, 2000),
+    labels = scales::label_comma()
+  ) +
+  ggplot2::labs(
+    title = "Tested variants per gene in the complete fit",
+    subtitle = "Each of the 6,362 genes contributes one count",
+    x = "Tested variants per gene (log scale)",
+    y = "Number of genes"
+  ) +
+  r5_theme
 ```
-
-Each balanced dataset contains `r format_integer(expected_selected_units)`
-pairs, or `r format_decimal(100 * expected_selected_units / expected_full_units, 1)`%
-of the full pair-level analysis, while retaining
-`r format_decimal(100 * expected_eligible_genes / expected_full_genes, 1)`% of
-its genes.
 
 ## A concrete draw: seed 12345
 
 ```{r seed-12345-table, results='asis'}
-render_scrollable_table(
-  specific_seed_table,
-  caption = paste(
-    "Table R5.3: BF-updated full-versus-thinned comparison for the concrete",
-    "balanced draw generated with seed 12345. Pair-level calls on both sides",
-    "use cumulative-lfdr FDR 0.05 within the same retained-pair universe."
+# Extract the retained summary for the first prespecified seed.
+seed_12345_summary <- seed_summary[
+  seed_summary$seed == 12345L,
+  ,
+  drop = FALSE
+]
+seed_12345_display <- data.frame(
+  Metric = c(
+    "Complete-data BF-updated null weight",
+    "Thinned BF-updated null weight",
+    "Paired lfdr mean absolute difference",
+    "Paired lfdr Spearman correlation",
+    "Reference calls on the sampled pairs",
+    "Thinned-refit calls on the sampled pairs",
+    "Within-sampled-universe discovery Jaccard"
   ),
-  align = "rrrrrrrrrr",
-  minimum_width = "1700px"
+  Value = c(
+    format_decimal(seed_12345_summary$full_pi0, 4),
+    format_decimal(seed_12345_summary$thinned_pi0, 4),
+    format_decimal(seed_12345_summary$mean_absolute_lfdr_difference, 4),
+    format_decimal(seed_12345_summary$spearman_lfdr, 4),
+    format_integer(seed_12345_summary$full_fdr_calls),
+    format_integer(seed_12345_summary$thinned_fdr_calls),
+    format_decimal(seed_12345_summary$fdr_call_jaccard, 4)
+  ),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+
+render_scrollable_table(
+  seed_12345_display,
+  caption = paste(
+    "Table 3. Seed-12345 comparison. Both call sets apply",
+    "cumulative-lfdr FDR 0.05 to the same 6,362 sampled pairs."
+  ),
+  align = "lr",
+  minimum_width = "700px"
 )
 ```
 
-Both axes below refer to exactly the same retained gene-variant pairs. The
-horizontal coordinate is their lfdr in the fixed full-data BF-updated fit; the
-vertical coordinate is their lfdr after the balanced refit and BF update.
+```{r seed-12345-lfdr, fig.width=6.3, fig.height=5.4, out.width='70%', fig.cap="Figure 2. Paired lfdr values for seed 12345. Each point is one sampled gene--variant pair. Both axes use the identical 6,362 pairs; the dashed line denotes equality."}
+# The cache stores complete-fit and refitted lfdr for the same selected pairs.
+seed_12345_plot_data <- seed_12345_lfdr
 
-```{r seed-12345-lfdr, fig.width=7.8, fig.height=6.5, fig.cap="Figure R5.2: Paired lfdr agreement for seed 12345. Each blue point is one of the 127,040 retained gene-variant pairs, and the grey dashed line denotes exact equality between the full-data and balanced-thinning lfdr values."}
-plot_seed_12345_lfdr()
+ggplot2::ggplot(
+  seed_12345_plot_data,
+  ggplot2::aes(x = full_lfdr, y = thinned_lfdr)
+) +
+  ggplot2::geom_abline(
+    intercept = 0,
+    slope = 1,
+    color = "grey45",
+    linetype = 2,
+    linewidth = 0.7
+  ) +
+  ggplot2::geom_point(
+    color = r5_blue,
+    alpha = 0.45,
+    size = 1.25
+  ) +
+  ggplot2::coord_equal(xlim = c(0, 1), ylim = c(0, 1)) +
+  ggplot2::labs(
+    title = "Seed 12345: paired lfdr values",
+    subtitle = "Complete-fit and refitted lfdr on the same 6,362 pairs",
+    x = "Complete-data BF-updated lfdr",
+    y = "Thinned-refit BF-updated lfdr"
+  ) +
+  r5_theme
 ```
 
-For this draw, the lfdr Spearman correlation is
-`r format_decimal(specific_seed_metrics$spearman_lfdr, 4)` and the mean
-absolute difference is
-`r format_decimal(specific_seed_metrics$mean_absolute_lfdr_difference, 4)`.
+## Summaries across 100 seeds
 
-## Estimated null weight
+```{r null-weight-stability, fig.width=6.4, fig.height=4.2, out.width='70%', fig.cap="Figure 3. BF-updated null-weight estimates across 100 one-variant-per-gene refits. Each point is one seed; the dashed line is the complete-data estimate."}
+# Make one plotting row for each thinned refit.
+null_weight_plot_data <- data.frame(
+  Analysis = "One variant per gene",
+  seed = seed_summary$seed,
+  null_weight = seed_summary$thinned_pi0,
+  stringsAsFactors = FALSE
+)
 
-The full BF-updated fit estimates
-$\widehat\pi_0 = `r format_decimal(full_pi0, 4)`$. The ten balanced refits give
-`r format_range(thinned_pi0_range, 4)`, corresponding to changes of only
-`r format_range(pi0_difference_range, 4, signed = TRUE)`.
-
-```{r null-weight-stability, fig.width=7.6, fig.height=5.2, fig.cap="Figure R5.3: Estimated null weight across ten balanced thinnings. Blue points are the ten prespecified seeds, the blue box summarizes their distribution, and the orange dashed line is the single fixed full-data BF-updated estimate. The y-axis is fixed at 0.93 to 0.94 so the small absolute differences remain visible without visually overstating them."}
-plot_null_weight_stability()
+ggplot2::ggplot(
+  null_weight_plot_data,
+  ggplot2::aes(x = Analysis, y = null_weight)
+) +
+  ggplot2::geom_hline(
+    yintercept = full_pi0,
+    color = r5_orange,
+    linetype = 2,
+    linewidth = 0.8
+  ) +
+  ggplot2::geom_boxplot(
+    width = 0.32,
+    outlier.shape = NA,
+    fill = scales::alpha(r5_blue, 0.25),
+    color = r5_blue
+  ) +
+  ggplot2::geom_jitter(
+    width = 0.12,
+    height = 0,
+    color = r5_blue,
+    alpha = 0.65,
+    size = 1.5
+  ) +
+  ggplot2::scale_y_continuous(
+    labels = scales::label_number(accuracy = 0.002)
+  ) +
+  ggplot2::labs(
+    title = "BF-updated null weights",
+    subtitle = paste0(
+      "100 seeds; dashed line = complete-data estimate (",
+      format_decimal(full_pi0, 4), ")"
+    ),
+    x = NULL,
+    y = "Estimated null weight"
+  ) +
+  r5_theme
 ```
 
-## Paired lfdr agreement across seeds
+The maximum absolute difference from the complete-data null weight is
+`r format_decimal(max(abs(seed_summary$pi0_difference)), 4)`.
 
-```{r across-seed-table, results='asis'}
-render_scrollable_table(
-  across_seed_summary_table,
-  caption = paste(
-    "Table R5.4: Range of BF-updated prior, paired-lfdr, and gene-discovery",
-    "summaries across the ten balanced-thinning seeds."
+```{r paired-lfdr-agreement, fig.width=7.8, fig.height=4.4, out.width='84%', fig.cap="Figure 4. Paired lfdr summaries across 100 refits. Each point summarizes one seed's 6,362 matched pairs. The two panels show mean absolute difference and Spearman correlation."}
+# Stack the two seed-level lfdr diagnostics for faceted plotting.
+lfdr_agreement_plot_data <- rbind(
+  data.frame(
+    seed = seed_summary$seed,
+    Metric = "Mean absolute lfdr difference",
+    Value = seed_summary$mean_absolute_lfdr_difference
   ),
-  align = "lll",
-  minimum_width = "1180px"
+  data.frame(
+    seed = seed_summary$seed,
+    Metric = "Spearman lfdr correlation",
+    Value = seed_summary$spearman_lfdr
+  )
+)
+
+ggplot2::ggplot(
+  lfdr_agreement_plot_data,
+  ggplot2::aes(x = Metric, y = Value)
+) +
+  ggplot2::geom_boxplot(
+    width = 0.32,
+    outlier.shape = NA,
+    fill = scales::alpha(r5_blue, 0.25),
+    color = r5_blue
+  ) +
+  ggplot2::geom_jitter(
+    width = 0.12,
+    height = 0,
+    color = r5_blue,
+    alpha = 0.65,
+    size = 1.35
+  ) +
+  ggplot2::facet_wrap(~ Metric, scales = "free_y") +
+  ggplot2::labs(
+    title = "Paired lfdr summaries across 100 seeds",
+    subtitle = "Each point compares complete-fit and refitted lfdr on the same pairs",
+    x = NULL,
+    y = NULL
+  ) +
+  r5_theme +
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_blank(),
+    axis.ticks.x = ggplot2::element_blank(),
+    strip.text = ggplot2::element_text(face = "bold")
+  )
+```
+
+```{r across-seed-summary, results='asis'}
+# Calculate the same five-number summary for each seed-level diagnostic.
+summarize_metric <- function(metric, values, digits) {
+  five_numbers <- stats::quantile(
+    values,
+    probs = c(0, 0.25, 0.5, 0.75, 1),
+    names = FALSE,
+    type = 7
+  )
+  formatted <- vapply(
+    five_numbers,
+    format_decimal,
+    character(1),
+    digits = digits
+  )
+  data.frame(
+    Metric = metric,
+    Minimum = formatted[1],
+    Q1 = formatted[2],
+    Median = formatted[3],
+    Q3 = formatted[4],
+    Maximum = formatted[5],
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+  )
+}
+
+across_seed_summary <- do.call(rbind, list(
+  summarize_metric(
+    "Thinned BF-updated null weight",
+    seed_summary$thinned_pi0,
+    4
+  ),
+  summarize_metric(
+    "Absolute null-weight change",
+    abs(seed_summary$pi0_difference),
+    4
+  ),
+  summarize_metric(
+    "Paired lfdr mean absolute difference",
+    seed_summary$mean_absolute_lfdr_difference,
+    4
+  ),
+  summarize_metric(
+    "Paired lfdr Spearman correlation",
+    seed_summary$spearman_lfdr,
+    4
+  ),
+  summarize_metric(
+    "Within-sampled-universe discovery Jaccard",
+    seed_summary$fdr_call_jaccard,
+    4
+  ),
+  summarize_metric(
+    "Reference calls on sampled pairs",
+    seed_summary$full_fdr_calls,
+    1
+  ),
+  summarize_metric(
+    "Thinned-refit calls / genes",
+    seed_summary$thinned_fdr_calls,
+    1
+  )
+))
+
+render_scrollable_table(
+  across_seed_summary,
+  caption = paste(
+    "Table 4. Five-number summaries across 100",
+    "representative-variant selections."
+  ),
+  align = "lrrrrr",
+  minimum_width = "980px"
 )
 ```
 
-```{r paired-lfdr-agreement, fig.width=9.0, fig.height=5.2, fig.cap="Figure R5.4: Paired lfdr agreement across ten balanced thinnings. Each point summarizes all 127,040 retained pairs from one seed. The left facet shows the mean absolute full-versus-thinned lfdr difference; the right facet shows their Spearman correlation. Boxes summarize variability across seeds."}
-plot_paired_lfdr_agreement()
+The median paired lfdr mean absolute difference is
+`r format_decimal(median(seed_summary$mean_absolute_lfdr_difference), 4)`; the
+minimum paired lfdr Spearman correlation is
+`r format_decimal(min(seed_summary$spearman_lfdr), 4)`.
+
+## Discovery calls within the same sampled universe
+
+The complete fit has `r format_integer(expected_full_discovered_pairs)` called
+pairs from `r format_integer(expected_full_discovered_genes)` genes among all
+1,009,173 tested pairs. The thinned fits test 6,362 selected pairs, so their
+`r format_integer(thinned_discovery_range[1])`--`r format_integer(thinned_discovery_range[2])`
+calls are not compared directly with the complete-data total.
+
+For a matched comparison, both call sets are recomputed on the same 6,362
+selected pairs. The within-sampled-universe discovery Jaccard is the number of
+pairs called by both fits divided by the number called by either fit.
+
+```{r matched-discovery-code, eval=FALSE}
+# Apply cumulative-lfdr FDR 0.05 separately to the two lfdr vectors.
+cumulative_fdr_calls <- function(lfdr, alpha = 0.05) {
+  lfdr_order <- order(lfdr, method = "radix")
+  cumulative_fdr <- cumsum(lfdr[lfdr_order]) / seq_along(lfdr_order)
+  accepted_ranks <- which(cumulative_fdr <= alpha)
+  lfdr_order[accepted_ranks]
+}
+
+reference_calls <- cumulative_fdr_calls(paired_lfdr$full_lfdr)
+thinned_calls <- cumulative_fdr_calls(paired_lfdr$thinned_lfdr)
+
+call_intersection <- intersect(reference_calls, thinned_calls)
+call_union <- union(reference_calls, thinned_calls)
+discovery_jaccard <- if (length(call_union) == 0L) {
+  1
+} else {
+  length(call_intersection) / length(call_union)
+}
 ```
 
-The paired comparison conditions on each seed's retained pairs; it therefore
-isolates the effect of re-estimating the FASH mixture after balancing gene
-representation. The extremely small absolute differences and near-unit rank
-correlations support the conclusion that the BF-updated lfdr calibration is
-not sensitive to this thinning.
-
-## Cumulative replication of discovered genes
-
-The full BF-updated analysis discovers
-`r format_integer(full_discovery_summary$discovered_pairs)` gene-variant pairs
-from `r format_integer(full_discovered_gene_count)` unique genes at
-cumulative-lfdr FDR 0.05. A single balanced refit discovers
-`r format_integer(per_seed_discovery_range[1])`--`r format_integer(per_seed_discovery_range[2])`
-genes because only 20 random variants are retained for each gene.
-
-To evaluate repeated recovery, seeds are added in the prespecified order
-12345, 22345, ..., 102345. At each step, the count is the union of all genes
-discovered so far: a gene is counted once when it first appears and never
-removed. Both cumulative curves are therefore monotonically nondecreasing by
-construction.
-
-```{r cumulative-discovered-genes, fig.width=9.2, fig.height=5.8, fig.cap="Figure R5.5: Cumulative unique gene discoveries as balanced-thinning seeds are added. The blue curve is the union of all genes discovered by the thinned refits; the orange curve is the subset also discovered in the full analysis. The grey dashed line marks the 1,177 genes discovered in the full analysis. The blue shaded band is the minimum-to-maximum cumulative union over every subset of the indicated number of seeds, so it shows how much the result depends on seed order."}
-plot_cumulative_discovered_genes()
-```
-
-```{r cumulative-discovery-table, results='asis'}
-render_scrollable_table(
-  cumulative_discovery_table,
-  caption = paste(
-    "Table R5.5: Cumulative unique gene discoveries in the fixed prespecified",
-    "seed order. Counts can only stay unchanged or increase as another seed",
-    "is added."
+```{r discovery-robustness, fig.width=8.4, fig.height=4.4, out.width='90%', fig.cap="Figure 5. Discovery-call summaries within each seed's matched 6,362-pair universe. The first two panels show call counts after cumulative-lfdr FDR 0.05; the third shows intersection divided by union."}
+# Stack the reference count, refit count, and Jaccard for each seed.
+discovery_plot_data <- rbind(
+  data.frame(
+    seed = seed_summary$seed,
+    Metric = "Reference calls\non sampled pairs",
+    Value = seed_summary$full_fdr_calls
   ),
-  align = "rrrrr",
-  minimum_width = "1260px"
+  data.frame(
+    seed = seed_summary$seed,
+    Metric = "Thinned-refit calls\non sampled pairs",
+    Value = seed_summary$thinned_fdr_calls
+  ),
+  data.frame(
+    seed = seed_summary$seed,
+    Metric = "Within-sampled-universe\ndiscovery Jaccard",
+    Value = seed_summary$fdr_call_jaccard
+  )
+)
+discovery_plot_data$Metric <- factor(
+  discovery_plot_data$Metric,
+  levels = c(
+    "Reference calls\non sampled pairs",
+    "Thinned-refit calls\non sampled pairs",
+    "Within-sampled-universe\ndiscovery Jaccard"
+  )
+)
+metric_colors <- c(
+  "Reference calls\non sampled pairs" = r5_orange,
+  "Thinned-refit calls\non sampled pairs" = r5_blue,
+  "Within-sampled-universe\ndiscovery Jaccard" = r5_green
+)
+
+ggplot2::ggplot(
+  discovery_plot_data,
+  ggplot2::aes(x = Metric, y = Value, color = Metric, fill = Metric)
+) +
+  ggplot2::geom_boxplot(
+    width = 0.32,
+    outlier.shape = NA,
+    alpha = 0.18
+  ) +
+  ggplot2::geom_jitter(
+    width = 0.12,
+    height = 0,
+    alpha = 0.65,
+    size = 1.3
+  ) +
+  ggplot2::facet_wrap(~ Metric, scales = "free_y", nrow = 1) +
+  ggplot2::scale_color_manual(values = metric_colors) +
+  ggplot2::scale_fill_manual(values = metric_colors) +
+  ggplot2::labs(
+    title = "Discovery calls on matched sampled pairs",
+    subtitle = "Each point summarizes one of the 100 representative-variant seeds",
+    x = NULL,
+    y = NULL
+  ) +
+  r5_theme +
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_blank(),
+    axis.ticks.x = ggplot2::element_blank(),
+    strip.text = ggplot2::element_text(face = "bold"),
+    legend.position = "none"
+  )
+```
+
+```{r discovery-frequency-summary, results='asis'}
+# Count how often each gene appears in a thinned-refit discovery set.
+full_data_status <- gene_discovery_frequency$full_data_discovered_gene
+discovery_frequency_summary <- data.frame(
+  `Gene set` = c(
+    "All tested genes",
+    "Complete-data discovered genes",
+    "Genes not discovered in the complete data"
+  ),
+  Genes = c(
+    nrow(gene_discovery_frequency),
+    sum(full_data_status),
+    sum(!full_data_status)
+  ),
+  `Discovered in at least one thinning seed` = c(
+    sum(gene_discovery_frequency$n_seeds_discovered > 0L),
+    sum(
+      gene_discovery_frequency$n_seeds_discovered > 0L &
+        full_data_status
+    ),
+    sum(
+      gene_discovery_frequency$n_seeds_discovered > 0L &
+        !full_data_status
+    )
+  ),
+  `Mean seed discovery frequency` = c(
+    mean(gene_discovery_frequency$discovery_frequency),
+    mean(gene_discovery_frequency$discovery_frequency[full_data_status]),
+    mean(gene_discovery_frequency$discovery_frequency[!full_data_status])
+  ),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+discovery_frequency_summary$Genes <- format_integer(
+  discovery_frequency_summary$Genes
+)
+discovery_frequency_summary$`Discovered in at least one thinning seed` <-
+  format_integer(
+    discovery_frequency_summary$`Discovered in at least one thinning seed`
+  )
+discovery_frequency_summary$`Mean seed discovery frequency` <-
+  scales::label_percent(accuracy = 0.1)(
+    discovery_frequency_summary$`Mean seed discovery frequency`
+  )
+
+render_scrollable_table(
+  discovery_frequency_summary,
+  caption = paste(
+    "Table 5. Frequency with which genes are called across the 100",
+    "representative-variant selections."
+  ),
+  align = "lrrr",
+  minimum_width = "920px"
 )
 ```
 
-After all ten seeds, the union contains
-`r format_integer(final_cumulative_unique)` unique genes. Of these,
-`r format_integer(final_cumulative_recovered)` are among the
-`r format_integer(full_discovered_gene_count)` full-data discoveries, a
-recovery rate of `r format_decimal(100 * final_recovery_fraction, 1)`%; the
-remaining `r format_integer(final_additional_unique)` are not full-data gene
-discoveries. This cumulative union is a descriptive replication diagnostic,
-not a new multiple-testing procedure or a proposed discovery list.
-
-## Interpretation and limitations
-
-Balancing at 20 variants per eligible gene sharply reduces the unequal
-representation of genes while preserving nearly every gene and retaining
-within-gene genotype structure among the sampled variants. The BF-updated
-prior weight and paired lfdr results are highly stable, which supports the
-robustness of the main fit to the number of variants contributed by each gene.
-
-This experiment does not remove LD among the 20 selected variants, establish
-independence between gene-variant units, or address temporal correlation in
-the estimated effect trajectories. Temporal correlation is examined
-separately in Revision Real-data Sensitivity R4. In addition, gene-level
-discovery counts can change because a finite random subset of variants is
-tested for each gene, and unions across repeated seeds have increasing
-opportunity to include a gene.
+Across the 100 seeds, `r format_integer(ever_discovered)` genes are called at
+least once: `r format_integer(ever_discovered_full)` are among the
+`r format_integer(expected_full_discovered_genes)` complete-data discovered
+genes and `r format_integer(ever_discovered_additional)` are not. These are
+repeated-seed counts, not a new discovery list.
 
 ## Reproducibility
 
-All displayed results are read from retained caches. The runner
-validates the exact source-object sizes and SHA-256 hashes, refuses to
-overwrite an existing seed cache, and records warnings and elapsed time for
-every refit.
+Routine builds read the compact retained cache at:
 
-```{r reproduction-command, eval=FALSE}
+<span class="r5-inline-path">`output/revision_simulations/r5_one_variant_per_gene_100seed_fashr0143/`</span>
+
+The cache records the source-object SHA-256 hashes, the exact 52-component PSD
+grid, `penalty = 10`, package versions, warnings, and elapsed time. It contains
+100 compact seed directories and does not store full thinned FASH objects.
+
+The former 20-variant analysis is retained as an
+[unlinked internal supporting page](revision_internal_twenty_variant_per_gene_refit.html).
+
+```{bash reproduction-command, eval=FALSE}
 Rscript --vanilla \
-  code/revision_simulations/r5_balanced_thinning/run_balanced_thinning.R \
-  --seeds 12345,22345,32345,42345,52345,62345,72345,82345,92345,102345 \
-  --target-per-gene 20 \
-  --alpha 0.05 \
-  --output-id r5_balanced_thinning
+  code/revision_simulations/r5_one_variant_per_gene/run_one_variant_per_gene.R
 
 Rscript --vanilla \
-  code/revision_simulations/r5_balanced_thinning/test_reporting.R
+  code/revision_simulations/r5_one_variant_per_gene/test_one_variant_per_gene_helpers.R
+
+Rscript --vanilla \
+  code/revision_simulations/r5_one_variant_per_gene/test_reporting.R
 
 Rscript --vanilla -e \
   'workflowr::wflow_build("analysis/revision_balanced_variant_thinning.rmd")'
 ```
-
-The primary cache directory is
-`output/revision_simulations/r5_balanced_thinning/`. The earlier internal
-one-variant-per-gene page remains retained as experimental provenance; it is
-not linked from the formal revision index and is not used for any result on
-this page.

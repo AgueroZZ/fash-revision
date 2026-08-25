@@ -1,700 +1,517 @@
 ---
 title: "Appendix B: Simulation"
 author: "Ziang Zhang"
-date: "2025-09-14"
-output: workflowr::wflow_html
+date: "2026-08-22"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
 editor_options:
   chunk_output_type: console
 ---
 
-## Introduction
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 9,
+  fig.height = 6,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
 
-The simulated datasets look like the following:
-
-```{r}
-library(fashr)
 library(ggplot2)
-set.seed(12345)
-sigma_vec = c(0.1, 0.3, 0.5)
+source("code/revision_simulations/appendix_b/reporting.R")
 
-data_sim_list_A <- lapply(1:3, function(i) simulate_process(sd_poly = 1, type = "nondynamic", sd = sigma_vec, normalize = F))
+appendix_b_cache <- load_appendix_b_reporting_cache()
+grid_summary <- appendix_b_cache$grid_summary
+focused_example <- appendix_b_cache$focused_example
+focused_alpha <- appendix_b_cache$focused_alpha
+grid_long <- prepare_appendix_b_grid_long(grid_summary)
+alpha005 <- prepare_appendix_b_alpha005(focused_alpha)
+alpha_long <- prepare_appendix_b_alpha_long(focused_alpha)
+prior_table <- prepare_appendix_b_prior_table(focused_example)
+trajectory_examples <- prepare_appendix_b_trajectory_examples(
+  focused_example,
+  examples_per_class = 3L
+)
+cumulative_lfdr <- do.call(rbind, lapply(c("IWP1", "IWP2"), function(order) {
+  do.call(rbind, lapply(c("Raw EB", "BF updated"), function(stage) {
+    prepare_appendix_b_cumulative_lfdr(
+      focused_example,
+      order = order,
+      stage = stage,
+      alpha = 0.05
+    )
+  }))
+}))
+cumulative_lfdr$order <- factor(
+  cumulative_lfdr$order,
+  levels = c("IWP1", "IWP2")
+)
+cumulative_lfdr$stage <- factor(
+  cumulative_lfdr$stage,
+  levels = c("Raw EB", "BF updated")
+)
 
-data_sim_list_B <- lapply(1:3, function(i) simulate_process(sd_poly = 1, type = "linear", sd = sigma_vec, normalize = F))
-
-data_sim_list_C <- lapply(1:3, function(i) simulate_process(sd_poly = 0, type = "nonlinear", sd = sigma_vec, sd_fun = 5, p = 2, normalize = F))
-
-datasets <- c(data_sim_list_A, data_sim_list_B, data_sim_list_C)
-labels <- c(rep("A", 3), rep("B", 3), rep("C", 3))
-indices_A <- 1:3
-indices_B <- 4:6
-indices_C <- 7:9
-
-dataset_labels <- rep(as.character(NA),9)
-dataset_labels[indices_A] <- paste0("A",seq(1,length(indices_A)))
-dataset_labels[indices_B] <- paste0("B",seq(1,length(indices_B)))
-dataset_labels[indices_C] <- paste0("C",seq(1,length(indices_C)))
-names(datasets) <- dataset_labels
-
-par(mfrow = c(3, 3))
-for(i in indices_A[1:3]){
-  plot(datasets[[i]]$x, datasets[[i]]$y, 
-       type = "p", col = "black", lwd = 1, pch = 20,
-       xlab = "Time", ylab = "Effect Size", 
-       ylim = c(min(sapply(datasets[indices_A], function(d) min(d$y - 2*d$sd))) - 0.5,
-                max(sapply(datasets[indices_A], function(d) max(d$y + 2*d$sd)))) + 0.5,
-       main = paste("Category A: ", i))
-  lines(datasets[[i]]$x, datasets[[i]]$truef, col = "red", lwd = 2)
-   arrows(
-    datasets[[i]]$x,
-    datasets[[i]]$y - 2 * datasets[[i]]$sd,
-    datasets[[i]]$x,
-    datasets[[i]]$y + 2 * datasets[[i]]$sd,
-    length = 0.05,
-    angle = 90,
-    code = 3,
-    col = "black"
-  )
+format_integer <- function(x) format(x, big.mark = ",", scientific = FALSE)
+format_decimal <- function(x, digits = 3L) {
+  formatC(x, format = "f", digits = digits)
+}
+format_percent <- function(x, digits = 1L) {
+  paste0(format_decimal(100 * x, digits), "%")
 }
 
-for(i in indices_B[1:3]){
-  plot(datasets[[i]]$x, datasets[[i]]$y, type = "p", col = "black", 
-       lwd = 1, pch = 20,
-       xlab = "Time", ylab = "Effect Size", 
-       ylim = c(min(sapply(datasets[indices_B], function(d) min(d$y - 2*d$sd))) - 0.5,
-                max(sapply(datasets[indices_B], function(d) max(d$y + 2*d$sd)))) + 0.5,
-       main = paste("Category B: ", i))
-  lines(datasets[[i]]$x,
-        datasets[[i]]$truef,
-        col = "red",
-        lwd = 2)
-  arrows(
-    datasets[[i]]$x,
-    datasets[[i]]$y - 2 * datasets[[i]]$sd,
-    datasets[[i]]$x,
-    datasets[[i]]$y + 2 * datasets[[i]]$sd,
-    length = 0.05,
-    angle = 90,
-    code = 3,
-    col = "black"
-  )
-}
+stage_colors <- c("Raw EB" = "#0072B2", "BF updated" = "#D55E00")
+class_colors <- c(
+  "A: Constant" = "#666666",
+  "B: Linear dynamic" = "#009E73",
+  "C: Nonlinear dynamic" = "#CC79A7"
+)
 
-for(i in indices_C[1:3]){
-  plot(datasets[[i]]$x, datasets[[i]]$y, type = "p", 
-       col = "black", lwd = 1, pch = 20,
-       xlab = "Time", ylab = "Effect Size", 
-       ylim = c(min(sapply(datasets[indices_C], function(d) min(d$y - 2*d$sd))) - 0.5,
-                max(sapply(datasets[indices_C], function(d) max(d$y + 2*d$sd)))) + 0.5,
-       main = paste("Category C: ", i))
-  lines(datasets[[i]]$x,
-        datasets[[i]]$truef,
-        col = "red",
-        lwd = 2)
-  arrows(
-    datasets[[i]]$x,
-    datasets[[i]]$y - 2 * datasets[[i]]$sd,
-    datasets[[i]]$x,
-    datasets[[i]]$y + 2 * datasets[[i]]$sd,
-    length = 0.05,
-    angle = 90,
-    code = 3,
-    col = "black"
-  )
-}
-par(mfrow = c(1, 1))
+grid_mae <- aggregate(
+  abs(grid_long$estimated_pi0 - grid_long$true_pi0),
+  list(order = grid_long$order, stage = grid_long$stage),
+  mean
+)
+names(grid_mae)[[3L]] <- "mean_absolute_error"
 ```
 
-Define the functions to be used for simulation:
-
-```{r}
-get_one_set_of_datasets <- function(J, pho0 = 0.1, pho1 = 0.05, sigma_vec = c(0.05, 0.1, 0.2)){
-  # check if pho0 > pho1
-  if(pho0 <= pho1){
-    stop("pho0 must be greater than pho1")
+<style>
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.r0-key-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.main-container .figure {
+  max-width: 980px;
+  margin: 1.4em auto;
+  text-align: center;
+}
+.main-container .figure img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+.main-container table {
+  width: auto;
+  max-width: 100%;
+}
+.main-container table caption,
+.main-container p.caption {
+  color: #333333;
+  font-weight: 600;
+  text-align: left;
+}
+pre {
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+@media (max-width: 767px) {
+  .main-container table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  propA <- 1 - pho0
-  propB <- pho0 - pho1
-  propC <- pho1
-  
-  sizeA <- J * propA
-  data_sim_list_A <- lapply(1:sizeA, function(i) simulate_process(sd_poly = 1, type = "nondynamic", sd = sigma_vec, normalize = F))
-  
-  sizeB <- J * propB
-  if(sizeB > 0){
-    data_sim_list_B <- lapply(1:sizeB, function(i) simulate_process(sd_poly = 1, type = "linear", sd = sigma_vec, normalize = F))
-  }else{
-    data_sim_list_B <- list()
-  }
-  
-  sizeC <- J * propC
-  data_sim_list_C <- lapply(1:sizeC, function(i) simulate_process(sd_poly = 0, type = "nonlinear", sd = sigma_vec, sd_fun = 5, p = 2, normalize = F))
-  
-  datasets <- c(data_sim_list_A, data_sim_list_B, data_sim_list_C)
-  labels <- c(rep("A", sizeA), rep("B", sizeB), rep("C", sizeC))
-  indices_A <- 1:sizeA
-  indices_B <- (sizeA + 1):(sizeA + sizeB)
-  indices_C <- (sizeA + sizeB + 1):(sizeA + sizeB + sizeC)
-  
-  dataset_labels <- rep(as.character(NA),100)
-  dataset_labels[indices_A] <- paste0("A",seq(1,length(indices_A)))
-  dataset_labels[indices_B] <- paste0("B",seq(1,length(indices_B)))
-  dataset_labels[indices_C] <- paste0("C",seq(1,length(indices_C)))
-  names(datasets) <- dataset_labels
-  
-  return(datasets)
 }
+</style>
 
-get_result_once <- function(J, pho0 = 0.1, pho1 = 0.05, sigma_vec = c(0.05, 0.1, 0.2), 
-                            grid = sort(c(0, exp(-0.5*seq(0,10, by = 0.2)))),
-                            penalty = 10, num_basis = 20, num_cores = 1){
-  
-  pi00 <- 1 - pho0
-  pi01 <- 1 - pho1
-  
-  datasets <- get_one_set_of_datasets(J, pho0, pho1, sigma_vec)
-  
-  fash_fit1 <- fash(Y = "y", smooth_var = "x", S = "sd", data_list = datasets, order = 1,
-                    verbose = FALSE, num_cores = num_cores,
-                    grid = grid, num_basis = num_basis, penalty = penalty)
-  fash_fit2 <- fash(Y = "y", smooth_var = "x", S = "sd", data_list = datasets, order = 2,
-                    verbose = FALSE, num_cores = num_cores,
-                    grid = grid, num_basis = num_basis, penalty = penalty)
-  
-  hat_pi_00 <- fash_fit1$prior_weights$prior_weight[1]
-  hat_pi_01 <- fash_fit2$prior_weights$prior_weight[1]
-  
-  fash_fit1_update <- BF_update(fash_fit1, plot = FALSE)
-  fash_fit2_update <- BF_update(fash_fit2, plot = FALSE)
-  
-  tilde_pi_00 <- fash_fit1_update$prior_weights$prior_weight[1]
-  tilde_pi_01 <- fash_fit2_update$prior_weights$prior_weight[1]
-  
-  data.frame(pi_00 = pi00, pi_01 = pi01,
-             hat_pi_00 = hat_pi_00, hat_pi_01 = hat_pi_01,
-             tilde_pi_00 = tilde_pi_00, tilde_pi_01 = tilde_pi_01)
-  
-}
-```
+## Overview
 
+This page evaluates FASH's exact-null-weight estimation and discovery behavior
+in a controlled three-class simulation. It has been rebuilt from the completed
+versioned cache generated with `fashr` `r appendix_b_cache$manifest$package_provenance$version`
+at commit `r appendix_b_cache$manifest$package_provenance$remote_sha`. Routine
+workflowr builds read this cache and do not refit FASH.
 
+For unit $j$, the true effect belongs to one of three ordered classes:
 
-## Simulation
+- **A: constant**, which is null for both IWP$_1$ and IWP$_2$ testing;
+- **B: linear dynamic**, which is non-null for IWP$_1$ but null for IWP$_2$;
+- **C: nonlinear dynamic**, which is non-null for both tests.
 
-### Dense grid
+Let
 
+$$
+\rho_{\mathrm{dynamic}} = P(B \cup C),
+\qquad
+\rho_{\mathrm{nonlinear}} = P(C).
+$$
 
-In the first setting, consider a relatively dense grid:
+The exact-null proportions estimated by the two FASH orders are therefore
 
-```{r eval=FALSE}
-## Setting A:
-set.seed(12345)
-pho_vec <- seq(0.05, 0.5, by = 0.01)
+$$
+\pi_{0,\mathrm{IWP1}} = 1-\rho_{\mathrm{dynamic}},
+\qquad
+\pi_{0,\mathrm{IWP2}} = 1-\rho_{\mathrm{nonlinear}}.
+$$
 
-result_all <- lapply(pho_vec, function(pho0){
-  pho1 <- pho0 / 2
-  get_result_once(J = 1000, pho0 = pho0, pho1 = pho1, sigma_vec = c(0.1, 0.3, 0.5),
-                  grid = sort(c(0, exp(-0.5*seq(0,10, by = 0.1)))),
-                  penalty = 1, num_cores = 5,
-                  num_basis = 20)
-})
-result_df <- do.call(rbind, result_all)
-save(result_df, file = "data/simulation_result_denser_grid.RData")
-```
+<div class="r0-key-result">
+<strong>Observed result.</strong> Across the 92 grid conditions, BF updating
+removes all seven raw-IWP1 boundary collapses in which the maximum-likelihood
+exact-null weight is zero. The mean absolute exact-null-weight error changes
+from `r format_decimal(grid_mae$mean_absolute_error[grid_mae$order == "IWP1" & grid_mae$stage == "Raw EB"], 3)`
+to `r format_decimal(grid_mae$mean_absolute_error[grid_mae$order == "IWP1" & grid_mae$stage == "BF updated"], 3)`
+for IWP1, and from
+`r format_decimal(grid_mae$mean_absolute_error[grid_mae$order == "IWP2" & grid_mae$stage == "Raw EB"], 3)`
+to `r format_decimal(grid_mae$mean_absolute_error[grid_mae$order == "IWP2" & grid_mae$stage == "BF updated"], 3)`
+for IWP2. Thus BF updating materially stabilizes IWP1 here, but it does not
+improve every order or every realized dataset.
+</div>
 
-```{r}
-load("data/appendixB/simulation_result_denser_grid.RData")
-```
+## Simulated effect classes
 
-```{r}
-par(mfrow = c(1, 2))
-plot(result_df$pi_00, result_df$hat_pi_00, 
-     xlab = expression("True " * pi[0]), 
-     ylab = expression("Estimated " * pi[0]),
-     main = expression("Estimated vs True " * pi[0] * " (Order 1)"),
-     pch = 16, col = rgb(0,0,0,0.5), ylim = c(0,1), xlim = c(0.5,1))
-abline(0,1,col='red',lty=2, lwd = 2)
-points(result_df$pi_00, result_df$tilde_pi_00, pch = 17, col = rgb(0,0,1,0.5))
-legend("topleft", legend = c("Before BF update", "After BF update"), pch = c(16,17), col = c(rgb(0,0,0,0.5), rgb(0,0,1,0.5)), bty = "n")
-plot(result_df$pi_01, result_df$hat_pi_01, 
-     xlab = expression("True " * pi[0]), 
-     ylab = expression("Estimated " * pi[0]),
-     main = expression("Estimated vs True " * pi[0] * " (Order 2)"),
-     pch = 16, col = rgb(0,0,0,0.5), ylim = c(0,1), xlim = c(0.75,1))
-abline(0,1,col='red',lty=2, lwd = 2)
-points(result_df$pi_01, result_df$tilde_pi_01, pch = 17, col = rgb(0,0,1,0.5))
-# legend("bottomleft", legend = c("Before BF update", "After BF update"), pch = c(16,17), col = c(rgb(0,0,0,0.5), rgb(0,0,1,0.5)), bty = "n")
-par(mfrow = c(1, 1))
-```
+The retained focused replication contains `r format_integer(focused_example$parameters$J)`
+units with standard errors sampled from `r paste(focused_example$parameters$sigma_vec, collapse = ", ")`.
+Figure 1 shows the first three units in each truth class. Points are noisy
+effect estimates; vertical bars span two reported standard errors; orange
+curves are the true functions.
 
+```{r representative-trajectories, fig.width=10, fig.height=8.4, out.width='96%', fig.cap="Figure 1. Representative simulated trajectories from the focused replication. Columns follow the fixed A/B/C truth definitions: constant, linear dynamic, and nonlinear dynamic. Points are estimated effects, vertical bars span two standard errors, and orange curves are the true effects."}
+# Select exactly three retained units from each ordered truth class.
+trajectory_plot_data <- trajectory_examples
 
-
-
-```{r eval=FALSE}
-pdf("output/appendixB/simulation_result_denser_grid.pdf", width = 5, height = 5)
-plot(result_df$pi_00, result_df$hat_pi_00, 
-     xlab = expression("True " * pi[0]), 
-     ylab = expression("Estimated " * pi[0]),
-     pch = 16, col = rgb(0,0,0,0.5), ylim = c(0,1), xlim = c(0.5,1))
-abline(0,1,col='red',lty=2, lwd = 2)
-points(result_df$pi_00, result_df$tilde_pi_00, pch = 17, col = rgb(0,0,1,0.5))
-legend("topleft", legend = c("Before BF update", "After BF update"), pch = c(16,17), col = c(rgb(0,0,0,0.5), rgb(0,0,1,0.5)), bty = "n")
-dev.off()
-
-pdf("output/appendixB/simulation_result_denser_grid_order2.pdf", width = 5, height = 5)
-plot(result_df$pi_01, result_df$hat_pi_01, 
-     xlab = expression("True " * pi[0]), 
-     ylab = expression("Estimated " * pi[0]),
-     pch = 16, col = rgb(0,0,0,0.5), ylim = c(0,1), xlim = c(0.75,1))
-abline(0,1,col='red',lty=2, lwd = 2)
-points(result_df$pi_01, result_df$tilde_pi_01, pch = 17, col = rgb(0,0,1,0.5))
-# legend("bottomleft", legend = c("Before BF update", "After BF update"), pch = c(16,17), col = c(rgb(0,0,0,0.5), rgb(0,0,1,0.5)), bty = "n")
-dev.off()
-```
-
-
-
-### Loose grid
-
-
-In the second setting, consider a relatively loose grid:
-
-```{r eval=FALSE}
-## Setting B:
-set.seed(12345)
-pho_vec <- seq(0.05, 0.5, by = 0.01)
-
-result_all <- lapply(pho_vec, function(pho0){
-  pho1 <- pho0 / 2
-  get_result_once(J = 1000, pho0 = pho0, pho1 = pho1, sigma_vec = c(0.1, 0.3, 0.5),
-                  grid = sort(c(0, exp(-0.5*seq(0,10, by = 0.2)))),
-                  penalty = 1, num_cores = 5,
-                  num_basis = 20)
-})
-result_df <- do.call(rbind, result_all)
-save(result_df, file = "data/simulation_result_dense_grid.RData")
-```
-
-```{r}
-load("data/appendixB/simulation_result_dense_grid.RData")
-```
-
-```{r}
-par(mfrow = c(1, 2))
-plot(result_df$pi_00, result_df$hat_pi_00, 
-     xlab = expression("True " * pi[0]), 
-     ylab = expression("Estimated " * pi[0]),
-     main = expression("Estimated vs True " * pi[0] * " (Order 1)"),
-     pch = 16, col = rgb(0,0,0,0.5), ylim = c(0,1), xlim = c(0.5,1))
-abline(0,1,col='red',lty=2, lwd = 2)
-points(result_df$pi_00, result_df$tilde_pi_00, pch = 17, col = rgb(0,0,1,0.5))
-legend("topleft", legend = c("Before BF update", "After BF update"), pch = c(16,17), col = c(rgb(0,0,0,0.5), rgb(0,0,1,0.5)), bty = "n")
-plot(result_df$pi_01, result_df$hat_pi_01, 
-     xlab = expression("True " * pi[0]), 
-     ylab = expression("Estimated " * pi[0]),
-     main = expression("Estimated vs True " * pi[0] * " (Order 2)"),
-     pch = 16, col = rgb(0,0,0,0.5), ylim = c(0,1), xlim = c(0.75,1))
-abline(0,1,col='red',lty=2, lwd = 2)
-points(result_df$pi_01, result_df$tilde_pi_01, pch = 17, col = rgb(0,0,1,0.5))
-# legend("bottomleft", legend = c("Before BF update", "After BF update"), pch = c(16,17), col = c(rgb(0,0,0,0.5), rgb(0,0,1,0.5)), bty = "n")
-par(mfrow = c(1, 1))
-```
-
-
-```{r eval=FALSE}
-pdf("output/appendixB/simulation_result_dense_grid.pdf", width = 5, height = 5)
-plot(result_df$pi_00, result_df$hat_pi_00, 
-     xlab = "True pi0", 
-     ylab = "Estimated pi0", 
-     pch = 16, col = rgb(0,0,0,0.5), ylim = c(0,1), xlim = c(0.5,1))
-abline(0,1,col='red',lty=2, lwd = 2)
-points(result_df$pi_00, result_df$tilde_pi_00, pch = 17, col = rgb(0,0,1,0.5))
-legend("topleft", legend = c("Before BF update", "After BF update"), pch = c(16,17), col = c(rgb(0,0,0,0.5), rgb(0,0,1,0.5)), bty = "n")
-dev.off()
-
-pdf("output/appendixB/simulation_result_dense_grid_order2.pdf", width = 5, height = 5)
-plot(result_df$pi_01, result_df$hat_pi_01, 
-     xlab = "True pi0", 
-     ylab = "Estimated pi0", 
-     pch = 16, col = rgb(0,0,0,0.5), ylim = c(0,1), xlim = c(0.75,1))
-abline(0,1,col='red',lty=2, lwd = 2)
-points(result_df$pi_01, result_df$tilde_pi_01, pch = 17, col = rgb(0,0,1,0.5))
-# legend("bottomleft", legend = c("Before BF update", "After BF update"), pch = c(16,17), col = c(rgb(0,0,0,0.5), rgb(0,0,1,0.5)), bty = "n")
-dev.off()
-```
-
-## Focusing on one particular replication
-
-We will fix $\rho_0 = 0.2$ and $\rho_1 = 0.1$ (the `pho0` and `pho1` arguments below), and focus on one particular replication to illustrate the inference using FASH. These are the proportions of *dynamic* and *nonlinear-dynamic* units, so the corresponding true null proportions are $\pi_0 = 1 - \rho_0 = 0.8$ when testing $S_0$ as constant functions (IWP$_1$) and $\pi_0 = 1 - \rho_1 = 0.9$ when testing $S_0$ as linear functions (IWP$_2$).
-
-```{r}
-set.seed(12345)
-J = 1200; pho0 = 0.2; pho1 = 0.1;
-datasets <- get_one_set_of_datasets(J = J, pho0 = pho0, pho1 = pho1, sigma_vec = c(0.1, 0.3, 0.5))
-```
-
-```{r eval=FALSE}
-log_prec <- seq(0,10, by = 0.2)
-fine_grid <- sort(c(0, exp(-0.5*log_prec)))
-num_cores <- 4
-
-fash_fit1 <- fash(Y = "y", smooth_var = "x", S = "sd", data_list = datasets,
-                  num_basis = 20, order = 1, betaprec = 0,
-                  pred_step = 1, penalty = 10, grid = fine_grid,
-                  num_cores = num_cores, verbose = TRUE)
-fash_fit1_update <- BF_update(fash_fit1)
-
-
-fash_fit2 <- fash(Y = "y", smooth_var = "x", S = "sd", data_list = datasets,
-                  num_basis = 20, order = 2, betaprec = 0,
-                  pred_step = 1, penalty = 10, grid = fine_grid,
-                  num_cores = num_cores, verbose = TRUE)
-fash_fit2_update <- BF_update(fash_fit2)
-
-save(fash_fit1, fash_fit1_update, fash_fit2, fash_fit2_update, file = "data/appendixB/fash_fit_example.RData")
-```
-
-```{r}
-load("data/appendixB/fash_fit_example.RData")
-```
-
-
-### Testing dynamic eQTLs:
-
-We will first focus on testing dynamic eQTLs:
-
-```{r}
-alpha <- 0.05
-test1 <- fdr_control(fash_fit1, alpha = alpha, plot = F)
-test1_corrected <- fdr_control(fash_fit1_update, alpha = alpha, plot = F)
-```
-
-What datasets are called significant?
-
-```{r}
-alpha_vec = seq(0.01, 0.2, by = 0.01)
-FDR0 <- c(); FDR0_corrected <- c()
-Power0 <- c(); Power0_corrected <- c()
-
-for (alpha in alpha_vec) {
-  index1 <- test1$fdr_results$index[test1$fdr_results$FDR <= alpha]
-  index1_corrected <- test1_corrected$fdr_results$index[test1_corrected$fdr_results$FDR <= alpha]
-  
-  # True FDR
-  FDR0 <- c(FDR0, mean(index1 <= (J * (1 - pho0))))
-  FDR0_corrected <- c(FDR0_corrected, mean(index1_corrected <= (J * (1 - pho0))))
-  
-  # Power
-  Power0 <- c(Power0, sum(index1 > (J * (1 - pho0))) / (J * pho0))
-  Power0_corrected <- c(Power0_corrected, sum(index1_corrected > (J * (1 - pho0))) / (J * pho0))
-}
-```
-
-```{r eval=FALSE}
-pdf("output/appendixB/power_fdr_order1.pdf", width = 5, height = 5)
-# Power plot
-plot(alpha_vec, Power0, type = "o", pch = 16, col = "blue",
-     lty = 1, lwd = 1.5, 
-     xlab = expression(alpha), ylab = "Power", ylim = c(0.75,0.9),
-     # main = "Power vs alpha (Order 1)")
-     )
-points(alpha_vec, Power0_corrected, type = "o", pch = 17, col = "red",
-       lty = 2, lwd = 1.5)
-legend("bottomright", 
-       legend = c("Before BF update", "After BF update"),
-       pch = c(16,17), col = c("blue", "red"), lty = c(1,2), bty = "n")
-dev.off()
-
-# FDR plot
-pdf("output/appendixB/fdr_plot_order1.pdf", width = 5, height = 5)
-plot(alpha_vec, FDR0, type = "o", pch = 16, col = "blue",
-     lty = 1, lwd = 1.5,
-     xlab = expression(alpha), ylab = "true FDR", 
-     ylim = c(0,0.3),
-     # main = "FDR vs alpha (Order 1)"
-     )
-points(alpha_vec, FDR0_corrected, type = "o", pch = 17, col = "red",
-       lty = 2, lwd = 1.5)
-abline(0,1,col='black',lty=2, lwd = 1)
-legend("topleft", 
-       legend = c("Before BF update", "After BF update"),
-       pch = c(16,17), col = c("blue", "red"), lty = c(1,2), bty = "n")
-dev.off()
-```
-
-Showing the cumulative FDR plot:
-
-```{r e}
-lfdr <- fash_fit1$posterior_weights[,1]
-sizeA <- J * (1 - pho0); sizeB <- J * (pho0 - pho1); sizeC <- J * pho1
-fdr_df <- data.frame(eQTL = 1:length(lfdr), fdr = lfdr, type = rep(c("A", "B", "C"), times = c(sizeA, sizeB, sizeC)))
-fdr_df <- fdr_df[order(fdr_df$fdr), ] # ordering it
-fdr_df$cumulative_fdr <- cumsum(fdr_df$fdr)/seq_along(fdr_df$fdr)
-fdr_df$rank <- 1:length(lfdr)
-
-ggplot(fdr_df, aes(x = 1:length(lfdr), y = cumulative_fdr, col = type)) +
-  geom_point() +
-  geom_hline(yintercept = 0.05, linetype = "dashed", color = "purple") +
-  labs(x = "Ordered eQTLs", y = "Cumulative FDR", col = "Type") +
-  theme_minimal() +
-  # ggtitle("Cumulative FDR Plot") +
-  scale_color_manual(values = c("red", "blue", "green")) +
+ggplot(
+  trajectory_plot_data,
+  aes(x = time, y = estimate)
+) +
+  geom_errorbar(
+    aes(
+      ymin = estimate - 2 * standard_error,
+      ymax = estimate + 2 * standard_error
+    ),
+    width = 0,
+    color = "grey55",
+    linewidth = 0.35
+  ) +
+  geom_point(size = 1.15, color = "black") +
+  geom_line(aes(y = truth), color = "#D55E00", linewidth = 0.8) +
+  facet_wrap(~ panel, ncol = 3, scales = "free_y") +
+  labs(x = "Time", y = "Effect estimate") +
+  theme_bw(base_size = 11) +
   theme(
-    axis.title = element_text(size = 16),   # xlab size
-    axis.text  = element_text(size = 14),   # x lim size
-    legend.key.size = unit(1.2, 'lines'), # key size
-    legend.title = element_text(size = 14), # legend title size
-    legend.text = element_text(size = 12),  # legend text size
-    legend.position = c(0.8, 0.4),            # move inside
-    legend.background = element_rect(fill = alpha("white", 0.6)) # background
+    panel.grid.minor = element_blank(),
+    strip.text = element_text(size = 8.5),
+    axis.text = element_text(size = 8.5)
   )
-
-ggsave("output/appendixB/cumulative_fdr_order1.pdf", width = 5, height = 5)
 ```
 
-```{r}
-lfdr <- fash_fit1_update$posterior_weights[,1]
-fdr_df <- data.frame(eQTL = 1:length(lfdr), fdr = lfdr, type = rep(c("A", "B", "C"), times = c(sizeA, sizeB, sizeC)))
-fdr_df <- fdr_df[order(fdr_df$fdr), ] # ordering it
-fdr_df$cumulative_fdr <- cumsum(fdr_df$fdr)/seq_along(fdr_df$fdr)
-fdr_df$rank <- 1:length(lfdr)
+## Simulation and fitting design
 
-ggplot(fdr_df, aes(x = 1:length(lfdr), y = cumulative_fdr, col = type)) +
-  geom_point() +
-  geom_hline(yintercept = 0.05, linetype = "dashed", color = "purple") +
-  labs(x = "Ordered eQTLs", y = "Cumulative FDR", col = "Type") +
-  theme_minimal() +
-  # ggtitle("Cumulative FDR Plot") +
-  scale_color_manual(values = c("red", "blue", "green")) +
+The grid experiment uses the same random-number stream for each grid setting.
+For every $\rho_{\mathrm{dynamic}}$,
+$\rho_{\mathrm{nonlinear}}=\rho_{\mathrm{dynamic}}/2$. This pairs the original
+and denser-grid fits at the simulated-data level; it does not create repeated
+Monte Carlo replicates.
+
+```{r design-table, results='asis'}
+# Record the fixed simulation, estimand, and fit choices shown in Table 1.
+design_table <- data.frame(
+  Item = c(
+    "Package",
+    "Grid experiment units",
+    "Dynamic proportion",
+    "Nonlinear proportion",
+    "Predictive-SD grids",
+    "Grid-fit penalty",
+    "Focused replication",
+    "Focused-fit penalty",
+    "Basis and prediction step",
+    "Random-number stream",
+    "IWP1 exact-null estimand",
+    "IWP2 exact-null estimand"
+  ),
+  Value = c(
+    paste0(
+      "fashr ", appendix_b_cache$manifest$package_provenance$version,
+      " at ", appendix_b_cache$manifest$package_provenance$remote_sha
+    ),
+    format_integer(appendix_b_cache$manifest$grid_design$J),
+    "0.05 to 0.50 by 0.01",
+    "rho_dynamic / 2",
+    "Original spacing 0.2; denser spacing 0.1; both include exact zero",
+    format_integer(appendix_b_cache$manifest$grid_design$penalty),
+    paste0(
+      "J = ", format_integer(focused_example$parameters$J),
+      ", rho_dynamic = 0.20, rho_nonlinear = 0.10"
+    ),
+    format_integer(focused_example$parameters$penalty),
+    paste0(
+      focused_example$parameters$num_basis,
+      " basis functions; pred_step = 1"
+    ),
+    format_integer(focused_example$parameters$stream_seed),
+    "P(A) = 1 - rho_dynamic",
+    "P(A or B) = 1 - rho_nonlinear"
+  ),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+
+knitr::kable(
+  design_table,
+  align = c("l", "l"),
+  caption = paste(
+    "Table 1. Fixed design and estimands for the versioned Appendix B",
+    "simulation. The grid experiment contains one paired random-number",
+    "stream, not repeated Monte Carlo replicates."
+  )
+)
+```
+
+## Exact-null-weight estimation across the grid
+
+Figure 2 compares each fitted exact-null weight with its order-specific truth.
+The dashed line is equality. Crosses mark the seven raw IWP1 fits whose exact
+null weight reached the simplex boundary at zero; `fashr` explicitly warned
+that their raw lfdr values were consequently zero. The BF-updated fits retain
+the exact-null component and are shown as a separate stage.
+
+```{r grid-null-weight, fig.width=10, fig.height=7.4, out.width='96%', fig.cap="Figure 2. Estimated versus true exact-null weight over 46 dynamic proportions and two predictive-SD grids. Panels separate IWP order and grid spacing; colors separate raw empirical-Bayes and BF-updated fits. The dashed line denotes equality, and crosses identify the seven valid raw-IWP1 boundary solutions with estimated exact-null weight zero."}
+# Map each order to its own null estimand before plotting both fit stages.
+grid_plot_data <- grid_long[
+  order(grid_long$order, grid_long$setting, grid_long$stage, grid_long$true_pi0),
+]
+
+ggplot(
+  grid_plot_data,
+  aes(
+    x = true_pi0,
+    y = estimated_pi0,
+    color = stage,
+    group = stage,
+    shape = boundary_warning
+  )
+) +
+  geom_abline(
+    intercept = 0,
+    slope = 1,
+    color = "grey35",
+    linetype = "dashed",
+    linewidth = 0.55
+  ) +
+  geom_line(linewidth = 0.55, alpha = 0.65) +
+  geom_point(size = 1.8, stroke = 0.8) +
+  facet_grid(order ~ setting) +
+  scale_color_manual(values = stage_colors, drop = FALSE) +
+  scale_shape_manual(
+    values = c(`FALSE` = 16, `TRUE` = 4),
+    labels = c(`FALSE` = "Regular fit", `TRUE` = "Raw null-weight boundary")
+  ) +
+  scale_x_continuous(limits = c(0.48, 1), breaks = seq(0.5, 1, by = 0.1)) +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2)) +
+  labs(
+    x = "True exact-null weight",
+    y = "Estimated exact-null weight",
+    color = "Fit stage",
+    shape = "Fit status"
+  ) +
+  theme_bw(base_size = 11) +
   theme(
-    axis.title = element_text(size = 16),   # xlab size
-    axis.text  = element_text(size = 14),   # x lim size
-    legend.key.size = unit(1.2, 'lines'), # key size
-    legend.title = element_text(size = 14), # legend title size
-    legend.text = element_text(size = 12),  # legend text size
-    legend.position = c(0.8, 0.4),            # move inside
-    legend.background = element_rect(fill = alpha("white", 0.6)) # background
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom"
   )
-
-ggsave("output/appendixB/cumulative_fdr_order1_corrected.pdf", width = 5, height = 5)
 ```
 
-A few examples of most significant datasets:
+## Focused replication
 
-```{r}
-set.seed(1234)
-most_significant_indices <- sample(test1_corrected$fdr_results$index[test1_corrected$fdr_results$FDR <= 0.05], 4)
-pdf("output/appendixB/fitted_curves_order1.pdf", width = 10, height = 8)
-par(mfrow = c(2, 2))
-for (i in most_significant_indices) {
-  fitted_result <- predict(fash_fit1_update,
-                           index = i,
-                           smooth_var = seq(0, 16, by = 0.1))
-  
-  plot(datasets[[i]]$x, datasets[[i]]$y, type = "p", col = "black", 
-       lwd = 1, pch = 20,
-       # increase font size
-       cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.5,
-       xlab = "Time", ylab = "Effect Size", 
-       ylim = c(min(datasets[[i]]$y) - 0.5,
-                max(datasets[[i]]$y) + 0.5),
-       main = paste("Dataset:", names(datasets)[i]))
-  lines(datasets[[i]]$x,
-        datasets[[i]]$truef,
-        col = "blue",
-        lwd = 1, lty = 2)
-  arrows(
-    datasets[[i]]$x,
-    datasets[[i]]$y - 2 * datasets[[i]]$sd,
-    datasets[[i]]$x,
-    datasets[[i]]$y + 2 * datasets[[i]]$sd,
-    length = 0.05,
-    angle = 90,
-    code = 3,
-    col = "black"
+The focused replication fixes $J=1200$,
+$\rho_{\mathrm{dynamic}}=0.2$, and
+$\rho_{\mathrm{nonlinear}}=0.1$. Hence IWP1 has 240 true dynamic units and
+IWP2 has 120 true nonlinear units. Calls are the longest prefix of lfdr-ranked
+units whose mean lfdr does not exceed $\alpha$.
+
+Table 2 reports realized false-discovery proportion (FDP) and power for this
+single replication at $\alpha=0.05$. These realized quantities are not
+repeated-simulation FDR or expected power.
+
+```{r focused-alpha005-table, results='asis'}
+# Restrict the retained alpha curve to the prespecified alpha = 0.05 rows.
+alpha005_table <- data.frame(
+  Order = as.character(alpha005$order),
+  Target = alpha005$target,
+  Stage = as.character(alpha005$stage),
+  Discoveries = format_integer(alpha005$discoveries),
+  `True discoveries` = format_integer(alpha005$true_discoveries),
+  `False discoveries` = format_integer(alpha005$false_discoveries),
+  `Realized FDP` = format_percent(alpha005$realized_fdp, 1),
+  Power = format_percent(alpha005$power, 1),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+
+knitr::kable(
+  alpha005_table,
+  align = c("l", "l", "l", "r", "r", "r", "r", "r"),
+  caption = paste(
+    "Table 2. Focused-replication cumulative-lfdr calls at alpha = 0.05.",
+    "FDP and power are realized values for this one retained replication."
   )
-  lines(fitted_result$x,
-        fitted_result$mean,
-        col = "red",
-        lwd = 1.2)
-  polygon(
-    c(fitted_result$x, rev(fitted_result$x)),
-    c(fitted_result$lower, rev(fitted_result$upper)),
-    col = rgb(1, 0, 0, 0.1),
-    border = NA
-  )
-}
-par(mfrow = c(1, 1))
-dev.off()
+)
 ```
 
+Figure 3 extends the same calculation across $\alpha=0.01,\ldots,0.20$.
+The dashed diagonal in the FDP panels is the nominal reference, not a claim of
+calibration from one replication.
 
-### Testing non-linear eQTLs:
+```{r focused-alpha-curves, fig.width=9.6, fig.height=6.8, out.width='94%', fig.cap="Figure 3. Focused-replication realized FDP and power across cumulative-lfdr thresholds. Columns separate IWP1 dynamic testing and IWP2 nonlinear testing; colors separate raw and BF-updated fits. The dashed diagonal in the FDP row denotes nominal alpha. Curves summarize one retained replication, not Monte Carlo expectations."}
+# Keep the realized-FDP and power estimands distinct before faceting.
+alpha_plot_data <- alpha_long[
+  order(alpha_long$metric, alpha_long$order, alpha_long$stage, alpha_long$alpha),
+]
+nominal_reference <- data.frame(
+  metric = factor("Realized FDP", levels = levels(alpha_plot_data$metric)),
+  order = factor(c("IWP1", "IWP2"), levels = levels(alpha_plot_data$order))
+)
 
-We now focus on testing non-linear dynamic eQTLs:
-
-```{r}
-alpha <- 0.05
-test2 <- fdr_control(fash_fit2, alpha = alpha, plot = F)
-test2_corrected <- fdr_control(fash_fit2_update, alpha = alpha, plot = F)
-```
-
-What datasets are called significant?
-
-```{r}
-alpha_vec = seq(0.01, 0.2, by = 0.01)
-FDR1 <- c(); FDR1_corrected <- c()
-Power1 <- c(); Power1_corrected <- c()
-
-for (alpha in alpha_vec) {
-  index2 <- test2$fdr_results$index[test2$fdr_results$FDR <= alpha]
-  index2_corrected <- test2_corrected$fdr_results$index[test2_corrected$fdr_results$FDR <= alpha]
-  
-  # True FDR
-  FDR1 <- c(FDR1, mean(index2 <= (J * (1 - pho1))))
-  FDR1_corrected <- c(FDR1_corrected, mean(index2_corrected <= (J * (1 - pho1))))
-  
-  # Power
-  Power1 <- c(Power1, sum(index2 > (J * (1 - pho1))) / (J * pho1))
-  Power1_corrected <- c(Power1_corrected, sum(index2_corrected > (J * (1 - pho1))) / (J * pho1))
-}
-```
-
-```{r}
-pdf("output/appendixB/power_fdr_order2.pdf", width = 5, height = 5)
-# Power plot
-plot(alpha_vec, Power1, type = "o", pch = 16, col = "blue",
-     lty = 1, lwd = 1.5,
-     xlab = expression(alpha), ylab = "Power", ylim = c(0.7,0.9),
-     # main = "Power vs alpha (Order 2)"
-     )
-points(alpha_vec, Power1_corrected, type = "o", pch = 17, col = "red",
-       lty = 2, lwd = 1.5)
-legend("bottomright", 
-       legend = c("Before BF update", "After BF update"),
-       pch = c(16,17), col = c("blue", "red"), lty = c(1,2), bty = "n")
-dev.off()
-
-
-pdf("output/appendixB/fdr_plot_order2.pdf", width = 5, height = 5)
-# FDR plot
-plot(alpha_vec, FDR1, type = "o", pch = 16, col = "blue",
-     lty = 1, lwd = 1.5,
-     xlab = expression(alpha), ylab = "true FDR", ylim = c(0,0.3),
-     # main = "FDR vs alpha (Order 2)"
-     )
-points(alpha_vec, FDR1_corrected, type = "o", pch = 17, col = "red",
-       lty = 2, lwd = 1.5)
-abline(0,1,col='black',lty=2, lwd = 1)
-legend("topleft", 
-       legend = c("Before BF update", "After BF update"),
-       pch = c(16,17), col = c("blue", "red"), lty = c(1,2), bty = "n")
-dev.off()
-```
-
-Showing the cumulative FDR plot:
-
-```{r}
-lfdr <- fash_fit2$posterior_weights[,1]
-fdr_df <- data.frame(eQTL = 1:length(lfdr), fdr = lfdr, type = rep(c("A", "B", "C"), times = c(sizeA, sizeB, sizeC)))
-fdr_df <- fdr_df[order(fdr_df$fdr), ] # ordering it
-fdr_df$cumulative_fdr <- cumsum(fdr_df$fdr)/seq_along(fdr_df$fdr)
-fdr_df$rank <- 1:length(lfdr)
-
-ggplot(fdr_df, aes(x = 1:length(lfdr), y = cumulative_fdr, col = type)) +
-  geom_point() +
-  geom_hline(yintercept = 0.05, linetype = "dashed", color = "purple") +
-  labs(x = "Ordered eQTLs", y = "Cumulative FDR", col = "Type") +
-  theme_minimal() +
-  # ggtitle("Cumulative FDR Plot") +
-  scale_color_manual(values = c("red", "blue", "green")) +
+ggplot(
+  alpha_plot_data,
+  aes(x = alpha, y = value, color = stage, group = stage)
+) +
+  geom_abline(
+    data = nominal_reference,
+    aes(intercept = 0, slope = 1),
+    inherit.aes = FALSE,
+    color = "grey35",
+    linetype = "dashed",
+    linewidth = 0.55
+  ) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 1.35) +
+  facet_grid(metric ~ order, scales = "free_y") +
+  scale_color_manual(values = stage_colors, drop = FALSE) +
+  scale_x_continuous(breaks = seq(0, 0.2, by = 0.05)) +
+  scale_y_continuous(labels = function(x) paste0(round(100 * x), "%")) +
+  labs(
+    x = expression(alpha),
+    y = NULL,
+    color = "Fit stage"
+  ) +
+  theme_bw(base_size = 11) +
   theme(
-    axis.title = element_text(size = 16),   # xlab size
-    axis.text  = element_text(size = 14),   # x lim size
-    legend.key.size = unit(1.2, 'lines'), # key size
-    legend.title = element_text(size = 14), # legend title size
-    legend.text = element_text(size = 12),  # legend text size
-    legend.position = c(0.8, 0.4),            # move inside
-    legend.background = element_rect(fill = alpha("white", 0.6)) # background
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom"
   )
-ggsave("output/appendixB/cumulative_fdr_order2.pdf", width = 5, height = 5)
 ```
 
-```{r}
-lfdr <- fash_fit2_update$posterior_weights[,1]
-fdr_df <- data.frame(eQTL = 1:length(lfdr), fdr = lfdr, type = rep(c("A", "B", "C"), times = c(sizeA, sizeB, sizeC)))
-fdr_df <- fdr_df[order(fdr_df$fdr), ] # ordering it
-fdr_df$cumulative_fdr <- cumsum(fdr_df$fdr)/seq_along(fdr_df$fdr)
-fdr_df$rank <- 1:length(lfdr)
+Figure 4 displays the actual lfdr-ranked prefixes underlying Table 2. A unit
+is called at $\alpha=0.05$ while its cumulative mean lfdr remains below the
+horizontal reference. The vertical dotted line is the resulting final call
+count for that panel.
 
-ggplot(fdr_df, aes(x = 1:length(lfdr), y = cumulative_fdr, col = type)) +
-  geom_point() +
-  geom_hline(yintercept = 0.05, linetype = "dashed", color = "purple") +
-  labs(x = "Ordered eQTLs", y = "Cumulative FDR", col = "Type") +
-  theme_minimal() +
-  # ggtitle("Cumulative FDR Plot") +
-  scale_color_manual(values = c("red", "blue", "green")) +
+```{r focused-cumulative-lfdr, fig.width=10, fig.height=7.2, out.width='96%', fig.cap="Figure 4. Focused-replication cumulative lfdr after ranking units from smallest to largest lfdr. Panels separate order and fit stage; point colors show the fixed A/B/C truth classes. The horizontal dashed line is alpha = 0.05, and each vertical dotted line marks the final called rank for that panel."}
+# Compute the final called prefix independently within each order and stage.
+cumulative_plot_data <- cumulative_lfdr
+call_cutoffs <- aggregate(
+  called_at_alpha ~ order + stage,
+  data = cumulative_plot_data,
+  FUN = sum
+)
+names(call_cutoffs)[[3L]] <- "called_rank"
+
+ggplot(
+  cumulative_plot_data,
+  aes(x = rank, y = cumulative_lfdr, color = class)
+) +
+  geom_hline(
+    yintercept = 0.05,
+    color = "grey35",
+    linetype = "dashed",
+    linewidth = 0.55
+  ) +
+  geom_vline(
+    data = call_cutoffs,
+    aes(xintercept = called_rank),
+    inherit.aes = FALSE,
+    color = "grey35",
+    linetype = "dotted",
+    linewidth = 0.55
+  ) +
+  geom_point(size = 0.7, alpha = 0.72) +
+  facet_grid(order ~ stage) +
+  scale_color_manual(values = class_colors, drop = FALSE) +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2)) +
+  labs(
+    x = "lfdr rank",
+    y = "Cumulative mean lfdr",
+    color = "Truth class"
+  ) +
+  theme_bw(base_size = 11) +
   theme(
-    axis.title = element_text(size = 16),   # xlab size
-    axis.text  = element_text(size = 14),   # x lim size
-    legend.key.size = unit(1.2, 'lines'), # key size
-    legend.title = element_text(size = 14), # legend title size
-    legend.text = element_text(size = 12),  # legend text size
-    legend.position = c(0.8, 0.4),            # move inside
-    legend.background = element_rect(fill = alpha("white", 0.6)) # background
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom"
   )
-ggsave("output/appendixB/cumulative_fdr_order2_corrected.pdf", width = 5, height = 5)
 ```
 
+The exact-null weights for the same focused replication are reported in Table
+3. BF updating shifts both weights upward. In this one realization that
+reduces realized FDP with a small decrease in power, but it does not make both
+point estimates closer to their true values.
 
-A few examples of significant datasets:
+```{r focused-prior-table, results='asis'}
+# Compare each fitted exact-null component with its order-specific truth.
+prior_display <- data.frame(
+  Order = as.character(prior_table$order),
+  Target = prior_table$target,
+  Stage = as.character(prior_table$stage),
+  `True pi0` = format_decimal(prior_table$true_pi0, 3),
+  `Estimated pi0` = format_decimal(prior_table$estimated_pi0, 3),
+  `Estimate minus truth` = format_decimal(prior_table$estimation_error, 3),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
 
-```{r}
-set.seed(1234)
-most_significant_indices <- sample(test2_corrected$fdr_results$index[test2_corrected$fdr_results$FDR <= 0.05], 4)
-pdf("output/appendixB/fitted_curves_order2.pdf", width = 10, height = 8)
-par(mfrow = c(2, 2))
-for (i in most_significant_indices) {
-  fitted_result <- predict(fash_fit2_update,
-                           index = i,
-                           smooth_var = seq(0, 16, by = 0.1))
-  
-  plot(datasets[[i]]$x, datasets[[i]]$y, type = "p", col = "black", 
-       lwd = 1, pch = 20,
-       # increase font size
-       cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.5,
-       xlab = "Time", ylab = "Effect Size", 
-       ylim = c(min(datasets[[i]]$y) - 0.5,
-                max(datasets[[i]]$y) + 0.5),
-       main = paste("Dataset:", names(datasets)[i]))
-  lines(datasets[[i]]$x,
-        datasets[[i]]$truef,
-        col = "blue",
-        lwd = 1, lty = 2)
-  arrows(
-    datasets[[i]]$x,
-    datasets[[i]]$y - 2 * datasets[[i]]$sd,
-    datasets[[i]]$x,
-    datasets[[i]]$y + 2 * datasets[[i]]$sd,
-    length = 0.05,
-    angle = 90,
-    code = 3,
-    col = "black"
+knitr::kable(
+  prior_display,
+  align = c("l", "l", "l", "r", "r", "r"),
+  caption = paste(
+    "Table 3. Focused-replication exact-null weights before and after BF",
+    "updating. The estimand differs by IWP order as defined above."
   )
-  lines(fitted_result$x,
-        fitted_result$mean,
-        col = "red",
-        lwd = 1.2)
-  polygon(
-    c(fitted_result$x, rev(fitted_result$x)),
-    c(fitted_result$lower, rev(fitted_result$upper)),
-    col = rgb(1, 0, 0, 0.1),
-    border = NA
-  )
-}
-par(mfrow = c(1, 1))
-dev.off()
+)
 ```
 
+## Provenance and reproducibility
 
+The retained family completed at
+`r appendix_b_cache$completion[["completed_at"]]` on Midway3. Its manifest
+records R `r appendix_b_cache$manifest$package_provenance$r_version` on
+`r appendix_b_cache$manifest$package_provenance$platform`. The local reporting
+loader verifies the package version and commit, helper and runner SHA-256
+values, all retained output SHA-256 values, the 92-row grid contract, the
+80-row focused alpha curve, and the seven explicitly identified raw-IWP1
+boundary warnings. All older `data/appendixB/*.RData` files remain separate
+and unchanged.
 
+The expensive server run used the following entry point. This chunk is shown
+for reproducibility and is not evaluated by workflowr.
 
+```{bash appendix-b-server-run, eval=FALSE}
+cd /project/mstephens/ziangzhang/fash/workspace
+sbatch slurm/10_appendix_b_simulation.sbatch
+```
+
+After downloading the completed result family, validate its package, source,
+output, historical-cache, and numerical contracts with:
+
+```{bash appendix-b-cache-validation, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/appendix_b/validate_appendix_b_cache.R
+```

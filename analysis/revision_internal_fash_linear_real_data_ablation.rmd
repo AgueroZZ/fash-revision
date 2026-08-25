@@ -1,0 +1,411 @@
+---
+title: "Internal analysis: predictive-SD mixture FASH-linear real-data ablation"
+author: "Ziang Zhang"
+date: "2026-08-11"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 11,
+  fig.height = 7,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(file.path(
+  "code",
+  "revision_simulations",
+  "internal",
+  "fash_linear_real_data_ablation",
+  "reporting.R"
+))
+```
+
+<style>
+.ablation-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.ablation-answer {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #b2182b;
+  border-radius: 4px;
+  background: #fff1f0;
+  color: #5a1f25;
+}
+.ablation-note {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #2c7fb8;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.ablation-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+.MathJax_Display,
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+
+::: {.ablation-banner}
+<strong>Internal exploratory ablation.</strong> This page is intentionally
+absent from the workflowr homepage, manuscript, and response letter. It uses
+the primary time-specific-PC effect estimates and compares the retained IWP1
+FASH fit with the predictive-SD finite-mixture FASH-linear comparator. The
+separate FASH-CL analysis is explicitly deferred; this page does not update or
+reinterpret that comparison.
+:::
+
+## Executive answer
+
+::: {.ablation-answer}
+<strong>The more comparable mixture prior does not reverse the main real-data
+count comparison, but it does change discovery membership.</strong> At
+cumulative-lfdr FDR 0.05 after BF adjustment, IWP1 FASH
+identifies `r format_integer(current_bf_count$pair_count)` pairs,
+`r format_integer(current_bf_count$gene_count)` genes, and
+`r format_integer(current_bf_count$variant_count)` unique variants. The
+predictive-SD mixture FASH-linear comparator identifies
+`r format_integer(linear_bf_count$pair_count)` pairs,
+`r format_integer(linear_bf_count$gene_count)` genes, and
+`r format_integer(linear_bf_count$variant_count)` variants.
+:::
+
+Relative to the historical profiled single-slab version, the new linear
+mixture has `r format_integer(abs(bf_version_comparison$pair_count_difference))`
+fewer BF-adjusted calls
+(`r format_percent(abs(bf_version_comparison$pair_count_difference) / bf_version_comparison$profile_pair_count)`),
+and the all-pair lfdr rankings remain highly correlated
+(Spearman `r format_decimal(bf_version_comparison$spearman_lfdr, 3L)`). In
+contrast, its raw count is higher by
+`r format_integer(raw_version_comparison$pair_count_difference)` pairs
+(`r format_percent(raw_version_comparison$pair_count_difference / raw_version_comparison$profile_pair_count)`).
+The prior migration is therefore modest after BF adjustment but material before
+it.
+
+IWP1 FASH identifies
+`r format_integer(variant_overlap$current_only_count)` unique variants that
+FASH-linear misses, so flexibility produces a substantial distinct discovery
+set. However, FASH-linear identifies
+`r format_integer(variant_overlap$linear_only_count)` variants that IWP1 FASH
+misses. These real-data counts and overlaps do not reveal which calls are true
+and cannot establish a power ordering between the covariance models.
+
+## A strongest FASH-linear-only example
+
+The example is selected deterministically rather than for visual appearance:
+among BF-adjusted FASH-linear discoveries that are not called by IWP1 FASH,
+choose the pair with the smallest FASH-linear lfdr; break ties by the largest
+IWP1 lfdr and then pair key. This selects
+`r example_summary$gene_symbol` / `r example_summary$variant_id`.
+
+```{r linear-only-example, fig.width=8.4, fig.height=5.4, fig.cap="A strongest predictive-SD mixture FASH-linear-only example. Points and error bars show the time-specific effect estimates and plus or minus two adjusted standard errors. Curves and ribbons show posterior means and 95% intervals under BF-adjusted IWP1 FASH and FASH-linear."}
+plot_linear_only_example()
+```
+
+For this pair, the BF-adjusted lfdr is
+`r format_decimal(example_summary$linear_lfdr, 5L)` under FASH-linear and
+`r format_decimal(example_summary$current_lfdr, 3L)` under IWP1. The fitted
+curves visualize how the rank-one linear and IWP covariance geometries pool the
+same observations differently. This deterministic example is diagnostic of
+model behavior; it is not external evidence that either call is true.
+
+## Discordant trajectory gallery
+
+To avoid drawing a conclusion from one selected pair, the gallery below uses
+a symmetric deterministic rule: the three strongest BF-adjusted
+FASH-linear-only calls and the three strongest BF-adjusted IWP1-only calls,
+requiring a different gene for each panel. Each panel reports both FASH lfdr
+values and the linear/nonlinear Strober p-values.
+
+```{r discordant-example-gallery, fig.width=12.4, fig.height=8.6, fig.cap="Deterministic discordant examples. The top row contains strong FASH-linear-only calls; the bottom row contains strong IWP1-only calls. Points and error bars are time-specific estimates and plus or minus two adjusted standard errors; curves and ribbons are posterior means and 95% intervals."}
+plot_example_gallery()
+```
+
+The panels show that discordance is bidirectional. The two covariance models
+can concentrate and shrink the same time-specific estimates differently even
+after their scale grids, exact-null component, penalty, and BF procedure are
+aligned. These examples are diagnostics of model behavior, not independent
+validation of either discovery set.
+
+## Interactive trajectory explorer
+
+The companion local Shiny app searches all 1,009,173 tested pairs by HGNC
+symbol, Ensembl ID, or rsID. After selecting a pair, checkboxes independently
+show the observed estimates, IWP1 FASH, FASH-linear, and posterior intervals.
+The plot displays raw and BF-adjusted lfdr for both FASH fits and both Strober
+p-values; the adjacent table also displays Strober eFDR and discovery calls.
+
+[Open the FASH trajectory explorer](http://127.0.0.1:7421/) after starting the
+local app below.
+
+Run from the workflowr project root:
+
+```{r explorer-command, eval=FALSE}
+Rscript --vanilla \
+  apps/fash_trajectory_explorer/build_explorer_cache.R
+
+Rscript --vanilla -e \
+  'shiny::runApp("apps/fash_trajectory_explorer", host = "127.0.0.1", port = 7421, launch.browser = TRUE)'
+```
+
+The compact search index is already retained in the project output directory,
+so the first command is needed only when an underlying fit or Strober table
+changes. App startup loads the large BF-adjusted IWP1 fit once; selected
+posterior trajectories are then computed on demand and cached in memory.
+
+## Matched model definition
+
+Both analyses use the same 1,009,173 time-specific-PC gene-variant effect
+estimates, t-adjusted standard errors, time grid, tested pairs, BF adjustment
+procedure, and cumulative-lfdr FDR threshold. For pair $j$, the linear model
+is
+
+\[
+\beta_j(t) = a_j + d_j\frac{t-t_{j,\min}}{h}, \qquad h=1\text{ day},
+\]
+
+where the intercept $a_j$ is unrestricted under every component. The null is
+the exact point mass $d_j=0$, so $H_0$ is a constant trajectory rather than
+a zero trajectory. Under the alternative,
+
+\[
+d_j \sim \sum_{k=1}^{51}\pi_k N(0,s_k^2),
+\]
+
+and the complete 52-point grid is $s_0=0$ plus the same 51 positive one-day
+predictive-SD values used for IWP1. Both fits use the same exact-zero component,
+null-favoring penalty of 10, and `fashr` BF-update semantics. This alignment is
+on predictive scale, not covariance geometry: FASH-linear induces a rank-one
+linear covariance across time, whereas IWP1 induces its integrated-Wiener
+covariance.
+
+```{r model-settings, eval=FALSE}
+grid <- default_revision_grid()
+linear_fit_raw <- fit_linear_mixture_fash_from_stats(
+  statistics = statistics,
+  grid = grid,
+  pred_step = 1,
+  penalty = 10,
+  statistic_time_span = 15,
+  n_time = 16
+)
+linear_fit_bf <- BF_update_linear_mixture_fash(linear_fit_raw)
+alpha <- 0.05
+```
+
+The retained sufficient statistics use endpoint-scaled time
+$(t-t_{j,\min})/15$. The runner multiplies every one-day SD by 15 before the
+rank-one likelihood calculation, exactly bridging the reported one-day grid to
+that cached coefficient scale.
+
+The BF update follows `fashr` exactly. It performs an unpenalized full-grid
+mixture refit, drops the fitted null component and renormalizes the positive
+weights to form the conditional alternative, collapses the likelihood to null
+versus that alternative, computes each Bayes factor, estimates the
+BF-controlled total null weight, and rebuilds prior and posterior weights. Thus
+the BF-adjusted positive weights are based on this conditional-alternative
+refit, not the raw penalized fit's conditional weights.
+
+## Discovery counts
+
+```{r discovery-counts, results='asis'}
+render_scrollable_table(
+  discovery_counts,
+  minimum_width = "820px"
+)
+```
+
+The predictive-SD mixture has
+`r format_integer(linear_raw_count$pair_count)` raw calls versus
+`r format_integer(current_raw_count$pair_count)` for IWP1. After BF adjustment,
+the corresponding counts are `r format_integer(linear_bf_count$pair_count)`
+and `r format_integer(current_bf_count$pair_count)`. Count differences do not
+identify which model has higher power because the truth is unknown in these
+data.
+
+## Learned predictive-SD mixture weights
+
+```{r prior-weights, fig.width=10.5, fig.height=7.4, fig.cap="Learned exact-null and conditional-alternative weights. The upper panels show the fitted exact-null weight for each method; the lower panels show weights on the shared positive one-day predictive-SD grid after conditioning on the alternative. Points mark active positive components."}
+plot_prior_weights()
+```
+
+```{r prior-summary, results='asis'}
+render_scrollable_table(
+  prior_summary,
+  digits = 6L,
+  minimum_width = "640px"
+)
+```
+
+The linear mixture uses eight active positive components in both fits. Its
+null weight changes from `r format_decimal(linear_raw_prior$null_weight, 4L)`
+to `r format_decimal(linear_bf_prior$null_weight, 4L)` after BF adjustment;
+the conditional-alternative RMS one-day SD is
+`r format_decimal(linear_raw_prior$alternative_rms_predstep_sd, 4L)` raw and
+`r format_decimal(linear_bf_prior$alternative_rms_predstep_sd, 4L)` after BF
+adjustment. Sharing a grid does not force the two covariance models to learn
+the same weights.
+
+```{r active-prior-weights, results='asis'}
+render_scrollable_table(
+  active_prior_weights,
+  digits = 6L,
+  minimum_width = "760px"
+)
+```
+
+## Historical profile-to-mixture migration
+
+The profiled single-Gaussian slab is shown here only as the historical version
+being replaced; it is not the active FASH-linear comparator.
+
+```{r historical-linear-version-comparison, results='asis'}
+render_scrollable_table(
+  linear_version_comparison,
+  digits = 6L,
+  minimum_width = "1500px"
+)
+```
+
+For raw lfdr, the mixture retains every historical profiled-slab discovery and
+adds `r format_integer(raw_version_comparison$mixture_only_pair_count)` pairs;
+the set Jaccard index is
+`r format_decimal(raw_version_comparison$pair_jaccard, 3L)`. After BF
+adjustment, the total changes from
+`r format_integer(bf_version_comparison$profile_pair_count)` to
+`r format_integer(bf_version_comparison$mixture_pair_count)`, but membership is
+not identical:
+`r format_integer(bf_version_comparison$profile_only_pair_count)` pairs are
+historical-profile-only and
+`r format_integer(bf_version_comparison$mixture_only_pair_count)` are
+mixture-only (Jaccard
+`r format_decimal(bf_version_comparison$pair_jaccard, 3L)`). The BF-adjusted
+lfdr Spearman correlation is
+`r format_decimal(bf_version_comparison$spearman_lfdr, 3L)`.
+
+## BF-adjusted discovery overlap
+
+```{r overlap-table, results='asis'}
+render_scrollable_table(
+  overlap_summary,
+  digits = 4L,
+  minimum_width = "980px"
+)
+```
+
+```{r overlap-venns, fig.width=12, fig.height=4.4, fig.cap="BF-adjusted cumulative-lfdr FDR-0.05 overlap between IWP1 FASH and predictive-SD mixture FASH-linear at the gene-variant-pair, gene, and unique-variant levels."}
+plot_overlap_venns()
+```
+
+The pair-level intersection is
+`r format_integer(pair_overlap$intersection_count)`.
+IWP1 FASH contributes
+`r format_integer(pair_overlap$current_only_count)`
+exclusive pairs, whereas FASH-linear contributes
+`r format_integer(pair_overlap$linear_only_count)`.
+
+## Global lfdr comparison
+
+The left panel contains all tested pairs. The right panel selects one pair per
+gene using only the minimum current-FASH BF-adjusted lfdr, then evaluates the
+same pair under FASH-linear.
+
+```{r lfdr-scatter, fig.width=11.5, fig.height=6.1, fig.cap="BF-adjusted lfdr comparison for all tested pairs and one current-FASH-selected top pair per gene. Colors indicate cumulative-lfdr FDR-0.05 discovery membership."}
+plot_lfdr_scatter()
+```
+
+The all-pair Spearman correlation is
+`r format_decimal(lfdr_summary$spearman_correlation[lfdr_summary$selection == "All tested gene-variant pairs"], 3L)`;
+for current-FASH-selected top pairs it is
+`r format_decimal(lfdr_summary$spearman_correlation[lfdr_summary$selection == "Current-FASH top pair per gene"], 3L)`.
+
+## Interpretation for manuscript strategy
+
+::: {.ablation-note}
+The matched mixture makes FASH-linear substantially more comparable to IWP1 in
+effect-size prior, exact-null, penalty, and BF semantics. The BF-adjusted result
+is broadly stable relative to the historical profile version: the linear count
+falls by `r format_integer(abs(bf_version_comparison$pair_count_difference))`
+(`r format_percent(abs(bf_version_comparison$pair_count_difference) / bf_version_comparison$profile_pair_count)`),
+and lfdr rankings remain highly correlated. The raw mixture count, however, is
+materially higher, and neither the historical nor IWP1 discovery memberships
+are identical to the new mixture membership.
+:::
+
+The remaining scientific contrast is primarily covariance geometry, but the
+models also learn their mixture weights separately from the data. This
+real-data analysis has no known truth, so it cannot establish relative power or
+validate either model's exclusive discoveries. Orthogonal evidence such as
+replication, functional enrichment, or prespecified shape diagnostics would be
+needed for that claim. The FASH-CL comparison remains deferred to its separate
+page and is outside this update.
+
+## Reproducibility
+
+Routine page builds read the retained cache and do not refit the million-pair
+comparator.
+
+```{r reproduction-command, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_linear_real_data_ablation/\
+run_fash_linear_real_data_ablation.R
+
+Rscript --vanilla \
+  apps/fash_trajectory_explorer/build_explorer_cache.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_linear_real_data_ablation/\
+build_example_gallery.R
+
+Rscript --vanilla -e \
+  'workflowr::wflow_build("analysis/revision_internal_fash_linear_real_data_ablation.rmd", local = TRUE)'
+```
+
+```{r runtime-table, results='asis'}
+render_scrollable_table(runtime_summary, digits = 1L, minimum_width = "760px")
+```
+
+The reporting loader requires a completed versioned run, the retained cache and
+compact-fit MD5 values, exact grid settings, and all 11 unchanged-IWP checks
+before exposing any page object.
+
+```{r unchanged-iwp-validation, results='asis'}
+render_scrollable_table(
+  unchanged_iwp_validation,
+  minimum_width = "620px"
+)
+```
+
+```{r fit-provenance-table, results='asis'}
+render_scrollable_table(fit_provenance, minimum_width = "1280px")
+```
+
+```{r provenance-table, results='asis'}
+render_scrollable_table(input_provenance, minimum_width = "1420px")
+```

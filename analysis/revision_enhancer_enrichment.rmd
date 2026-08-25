@@ -1,7 +1,7 @@
 ---
 title: "Revision Real-data Analysis R6: enhancer enrichment of FASH dynamic eQTLs"
 author: "Ziang Zhang"
-date: "2026-08-09"
+date: "2026-08-21"
 output:
   workflowr::wflow_html:
     code_folding: hide
@@ -33,6 +33,11 @@ source(file.path(
 ```
 
 <style>
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
 .fash-strober-key-result {
   margin: 1.2em 0 1.5em;
   padding: 1em 1.15em;
@@ -97,6 +102,7 @@ back to a weaker one.
 ```{r discovery-table, results='asis'}
 render_scrollable_table(
   discovery_table,
+  caption = "Table 1. Discovery sets used in the enhancer-enrichment analysis.",
   align = "rlllrrr",
   minimum_width = "1120px"
 )
@@ -116,6 +122,7 @@ that only FASH found.
 ```{r coverage-table, results='asis'}
 render_scrollable_table(
   coverage_table,
+  caption = "Table 2. Annotation coverage for all eight discovery sets.",
   align = "llllrrr",
   minimum_width = "1240px"
 )
@@ -192,6 +199,7 @@ shows the same thing as four lines of code.
 ```{r provenance-table, results='asis'}
 render_scrollable_table(
   provenance_table,
+  caption = "Table 3. Provenance of the enhancer annotations.",
   align = "llllllll",
   minimum_width = "1560px",
   escape = FALSE
@@ -328,9 +336,13 @@ compute_enrichment(sets["current_all"], background, annotations,
 Discovered variants are systematically higher-MAF and closer to a TSS than the
 average tested variant, and enhancers are themselves TSS-proximal, so the plain
 comparison attributes some purely positional signal to biology. For FASH's
-all-variant set at the E095 enhancer the plain fold is 1.22 with a Fisher
-p of 2e-08, while the matched fold is 1.13 at p = 0.16. Every headline number on
-this page uses `controls = "matched"`.
+all-variant set at the E095 enhancer the plain fold is
+`r format_decimal(enhancer_lookup("Custom regulatory", "current_all", "Roadmap E095 left ventricle: Enhancer")$unmatched_enrichment, 2L)`,
+while the matched fold is
+`r format_decimal(enhancer_lookup("Custom regulatory", "current_all", "Roadmap E095 left ventricle: Enhancer")$enrichment, 2L)`
+at nominal chromosome-jackknife p =
+`r format(signif(enhancer_lookup("Custom regulatory", "current_all", "Roadmap E095 left ventricle: Enhancer")$p_value, 2L), scientific = FALSE)`.
+Every headline number on this page uses `controls = "matched"`.
 
 ### Available annotation groups
 
@@ -376,9 +388,35 @@ repository carries code, not data.
 ```{r input-provenance-table, results='asis'}
 render_scrollable_table(
   input_provenance,
-  align = "lrrl",
+  caption = "Table 4. Provenance of every retained R6 analysis input.",
+  align = "lrlll",
   minimum_width = "1360px"
 )
 ```
 
 </details>
+
+## Reproducibility
+
+Routine page builds read the retained fashr 0.1.43 cache at:
+
+`output/revision_simulations/internal/fash_strober_enhancer_comparison_fashr0143/`
+
+The earlier cache remains unchanged for historical comparison. The retained
+configuration records the corrected BF-updated fit SHA-256, exact package
+version and RemoteSha, matching seeds, control ratio, and input checksums.
+
+```{bash reproduction-command, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_strober_enhancer_comparison/test_fash_strober_enhancer_helpers.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_strober_enhancer_comparison/run_fash_strober_enhancer_comparison.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R \
+  --verify
+
+Rscript --vanilla -e \
+  'workflowr::wflow_build("analysis/revision_enhancer_enrichment.rmd")'
+```

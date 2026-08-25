@@ -1,7 +1,7 @@
 ---
-title: "Revision Simulation R2: genotype-level eQTLs with spiky transient effects"
+title: "Revision Simulation R2: real-genotype eQTLs with spiky transient effects"
 author: "Ziang Zhang"
-date: "2026-07-30"
+date: "2026-08-22"
 output:
   workflowr::wflow_html:
     code_folding: hide
@@ -22,15 +22,61 @@ knitr::opts_chunk$set(
 )
 
 source("code/revision_simulations/shared/simulation_functions.R")
+source("code/revision_simulations/shared/real_genotype_one_per_gene.R")
 source("code/revision_simulations/r2_spiky_transient/reporting.R")
 ```
 
+<style>
+@media (max-width: 767px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  .main-container table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .main-container .MathJax_Display {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+</style>
+
 ## Overview
 
-This genotype-level simulation evaluates dynamic-eQTL detection when the true
+This real-genotype simulation evaluates dynamic-eQTL detection when the true
 effects are continuous but sharply localized and are not generated from the
 IWP prior used by FASH. It uses the same individual-level pipeline as the
 [broad random B-spline simulation](revision_genotype_level_simulation.html).
+
+### Result provenance for the 0.1.43 refresh
+
+The FASH-IWP1 and FASH-linear rows were recomputed on the same five fixed
+simulation seeds with `fashr` 0.1.43 at RemoteSha
+`bf223df75da6e41ae48607a56b4cd12d7c3b24e7`. The targeted result family
+completed at `r current_fash_manifest$generated_at`. The direct-interaction
+permutation tests were not rerun: their rows come from the unchanged formal
+historical cache. Before combining the rows, the report verifies every
+retained SHA-256 digest and requires exact selected-pair/genotype agreement
+plus numerical agreement of the simulated inputs to `1e-12`.
+
+```{r result-provenance-table}
+knitr::kable(
+  result_provenance_table,
+  align = "l",
+  caption = paste(
+    "Table R2.1: Computation source and validation status for each result",
+    "component in the refreshed page."
+  )
+)
+```
 
 For donor $i$, variant $j$, and time $t$,
 
@@ -40,25 +86,29 @@ X_i^T\gamma_{jt} + \epsilon_{ijt},
 \qquad \epsilon_{ijt} \sim N(0,1).
 $$
 
-For each variant, the minor-allele frequency is drawn from
-$p_j\sim\mathrm{Uniform}(0.1,0.5)$ and
-$G_{ij}\sim\mathrm{Binomial}(2,p_j)$; monomorphic draws are repeated.
-The five columns of $X$ are generated independently from $N(0,1)$ and
-standardized across donors. Independently for each covariate, variant, and
-time, $\gamma_{kjt}\sim N(0,0.5^2)$. The current simulation sets
-$\alpha_{jt}=0$; each fitted regression still includes an intercept. Genotype,
-covariate, covariate-effect, and noise draws are mutually independent.
+The genotype matrix is taken from the real YRI data used in the manuscript.
+For each simulation seed, one tested cis variant is sampled uniformly from
+each of the `6,362` tested genes, and its observed dosage vector is retained
+for the same `19` donors. The resulting design has one locus-level unit per
+gene and an empirical MAF distribution; a variant tested for multiple genes
+may therefore appear more than once. R1, R2, R3A, and R3B use the exact same
+sampled gene-variant pairs and genotype matrix for a given seed.
+
+The five columns of $X$ remain simulated independently from $N(0,1)$ and are
+standardized across donors. Independently for each covariate, gene, and time,
+$\gamma_{kjt}\sim N(0,0.5^2)$. The current simulation sets $\alpha_{jt}=0$;
+each fitted regression still includes an intercept. Effect trajectories,
+covariates, covariate effects, and expression noise remain simulated.
 
 ```{r r2-simulate-genotypes-and-covariates, eval=FALSE}
 seed <- 12345
 component_seeds <- revision_component_seeds(seed)
 
-genotype_sim <- simulate_genotype_matrix(
-  n_donors = 19,
-  n_variants = 1000,
-  maf_range = c(0.1, 0.5),
-  seed = component_seeds[["genotype"]]
+genotype_cache <- readRDS(
+  "output/revision_simulations/shared/real_genotype_one_per_gene_J6362_pilot5/genotype_samples.rds"
 )
+genotype_sample <- genotype_cache$samples[[as.character(seed)]]
+G <- genotype_sample$G
 covariates <- simulate_covariate_matrix(
   n_donors = 19,
   n_covariates = 5,
@@ -66,10 +116,33 @@ covariates <- simulate_covariate_matrix(
 )
 ```
 
-Each replicate has `19` donors, `16` time points, `1000` variants, and five
-PC-like covariates. There are `200` dynamic eQTLs, `400` constant eQTLs with
-effects drawn from $N(0,1)$, and `400` zero-effect variants. Therefore, the
-true dynamic-null proportion is $\pi_0=0.8$.
+### Real-genotype design and provenance
+
+```{r genotype-provenance-table}
+knitr::kable(
+  genotype_provenance_table,
+  align = "l",
+  caption = "Table R2.2: Provenance and selection rule for the real-genotype simulation design."
+)
+```
+
+```{r genotype-sampling-table}
+knitr::kable(
+  genotype_sampling_table,
+  align = "l",
+  caption = paste(
+    "Table R2.3: Per-seed genotype sampling summary. Repeated assignments",
+    "refer to the same tested variant selected for more than one gene."
+  )
+)
+```
+
+Each replicate has `19` donors, `16` time points, `6,362` gene-level units,
+and five PC-like covariates. There are `r format_integer(dynamic_count)` dynamic
+eQTLs, `r format_integer(constant_count)` constant eQTLs with effects drawn
+from $N(0,1)$, and `r format_integer(zero_count)` zero-effect units. Therefore,
+the true dynamic-null proportion is $\pi_0=5090/6362=$
+`r format_decimal(true_pi0, 4)`.
 
 For a dynamic eQTL,
 
@@ -111,7 +184,7 @@ shape_cell_probs <- c(
 evaluation_grid <- seq(0, 15, by = 0.1)
 
 effect_sim <- simulate_raised_cosine_multipeak_effect_set(
-  n_variants = 1000,
+  n_variants = 6362,
   time_grid = 0:15,
   evaluation_grid = evaluation_grid,
   class_probs = class_probs,
@@ -132,10 +205,17 @@ effect_sim <- simulate_raised_cosine_multipeak_effect_set(
   class_seed = component_seeds[["classes"]],
   constant_seed = component_seeds[["constant_effects"]],
   shape_seed = component_seeds[["functional_truth"]],
-  scenario = "r2_genotype_timed_cosine_one_two_three_peak_main_effect_dynamic_eqtl"
+  scenario = "r2_real_genotype_one_per_gene_timed_cosine_one_two_three_peak_main_effect_dynamic_eqtl"
+)
+effect_sim <- reassign_effect_simulation_by_maf(
+  effect_sim = effect_sim,
+  maf = genotype_sample$variant_info$observed_maf,
+  class_probs = class_probs,
+  seed = component_seeds[["classes"]],
+  n_strata = 10
 )
 expression_sim <- simulate_eqtl_expression_from_genotypes(
-  G = genotype_sim$G,
+  G = G,
   beta_matrix = effect_sim$beta_matrix,
   time_grid = 0:15,
   covariates = covariates,
@@ -146,8 +226,8 @@ expression_sim <- simulate_eqtl_expression_from_genotypes(
 )
 ```
 
-The `200` dynamic variants are approximately balanced across one, two, and
-three peaks. Alternating peak signs describe geometry only; this page tests
+The `r format_integer(dynamic_count)` dynamic units are exactly balanced at
+`424` per one-, two-, and three-peak group. Alternating peak signs describe geometry only; this page tests
 global dynamic eQTL status and does not equate an alternating pattern with the
 manuscript's switch functional. Functional testing is evaluated separately.
 
@@ -158,7 +238,7 @@ knitr::kable(
   allocation_table,
   align = "l",
   caption = paste(
-    "Table R2.1: Allocation of dynamic eQTLs across peak counts, sign",
+    "Table R2.4: Allocation of dynamic eQTLs across peak counts, sign",
     "patterns, and primary timing windows in the spiky simulation."
   )
 )
@@ -172,7 +252,7 @@ data.
 
 ```{r r2-estimate-and-fit-fash, eval=FALSE}
 eqtl_summary <- estimate_eqtl_summaries_from_genotypes(
-  G = genotype_sim$G,
+  G = G,
   expression = expression_sim$expression,
   covariates = covariates,
   apply_t_se_correction = TRUE
@@ -183,8 +263,12 @@ datasets <- make_fash_datasets_from_eqtl_summary(
   true_beta = effect_sim$beta_matrix,
   time_grid = 0:15,
   unit_info = effect_sim$unit_info,
-  scenario = "r2_genotype_timed_cosine_one_two_three_peak_main_effect_dynamic_eqtl"
+  scenario = "r2_real_genotype_one_per_gene_timed_cosine_one_two_three_peak_main_effect_dynamic_eqtl"
 )
+
+common_sd_grid <- default_revision_grid()
+common_pred_step <- 1
+common_penalty <- 10
 
 fash_iwp1_raw <- fashr::fash(
   Y = "y",
@@ -192,27 +276,38 @@ fash_iwp1_raw <- fashr::fash(
   S = "sd",
   data_list = datasets,
   order = 1,
-  grid = default_revision_grid(),
+  grid = common_sd_grid,
   num_basis = 20,
-  penalty = 10,
+  pred_step = common_pred_step,
+  penalty = common_penalty,
   num_cores = 4,
   verbose = FALSE
 )
 fash_iwp1_bf <- fashr::BF_update(fash_iwp1_raw, plot = FALSE)
 
-linear_sigma_grid <- exp(seq(log(0.05), log(5), length.out = 25))
-fash_linear_raw <- fit_simplified_fash(
+fash_linear_raw <- fit_linear_mixture_fash(
   datasets = datasets,
-  estimate_sigma = TRUE,
-  sigma_beta_grid = linear_sigma_grid,
-  scale_time = TRUE
+  grid = common_sd_grid,
+  pred_step = common_pred_step,
+  penalty = common_penalty
 )
-fash_linear_bf <- BF_update_simplified_fash(fash_linear_raw)
+fash_linear_bf <- BF_update_linear_mixture_fash(fash_linear_raw)
 ```
 
 All tables and curves below average five independently simulated datasets with
 seeds `12345`, `22345`, `32345`, `42345`, and `52345`. The seed-12345 full fit
 is used only for representative trajectories.
+
+Truth labels are reassigned within empirical-MAF deciles so that dynamic,
+constant, and zero-effect units have closely matched MAF distributions.
+
+```{r truth-maf-balance-table}
+knitr::kable(
+  truth_maf_balance_table,
+  align = "l",
+  caption = "Table R2.5: Empirical MAF balance across truth classes for each simulation seed."
+)
+```
 
 ## Example simulated eQTLs
 
@@ -244,18 +339,31 @@ plot_cosine_peak_cell_examples(
 
 ## Comparison 1: IWP versus linear FASH
 
-`FASH-IWP1` uses the first-order IWP alternative. `FASH-linear` uses a
-constant-versus-linear model on time scaled to $[0,1]$: its alternative adds a
-slope $b\sim N(0,\sigma_\beta^2)$ to the unrestricted intercept. Within each
-seed, the fit profiles $\pi_0$ separately at each of 25 log-spaced candidate
-values of $\sigma_\beta$ from `0.05` to `5`, then selects the pair with the
-largest marginal likelihood. The BF adjustment updates the mixture weight
-while holding the selected $\sigma_\beta$ fixed. Across the five seeds, the
-selected slope SD has mean
-`r format_decimal(linear_sigma_summary$mean_selected_sigma)` and observed range
-[`r format_decimal(linear_sigma_summary$min_selected_sigma)`,
-`r format_decimal(linear_sigma_summary$max_selected_sigma)`]. Both raw and
-BF-corrected fits use the same summary statistics and discovery rule.
+This comparison aligns the exact null, scale grid, `pred_step`, and
+null-favoring penalty. `FASH-IWP1` uses the first-order IWP alternative. For
+`FASH-linear`, let $h=1$ and $z(t)=\{t-\min(t)\}/h$. Its prior is
+
+$$
+\beta_j(t)=a_j+\theta_j z(t),
+\qquad
+\theta_j\sim\pi_0\delta_0+
+\sum_{k=1}^{K}\pi_k N(0,\tau_k^2).
+$$
+
+The zero-grid component is the same unrestricted constant null used by IWP1.
+For each positive component, $\tau_k$ is the prior SD of the linear departure
+at $\min(t)+h$. The complete grid is one exact zero plus 51 positive values
+from $\exp(-5)$ to `1`; all weights are estimated jointly with `penalty = 10`.
+IWP1 uses the same numerical grid for its one-step predictive SD. This matches
+the one-step marginal scale while leaving the linear and IWP covariance shapes
+different.
+
+In the BF-adjusted object, `fashr::BF_update()` does not simply retain the raw
+penalized non-null weights. It re-fits an unpenalized full-grid mixture,
+normalizes the positive-grid weights to define the conditional alternative,
+collapses that alternative into a Bayes factor, and then updates the total null
+weight. The table below summarizes both the number of active positive-grid
+components and their conditional RMS pred-step SD across the five seeds.
 
 ### Estimated dynamic-null proportion
 
@@ -264,8 +372,8 @@ knitr::kable(
   pi0_table,
   align = "l",
   caption = paste(
-    "Table R2.2: Estimated dynamic-null proportions and selected linear slab",
-    "scales across five spiky-effect simulation replicates."
+    "Table R2.6: Estimated dynamic-null proportions and linear-mixture prior",
+    "diagnostics across five spiky-effect simulation replicates."
   )
 )
 ```
@@ -277,7 +385,7 @@ knitr::kable(
   fash_table,
   align = "l",
   caption = paste(
-    "Table R2.3: Monte Carlo power and empirical FDR at alpha 0.05 for IWP",
+    "Table R2.7: Monte Carlo power and empirical FDR at alpha 0.05 for IWP",
     "and linear FASH under compact spiky effects."
   )
 )
@@ -290,7 +398,7 @@ plot_mc_alpha_curves(
   fash_alpha,
   metric = "power",
   title = "IWP versus linear FASH: Monte Carlo power",
-  subtitle = "Five seeds; compact one-, two-, and three-peak effects",
+  subtitle = "Five seeds; real YRI genotypes; N = 19, J = 6362 genes",
   style_profile = "combined"
 )
 ```
@@ -302,7 +410,7 @@ plot_mc_alpha_curves(
   fash_alpha,
   metric = "fdr",
   title = "IWP versus linear FASH: Monte Carlo empirical FDR",
-  subtitle = "Five seeds; compact one-, two-, and three-peak effects",
+  subtitle = "Five seeds; real YRI genotypes; N = 19, J = 6362 genes",
   legend_position = "topleft",
   style_profile = "combined"
 )
@@ -322,8 +430,13 @@ and
 The direct linear LRT tests a linear genotype-by-time interaction. The direct
 quadratic LRT jointly tests linear and quadratic interaction terms. Their
 permutation eFDR calculations use `B=100` donor-level permutations and are
-supplied with the true $\pi_0=0.8$, deliberately removing null-proportion
+supplied with the true $\pi_0=5090/6362$, deliberately removing null-proportion
 estimation uncertainty from the direct baselines.
+
+Only the IWP FASH rows in this section were recomputed with `fashr` 0.1.43.
+The direct linear and quadratic rows are read unchanged from the historical
+formal cache after the report confirms that its simulated genotype,
+covariates, truth, and expression agree with the retained 0.1.43 payload.
 
 ```{r r2-direct-interaction-efdr, eval=FALSE}
 out <- add_direct_interaction_efdr_results_to_genotype_output(
@@ -333,7 +446,7 @@ out <- add_direct_interaction_efdr_results_to_genotype_output(
   seed = component_seeds[["permutations"]],
   lambda = 0.5,
   pi0_method = "conservative",
-  true_pi0 = 0.8,
+  true_pi0 = 5090 / 6362,
   include_true_pi0 = TRUE,
   permute_covariates_with_expression = TRUE,
   num_cores = 4,
@@ -349,7 +462,7 @@ knitr::kable(
   direct_table,
   align = "l",
   caption = paste(
-    "Table R2.4: Monte Carlo power and empirical FDR at alpha 0.05 for IWP",
+    "Table R2.8: Monte Carlo power and empirical FDR at alpha 0.05 for IWP",
     "FASH and direct interaction tests under compact spiky effects."
   )
 )
@@ -362,7 +475,7 @@ plot_mc_alpha_curves(
   direct_alpha,
   metric = "power",
   title = "IWP FASH versus direct interaction: Monte Carlo power",
-  subtitle = "Five seeds; direct eFDR uses true pi0 = 0.8 and B = 100",
+  subtitle = "Five seeds; direct eFDR uses true pi0 = 0.8001 and B = 100",
   style_profile = "combined"
 )
 ```
@@ -374,7 +487,7 @@ plot_mc_alpha_curves(
   direct_alpha,
   metric = "fdr",
   title = "IWP FASH versus direct interaction: Monte Carlo empirical FDR",
-  subtitle = "Five seeds; direct eFDR uses true pi0 = 0.8 and B = 100",
+  subtitle = "Five seeds; direct eFDR uses true pi0 = 0.8001 and B = 100",
   legend_position = "bottomleft",
   style_profile = "combined"
 )
@@ -394,7 +507,7 @@ and
 
 ## Power by number of peaks
 
-The global discovery threshold is fitted once across all `1000` variants.
+The global discovery threshold is fitted once across all `6,362` gene-level units.
 Power is then summarized within the true one-, two-, and three-peak dynamic
 subgroups; no subgroup-specific threshold is estimated.
 
@@ -405,7 +518,7 @@ knitr::kable(
   peak_table,
   align = "l",
   caption = paste(
-    "Table R2.5: Monte Carlo power at alpha 0.05 stratified by the true",
+    "Table R2.9: Monte Carlo power at alpha 0.05 stratified by the true",
     "number of compact peaks; all calls use the same global threshold."
   )
 )
@@ -426,12 +539,14 @@ plot_mc_shape_power_grid(
 
 ## Interpretation
 
-For continuous but compact transient effects, IWP-BF is more powerful than
-linear-BF while maintaining comparable or lower empirical FDR. Relative to
-the direct baselines, the table and peak-stratified analysis show how
-performance changes as the trajectory contains one, two, or three localized
-features. The direct methods are given the true null proportion, whereas FASH
-estimates its mixture weights from the summary statistics.
+The regenerated tables and curves provide the paired comparison of IWP and
+linear covariance shapes after matching their exact null, one-step SD grid,
+and null-favoring penalty. The peak-stratified analysis reports how each method
+behaves as the trajectory contains one, two, or three localized features. The
+direct methods are given the true null proportion, whereas FASH estimates its
+mixture weights from the summary statistics. R1 and R2 are exactly paired on
+their sampled gene-variant units and real genotype matrices for every seed;
+only their simulated effect geometries differ.
 
 ## Reproducibility
 
@@ -439,18 +554,30 @@ The
 [R2 simulation driver](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R)
 uses the
 [shared simulation functions](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/shared/simulation_functions.R).
+Real-genotype selection, dosage extraction, validation, and MAF-balanced truth
+assignment are implemented in the
+[shared real-genotype helper](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/shared/real_genotype_one_per_gene.R),
+and the versioned input cache is created by the
+[shared cache builder](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R).
 The page-specific cache validation and formatting are in
 [R2 reporting code](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r2_spiky_transient/reporting.R).
-The following command regenerates the full five-seed cache. It is shown for
-reproducibility but is intentionally not evaluated during workflowr builds;
-the table and figure chunks above read the saved cache.
+The shared
+[0.1.43 reporting overlay](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r1_r2_fashr0143/reporting_overlay.R)
+validates the completed targeted cache and combines its FASH rows with only
+the direct rows from the historical cache. The following command regenerates
+the full historical-style five-seed cache, including direct tests. It is shown
+for reproducibility but is intentionally not evaluated during workflowr
+builds; the displayed FASH rows read the separate targeted 0.1.43 cache.
 
 The full five-seed cache can be regenerated with:
 
 ```{bash regenerate-r2-cache, eval=FALSE}
 Rscript --vanilla \
+  code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R
+
+Rscript --vanilla \
   code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R \
-  --J 1000 \
+  --J 6362 \
   --n-donors 19 \
   --n-covariates 5 \
   --noise-sd 1 \
@@ -459,13 +586,35 @@ Rscript --vanilla \
   --target-centered-rms 0.9 \
   --efdr-permutations 100 \
   --seed-list 12345,22345,32345,42345,52345 \
-  --output-id r2_timed_cosine_one_two_three_peak_main_effect_profile_sigma_pilot5 \
+  --genotype-cache output/revision_simulations/shared/real_genotype_one_per_gene_J6362_pilot5/genotype_samples.rds \
+  --output-id r2_real_genotype_one_per_gene_J6362_timed_cosine_one_two_three_peak_main_effect_linear_mixture_predstep1_penalty10_pilot5 \
   --num-cores 4
 ```
 
-Cached replicate metrics, summaries, plots, and the seed-12345 full fit are
-stored under:
+After the formal R1-R3 caches have been generated, exact pairing of every
+sampled gene-variant unit and genotype matrix is validated with:
+
+```{bash validate-r1-r2-r3-pairing, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/shared/validate_r1_r2_real_genotype_pairing.R \
+  --r1-output-id r1_real_genotype_one_per_gene_J6362_random_bspline_main_effect_linear_mixture_predstep1_penalty10_pilot5 \
+  --r2-output-id r2_real_genotype_one_per_gene_J6362_timed_cosine_one_two_three_peak_main_effect_linear_mixture_predstep1_penalty10_pilot5 \
+  --r3-output-id r3_real_genotype_one_per_gene_J6362_matched_functional_relative_clearance_main_effect_pilot5
+```
+
+The report requires a successful
+`summary/real_genotype_pairing_validation.csv` artifact and will stop if the
+R1/R2/R3 genotype designs are not exactly paired.
+
+The recomputed FASH result family is stored under:
 
 ```text
-output/revision_simulations/mc/r2_timed_cosine_one_two_three_peak_main_effect_profile_sigma_pilot5/
+output/revision_simulations/mc/r1_r2_fashr0143/
+```
+
+The unchanged historical full fit and direct-interaction results are stored
+under:
+
+```text
+output/revision_simulations/mc/r2_real_genotype_one_per_gene_J6362_timed_cosine_one_two_three_peak_main_effect_linear_mixture_predstep1_penalty10_pilot5/
 ```

@@ -1,0 +1,337 @@
+---
+title: "Revision Real-data Analysis R7: matched FASH-linear comparison"
+author: "Ziang Zhang"
+date: "2026-08-21"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 9.6,
+  fig.height = 7.2,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(file.path(
+  "code",
+  "revision_simulations",
+  "internal",
+  "matched_fash_linear_real_data",
+  "reporting.R"
+))
+```
+
+<style>
+.matched-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.matched-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.matched-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 1.2em;
+}
+.matched-table-scroll caption,
+p.caption {
+  color: #243447;
+  font-weight: 650;
+  text-align: left;
+  padding: 0.35em 0 0.55em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+.MathJax_Display,
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+
+<div class="matched-banner">
+<strong>Revision analysis R7.</strong> This page reports a fresh full-data
+matched FASH-linear rerun with `fashr` 0.1.43.
+</div>
+
+## Analysis definition
+
+Both FASH fits use the same 1,009,173 time-specific-PC effect estimates,
+standard errors, exact constant null, 52-point one-day predictive-SD grid,
+`betaprec=0`, `pred_step=1`, `penalty=10`, corrected BF adjustment, and
+cumulative-lfdr FDR 0.05.
+
+For FASH-linear,
+
+\[
+\beta_j(t)=a_j+b_j(t-t_{j,\min}),\qquad
+b_j\sim\sum_{k=1}^{51}\pi_k
+N\!\left(0,\left\{s_k/\mathrm{pred\_step}\right\}^2\right),
+\]
+
+where $s_k=\operatorname{SD}(b_j\,\mathrm{pred\_step})$ is
+`sd_linear_step`. The exact-null component is $s_0=0$. Its 51 positive
+values are numerically identical to the IWP1 `psd` grid.
+
+The exact fitting code from the full-data runner is shown below. The linear
+likelihood does not use IWP basis coefficients, so `betaprec` is retained as a
+matched setting rather than passed to the linear-mixture fitting helper.
+
+```{r fash-linear-fitting-code, eval=FALSE}
+# Match the predictive-SD grid and fitting options to the IWP1 reference fit.
+matched_grid <- as.numeric(current_raw$psd_grid)
+matched_pred_step <- as.numeric(current_raw$settings$pred_step)
+matched_penalty <- as.integer(current_raw$settings$penalty)
+matched_betaprec <- as.numeric(current_raw$settings$betaprec)
+matched_likelihood <- as.character(current_raw$settings$likelihood)
+
+# Fit the exact-null plus 51-component linear-slope mixture.
+linear_raw <- fit_linear_mixture_fash_from_stats(
+  statistics = statistics,
+  grid = matched_grid,
+  pred_step = matched_pred_step,
+  penalty = matched_penalty,
+  statistic_time_span = 15,
+  n_time = 16
+)
+
+# Record the matched likelihood settings in the fitted object.
+linear_raw$settings$betaprec <- matched_betaprec
+linear_raw$settings$likelihood <- matched_likelihood
+
+# Apply the same corrected Bayes-factor adjustment used for FASH-IWP1.
+linear_bf <- BF_update_linear_mixture_fash(linear_raw)
+```
+
+```{r matched-settings-table, results='asis'}
+settings_to_report <- matched_settings_table[, c(
+  "setting", "fash_iwp1", "fash_linear", "alignment"
+)]
+names(settings_to_report) <- c(
+  "Setting", "FASH-IWP1", "FASH-linear", "Alignment"
+)
+render_scrollable_table_matched(
+  settings_to_report,
+  caption = "Table 1. Matched data, prior-scale, fitting, and discovery settings.",
+  minimum_width = "1040px"
+)
+```
+
+The scientific selection rules used below are:
+
+```{r discovery-rules, eval=FALSE}
+alpha <- 0.05
+
+iwp1_bf_indices <- select_cumulative_lfdr_calls(
+  fash_iwp1_bf$lfdr,
+  alpha
+)
+linear_bf_indices <- select_cumulative_lfdr_calls(
+  fash_linear_bf$lfdr,
+  alpha
+)
+strober_quadratic_discoveries <- subset(strober_quadratic, eFDR <= alpha)
+strober_linear_discoveries <- subset(strober_linear, eFDR <= alpha)
+```
+
+## Discovery counts
+
+<div class="matched-result">
+After BF adjustment, FASH-IWP1 identifies
+`r format_integer_matched(iwp_bf_counts$pair_count)` pairs,
+`r format_integer_matched(iwp_bf_counts$gene_count)` genes, and
+`r format_integer_matched(iwp_bf_counts$variant_count)` unique variants.
+FASH-linear identifies
+`r format_integer_matched(linear_bf_counts$pair_count)` pairs,
+`r format_integer_matched(linear_bf_counts$gene_count)` genes, and
+`r format_integer_matched(linear_bf_counts$variant_count)` unique variants.
+</div>
+
+```{r discovery-counts-table, results='asis'}
+render_scrollable_table_matched(
+  discovery_counts_display,
+  caption = "Table 2. Raw and BF-adjusted cumulative-lfdr FDR-0.05 discovery counts.",
+  digits = 6L,
+  minimum_width = "820px"
+)
+```
+
+The directional coverage is the fraction of each IWP discovery set also found
+by FASH-linear.
+
+```{r iwp1-linear-proportion-table, results='asis'}
+render_scrollable_table_matched(
+  iwp1_linear_proportion_display,
+  caption = "Table 3. BF-adjusted FASH-IWP1 discoveries covered by BF-adjusted FASH-linear at the three reporting levels.",
+  minimum_width = "860px"
+)
+```
+
+```{r iwp2-linear-proportion-table, results='asis'}
+render_scrollable_table_matched(
+  iwp2_linear_proportion_display,
+  caption = "Table 4. BF-adjusted FASH-IWP2 discoveries covered by BF-adjusted FASH-linear at the three reporting levels.",
+  minimum_width = "860px"
+)
+```
+
+FASH-linear covers 92.6% of the FASH-IWP1 pair discoveries and 47.7% of the
+FASH-IWP2 pair discoveries.
+
+## Four-method overlap
+
+The following Venn diagrams extend the real-data comparison by adding
+BF-adjusted FASH-linear to Strober quadratic, Strober linear, and BF-adjusted
+FASH-IWP1. Strober discoveries use eFDR at most 0.05.
+
+```{r venn-pairs, fig.width=9.8, fig.height=7.4, fig.cap="Figure 1. Gene-variant-pair overlap among Strober quadratic, Strober linear, BF-adjusted FASH-IWP1, and BF-adjusted FASH-linear. FASH sets use cumulative-lfdr FDR 0.05; Strober sets use eFDR 0.05."}
+pair_sets <- list(
+  `Strober quad.` =
+    venn_sets$`Gene-variant pairs`$`Strober quadratic`,
+  `Strober linear` =
+    venn_sets$`Gene-variant pairs`$`Strober linear`,
+  `FASH-linear` =
+    venn_sets$`Gene-variant pairs`$`FASH-linear BF`,
+  `FASH-IWP1` =
+    venn_sets$`Gene-variant pairs`$`FASH-IWP1 BF`
+)
+
+ggVennDiagram::ggVennDiagram(
+  pair_sets,
+  label = "count",
+  label_alpha = 0,
+  label_size = 3.7,
+  set_size = 3.8,
+  edge_size = 0.8
+) +
+  ggplot2::scale_fill_gradient(low = "#f7fbff", high = "#2171b5") +
+  ggplot2::theme(
+    legend.position = "right",
+    plot.margin = ggplot2::margin(20, 40, 20, 40)
+  )
+```
+
+```{r venn-genes, fig.width=9.8, fig.height=7.4, fig.cap="Figure 2. Gene-level overlap among Strober quadratic, Strober linear, BF-adjusted FASH-IWP1, and BF-adjusted FASH-linear. A gene enters a set when at least one of its tested variants is discovered by that method."}
+gene_sets <- list(
+  `Strober quad.` = venn_sets$Genes$`Strober quadratic`,
+  `Strober linear` = venn_sets$Genes$`Strober linear`,
+  `FASH-linear` = venn_sets$Genes$`FASH-linear BF`,
+  `FASH-IWP1` = venn_sets$Genes$`FASH-IWP1 BF`
+)
+
+ggVennDiagram::ggVennDiagram(
+  gene_sets,
+  label = "count",
+  label_alpha = 0,
+  label_size = 3.7,
+  set_size = 3.8,
+  edge_size = 0.8
+) +
+  ggplot2::scale_fill_gradient(low = "#f7fbff", high = "#2171b5") +
+  ggplot2::theme(
+    legend.position = "right",
+    plot.margin = ggplot2::margin(20, 40, 20, 40)
+  )
+```
+
+```{r venn-variants, fig.width=9.8, fig.height=7.4, fig.cap="Figure 3. Unique-variant overlap among Strober quadratic, Strober linear, BF-adjusted FASH-IWP1, and BF-adjusted FASH-linear. Each rsID is counted once per method, regardless of the number of associated genes."}
+variant_sets <- list(
+  `Strober quad.` = venn_sets$Variants$`Strober quadratic`,
+  `Strober linear` = venn_sets$Variants$`Strober linear`,
+  `FASH-linear` = venn_sets$Variants$`FASH-linear BF`,
+  `FASH-IWP1` = venn_sets$Variants$`FASH-IWP1 BF`
+)
+
+ggVennDiagram::ggVennDiagram(
+  variant_sets,
+  label = "count",
+  label_alpha = 0,
+  label_size = 3.7,
+  set_size = 3.8,
+  edge_size = 0.8
+) +
+  ggplot2::scale_fill_gradient(low = "#f7fbff", high = "#2171b5") +
+  ggplot2::theme(
+    legend.position = "right",
+    plot.margin = ggplot2::margin(20, 40, 20, 40)
+  )
+```
+
+The BF-adjusted IWP1--linear intersections are
+`r format_integer_matched(iwp_linear_overlap$Intersection[iwp_linear_overlap$Unit == "Gene-variant pairs"])`
+pairs,
+`r format_integer_matched(iwp_linear_overlap$Intersection[iwp_linear_overlap$Unit == "Genes"])`
+genes, and
+`r format_integer_matched(iwp_linear_overlap$Intersection[iwp_linear_overlap$Unit == "Variants"])`
+unique variants. These are real-data set comparisons, not known-truth power
+comparisons.
+
+## Reproducibility and validation
+
+The page reads the versioned cache and does not refit the million-pair model.
+
+```{bash reproduction-command, eval=FALSE}
+OMP_NUM_THREADS=1 \
+OPENBLAS_NUM_THREADS=1 \
+MKL_NUM_THREADS=1 \
+VECLIB_MAXIMUM_THREADS=1 \
+BLIS_NUM_THREADS=1 \
+Rscript --vanilla \
+  code/revision_simulations/internal/matched_fash_linear_real_data/\
+run_matched_fash_linear_real_data.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/matched_fash_linear_real_data/\
+build_iwp_overlap_proportion_cache.R
+
+Rscript --vanilla -e \
+  'workflowr::wflow_build("analysis/revision_internal_matched_fash_linear_real_data.rmd", local = TRUE)'
+```
+
+```{r software-table, results='asis'}
+render_scrollable_table_matched(
+  package_display,
+  caption = "Table 5. Software provenance for the fresh FASH-linear rerun.",
+  minimum_width = "1120px"
+)
+```
+
+```{r validation-table, results='asis'}
+render_scrollable_table_matched(
+  validation,
+  caption = "Table 6. Numerical, provenance, set-construction, and resource validations.",
+  minimum_width = "760px"
+)
+```
+
+```{r runtime-table, results='asis'}
+render_scrollable_table_matched(
+  runtime_summary,
+  caption = "Table 7. Single-process runtime for fitting and cache construction.",
+  digits = 2L,
+  minimum_width = "620px"
+)
+```

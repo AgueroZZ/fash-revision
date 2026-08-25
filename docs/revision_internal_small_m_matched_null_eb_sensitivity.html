@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-19" />
+
+<title>Internal analysis: small-M matched-null EB sensitivity</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Internal analysis: small-M matched-null EB
+sensitivity</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-19</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-19
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Rplots.pdf
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/revision_simulations/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/playwright/
+    Ignored:    output/revision_simulations/
+
+Untracked files:
+    Untracked:  analysis/revision_internal_fash_cl_manuscript_impact.rmd
+    Untracked:  analysis/revision_internal_fash_discovery_variant_count.rmd
+    Untracked:  analysis/revision_internal_fash_linear_real_data_ablation.rmd
+    Untracked:  analysis/revision_internal_fashr_correlated_observation_model.rmd
+    Untracked:  analysis/revision_internal_r1_normality_assumption.rmd
+    Untracked:  analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd
+    Untracked:  analysis/revision_internal_twenty_variant_per_gene_refit.rmd
+    Untracked:  apps/
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_design_propagated_null_correlation.R
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_multigene_null_beta_covariance_exploration.R
+    Untracked:  code/revision_simulations/internal/early_window_sensitivity/
+    Untracked:  code/revision_simulations/internal/fash_cl_manuscript_impact/
+    Untracked:  code/revision_simulations/internal/fash_discovery_variant_count/
+    Untracked:  code/revision_simulations/internal/fash_linear_real_data_ablation/
+    Untracked:  code/revision_simulations/internal/r1_known_truth_genotype_permutation/
+    Untracked:  code/revision_simulations/internal/r1_normality_assumption/
+    Untracked:  code/revision_simulations/internal/selected_signal_genotype_permutation/
+    Untracked:  code/revision_simulations/r5_one_variant_per_gene/
+    Untracked:  code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R
+    Untracked:  code/revision_simulations/shared/real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/test_linear_mixture_fash.R
+    Untracked:  code/revision_simulations/shared/test_real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_linear_mixture_pairing.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_real_genotype_pairing.R
+
+Unstaged changes:
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/revision_balanced_variant_thinning.rmd
+    Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
+    Modified:   analysis/revision_functional_testing_simulation.rmd
+    Modified:   analysis/revision_genotype_level_simulation.rmd
+    Modified:   code/revision_simulations/README.md
+    Modified:   code/revision_simulations/internal/covariance_estimation/run_global_pca_factor_visualization.R
+    Modified:   code/revision_simulations/r1_random_bspline/reporting.R
+    Modified:   code/revision_simulations/r1_random_bspline/run_random_bspline_mc_replication.R
+    Modified:   code/revision_simulations/r2_spiky_transient/reporting.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_combined_spiky_genotype_simulation.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R
+    Modified:   code/revision_simulations/r3_functional_testing/reporting.R
+    Modified:   code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R
+    Modified:   code/revision_simulations/shared/simulation_functions.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style>
+.small-m-internal-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.small-m-definition {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.small-m-warning {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #d55e00;
+  border-radius: 4px;
+  background: #fff2ed;
+  color: #5a2817;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre,
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+<div class="small-m-internal-banner">
+<p><strong>Internal fixed-permutation sensitivity page.</strong> This
+page is not linked from the workflowr homepage, manuscript, or response
+letter.</p>
+</div>
+<div id="question-and-design" class="section level2">
+<h2>Question and design</h2>
+<p>The original all-gene matched-null experiment appended one
+synchronized signal-stripped residual-permutation control for each of
+the 6,362 randomly sampled target gene–variant units, so that <span
+class="math inline">\(M=J\)</span>. This sensitivity analysis asks how
+the fitted empirical-Bayes mixture changes when only a small subset of
+the existing controls is appended.</p>
+<div class="small-m-definition">
+<ul>
+<li>
+<strong>Target universe:</strong> 6,362 genes, with one variant sampled
+uniformly within every tested gene using selection seed 20260817.
+</li>
+<li>
+<strong>Null construction:</strong> the saved synchronized full-model
+signal-stripped residual permutation from seed 20260811.
+</li>
+<li>
+<strong>Small-M ratios:</strong> <span
+class="math inline">\(M/J=0.05,0.10,0.20\)</span>, corresponding to
+<span class="math inline">\(M=318,636,1272\)</span>.
+</li>
+<li>
+<strong>Replicates:</strong> 20 deterministic null-row subsets per
+ratio. Within each replicate, the three subsets are nested.
+</li>
+<li>
+<strong>Refitting:</strong> raw FASH and BF update are re-estimated
+after every merge; every target and control lfdr comes from that
+replicate-specific merged fit.
+</li>
+<li>
+<strong>References:</strong> a newly refitted target-only <span
+class="math inline">\(M=0\)</span> procedure and the saved full <span
+class="math inline">\(M=J\)</span> procedure.
+</li>
+</ul>
+</div>
+<p>The analysis reused cached likelihood rows, so no beta, SE, or
+likelihood was recomputed. The 60 small-M raw/BF refits plus validation
+took 56.8 seconds; the median raw-plus-BF fit itself took 0.340
+seconds.</p>
+<div class="small-m-warning">
+<p>The 20 repetitions quantify <strong>null-row subsampling sensitivity
+within one fixed synchronized permutation</strong>. They are not 20
+independent permutations. Because the permuted controls may carry
+alternative-like signal, <span
+class="math inline">\(V/R_{\mathrm{merged}}\)</span> is labeled a
+known-null FDP lower-bound diagnostic rather than a formal FDP estimate,
+and the plug-in quantities below are not formal repeated-sampling FDR
+estimates.</p>
+</div>
+</div>
+<div id="estimated-pi0" class="section level2">
+<h2>Estimated pi0</h2>
+<p>For each merged fit, the target-null proportion is algebraically
+recovered as</p>
+<p><span class="math display">\[
+\widehat\pi_{0,T}
+=
+\frac{(J+M)\widehat\pi_{0,\mathrm{merged}}-M}{J}.
+\]</span></p>
+<p>The BF-adjusted merged <span
+class="math inline">\(\widehat\pi_0\)</span> rises only slightly as
+controls are added, from 0.9302 in the target-only fit to median values
+of approximately 0.9322, 0.9335, and 0.9357 at <span
+class="math inline">\(M/J=0.05,0.10,0.20\)</span>. In contrast, the
+recovered target <span class="math inline">\(\widehat\pi_0\)</span>
+declines from 0.9302 to approximately 0.9288, 0.9268, and 0.9229. Thus
+the exact-null weight does not follow the ideal uncontaminated mixture
+identity as <span class="math inline">\(M\)</span> increases.</p>
+<pre class="r"><code>plot_small_m_pi0()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_small_m_matched_null_eb_sensitivity.rmd/pi0-sensitivity-1.png" alt="Raw and BF-adjusted merged and recovered-target null-proportion estimates versus the appended-control ratio. Small-M points are medians with interquartile bands across 20 nested control subsets; M/J = 0 and 1 are single reference fits." width="1692" />
+<p class="caption">
+Raw and BF-adjusted merged and recovered-target null-proportion
+estimates versus the appended-control ratio. Small-M points are medians
+with interquartile bands across 20 nested control subsets; M/J = 0 and 1
+are single reference fits.
+</p>
+</div>
+<pre class="r"><code>render_small_m_table(
+  small_m_pi0_summary_table,
+  align = &quot;llrrr&quot;
+)</code></pre>
+<table class="table table-striped table-condensed">
+<thead>
+<tr>
+<th style="text-align:left;">
+Stage
+</th>
+<th style="text-align:left;">
+M / J
+</th>
+<th style="text-align:right;">
+M
+</th>
+<th style="text-align:right;">
+Merged pi0
+</th>
+<th style="text-align:right;">
+Recovered target pi0
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+0 (target only)
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.5616 [0.5616, 0.5616]
+</td>
+<td style="text-align:right;">
+0.5616 [0.5616, 0.5616]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+0.05
+</td>
+<td style="text-align:right;">
+318
+</td>
+<td style="text-align:right;">
+0.5669 [0.5584, 0.5722]
+</td>
+<td style="text-align:right;">
+0.5453 [0.5363, 0.5509]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+0.10
+</td>
+<td style="text-align:right;">
+636
+</td>
+<td style="text-align:right;">
+0.5701 [0.5585, 0.5802]
+</td>
+<td style="text-align:right;">
+0.5271 [0.5144, 0.5383]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+0.20
+</td>
+<td style="text-align:right;">
+1,272
+</td>
+<td style="text-align:right;">
+0.5713 [0.5613, 0.5755]
+</td>
+<td style="text-align:right;">
+0.4855 [0.4736, 0.4906]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+1.00
+</td>
+<td style="text-align:right;">
+6,362
+</td>
+<td style="text-align:right;">
+0.5479 [0.5479, 0.5479]
+</td>
+<td style="text-align:right;">
+0.0958 [0.0958, 0.0958]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+0 (target only)
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.9302 [0.9302, 0.9302]
+</td>
+<td style="text-align:right;">
+0.9302 [0.9302, 0.9302]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+0.05
+</td>
+<td style="text-align:right;">
+318
+</td>
+<td style="text-align:right;">
+0.9322 [0.9313, 0.9326]
+</td>
+<td style="text-align:right;">
+0.9288 [0.9279, 0.9292]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+0.10
+</td>
+<td style="text-align:right;">
+636
+</td>
+<td style="text-align:right;">
+0.9335 [0.9325, 0.9344]
+</td>
+<td style="text-align:right;">
+0.9268 [0.9258, 0.9278]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+0.20
+</td>
+<td style="text-align:right;">
+1,272
+</td>
+<td style="text-align:right;">
+0.9357 [0.9350, 0.9367]
+</td>
+<td style="text-align:right;">
+0.9229 [0.9219, 0.9241]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+1.00
+</td>
+<td style="text-align:right;">
+6,362
+</td>
+<td style="text-align:right;">
+0.9452 [0.9452, 0.9452]
+</td>
+<td style="text-align:right;">
+0.8904 [0.8904, 0.8904]
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="alternative-mixture-weights" class="section level2">
+<h2>Alternative-mixture weights</h2>
+<p>The next plot removes the total exact-null mass and, within every
+refit, renormalizes the remaining PSD-scale weights to sum to one before
+taking component-wise medians. It therefore isolates changes in the
+learned alternative mixture from changes in <span
+class="math inline">\(\widehat\pi_0\)</span>. A missing scale in a
+particular fit means its fitted weight is zero.</p>
+<pre class="r"><code>plot_small_m_alternative_weights()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_small_m_matched_null_eb_sensitivity.rmd/alternative-weight-heatmap-1.png" alt="Median empirical-Bayes mixture weight at each non-null PSD scale after conditioning on the alternative component. Columns are target-only, three small-M ratios, and the full M/J = 1 reference." width="1692" />
+<p class="caption">
+Median empirical-Bayes mixture weight at each non-null PSD scale after
+conditioning on the alternative component. Columns are target-only,
+three small-M ratios, and the full M/J = 1 reference.
+</p>
+</div>
+<pre class="r"><code>render_small_m_table(
+  small_m_alternative_summary_table,
+  align = &quot;llrr&quot;
+)</code></pre>
+<table class="table table-striped table-condensed">
+<thead>
+<tr>
+<th style="text-align:left;">
+Stage
+</th>
+<th style="text-align:left;">
+M / J
+</th>
+<th style="text-align:right;">
+Alternative mass
+</th>
+<th style="text-align:right;">
+Conditional mean PSD
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+0 (target only)
+</td>
+<td style="text-align:right;">
+43.84% [43.84%, 43.84%]
+</td>
+<td style="text-align:right;">
+0.1236 [0.1236, 0.1236]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+0.05
+</td>
+<td style="text-align:right;">
+43.31% [42.78%, 44.16%]
+</td>
+<td style="text-align:right;">
+0.1219 [0.1197, 0.1233]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+0.10
+</td>
+<td style="text-align:right;">
+42.99% [41.98%, 44.15%]
+</td>
+<td style="text-align:right;">
+0.1201 [0.1173, 0.1224]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+0.20
+</td>
+<td style="text-align:right;">
+42.87% [42.45%, 43.87%]
+</td>
+<td style="text-align:right;">
+0.1155 [0.1137, 0.1171]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+1.00
+</td>
+<td style="text-align:right;">
+45.21% [45.21%, 45.21%]
+</td>
+<td style="text-align:right;">
+0.0921 [0.0921, 0.0921]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+0 (target only)
+</td>
+<td style="text-align:right;">
+6.98% [6.98%, 6.98%]
+</td>
+<td style="text-align:right;">
+0.1186 [0.1186, 0.1186]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+0.05
+</td>
+<td style="text-align:right;">
+6.78% [6.74%, 6.87%]
+</td>
+<td style="text-align:right;">
+0.1179 [0.1150, 0.1192]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+0.10
+</td>
+<td style="text-align:right;">
+6.65% [6.56%, 6.75%]
+</td>
+<td style="text-align:right;">
+0.1168 [0.1129, 0.1185]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+0.20
+</td>
+<td style="text-align:right;">
+6.43% [6.33%, 6.50%]
+</td>
+<td style="text-align:right;">
+0.1122 [0.1087, 0.1136]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+1.00
+</td>
+<td style="text-align:right;">
+5.48% [5.48%, 5.48%]
+</td>
+<td style="text-align:right;">
+0.0874 [0.0874, 0.0874]
+</td>
+</tr>
+</tbody>
+</table>
+<p>The redistribution across non-null PSD scales shows that appended
+controls do more than change the scalar null weight: they also change
+the shape of the learned alternative prior. Consequently, a small
+difference in <span class="math inline">\(\widehat\pi_0\)</span> alone
+is not evidence that target lfdr values are unaffected. Some individual
+changes exchange weight between neighboring PSD scales, but a coarser
+summary moves in the same direction: the BF-adjusted conditional mean
+PSD declines from 0.1186 in the target-only fit to medians of 0.1179,
+0.1168, and 0.1122 at the three small-M ratios, and to 0.0874 at <span
+class="math inline">\(M/J=1\)</span>.</p>
+</div>
+<div id="alpha-0.05-summary" class="section level2">
+<h2>Alpha = 0.05 summary</h2>
+<p>For each small-M ratio, entries are median [first quartile, third
+quartile] across the 20 nested subsets. The <span
+class="math inline">\(M/J=1\)</span> row is the single saved
+reference.</p>
+<pre class="r"><code>render_small_m_table(
+  small_m_alpha005_table,
+  align = &quot;lrrrrrrrr&quot;
+)</code></pre>
+<table class="table table-striped table-condensed">
+<thead>
+<tr>
+<th style="text-align:left;">
+M / J
+</th>
+<th style="text-align:right;">
+M
+</th>
+<th style="text-align:right;">
+Merged pi0
+</th>
+<th style="text-align:right;">
+Recovered target pi0
+</th>
+<th style="text-align:right;">
+Target calls
+</th>
+<th style="text-align:right;">
+Control calls V
+</th>
+<th style="text-align:right;">
+V / R_merged
+</th>
+<th style="text-align:right;">
+Target-pi0 plug-in FDR
+</th>
+<th style="text-align:right;">
+Merged-pi0 plug-in FDR
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+0.05
+</td>
+<td style="text-align:right;">
+318
+</td>
+<td style="text-align:right;">
+0.932 [0.931, 0.933]
+</td>
+<td style="text-align:right;">
+0.929 [0.928, 0.929]
+</td>
+<td style="text-align:right;">
+76 [75, 77]
+</td>
+<td style="text-align:right;">
+2 [1, 4]
+</td>
+<td style="text-align:right;">
+2.55% [1.32%, 4.47%]
+</td>
+<td style="text-align:right;">
+48.6% [24.8%, 86.9%]
+</td>
+<td style="text-align:right;">
+49.9% [25.8%, 87.5%]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0.10
+</td>
+<td style="text-align:right;">
+636
+</td>
+<td style="text-align:right;">
+0.933 [0.933, 0.934]
+</td>
+<td style="text-align:right;">
+0.927 [0.926, 0.928]
+</td>
+<td style="text-align:right;">
+75 [74, 76]
+</td>
+<td style="text-align:right;">
+4 [2, 6]
+</td>
+<td style="text-align:right;">
+5.26% [3.20%, 7.41%]
+</td>
+<td style="text-align:right;">
+51.5% [30.7%, 74.2%]
+</td>
+<td style="text-align:right;">
+54.1% [32.9%, 76.1%]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+0.20
+</td>
+<td style="text-align:right;">
+1,272
+</td>
+<td style="text-align:right;">
+0.936 [0.935, 0.937]
+</td>
+<td style="text-align:right;">
+0.923 [0.922, 0.924]
+</td>
+<td style="text-align:right;">
+72 [71, 72]
+</td>
+<td style="text-align:right;">
+9 [7, 10]
+</td>
+<td style="text-align:right;">
+11.11% [9.35%, 12.37%]
+</td>
+<td style="text-align:right;">
+57.7% [47.6%, 65.2%]
+</td>
+<td style="text-align:right;">
+62.4% [52.5%, 69.5%]
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+1.00 reference
+</td>
+<td style="text-align:right;">
+6,362
+</td>
+<td style="text-align:right;">
+0.945
+</td>
+<td style="text-align:right;">
+0.890
+</td>
+<td style="text-align:right;">
+58
+</td>
+<td style="text-align:right;">
+39
+</td>
+<td style="text-align:right;">
+40.21%
+</td>
+<td style="text-align:right;">
+59.9%
+</td>
+<td style="text-align:right;">
+76.0%
+</td>
+</tr>
+</tbody>
+</table>
+<p>At nominal <span class="math inline">\(\alpha=0.05\)</span>, median
+<span class="math inline">\(V/R_{\mathrm{merged}}\)</span> is 2.55%,
+5.26%, and 11.11% for the three small-M ratios, compared with 40.21% for
+the saved <span class="math inline">\(M/J=1\)</span> reference. The
+increase with <span class="math inline">\(M\)</span> is expected because
+a larger synthetic-control pool can contribute more selected controls to
+the merged discovery set. Median target-<span
+class="math inline">\(\pi_0\)</span> plug-in FDR diagnostics are 48.6%,
+51.5%, and 57.7%; the merged-<span class="math inline">\(\pi_0\)</span>
+versions are 49.9%, 54.1%, and 62.4%.</p>
+<p>The <span class="math inline">\(M/J=0.05\)</span> diagnostic is
+especially discrete: the median number of selected controls is only two,
+with an interquartile range from one to slightly above three. Individual
+plug-in estimates can exceed one; this reflects the instability of the
+scaled diagnostic with a small <span class="math inline">\(M\)</span>
+and a small target-call denominator, not an FDR probability above
+100%.</p>
+</div>
+<div id="plug-in-fdr-curves" class="section level2">
+<h2>Plug-in FDR curves</h2>
+<p>The two diagnostics are</p>
+<p><span class="math display">\[
+\widehat{\mathrm{FDR}}_T
+=
+\widehat\pi_{0,T}
+\frac{V/M}{R_T/J},
+\qquad
+\widehat{\mathrm{FDR}}_{\mathrm{merged}}
+=
+\widehat\pi_{0,\mathrm{merged}}
+\frac{V/M}{R_{\mathrm{merged}}/(J+M)}.
+\]</span></p>
+<p>These plug-in formulas still use <span
+class="math inline">\(V/M\)</span> as the estimated null selection
+probability. This is distinct from the direct known-null FDP lower-bound
+diagnostic <span
+class="math inline">\(V/R_{\mathrm{merged}}\)</span>.</p>
+<pre class="r"><code>plot_small_m_plugin_fdr()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_small_m_matched_null_eb_sensitivity.rmd/plugin-fdr-curves-1.png" alt="BF-adjusted plug-in FDR diagnostics versus nominal alpha for the three small-M ratios. Solid lines are medians, ribbons are interquartile ranges, and the dashed black curve is the saved M/J = 1 reference." width="1692" />
+<p class="caption">
+BF-adjusted plug-in FDR diagnostics versus nominal alpha for the three
+small-M ratios. Solid lines are medians, ribbons are interquartile
+ranges, and the dashed black curve is the saved M/J = 1 reference.
+</p>
+</div>
+<p>Reducing <span class="math inline">\(M\)</span> does not restore an
+approximately nominal plug-in curve. It reduces the influence of the
+appended controls on each individual EB fit, but the resulting
+diagnostic becomes noisier because only a few controls are selected.</p>
+</div>
+<div id="known-null-fdp-lower-bound" class="section level2">
+<h2>Known-null FDP lower bound</h2>
+<pre class="r"><code>plot_small_m_known_null_fdp()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_small_m_matched_null_eb_sensitivity.rmd/known-null-fdp-curves-1.png" alt="BF-adjusted known-null FDP lower-bound diagnostic V/R_merged versus nominal alpha. These fixed-permutation controls may be signal-contaminated, so the curve is not a formal FDP estimate." width="1692" />
+<p class="caption">
+BF-adjusted known-null FDP lower-bound diagnostic V/R_merged versus
+nominal alpha. These fixed-permutation controls may be
+signal-contaminated, so the curve is not a formal FDP estimate.
+</p>
+</div>
+<p>The direct diagnostic asks what fraction of all merged discoveries
+came from the appended controls. If every appended control were a valid
+known null, it would be a lower bound on the merged FDP because false
+target discoveries are not counted in <span
+class="math inline">\(V\)</span>. Signal leakage weakens that known-null
+interpretation in this real-data permutation experiment.</p>
+</div>
+<div id="interpretation" class="section level2">
+<h2>Interpretation</h2>
+<ol style="list-style-type: decimal">
+<li><strong>The scalar BF null weight is fairly stable, but the ideal
+dilution identity fails.</strong> Merged BF <span
+class="math inline">\(\widehat\pi_0\)</span> changes by only a few
+tenths of a percentage point at small <span
+class="math inline">\(M\)</span>, while the recovered target <span
+class="math inline">\(\widehat\pi_0\)</span> systematically
+decreases.</li>
+<li><strong>The alternative prior is also affected.</strong> The
+conditional PSD-scale weights redistribute as <span
+class="math inline">\(M/J\)</span> increases, so inspecting only <span
+class="math inline">\(\widehat\pi_0\)</span> misses part of the EB
+influence.</li>
+<li><strong>The severe plug-in inflation is not created only by choosing
+<span class="math inline">\(M=J\)</span>.</strong> It remains large at
+<span class="math inline">\(M/J=0.05,0.10,0.20\)</span>, although the
+smallest-<span class="math inline">\(M\)</span> estimates have wide
+subsampling variation.</li>
+<li><strong>The direct known-null FDP diagnostic depends strongly on
+<span class="math inline">\(M\)</span>.</strong> At <span
+class="math inline">\(\alpha=0.05\)</span>, median <span
+class="math inline">\(V/R_{\mathrm{merged}}\)</span> rises from 2.55% at
+<span class="math inline">\(M/J=0.05\)</span> to 11.11% at <span
+class="math inline">\(M/J=0.20\)</span> and 40.21% at <span
+class="math inline">\(M/J=1\)</span>.</li>
+<li><strong>Smaller <span class="math inline">\(M\)</span> limits
+contamination per fit but does not validate the controls.</strong> This
+experiment is evidence about EB sensitivity to the fixed
+synthetic-control pool. A formal calibration claim would still require
+clean known-truth nulls or independently generated valid
+permutations.</li>
+</ol>
+</div>
+<div id="reproduction-and-provenance" class="section level2">
+<h2>Reproduction and provenance</h2>
+<pre class="r"><code>provenance_display &lt;- small_m_input_provenance
+provenance_display$size_bytes &lt;- format_integer(provenance_display$size_bytes)
+names(provenance_display) &lt;- c(
+  &quot;Role&quot;, &quot;Path&quot;, &quot;Bytes&quot;, &quot;Modified (UTC)&quot;, &quot;MD5&quot;
+)
+render_small_m_table(
+  provenance_display,
+  align = &quot;llrll&quot;
+)</code></pre>
+<table class="table table-striped table-condensed">
+<thead>
+<tr>
+<th style="text-align:left;">
+Role
+</th>
+<th style="text-align:left;">
+Path
+</th>
+<th style="text-align:right;">
+Bytes
+</th>
+<th style="text-align:left;">
+Modified (UTC)
+</th>
+<th style="text-align:left;">
+MD5
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+full_merged_fit
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/revision_simulations/internal/all_gene_random_variant_signal_stripped_residual_block_permutation_selection20260817_seed20260811/merged_fash_fit.rds
+</td>
+<td style="text-align:right;">
+22,615,458
+</td>
+<td style="text-align:left;">
+2026-08-18 06:11:07 UTC
+</td>
+<td style="text-align:left;">
+da9855aa69b8fffe7f9f8cd25c2714c1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+full_calibration
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/revision_simulations/internal/all_gene_random_variant_signal_stripped_residual_block_permutation_selection20260817_seed20260811/calibration_diagnostics.csv
+</td>
+<td style="text-align:right;">
+946
+</td>
+<td style="text-align:left;">
+2026-08-18 06:11:08 UTC
+</td>
+<td style="text-align:left;">
+03fdefbb6b90dd7c5d4c45c3f5d90ffb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+target_selection
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/revision_simulations/internal/all_gene_random_variant_signal_stripped_residual_block_permutation_selection20260817_seed20260811/selection.csv
+</td>
+<td style="text-align:right;">
+626,736
+</td>
+<td style="text-align:left;">
+2026-08-18 06:11:08 UTC
+</td>
+<td style="text-align:left;">
+23b9db0285fbffd7ec6b3c766fa8f71c
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+clean_session_null_likelihood_fit
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/revision_simulations/internal/all_gene_random_variant_signal_stripped_residual_null_fit_selection20260817_seed20260811.rds
+</td>
+<td style="text-align:right;">
+5,582,366
+</td>
+<td style="text-align:left;">
+2026-08-18 06:09:58 UTC
+</td>
+<td style="text-align:left;">
+e8100b5086c4759e8f758bdbda913ac6
+</td>
+</tr>
+</tbody>
+</table>
+<p>Page-specific source files:</p>
+<ul>
+<li><code>code/revision_simulations/internal/selected_signal_genotype_permutation/small_m_eb_sensitivity_helpers.R</code></li>
+<li><code>code/revision_simulations/internal/selected_signal_genotype_permutation/run_small_m_eb_sensitivity.R</code></li>
+<li><code>code/revision_simulations/internal/selected_signal_genotype_permutation/test_small_m_eb_sensitivity.R</code></li>
+<li><code>code/revision_simulations/internal/selected_signal_genotype_permutation/report_small_m_eb_sensitivity.R</code></li>
+</ul>
+<p>Reproduction commands from the workflowr project root:</p>
+<pre class="r"><code>Rscript --vanilla \
+  code/revision_simulations/internal/selected_signal_genotype_permutation/test_small_m_eb_sensitivity.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/selected_signal_genotype_permutation/run_small_m_eb_sensitivity.R
+
+Rscript --vanilla -e \
+  &#39;workflowr::wflow_build(&quot;analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd&quot;)&#39;</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] workflowr_1.7.2
+
+loaded via a namespace (and not attached):
+ [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.1.4        compiler_4.5.1    
+ [5] promises_1.5.0     tidyselect_1.2.1   Rcpp_1.1.1-1.1     stringr_1.6.0     
+ [9] git2r_0.36.2       dichromat_2.0-0.1  callr_3.7.6        later_1.4.4       
+[13] jquerylib_0.1.4    scales_1.4.0       yaml_2.3.12        fastmap_1.2.0     
+[17] ggplot2_4.0.1      R6_2.6.1           labeling_0.4.3     generics_0.1.4    
+[21] knitr_1.50         tibble_3.3.0       rprojroot_2.1.1    RColorBrewer_1.1-3
+[25] bslib_0.9.0        pillar_1.11.1      rlang_1.2.0        cachem_1.1.0      
+[29] stringi_1.8.7      httpuv_1.6.16      xfun_0.55          S7_0.2.1          
+[33] getPass_0.2-4      fs_1.6.6           sass_0.4.10        otel_0.2.0        
+[37] viridisLite_0.4.2  cli_3.6.6          withr_3.0.2        magrittr_2.0.5    
+[41] ps_1.9.1           grid_4.5.1         digest_0.6.39      processx_3.8.6    
+[45] rstudioapi_0.17.1  lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5    
+[49] glue_1.8.1         farver_2.1.2       whisker_0.4.1      rmarkdown_2.30    
+[53] httr_1.4.7         tools_4.5.1        pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

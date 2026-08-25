@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2025-02-21" />
+
+<title>Dynamic eQTL analysis on iPSC (CL-PC)</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Dynamic eQTL analysis on iPSC (CL-PC)</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2025-02-21</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-24
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Rplots.pdf
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/revision_simulations/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/playwright/
+    Ignored:    output/revision_simulations/
+    Ignored:    scripts/
+
+Untracked files:
+    Untracked:  analysis/dynamic_eQTL_real_cl.rmd
+    Untracked:  analysis/nonlinear_dynamic_eQTL_real_cl.Rmd
+    Untracked:  analysis/revision_enhancer_enrichment_cl.rmd
+    Untracked:  analysis/revision_internal_correlated_permutation_discoveries.rmd
+    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd
+    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity_middle_4_11.rmd
+    Untracked:  analysis/revision_internal_fash_cl_manuscript_impact.rmd
+    Untracked:  analysis/revision_internal_fash_discovery_variant_count.rmd
+    Untracked:  analysis/revision_internal_fash_linear_real_data_ablation.rmd
+    Untracked:  analysis/revision_internal_fashr_correlated_observation_model.rmd
+    Untracked:  analysis/revision_internal_matched_fash_linear_real_data.rmd
+    Untracked:  analysis/revision_internal_matched_fash_linear_real_data_cl.rmd
+    Untracked:  analysis/revision_internal_r1_normality_assumption.rmd
+    Untracked:  analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd
+    Untracked:  analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd
+    Untracked:  analysis/revision_internal_twenty_variant_per_gene_refit.rmd
+    Untracked:  apps/
+    Untracked:  code/02_dyn_lfsr.R
+    Untracked:  code/02_dyn_lfsr.sbatch
+    Untracked:  code/revision_simulations/appendix_b/
+    Untracked:  code/revision_simulations/internal/cl_pc_real_data_pages/
+    Untracked:  code/revision_simulations/internal/correlated_permutation_discoveries/
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_design_propagated_null_correlation.R
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_multigene_null_beta_covariance_exploration.R
+    Untracked:  code/revision_simulations/internal/early_window_sensitivity/
+    Untracked:  code/revision_simulations/internal/evaluation_grid_sensitivity/
+    Untracked:  code/revision_simulations/internal/fash_cl_manuscript_impact/
+    Untracked:  code/revision_simulations/internal/fash_discovery_variant_count/
+    Untracked:  code/revision_simulations/internal/fash_knockoff/
+    Untracked:  code/revision_simulations/internal/fash_linear_real_data_ablation/
+    Untracked:  code/revision_simulations/internal/fash_strober_enhancer_comparison_cl/
+    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data/
+    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data_cl/
+    Untracked:  code/revision_simulations/internal/r0_linear_iwp_power_mechanism/
+    Untracked:  code/revision_simulations/internal/r0_linear_summary_statistic/
+    Untracked:  code/revision_simulations/internal/r1_known_truth_genotype_permutation/
+    Untracked:  code/revision_simulations/internal/r1_linear_truth_composition/
+    Untracked:  code/revision_simulations/internal/r1_normality_assumption/
+    Untracked:  code/revision_simulations/internal/r3_middle_calibration/
+    Untracked:  code/revision_simulations/internal/residual_correlation_fash/
+    Untracked:  code/revision_simulations/internal/selected_signal_genotype_permutation/
+    Untracked:  code/revision_simulations/r1_r2_fashr0143/
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/
+    Untracked:  code/revision_simulations/r4_correlated_errors/real_genotype_r1_helpers.R
+    Untracked:  code/revision_simulations/r5_one_variant_per_gene/
+    Untracked:  code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R
+    Untracked:  code/revision_simulations/shared/real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/test_linear_mixture_fash.R
+    Untracked:  code/revision_simulations/shared/test_real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/test_relative_location_clearance.R
+    Untracked:  code/revision_simulations/shared/test_temporal_category_mixture.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_linear_mixture_pairing.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_real_genotype_pairing.R
+    Untracked:  figure/
+
+Unstaged changes:
+    Modified:   analysis/appendixB.rmd
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   analysis/dynamic_eQTL_real_full.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real_full.rmd
+    Modified:   analysis/revision_balanced_variant_thinning.rmd
+    Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
+    Modified:   analysis/revision_correlated_error_simulation.rmd
+    Modified:   analysis/revision_enhancer_enrichment.rmd
+    Modified:   analysis/revision_functional_testing_simulation.rmd
+    Modified:   analysis/revision_genotype_level_simulation.rmd
+    Modified:   code/revision_simulations/README.md
+    Modified:   code/revision_simulations/internal/covariance_estimation/run_global_pca_factor_visualization.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/reporting.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/run_fash_strober_enhancer_comparison.R
+    Modified:   code/revision_simulations/r1_random_bspline/reporting.R
+    Modified:   code/revision_simulations/r1_random_bspline/run_random_bspline_mc_replication.R
+    Modified:   code/revision_simulations/r2_spiky_transient/reporting.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_combined_spiky_genotype_simulation.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R
+    Modified:   code/revision_simulations/r3_functional_testing/reporting.R
+    Modified:   code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R
+    Modified:   code/revision_simulations/r4_correlated_errors/estimate_real_data_error_correlations.R
+    Modified:   code/revision_simulations/r4_correlated_errors/reporting.R
+    Modified:   code/revision_simulations/r4_correlated_errors/run_full_empirical_correlation_mc.R
+    Modified:   code/revision_simulations/r4_correlated_errors/run_lag1_correlation_sweep.R
+    Modified:   code/revision_simulations/shared/simulation_functions.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code>knitr::opts_chunk$set(fig.width = 8, fig.height = 6, message = FALSE, warning = FALSE)
+
+library(fashr)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(purrr)
+
+# plotting / viz
+library(ggplot2)
+library(ggrepel)
+
+# paths
+raw_result_dir &lt;- file.path(getwd(), &quot;output&quot;, &quot;dynamic_eQTL_real&quot;)
+result_dir &lt;- file.path(
+  getwd(),
+  &quot;output&quot;,
+  &quot;revision_simulations&quot;,
+  &quot;internal&quot;,
+  &quot;cl_pc_real_data_pages_fashr0143&quot;
+)
+classification_dir &lt;- file.path(result_dir, &quot;dynamic_classification&quot;)
+data_dir   &lt;- file.path(getwd(), &quot;data&quot;,   &quot;dynamic_eQTL_real&quot;)
+code_dir   &lt;- file.path(getwd(), &quot;code&quot;,   &quot;dynamic_eQTL_real&quot;)
+
+# grids
+log_prec  &lt;- seq(0, 10, by = 0.2)
+fine_grid &lt;- sort(c(0, exp(-0.5 * log_prec)))
+
+# ----------------------------
+# small utilities
+# ----------------------------
+cache_read &lt;- function(path) if (file.exists(path)) readRDS(path) else NULL
+cache_write &lt;- function(x, path) {
+  dir.create(dirname(path), showWarnings = FALSE, recursive = TRUE)
+  saveRDS(x, path)
+  x
+}
+
+# Parse &quot;ENSG..._rs...&quot; keys once
+parse_pair_keys &lt;- function(keys) {
+  m &lt;- str_match(keys, &quot;^([^_]+)_(.+)$&quot;)
+  tibble(key = keys, ens_id = m[,2], rs_id = m[,3])
+}
+
+# ----------------------------
+# biomaRt mapping with cache
+# ----------------------------
+get_gene_map &lt;- function(ens_ids, cache_path) {
+  ens_ids &lt;- unique(as.character(ens_ids))
+  cached &lt;- cache_read(cache_path)
+  if (!is.null(cached)) return(cached)
+
+  suppressMessages({
+    library(biomaRt)
+    mart &lt;- useEnsembl(biomart = &quot;genes&quot;, dataset = &quot;hsapiens_gene_ensembl&quot;)
+  })
+
+  mp &lt;- getBM(
+    attributes = c(&quot;ensembl_gene_id&quot;, &quot;hgnc_symbol&quot;),
+    filters    = &quot;ensembl_gene_id&quot;,
+    values     = ens_ids,
+    mart       = mart
+  ) %&gt;%
+    as_tibble() %&gt;%
+    distinct()
+
+  cache_write(mp, cache_path)
+}
+
+symbol_of &lt;- function(ens_id, map_tbl) {
+  s &lt;- map_tbl$hgnc_symbol[match(ens_id, map_tbl$ensembl_gene_id)]
+  ifelse(is.na(s) | s == &quot;&quot;, ens_id, s)
+}
+
+# (optional) symbol -&gt; ensembl (small list); cache too
+symbol_to_ens &lt;- function(symbols, cache_path) {
+  symbols &lt;- unique(as.character(symbols))
+  cached &lt;- cache_read(cache_path)
+  if (!is.null(cached)) return(cached)
+
+  suppressMessages({
+    library(biomaRt)
+    mart &lt;- useEnsembl(biomart = &quot;genes&quot;, dataset = &quot;hsapiens_gene_ensembl&quot;)
+  })
+
+  mp &lt;- getBM(
+    attributes = c(&quot;hgnc_symbol&quot;, &quot;ensembl_gene_id&quot;),
+    filters    = &quot;hgnc_symbol&quot;,
+    values     = symbols,
+    mart       = mart
+  ) %&gt;% as_tibble() %&gt;% distinct()
+
+  cache_write(mp, cache_path)
+}
+
+# ----------------------------
+# index selection helpers
+# ----------------------------
+pick_best_idx_by_gene &lt;- function(ens_id, pair_tbl, lfdr_vec, which = c(&quot;min&quot;, &quot;max&quot;)) {
+  which &lt;- match.arg(which)
+  cand &lt;- pair_tbl %&gt;% filter(ens_id == !!ens_id) %&gt;% pull(idx)
+  if (length(cand) == 0) return(NA_integer_)
+  if (which == &quot;min&quot;) cand[which.min(lfdr_vec[cand])] else cand[which.max(lfdr_vec[cand])]
+}
+
+pick_idxs_for_genes &lt;- function(ens_ids, pair_tbl, lfdr_vec, which = &quot;min&quot;) {
+  purrr::map_int(ens_ids, ~pick_best_idx_by_gene(.x, pair_tbl, lfdr_vec, which = which))
+}
+
+# ----------------------------
+# unified plotting
+# ----------------------------
+fmt_sci &lt;- function(x, digits = 2) {
+  if (length(x) == 0L || is.null(x) || is.na(x)) return(&quot;NA&quot;)
+  formatC(as.numeric(x), format = &quot;e&quot;, digits = digits)
+}
+
+plot_pair_base &lt;- function(idx,
+                           datasets,
+                           fash_raw,
+                           fash_adj,
+                           gene_map,
+                           p_lin = NULL,
+                           p_non = NULL,
+                           smooth_var = seq(0, 15, by = 0.1),
+                           add_lm = TRUE,
+                           add_quad = TRUE,
+                           main_prefix = NULL,
+                           ylim_type = c(&quot;data_fitted&quot;, &quot;fitted&quot;),
+                           include_zero_line = FALSE) {
+
+  dat &lt;- datasets[[idx]]
+  x &lt;- dat$x; y &lt;- dat$y; se &lt;- dat$SE
+  w &lt;- 1 / (se^2)
+
+  fitted &lt;- predict(fash_adj, index = idx, smooth_var = smooth_var)
+
+  # if ylim_type is data_fitted, take the max and min:
+  ylim_type &lt;- match.arg(ylim_type)
+  if (ylim_type == &quot;data_fitted&quot;) {
+    y_min &lt;- min(y - 2 * se, fitted$lower, na.rm = TRUE)
+    y_max &lt;- max(y + 2 * se, fitted$upper, na.rm = TRUE)
+  }
+  else{
+    y_min &lt;- min(fitted$lower, na.rm = TRUE) 
+    y_max &lt;- max(fitted$upper, na.rm = TRUE)
+    range &lt;- y_max - y_min
+    y_min &lt;- y_min - 0.2 * range
+    y_max &lt;- y_max + 0.2 * y_max
+  }
+
+  # titles
+  key_parts &lt;- strsplit(names(datasets)[idx], &quot;_&quot;, fixed = TRUE)[[1]]
+  ens_id &lt;- key_parts[1]
+  rs_id  &lt;- key_parts[2]
+  key   &lt;- names(datasets)[idx]
+  gsym   &lt;- symbol_of(ens_id, gene_map)
+
+  main_txt &lt;- paste0(gsym, &quot;: &quot;, rs_id)
+  if (!is.null(main_prefix)) main_txt &lt;- paste0(main_prefix, &quot; &quot;, main_txt)
+
+  # fits
+  lin_fit  &lt;- if (add_lm)   lm(y ~ x, weights = w) else NULL
+  quad_fit &lt;- if (add_quad) lm(y ~ poly(x, 2, raw = TRUE), weights = w) else NULL
+  x_grid   &lt;- if (add_quad) seq(min(x), max(x), length.out = 200) else NULL
+  quad_pred &lt;- if (add_quad) predict(quad_fit, newdata = data.frame(x = x_grid)) else NULL
+
+  plot(x, y, pch = 20, col = &quot;black&quot;, xlab = &quot;Time&quot;, ylab = &quot;Effect Est&quot;, ylim = c(y_min, y_max))
+  title(main = main_txt)
+
+  arrows(x0 = x, y0 = y - 2 * se, x1 = x, y1 = y + 2 * se,
+         length = 0.05, angle = 90, code = 3, col = &quot;black&quot;)
+
+  polygon(c(fitted$x, rev(fitted$x)), c(fitted$lower, rev(fitted$upper)),
+          col = rgb(1, 0, 0, 0.1), border = NA)
+  lines(fitted$x, fitted$mean, col = &quot;red&quot;, lwd = 2)
+
+  if (add_lm)   abline(lin_fit, col = &quot;green&quot;, lty = 2, lwd = 1)
+  if (add_quad) lines(x_grid, quad_pred, col = &quot;purple&quot;, lty = 2, lwd = 1)
+  if (include_zero_line) abline(h = 0, col = &quot;blue&quot;, lty = 2, lwd = 1)
+
+  lfdr_before &lt;- fash_raw$lfdr[idx]
+  lfdr_after  &lt;- fash_adj$lfdr[idx]
+  p_lin_val &lt;- if (!is.null(p_lin) &amp;&amp; !is.null(names(p_lin)) &amp;&amp; key %in% names(p_lin)) unname(p_lin[[key]]) else NA_real_
+
+  p_non_val &lt;- if (!is.null(p_non) &amp;&amp; !is.null(names(p_non)) &amp;&amp; key %in% names(p_non)) unname(p_non[[key]]) else NA_real_
+
+  if (!is.na(p_lin_val) || !is.na(p_non_val)) {
+
+    cap &lt;- sprintf(&quot;lfdr = %s (%s), p-value = %s (%s)&quot;,
+                  fmt_sci(lfdr_after), fmt_sci(lfdr_before),
+                  fmt_sci(p_lin_val), fmt_sci(p_non_val))
+
+  } else {
+
+    cap &lt;- sprintf(&quot;lfdr (raw) = %s, lfdr (adj) = %s&quot;, fmt_sci(lfdr_before), fmt_sci(lfdr_after))
+
+  }
+
+  title(sub = cap, cex.sub = 0.8)
+  invisible(NULL)
+}
+
+plot_many_pairs &lt;- function(idxs, nrow = 2, ncol = 2, ...) {
+  dots &lt;- list(...)
+  datasets &lt;- dots$datasets
+
+  idxs &lt;- as.integer(idxs)
+  idxs &lt;- idxs[!is.na(idxs)]
+  idxs &lt;- idxs[idxs &gt;= 1]
+  if (!is.null(datasets)) idxs &lt;- idxs[idxs &lt;= length(datasets)]
+
+  if (length(idxs) == 0L) {
+    message(&quot;plot_many_pairs: no valid indices to plot.&quot;)
+    return(invisible(NULL))
+  }
+
+  oldpar &lt;- par(no.readonly = TRUE)
+  on.exit(par(oldpar), add = TRUE)
+  par(mfrow = c(nrow, ncol))
+
+  for (idx in idxs) {
+    try(plot_pair_base(idx = idx, ...), silent = TRUE)
+  }
+
+  invisible(NULL)
+}
+
+# ----------------------------
+# Strober loading helpers
+# ----------------------------
+read_strober &lt;- function(path) {
+  read.delim(path) %&gt;%
+    as_tibble() %&gt;%
+    mutate(key = paste0(ensamble_id, &quot;_&quot;, rs_id))
+}
+
+# ----------------------------
+# lfdr vs p-value scatter helper
+# ----------------------------
+plot_lfdr_vs_p &lt;- function(fash_tbl, strober_df, pval_cutoff, lfdr_cutoff,
+                           gene_map, title_text = &quot;&quot;,
+                           manual_symbol = NULL) {
+  eps &lt;- .Machine$double.eps
+  if (is.null(manual_symbol)) manual_symbol &lt;- c()
+
+  df &lt;- fash_tbl %&gt;%
+    inner_join(strober_df %&gt;% dplyr::select(key, ensamble_id, pvalue), by = &quot;key&quot;) %&gt;%
+    mutate(ensamble_id = dplyr::coalesce(ensamble_id, ens_id))
+
+  # min per gene
+  df_p &lt;- df %&gt;% dplyr::group_by(ensamble_id) %&gt;% dplyr::slice_min(pvalue, n = 1, with_ties = FALSE) %&gt;% dplyr::ungroup()
+  df_l &lt;- df %&gt;% dplyr::group_by(ensamble_id) %&gt;% dplyr::slice_min(lfdr_adj, n = 1, with_ties = FALSE) %&gt;% dplyr::ungroup()
+
+  g &lt;- df_p %&gt;% dplyr::select(ensamble_id, pvalue) %&gt;%
+    inner_join(df_l %&gt;% dplyr::select(ensamble_id, lfdr_adj), by = &quot;ensamble_id&quot;) %&gt;%
+    mutate(
+      gene_symbol = symbol_of(ensamble_id, gene_map),
+      gene_label  = dplyr::coalesce(unname(manual_symbol[ensamble_id]), gene_symbol, ensamble_id),
+      neglog_p    = -log10(pmin(pmax(pvalue, eps), 1)),
+      neglog_lfdr = -log10(pmin(pmax(lfdr_adj, eps), 1)),
+      category = dplyr::case_when(
+        pvalue &lt;= pval_cutoff &amp; lfdr_adj &lt;= lfdr_cutoff ~ &quot;Both&quot;,
+        pvalue &lt;= pval_cutoff &amp; lfdr_adj &gt;  lfdr_cutoff ~ &quot;Strober only&quot;,
+        pvalue &gt;  pval_cutoff &amp; lfdr_adj &lt;= lfdr_cutoff ~ &quot;FASH only&quot;,
+        TRUE ~ &quot;Neither&quot;
+      ),
+      category = factor(category, levels = c(&quot;Both&quot;, &quot;FASH only&quot;, &quot;Strober only&quot;, &quot;Neither&quot;))
+    )
+
+  top_strober_only &lt;- g %&gt;% dplyr::filter(category == &quot;Strober only&quot;) %&gt;% dplyr::arrange(pvalue) %&gt;% dplyr::slice_head(n = 10)
+  top_fash_only    &lt;- g %&gt;% dplyr::filter(category == &quot;FASH only&quot;)    %&gt;% dplyr::arrange(lfdr_adj) %&gt;% dplyr::slice_head(n = 10)
+  top_both         &lt;- g %&gt;% dplyr::filter(category == &quot;Both&quot;)         %&gt;% dplyr::arrange(pvalue + lfdr_adj) %&gt;% dplyr::slice_head(n = 10)
+  label_df &lt;- dplyr::bind_rows(top_strober_only, top_fash_only, top_both)
+
+  col_map &lt;- c(&quot;Both&quot;=&quot;#7B3294&quot;,&quot;FASH only&quot;=&quot;#1B9E77&quot;,&quot;Strober only&quot;=&quot;#D95F02&quot;,&quot;Neither&quot;=&quot;grey80&quot;)
+
+  ggplot(g, aes(x = neglog_p, y = neglog_lfdr)) +
+    geom_point(data = subset(g, category == &quot;Neither&quot;), color = col_map[&quot;Neither&quot;], alpha = 0.25, size = 1.8) +
+    geom_point(data = subset(g, category != &quot;Neither&quot;), aes(color = category), alpha = 0.8, size = 2.2) +
+    scale_color_manual(values = col_map) +
+    geom_vline(xintercept = -log10(pval_cutoff), linetype = &quot;dashed&quot;) +
+    geom_hline(yintercept = -log10(lfdr_cutoff), linetype = &quot;dashed&quot;) +
+    geom_text_repel(
+      data = label_df, aes(label = gene_label, color = category),
+      size = 3, box.padding = 0.3, point.padding = 0.5, max.overlaps = Inf, show.legend = FALSE
+    ) +
+    theme_minimal() +
+    theme(text = element_text(size = 16), axis.text = element_text(size = 14), legend.position = &quot;bottom&quot;) +
+    labs(title = title_text, x = &quot;-log10(p-value)&quot;, y = &quot;-log10(lfdr)&quot;, color = NULL)
+}</code></pre>
+<div id="obtain-the-effect-size-of-eqtls" class="section level2">
+<h2>Obtain the effect size of eQTLs</h2>
+<p>We use the processed (expression &amp; genotype) data of <a
+href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6623972/">Strober
+et.al, 2019</a> to perform the eQTL analysis.</p>
+<p>For the association testing, we use a linear regression model for
+each gene-variant pair at each time point. This CL-PC sensitivity
+analysis estimates the first 5 PCs after collapsing expression to the
+cell-line level, then repeats those PC values across time.</p>
+<p>The code to perform this step can be found in the script
+<code>dynamic_eQTL_real/00_eQTLs.R</code> from the code directory.</p>
+<p>After this step, we have the effect size of eQTLs for each
+gene-variant pair at each time point, as well as its standard error.</p>
+</div>
+<div id="fitting-fash" class="section level2">
+<h2>Fitting FASH</h2>
+<p>To fit the FASH model on <span class="math inline">\(\{\beta_i(t_j),
+s_{ij}\}_{i\in N,j \in [16]}\)</span>, we consider fitting two FASH
+models:</p>
+<ul>
+<li><p>A FASH model based on first order IWP (testing for dynamic eQTLs:
+<span class="math inline">\(H_0: \beta_i(t)=c\)</span>).</p></li>
+<li><p>A FASH model based on second order IWP (testing for
+nonlinear-dynamic eQTLs: <span class="math inline">\(H_0:
+\beta_i(t)=c_1+c_2t\)</span>).</p></li>
+</ul>
+<p>The code to perform this step can be found in the script
+<code>dynamic_eQTL_real/01_fash.R</code> from the code directory.</p>
+<p>We will directly load the fitted FASH models from the output
+directory.</p>
+<pre class="r"><code>load(file.path(raw_result_dir, &quot;fash_fit1_all_CL.RData&quot;))</code></pre>
+<pre class="r"><code># This retained object uses the CL-based PCs described above.</code></pre>
+<p>We will load the datasets from the fitted FASH object:</p>
+<pre class="r"><code>datasets &lt;- fash_fit1$fash_data$data_list
+S_list   &lt;- fash_fit1$fash_data$S
+for (i in seq_along(datasets)) datasets[[i]]$SE &lt;- S_list[[i]]
+
+pair_tbl &lt;- parse_pair_keys(names(datasets)) %&gt;%
+  mutate(idx = row_number())
+
+all_genes &lt;- unique(pair_tbl$ens_id)
+
+gene_map &lt;- get_gene_map(
+  ens_ids = all_genes,
+  cache_path = file.path(raw_result_dir, &quot;cache_gene_map.rds&quot;)
+)</code></pre>
+<p>In this analysis, we will focus on the <strong>FASH(1)</strong> model
+that assumes a <strong>first order IWP</strong> and <strong>tests for
+dynamic eQTLs</strong>.</p>
+<p>Let’s take a quick overview of the fitted FASH model:</p>
+<pre class="r"><code>log_prec &lt;- seq(0,10, by = 0.2)
+fine_grid &lt;- sort(c(0, exp(-0.5*log_prec)))
+
+fash_fit1 &lt;- fash(Y = &quot;beta&quot;, smooth_var = &quot;time&quot;, S = &quot;SE&quot;, data_list = datasets,
+                  num_basis = 20, order = 1, betaprec = 0,
+                  pred_step = 1, penalty = 10, grid = fine_grid,
+                  num_cores = num_cores, verbose = TRUE)
+save(fash_fit1, file = &quot;./results/fash_fit1_all_CL.RData&quot;)</code></pre>
+<pre class="r"><code>fash_fit1</code></pre>
+<pre><code>Fitted fash Object
+-------------------
+Number of datasets: 1009173
+Likelihood: gaussian
+Number of PSD grid values: 52 (initial), 11 (non-trivial)
+Order of Integrated Wiener Process (IWP): 1</code></pre>
+<p>As well as the estimated priors:</p>
+<pre class="r"><code>fash_fit1$prior_weights</code></pre>
+<pre><code>           psd prior_weight
+1  0.000000000   0.47216563
+2  0.006737947   0.09763789
+3  0.013568559   0.01893272
+4  0.016572675   0.05127141
+5  0.074273578   0.25251499
+6  0.090717953   0.01546817
+7  0.165298888   0.03832594
+8  0.201896518   0.02912430
+9  0.367879441   0.01219730
+10 0.406569660   0.00523902
+11 1.000000000   0.00712263</code></pre>
+</div>
+<div id="problem-with-pi_0-estimation" class="section level2">
+<h2>Problem with <span class="math inline">\(\pi_0\)</span>
+estimation</h2>
+<p>If we measure the significance using the false discovery rate, then
+it is sensitive to the value of <span
+class="math inline">\(\pi_0\)</span>. The estimated <span
+class="math inline">\(\pi_0\)</span> is 0.4721656, which is way too
+small to be realistic.</p>
+<p>One likely reason could be model misspecification under the
+alternative hypothesis. We therefore compute a conservative estimate of
+<span class="math inline">\(\pi_0\)</span> using the BF procedure:</p>
+<pre class="r"><code>fash_fit1_update &lt;- BF_update(fash_fit1, plot = FALSE)
+fash_fit1_update$prior_weights
+save(fash_fit1_update, file = file.path(result_dir, &quot;fash_fit1_update_CL.RData&quot;))</code></pre>
+<p>All BF-adjusted results below use the retained CL-PC fit recomputed
+with <code>fashr</code> 0.1.43. The conservative estimate is
+0.9507696.</p>
+<pre class="r"><code>set.seed(123)
+g_after &lt;- visualize_fash_prior(fash_fit1_update, M = 5000)
+g_before &lt;- visualize_fash_prior(fash_fit1, M = 5000)
+
+# keep both figure between -10 to 10
+g_after &lt;- g_after + ylim(-10,10) + ggtitle(&quot;After BF update&quot;)
+g_before &lt;- g_before + ylim(-10,10) + ggtitle(&quot;Before BF update&quot;)
+
+g_after &lt;- g_after + 
+  coord_cartesian(ylim = c(-5,5)) + 
+  ggtitle(&quot;Constant baseline model: after BF update&quot;) +
+  theme(
+    plot.title = element_text(size = 14, face = &quot;bold&quot;),
+    axis.title = element_text(size = 12),
+    legend.text = element_text(size = 12),
+    axis.text = element_text(size = 12)
+  ) + 
+    scale_colour_discrete(
+    labels = function(x) sprintf(&quot;%.3f&quot;, as.numeric(x))  
+  ) +
+  scale_linetype_discrete(
+    labels = function(x) sprintf(&quot;%.3f&quot;, as.numeric(x))
+  )
+  
+g_before &lt;- g_before + 
+  coord_cartesian(ylim = c(-5,5)) + 
+  ggtitle(&quot;Constant baseline model: before BF update&quot;) +
+  theme(
+    plot.title = element_text(size = 14, face = &quot;bold&quot;),
+    axis.title = element_text(size = 12),
+    legend.text = element_text(size = 12),
+    axis.text = element_text(size = 12)
+  ) + 
+    scale_colour_discrete(
+    labels = function(x) sprintf(&quot;%.3f&quot;, as.numeric(x))  
+  ) +
+  scale_linetype_discrete(
+    labels = function(x) sprintf(&quot;%.3f&quot;, as.numeric(x))
+  )
+
+ggsave(filename = paste0(result_dir, &quot;/fash_prior_comparison_order1_before.png&quot;),
+       plot = g_before,
+       width = 8, height = 6)
+
+ggsave(filename = paste0(result_dir, &quot;/fash_prior_comparison_order1_before.pdf&quot;),
+       plot = g_before,
+       width = 8, height = 6)
+
+ggsave(filename = paste0(result_dir, &quot;/fash_prior_comparison_order1_after.png&quot;),
+       plot = g_after,
+       width = 8, height = 6)
+
+ggsave(filename = paste0(result_dir, &quot;/fash_prior_comparison_order1_after.pdf&quot;),
+       plot = g_after,
+       width = 8, height = 6)</code></pre>
+</div>
+<div id="detecting-dynamic-eqtls" class="section level2">
+<h2>Detecting dynamic eQTLs</h2>
+<p>We will use the updated FASH model (1) to detect dynamic eQTLs.</p>
+<pre class="r"><code>alpha &lt;- 0.05
+
+test1 &lt;- fdr_control(fash_fit1_update, alpha = alpha, plot = FALSE)</code></pre>
+<pre><code>5395 datasets are significant at alpha level 0.05. Total datasets tested: 1009173. </code></pre>
+<pre class="r"><code>fash_highlighted1 &lt;- test1$fdr_results$index[test1$fdr_results$FDR &lt;= alpha]
+
+test1_before &lt;- fdr_control(fash_fit1, alpha = alpha, plot = FALSE)</code></pre>
+<pre><code>30344 datasets are significant at alpha level 0.05. Total datasets tested: 1009173. </code></pre>
+<pre class="r"><code>fash_highlighted1_before &lt;- test1_before$fdr_results$index[test1_before$fdr_results$FDR &lt;= alpha]</code></pre>
+<p>How many pairs are detected as dynamic eQTLs?</p>
+<pre class="r"><code>pairs_highlighted1 &lt;- names(datasets)[fash_highlighted1]
+length(pairs_highlighted1)</code></pre>
+<pre><code>[1] 5395</code></pre>
+<pre class="r"><code>length(pairs_highlighted1)/length(datasets)</code></pre>
+<pre><code>[1] 0.005345961</code></pre>
+<p>What is the number before the BF adjustment?</p>
+<pre class="r"><code>pairs_highlighted1_before &lt;- names(datasets)[fash_highlighted1_before]
+length(pairs_highlighted1_before)</code></pre>
+<pre><code>[1] 30344</code></pre>
+<pre class="r"><code>length(pairs_highlighted1_before)/length(datasets)</code></pre>
+<pre><code>[1] 0.03006818</code></pre>
+<p>How many unique genes are detected?</p>
+<pre class="r"><code>genes_highlighted1 &lt;- unique(
+  str_split(test1$significant_units, &quot;_&quot;) %&gt;% 
+  map_chr(1))
+length(genes_highlighted1)</code></pre>
+<pre><code>[1] 686</code></pre>
+<pre class="r"><code>length(genes_highlighted1)/length(all_genes)</code></pre>
+<pre><code>[1] 0.1078277</code></pre>
+<p>Before the BF adjustment?</p>
+<pre class="r"><code>genes_highlighted1_before &lt;- unique(pair_tbl$ens_id[pair_tbl$idx %in% fash_highlighted1_before])
+length(genes_highlighted1_before)</code></pre>
+<pre><code>[1] 2403</code></pre>
+<pre class="r"><code>length(genes_highlighted1_before)/length(all_genes)</code></pre>
+<pre><code>[1] 0.3777114</code></pre>
+<p>The remainder of the analysis uses the cumulative-lfdr discoveries
+from the BF-adjusted fit.</p>
+<p>Visualize top-ranked pairs for some selected genes:</p>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/dynamic_example%20-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>Some examples of null pairs:</p>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/null_examples%20-1.png" width="768" style="display: block; margin: auto;" /></p>
+</div>
+<div id="comparing-with-strober-et.al" class="section level2">
+<h2>Comparing with Strober et.al</h2>
+<p>We will compare the detected dynamic eQTLs with the results from
+Strober et.al.</p>
+<p>What are the p-value cutoff for linear and non-linear methods in
+Strober et.al?</p>
+<pre class="r"><code>pval_cutoff_strober_nonlinear &lt;- max(strober_nonlinear_highlighted$pvalue)
+pval_cutoff_strober_linear &lt;- max(strober_linear_highlighted$pvalue)
+pval_cutoff_strober_nonlinear</code></pre>
+<pre><code>[1] 6.829826e-05</code></pre>
+<pre class="r"><code>pval_cutoff_strober_linear</code></pre>
+<pre><code>[1] 0.0001702417</code></pre>
+<p>What are the lfdr cutoff for FASH (order 1) before and after BF
+adjustment?</p>
+<pre class="r"><code>lfdr_cutoff1_before &lt;- max(fash_fit1$lfdr[test1$fdr_results$index[test1$fdr_results$FDR &lt;= alpha]])
+lfdr_cutoff1_after  &lt;- max(fash_fit1_update$lfdr[test1$fdr_results$index[test1$fdr_results$FDR &lt;= alpha]])
+lfdr_cutoff1_before</code></pre>
+<pre><code>[1] 0.007010567</code></pre>
+<pre class="r"><code>lfdr_cutoff1_after</code></pre>
+<pre><code>[1] 0.1322639</code></pre>
+<p>Let’s take a look at the overlap between the two methods used in
+Strober et.al and FASH (order 1):</p>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/venn_diagram_strober_fash%20-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>Produce another Venn diagram for the pairs detected by the three
+methods:</p>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/venn_diagram_strober_fash_pairs%20-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>Produce similar Venn diagrams for genes and pairs detected by FASH
+without BF adjustment:</p>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/venn_diagram_strober_fash_unadj%20-1.png" width="768" style="display: block; margin: auto;" /><img src="figure/dynamic_eQTL_real_cl.rmd/venn_diagram_strober_fash_unadj%20-2.png" width="768" style="display: block; margin: auto;" /></p>
+<p>There is a large number of genes only detected by FASH (order 1).
+Let’s take a look at the 4 pairs that are least significant from FASH,
+and have at least p-value 0.2 from Strober et.al (both linear and
+non-linear):</p>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/only_fash_least-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>Let’s also take a look at the 4 pairs that are most significant from
+FASH, also with at least p-value 0.2 from Strober et.al (both linear and
+non-linear):</p>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/only_fash_most-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>Take a look at the p-values and eFDRs from Strober et.al for some of
+these pairs:</p>
+<pre class="r"><code>select_gene_id &lt;- gene_ens2
+select_variant_id &lt;- pair_tbl$rs_id[match(idxs2, pair_tbl$idx)]
+
+strober_linear %&gt;%
+  filter(rs_id %in% select_variant_id, ensamble_id %in% select_gene_id)</code></pre>
+<pre><code># A tibble: 2 × 6
+  rs_id       ensamble_id     pvalue  eFDR key                       gene_symbol
+  &lt;chr&gt;       &lt;chr&gt;            &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;                     &lt;chr&gt;      
+1 rs111870724 ENSG00000255730  0.640 0.931 ENSG00000255730_rs111870… ENSG000002…
+2 rs618039    ENSG00000102755  0.750 0.958 ENSG00000102755_rs618039  FLT1       </code></pre>
+<pre class="r"><code>strober_nonlinear %&gt;%
+  filter(rs_id %in% select_variant_id, ensamble_id %in% select_gene_id)</code></pre>
+<pre><code># A tibble: 2 × 6
+  rs_id       ensamble_id     pvalue  eFDR key                       gene_symbol
+  &lt;chr&gt;       &lt;chr&gt;            &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;                     &lt;chr&gt;      
+1 rs111870724 ENSG00000255730  0.540 0.947 ENSG00000255730_rs111870… ENSG000002…
+2 rs618039    ENSG00000102755  0.896 0.995 ENSG00000102755_rs618039  FLT1       </code></pre>
+<p>Next, look at some genes that were detected by both FASH and Strober
+et.al. We will pick the most significant pair for each gene in FASH’s
+results:</p>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/common_fash_strober%20-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>Let’s also look at the genes that were missed by FASH, but detected
+by Strober et.al. In this case, we will pick the most significant pair
+for each gene in Strober et.al’s results:</p>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/miss_fash_most%20-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>The shape of eFDR (Strober et al) and FDR (FASH):</p>
+<pre class="r"><code>subset_size &lt;- 10000
+subset_seq &lt;- round(seq(1, length(test1$fdr_results$FDR), length.out = subset_size))
+
+plot(
+  sort(strober_nonlinear$eFDR)[subset_seq],
+  x = subset_seq,
+  type = &quot;l&quot;,
+  col  = &quot;blue&quot;,
+  lwd  = 2,
+  xlab = &quot;Ranked pairs&quot;,
+  ylab = &quot;FDR&quot;,
+  lty = &quot;dashed&quot;,
+  main = &quot;&quot;
+)
+lines(sort(test1$fdr_results$FDR)[subset_seq], x = subset_seq, col = &quot;red&quot;, lty = &quot;solid&quot;,  lwd = 2)
+lines(sort(strober_linear$eFDR)[subset_seq],   x = subset_seq, col = &quot;green&quot;, lty = &quot;dotted&quot;, lwd = 2)
+
+legend(
+  &quot;topleft&quot;,
+  legend = c(&quot;Strober Quadratic&quot;, &quot;Strober Linear&quot;, &quot;FASH (1)&quot;),
+  col    = c(&quot;blue&quot;, &quot;green&quot;, &quot;red&quot;),
+  lty    = c(&quot;dashed&quot;, &quot;dotted&quot;, &quot;solid&quot;),
+  lwd    = c(2, 2, 2)
+)</code></pre>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/unnamed-chunk-19-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plot(
+  sort(strober_nonlinear$eFDR[strober_nonlinear$eFDR &lt;= 0.05]),
+  xlim = c(0, 10000),
+  type = &quot;l&quot;,
+  col  = &quot;blue&quot;,
+  lwd  = 2,
+  lty  = &quot;dashed&quot;,
+  xlab = &quot;Ranked pairs&quot;,
+  ylab = &quot;FDR&quot;,
+  main = &quot;(Zoomed in)&quot;
+)
+lines(sort(test1$fdr_results$FDR[test1$fdr_results$FDR &lt;= 0.05]), col = &quot;red&quot;,   lty = &quot;solid&quot;,  lwd = 2)
+lines(sort(strober_linear$eFDR[strober_linear$eFDR &lt;= 0.05]),     col = &quot;green&quot;, lty = &quot;dotted&quot;, lwd = 2)
+
+legend(
+  &quot;topleft&quot;,
+  legend = c(&quot;Strober Quadratic&quot;, &quot;Strober Linear&quot;, &quot;FASH (1)&quot;),
+  col    = c(&quot;blue&quot;, &quot;green&quot;, &quot;red&quot;),
+  lty    = c(&quot;dashed&quot;, &quot;dotted&quot;, &quot;solid&quot;),
+  lwd    = c(2, 2, 2)
+)</code></pre>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/unnamed-chunk-19-2.png" width="768" style="display: block; margin: auto;" /></p>
+<p>Scatterplot of lfdr and p-values from Strober et.al:</p>
+<pre class="r"><code>fash_tbl &lt;- pair_tbl %&gt;%
+  transmute(key, ens_id, rs_id, idx,
+            lfdr_raw = fash_fit1$lfdr[idx],
+            lfdr_adj = fash_fit1_update$lfdr[idx])
+
+manual_symbol &lt;- c(&quot;ENSG00000225485&quot; = &quot;NFATC4&quot;)
+
+plot_lfdr_vs_p(
+  fash_tbl,
+  strober_linear,
+  pval_cutoff_strober_linear,
+  lfdr_cutoff1_after,
+  gene_map,
+  title_text = &quot;Scatterplot of lfdr (FASH) vs p-values (Strober Linear)&quot;,
+  manual_symbol = manual_symbol
+)</code></pre>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/unnamed-chunk-20-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plot_lfdr_vs_p(
+  fash_tbl,
+  strober_nonlinear,
+  pval_cutoff_strober_nonlinear,
+  lfdr_cutoff1_after,
+  gene_map,
+  title_text = &quot;Scatterplot of lfdr (FASH) vs p-values (Strober Quadratic)&quot;,
+  manual_symbol = manual_symbol
+)</code></pre>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/unnamed-chunk-21-1.png" width="768" style="display: block; margin: auto;" /></p>
+</div>
+<div id="classifying-dynamic-eqtls" class="section level2">
+<h2>Classifying dynamic eQTLs</h2>
+<p>Following the definition in Strober et.al, we will classify the
+detected dynamic eQTLs into different categories:</p>
+<ul>
+<li><p><em>Early</em>: eQTLs with strongest effect during the first
+three days: <span class="math inline">\(\sup_{t\leq3} |\beta(t)| -
+\sup_{t&gt; 3} |\beta(t)| &gt; 0\)</span>.</p></li>
+<li><p><em>Late</em>: eQTLs with strongest effect during the last four
+days: <span class="math inline">\(\sup_{t\geq 12} |\beta(t)| -
+\sup_{t&lt; 12} |\beta(t)| &gt; 0\)</span>.</p></li>
+<li><p><em>Middle</em>: eQTLs with strongest effect in the open middle
+interval: <span class="math inline">\(\sup_{3&lt;t&lt;12} |\beta(t)| -
+\sup_{t\leq3\;\text{or}\;t\geq12} |\beta(t)| &gt; 0\)</span>.</p></li>
+<li><p><em>Switch</em>: eQTLs with effect sign switch during the time
+course such that <span
+class="math inline">\(\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}-c&gt;0\)</span>
+where <span class="math inline">\(c\)</span> is a threshold that we set
+to 0.25 (which means with two alleles, the maximal difference of effect
+size is at least <span class="math inline">\(\geq
+2\times\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}\times2 \geq  2 \times
+0.25  \times 2 = 1\)</span>).</p></li>
+</ul>
+<p>The displayed functionals are continuous-time definitions using
+suprema; the code below uses maxima on the <code>0.1</code>-day
+evaluation grid as their discrete approximation.</p>
+<p>We will take a look at the significant pairs detected by FASH (order
+1), and classify them based on the false sign rate (lfsr).</p>
+<div id="early-dynamic-eqtls" class="section level3">
+<h3>Early dynamic eQTLs</h3>
+<pre class="r"><code>smooth_var_refined = seq(0,15, by = 0.1)
+functional_early &lt;- function(x){
+  max(abs(x[smooth_var_refined &lt;= 3])) - max(abs(x[smooth_var_refined &gt; 3]))
+}
+testing_early_dyn &lt;- testing_functional(functional_early,
+                                              lfsr_cal = function(x){mean(x &lt;= 0)},
+                                              fash = fash_fit1_update,
+                                              indices = fash_highlighted1,
+                                              smooth_var = smooth_var_refined)</code></pre>
+<p>How many pairs and how many unique genes are classified as early
+dynamic eQTLs?</p>
+<pre class="r"><code>load(file.path(classification_dir, &quot;classify_dyn_eQTLs_early.RData&quot;))
+early_indices &lt;- testing_early_dyn$indices[testing_early_dyn$cfsr &lt;= alpha]
+length(early_indices)</code></pre>
+<pre><code>[1] 1</code></pre>
+<pre class="r"><code>early_genes &lt;- unique(pair_tbl$ens_id[pair_tbl$idx %in% early_indices])
+length(early_genes)</code></pre>
+<pre><code>[1] 1</code></pre>
+<p>Let’s take a look at the top-ranked early dynamic eQTLs:</p>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/early_examples%20-1.png" width="768" style="display: block; margin: auto;" /></p>
+</div>
+<div id="middle-dynamic-eqtls" class="section level3">
+<h3>Middle dynamic eQTLs</h3>
+<pre class="r"><code>functional_middle &lt;- function(x){
+  max(abs(x[smooth_var_refined &gt; 3 &amp; smooth_var_refined &lt; 12])) -
+    max(abs(x[smooth_var_refined &lt;= 3 | smooth_var_refined &gt;= 12]))
+}
+testing_middle_dyn &lt;- testing_functional(functional_middle, 
+                                               lfsr_cal = function(x){mean(x &lt;= 0)},
+                                               fash = fash_fit1_update,
+                                               indices = fash_highlighted1, 
+                                               num_cores = num_cores,
+                                               smooth_var = smooth_var_refined)</code></pre>
+<p>How many pairs and how many unique genes are classified as middle
+dynamic eQTLs?</p>
+<pre class="r"><code>load(file.path(classification_dir, &quot;classify_dyn_eQTLs_middle.RData&quot;))
+middle_indices &lt;- testing_middle_dyn$indices[testing_middle_dyn$cfsr &lt;= alpha]
+length(middle_indices)</code></pre>
+<pre><code>[1] 98</code></pre>
+<pre class="r"><code>middle_genes &lt;- unique(pair_tbl$ens_id[pair_tbl$idx %in% middle_indices])
+length(middle_genes)</code></pre>
+<pre><code>[1] 22</code></pre>
+<p>Take a look at their results:</p>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/middle_examples%20-1.png" width="768" style="display: block; margin: auto;" /></p>
+</div>
+<div id="late-dynamic-eqtls" class="section level3">
+<h3>Late dynamic eQTLs</h3>
+<pre class="r"><code>functional_late &lt;- function(x){
+  max(abs(x[smooth_var_refined &gt;= 12])) - max(abs(x[smooth_var_refined &lt; 12]))
+}
+testing_late_dyn &lt;- testing_functional(functional_late, 
+                                             lfsr_cal = function(x){mean(x &lt;= 0)},
+                                             fash = fash_fit1_update,
+                                             indices = fash_highlighted1, 
+                                             num_cores = num_cores,
+                                             smooth_var = smooth_var_refined)</code></pre>
+<p>How many pairs and how many unique genes are classified as late
+dynamic eQTLs?</p>
+<pre class="r"><code>load(file.path(classification_dir, &quot;classify_dyn_eQTLs_late.RData&quot;))
+late_indices &lt;- testing_late_dyn$indices[testing_late_dyn$cfsr &lt;= alpha]
+length(late_indices)</code></pre>
+<pre><code>[1] 17</code></pre>
+<pre class="r"><code>late_genes &lt;- unique(pair_tbl$ens_id[pair_tbl$idx %in% late_indices])
+length(late_genes)</code></pre>
+<pre><code>[1] 7</code></pre>
+<p>Let’s take a look at the top-ranked late dynamic eQTLs:</p>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/late_examples%20-1.png" width="768" style="display: block; margin: auto;" /></p>
+</div>
+<div id="switch-dynamic-eqtls" class="section level3">
+<h3>Switch dynamic eQTLs</h3>
+<p>How many pairs and how many unique genes are classified as switch
+dynamic eQTLs?</p>
+<pre class="r"><code>switch_threshold &lt;- 0.25
+functional_switch &lt;- function(x){
+  x_pos &lt;- x[x &gt; 0]
+  x_neg &lt;- x[x &lt; 0]
+  if(length(x_pos) == 0 || length(x_neg) == 0){
+    return(0)
+  }
+  min(max(abs(x_pos)), max(abs(x_neg))) - switch_threshold
+}
+testing_switch_dyn &lt;- testing_functional(functional_switch, 
+                                               lfsr_cal = function(x){mean(x &lt;= 0)},
+                                               fash = fash_fit1_update,
+                                               indices = fash_highlighted1, 
+                                               num_cores = num_cores,
+                                               smooth_var = smooth_var_refined)</code></pre>
+<pre class="r"><code>load(file.path(classification_dir, &quot;classify_dyn_eQTLs_switch.RData&quot;))
+switch_indices &lt;- testing_switch_dyn$indices[testing_switch_dyn$cfsr &lt;= alpha]
+length(switch_indices)</code></pre>
+<pre><code>[1] 593</code></pre>
+<pre class="r"><code>switch_genes &lt;- unique(pair_tbl$ens_id[pair_tbl$idx %in% switch_indices])
+length(switch_genes)</code></pre>
+<pre><code>[1] 150</code></pre>
+<p>Let’s take a look at the top-ranked switch dynamic eQTLs:</p>
+<p><img src="figure/dynamic_eQTL_real_cl.rmd/switch_examples%20-1.png" width="768" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="gene-set-enrichment-analysis" class="section level2">
+<h2>Gene Set Enrichment Analysis</h2>
+<pre class="r"><code>library(clusterProfiler)
+library(tidyverse)
+library(msigdbr)
+library(org.Hs.eg.db)
+library(cowplot)
+
+m_t2g &lt;- msigdbr(species = &quot;Homo sapiens&quot;, category = &quot;H&quot;) %&gt;% 
+  mutate(ensembl_use = dplyr::coalesce(ensembl_gene, db_ensembl_gene)) %&gt;% 
+  dplyr::filter(!is.na(ensembl_use)) %&gt;% 
+  dplyr::select(gs_name, ensembl_use) %&gt;%
+  dplyr::distinct()
+
+enrich_set &lt;- function(genes_selected,
+                       background_gene,
+                       q_val_cutoff = 0.05,
+                       pvalueCutoff = 0.05) {
+
+  genes_selected_raw  &lt;- unique(as.character(genes_selected))
+  background_gene_raw &lt;- unique(as.character(background_gene))
+
+  universe_for_test &lt;- background_gene_raw
+  hallmark_genes &lt;- unique(m_t2g$ensembl_use)
+  bg_not_in_hallmark &lt;- setdiff(universe_for_test, hallmark_genes)
+
+  dummy_id &lt;- &quot;__DUMMY_BACKGROUND__&quot;
+
+  if (length(bg_not_in_hallmark) &gt; 0) {
+    dummy_t2g &lt;- tibble(
+      gs_name     = dummy_id,
+      ensembl_use = bg_not_in_hallmark
+    )
+    TERM2GENE_full &lt;- bind_rows(m_t2g, dummy_t2g)
+  } else {
+    TERM2GENE_full &lt;- m_t2g
+  }
+
+  genes_sel_used &lt;- intersect(genes_selected_raw, universe_for_test)
+
+  enrich_res &lt;- enricher(
+    gene          = genes_sel_used,
+    TERM2GENE     = TERM2GENE_full,
+    universe      = universe_for_test,
+    pAdjustMethod = &quot;BH&quot;,
+    qvalueCutoff  = q_val_cutoff,
+    pvalueCutoff  = pvalueCutoff
+  )
+
+  if (is.null(enrich_res) || nrow(enrich_res@result) == 0L) {
+    return(enrich_res)
+  }
+
+  df &lt;- enrich_res@result
+  df &lt;- df %&gt;% dplyr::filter(ID != dummy_id)
+
+  df$GeneRatio_orig &lt;- df$GeneRatio
+  df$BgRatio_orig   &lt;- df$BgRatio
+
+  n_sel_total &lt;- length(genes_sel_used)
+  n_bg_total  &lt;- length(universe_for_test)
+
+  df$GeneRatio_fixed &lt;- paste0(df$Count,   &quot;/&quot;, n_sel_total)
+  df$BgRatio_fixed   &lt;- paste0(df$setSize, &quot;/&quot;, n_bg_total)
+
+  enrich_res@result &lt;- df
+  enrich_res
+}
+
+enrichment_table &lt;- function(enrichment, pvalue_cutoff = NULL) {
+  empty &lt;- tibble(
+    GeneRatio = character(),
+    BgRatio = character(),
+    pvalue = numeric(),
+    qvalue = numeric()
+  )
+  if (is.null(enrichment) || nrow(enrichment@result) == 0L) return(empty)
+  output &lt;- as_tibble(enrichment@result)
+  if (!is.null(pvalue_cutoff)) {
+    output &lt;- output %&gt;% filter(pvalue &lt; pvalue_cutoff)
+  }
+  output %&gt;% dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)
+}</code></pre>
+<p>Among all the genes highlighted by FASH:</p>
+<pre class="r"><code>result &lt;- enrich_set(genes_selected = genes_highlighted1, background_gene = all_genes)
+enrichment_table(result, pvalue_cutoff = 0.05)</code></pre>
+<pre><code># A tibble: 7 × 4
+  GeneRatio BgRatio   pvalue qvalue
+  &lt;chr&gt;     &lt;chr&gt;      &lt;dbl&gt;  &lt;dbl&gt;
+1 21/686    89/6362 0.000383 0.0165
+2 16/686    68/6362 0.00190  0.0411
+3 7/686     21/6362 0.00493  0.0584
+4 16/686    75/6362 0.00541  0.0584
+5 12/686    55/6362 0.0126   0.0932
+6 16/686    82/6362 0.0130   0.0932
+7 12/686    58/6362 0.0190   0.117 </code></pre>
+<p>Among the genes highlighted by FASH that are classified as early
+dynamic eQTLs:</p>
+<pre class="r"><code>result &lt;- enrich_set(genes_selected = early_genes, background_gene = all_genes)
+enrichment_table(result)</code></pre>
+<pre><code># A tibble: 0 × 4
+# ℹ 4 variables: GeneRatio &lt;chr&gt;, BgRatio &lt;chr&gt;, pvalue &lt;dbl&gt;, qvalue &lt;dbl&gt;</code></pre>
+<p>Among the genes highlighted by FASH that are classified as middle
+dynamic eQTLs:</p>
+<pre class="r"><code>result &lt;- enrich_set(genes_selected = middle_genes, background_gene = all_genes)
+enrichment_table(result, pvalue_cutoff = 0.05)</code></pre>
+<pre><code># A tibble: 0 × 4
+# ℹ 4 variables: GeneRatio &lt;chr&gt;, BgRatio &lt;chr&gt;, pvalue &lt;dbl&gt;, qvalue &lt;dbl&gt;</code></pre>
+<p>Among the genes highlighted by FASH that are classified as late
+dynamic eQTLs:</p>
+<pre class="r"><code>result &lt;- enrich_set(genes_selected = late_genes, background_gene = all_genes)
+enrichment_table(result, pvalue_cutoff = 0.05)</code></pre>
+<pre><code># A tibble: 1 × 4
+  GeneRatio BgRatio pvalue qvalue
+  &lt;chr&gt;     &lt;chr&gt;    &lt;dbl&gt; &lt;lgl&gt; 
+1 1/7       21/6362 0.0229 NA    </code></pre>
+<p>Among the genes highlighted by FASH that are classified as switch
+dynamic eQTLs:</p>
+<pre class="r"><code>result &lt;- enrich_set(genes_selected = switch_genes, background_gene = all_genes)
+enrichment_table(result, pvalue_cutoff = 0.05)</code></pre>
+<pre><code># A tibble: 10 × 4
+   GeneRatio BgRatio    pvalue qvalue
+   &lt;chr&gt;     &lt;chr&gt;       &lt;dbl&gt;  &lt;dbl&gt;
+ 1 8/150     75/6362  0.000351 0.0122
+ 2 6/150     68/6362  0.00511  0.0887
+ 3 7/150     100/6362 0.00905  0.105 
+ 4 6/150     89/6362  0.0182   0.151 
+ 5 5/150     70/6362  0.0242   0.151 
+ 6 7/150     129/6362 0.0323   0.151 
+ 7 5/150     82/6362  0.0437   0.151 
+ 8 5/150     83/6362  0.0456   0.151 
+ 9 2/150     15/6362  0.0474   0.151 
+10 5/150     84/6362  0.0476   0.151 </code></pre>
+<p>Summarize all the result into a table:</p>
+<pre class="r"><code>result_fash &lt;- enrich_set(genes_selected = genes_highlighted1, background_gene = all_genes)
+result_fash_table &lt;- enrichment_table(result_fash)
+
+result_early &lt;- enrich_set(genes_selected = early_genes, background_gene = all_genes)
+result_early_table &lt;- enrichment_table(result_early)
+
+result_middle &lt;- enrich_set(genes_selected = middle_genes, background_gene = all_genes)
+result_middle_table &lt;- enrichment_table(result_middle)
+
+result_late &lt;- enrich_set(genes_selected = late_genes, background_gene = all_genes)
+result_late_table &lt;- enrichment_table(result_late)
+
+result_switch &lt;- enrich_set(genes_selected = switch_genes, background_gene = all_genes)
+result_switch_table &lt;- enrichment_table(result_switch)
+
+result_all &lt;- rbind(
+  result_fash_table %&gt;% mutate(Category = &quot;All dynamic eQTLs&quot;),
+  result_early_table %&gt;% mutate(Category = &quot;Early dynamic eQTLs&quot;),
+  result_middle_table %&gt;% mutate(Category = &quot;Middle dynamic eQTLs&quot;),
+  result_late_table %&gt;% mutate(Category = &quot;Late dynamic eQTLs&quot;),
+  result_switch_table %&gt;% mutate(Category = &quot;Switch dynamic eQTLs&quot;)
+) %&gt;%
+  dplyr::select(Category, everything())
+
+save(result_all, file = file.path(result_dir, &quot;gene_set_enrichment_results.RData&quot;))</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats4    stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] cowplot_1.2.0          org.Hs.eg.db_3.21.0    AnnotationDbi_1.70.0  
+ [4] IRanges_2.42.0         S4Vectors_0.46.0       Biobase_2.68.0        
+ [7] BiocGenerics_0.54.1    generics_0.1.4         msigdbr_25.1.1        
+[10] clusterProfiler_4.16.0 lubridate_1.9.4        forcats_1.0.1         
+[13] readr_2.1.6            tibble_3.3.0           tidyverse_2.0.0       
+[16] ggVennDiagram_1.5.4    ggrepel_0.9.6          ggplot2_4.0.3         
+[19] purrr_1.2.0            stringr_1.6.0          tidyr_1.3.1           
+[22] dplyr_1.1.4            fashr_0.1.43           workflowr_1.7.2       
+
+loaded via a namespace (and not attached):
+  [1] RColorBrewer_1.1-3      rstudioapi_0.17.1       jsonlite_2.0.0         
+  [4] magrittr_2.0.5          ggtangle_0.0.9          farver_2.1.2           
+  [7] rmarkdown_2.30          fs_1.6.6                ragg_1.5.0             
+ [10] vctrs_0.7.3             memoise_2.0.1           ggtree_3.16.3          
+ [13] mixsqp_0.3-54           htmltools_0.5.9         curl_7.0.0             
+ [16] gridGraphics_0.5-1      sass_0.4.10             bslib_0.9.0            
+ [19] plyr_1.8.9              cachem_1.1.0            TMB_1.9.23             
+ [22] whisker_0.4.1           igraph_2.3.2            lifecycle_1.0.5        
+ [25] pkgconfig_2.0.3         gson_0.1.0              Matrix_1.7-4           
+ [28] R6_2.6.1                fastmap_1.2.0           GenomeInfoDbData_1.2.14
+ [31] digest_0.6.39           numDeriv_2016.8-1.1     aplot_0.2.9            
+ [34] enrichplot_1.28.4       colorspace_2.1-2        patchwork_1.3.2        
+ [37] ps_1.9.1                rprojroot_2.1.1         irlba_2.3.7            
+ [40] textshaping_1.0.4       RSQLite_2.4.5           labeling_0.4.3         
+ [43] timechange_0.3.0        httr_1.4.7              compiler_4.5.1         
+ [46] bit64_4.6.0-1           withr_3.0.3             S7_0.2.2               
+ [49] BiocParallel_1.42.2     DBI_1.2.3               R.utils_2.13.0         
+ [52] rappdirs_0.3.3          tools_4.5.1             otel_0.2.0             
+ [55] ape_5.8-1               httpuv_1.6.16           R.oo_1.27.1            
+ [58] glue_1.8.1              callr_3.7.6             nlme_3.1-168           
+ [61] GOSemSim_2.34.0         promises_1.5.0          grid_4.5.1             
+ [64] getPass_0.2-4           reshape2_1.4.5          fgsea_1.34.2           
+ [67] gtable_0.3.6            tzdb_0.5.0              R.methodsS3_1.8.2      
+ [70] data.table_1.17.8       hms_1.1.4               utf8_1.2.6             
+ [73] XVector_0.48.0          pillar_1.11.1           babelgene_22.9         
+ [76] yulab.utils_0.2.3       later_1.4.4             splines_4.5.1          
+ [79] treeio_1.32.0           lattice_0.22-7          bit_4.6.0              
+ [82] tidyselect_1.2.1        GO.db_3.21.0            Biostrings_2.76.0      
+ [85] knitr_1.50              git2r_0.36.2            xfun_0.55              
+ [88] LaplacesDemon_16.1.8    stringi_1.8.9           UCSC.utils_1.4.0       
+ [91] lazyeval_0.2.2          ggfun_0.2.0             yaml_2.3.12            
+ [94] evaluate_1.0.5          codetools_0.2-20        qvalue_2.40.0          
+ [97] ggplotify_0.1.3         cli_3.6.6               systemfonts_1.3.1      
+[100] processx_3.8.6          jquerylib_0.1.4         dichromat_2.0-0.1      
+[103] Rcpp_1.1.1-1.1          GenomeInfoDb_1.44.3     png_0.1-8              
+[106] parallel_4.5.1          assertthat_0.2.1        blob_1.2.4             
+[109] DOSE_4.2.0              tidytree_0.4.6          scales_1.4.0           
+[112] crayon_1.5.3            rlang_1.2.0             fastmatch_1.1-6        
+[115] KEGGREST_1.48.1        </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

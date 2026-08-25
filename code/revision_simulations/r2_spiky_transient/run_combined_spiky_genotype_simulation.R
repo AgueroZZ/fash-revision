@@ -63,8 +63,10 @@ switch_threshold <- 0.25
 scenario <- "r2_genotype_timed_cosine_one_two_three_peak_main_effect_dynamic_eqtl"
 component_seeds <- revision_component_seeds(seed)
 true_pi0 <- unname(class_probs["constant"] + class_probs["zero"])
-linear_sigma_estimation <- "profile_grid"
-linear_sigma_grid <- exp(seq(log(0.05), log(5), length.out = 25))
+linear_prior_mode <- "mixture_grid"
+common_sd_grid <- default_revision_grid()
+common_pred_step <- 1
+common_penalty <- 10L
 fash_methods <- c(
   "FASH-IWP1-Raw",
   "FASH-IWP1-BF",
@@ -92,7 +94,7 @@ stem <- genotype_cosine_multipeak_output_stem(
   seed = seed,
   scenario = scenario
 )
-stem <- paste0(stem, "_linearprofilesigma")
+stem <- paste0(stem, "_linear_mixture_predstep1_penalty10")
 raw_dir <- file.path(workflowr_root, "output", "revision_simulations", "raw")
 summary_dir <- file.path(workflowr_root, "output", "revision_simulations", "summary")
 figure_dir <- file.path(workflowr_root, "output", "revision_simulations", "figures")
@@ -129,8 +131,10 @@ configuration <- list(
   num_basis = num_basis,
   efdr_permutations = efdr_permutations,
   true_pi0 = true_pi0,
-  linear_sigma_estimation = linear_sigma_estimation,
-  linear_sigma_grid = linear_sigma_grid
+  linear_prior_mode = linear_prior_mode,
+  common_sd_grid = common_sd_grid,
+  common_pred_step = common_pred_step,
+  common_penalty = common_penalty
 )
 
 if (file.exists(raw_path) && !overwrite) {
@@ -228,8 +232,10 @@ if (file.exists(raw_path) && !overwrite) {
     expression_noise_sd = expression_noise_sd,
     alpha = 0.05,
     seed = seed,
-    estimate_sigma = TRUE,
-    sigma_beta_grid = linear_sigma_grid,
+    grid = common_sd_grid,
+    penalty = common_penalty,
+    pred_step = common_pred_step,
+    linear_prior_mode = linear_prior_mode,
     num_cores = num_cores,
     num_basis = num_basis,
     scenario = scenario,
@@ -239,21 +245,18 @@ if (file.exists(raw_path) && !overwrite) {
     effect_sim = effect_sim,
     expression_sim = expression_sim
   )
-  validate_simplified_sigma_profile(
+  validate_linear_mixture_fash(
     out$simplified_fit,
-    require_interior = TRUE
+    expected_grid = common_sd_grid,
+    expected_pred_step = common_pred_step,
+    expected_penalty = common_penalty
   )
-  validate_simplified_sigma_profile(
+  validate_linear_mixture_fash(
     out$simplified_fit_bf,
-    require_interior = TRUE
+    expected_grid = common_sd_grid,
+    expected_pred_step = common_pred_step,
+    expected_penalty = common_penalty
   )
-  if (!isTRUE(all.equal(
-        out$simplified_fit$sigma_beta,
-        out$simplified_fit_bf$sigma_beta,
-        tolerance = 0
-      ))) {
-    stop("The BF update changed the selected linear slope scale.")
-  }
   out <- add_direct_interaction_efdr_results_to_genotype_output(
     out = out,
     n_permutations = efdr_permutations,
@@ -280,20 +283,32 @@ missing_methods <- setdiff(all_methods, unique(out$result_table$method))
 if (length(missing_methods) > 0) {
   stop("Missing reviewer-facing methods: ", paste(missing_methods, collapse = ", "))
 }
-validate_simplified_sigma_profile(
+validate_linear_mixture_fash(
   out$simplified_fit,
-  require_interior = TRUE
+  expected_grid = common_sd_grid,
+  expected_pred_step = common_pred_step,
+  expected_penalty = common_penalty
 )
-validate_simplified_sigma_profile(
+validate_linear_mixture_fash(
   out$simplified_fit_bf,
-  require_interior = TRUE
+  expected_grid = common_sd_grid,
+  expected_pred_step = common_pred_step,
+  expected_penalty = common_penalty
 )
-if (!isTRUE(all.equal(
-      out$simplified_fit$sigma_beta,
-      out$simplified_fit_bf$sigma_beta,
-      tolerance = 0
-    ))) {
-  stop("The cached BF update changed the selected linear slope scale.")
+for (fit_name in c("fash_iwp1_raw", "fash_iwp1_bf")) {
+  iwp_fit <- out$fash_fits[[fit_name]]
+  if (!isTRUE(all.equal(iwp_fit$psd_grid, common_sd_grid, tolerance = 0)) ||
+      !isTRUE(all.equal(
+        iwp_fit$settings$pred_step,
+        common_pred_step,
+        tolerance = 0
+      )) ||
+      !identical(
+        as.integer(iwp_fit$settings$penalty),
+        as.integer(common_penalty)
+      )) {
+    stop("The IWP and linear fits do not share grid, pred_step, and penalty.")
+  }
 }
 selected_results <- out$result_table[out$result_table$method %in% all_methods, ]
 alpha_curve <- out$alpha_curve[out$alpha_curve$method %in% all_methods, ]
@@ -320,6 +335,30 @@ geometry <- summarize_dynamic_effect_geometry(
   list(beta_matrix = out$true_beta, unit_info = out$unit_info),
   dynamic_class = "dynamic_bspline"
 )
+linear_prior_weights <- rbind(
+  extract_linear_mixture_prior_table(
+    out$simplified_fit,
+    seed = seed,
+    fit_label = "Raw"
+  ),
+  extract_linear_mixture_prior_table(
+    out$simplified_fit_bf,
+    seed = seed,
+    fit_label = "BF-corrected"
+  )
+)
+linear_prior_summary <- rbind(
+  summarize_linear_mixture_prior_fit(
+    out$simplified_fit,
+    seed = seed,
+    fit_label = "Raw"
+  ),
+  summarize_linear_mixture_prior_fit(
+    out$simplified_fit_bf,
+    seed = seed,
+    fit_label = "BF-corrected"
+  )
+)
 
 saveRDS(configuration, file.path(summary_dir, paste0(stem, "_configuration.rds")))
 write.csv(selected_results, file.path(summary_dir, paste0(stem, "_unit_results.csv")),
@@ -335,8 +374,13 @@ write.csv(peak_alpha_005, file.path(summary_dir, paste0(stem, "_peak_alpha005.cs
 write.csv(pi0_table, file.path(summary_dir, paste0(stem, "_pi0.csv")),
           row.names = FALSE)
 write.csv(
-  out$simplified_fit$sigma_profile,
-  file.path(summary_dir, paste0(stem, "_linear_sigma_profile.csv")),
+  linear_prior_weights,
+  file.path(summary_dir, paste0(stem, "_linear_prior_weights.csv")),
+  row.names = FALSE
+)
+write.csv(
+  linear_prior_summary,
+  file.path(summary_dir, paste0(stem, "_linear_prior_summary.csv")),
   row.names = FALSE
 )
 write.csv(geometry, file.path(summary_dir, paste0(stem, "_geometry.csv")),

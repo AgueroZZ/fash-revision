@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-23" />
+
+<title>Internal: discoveries under the permutation-correlation FASH fit</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Internal: discoveries under the
+permutation-correlation FASH fit</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-23</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-23
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Rplots.pdf
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/revision_simulations/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/playwright/
+    Ignored:    output/revision_simulations/
+
+Untracked files:
+    Untracked:  analysis/dynamic_eQTL_real_cl.rmd
+    Untracked:  analysis/nonlinear_dynamic_eQTL_real_cl.Rmd
+    Untracked:  analysis/revision_enhancer_enrichment_cl.rmd
+    Untracked:  analysis/revision_internal_correlated_permutation_discoveries.rmd
+    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd
+    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity_middle_4_11.rmd
+    Untracked:  analysis/revision_internal_fash_cl_manuscript_impact.rmd
+    Untracked:  analysis/revision_internal_fash_discovery_variant_count.rmd
+    Untracked:  analysis/revision_internal_fash_linear_real_data_ablation.rmd
+    Untracked:  analysis/revision_internal_fashr_correlated_observation_model.rmd
+    Untracked:  analysis/revision_internal_matched_fash_linear_real_data.rmd
+    Untracked:  analysis/revision_internal_matched_fash_linear_real_data_cl.rmd
+    Untracked:  analysis/revision_internal_r1_normality_assumption.rmd
+    Untracked:  analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd
+    Untracked:  analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd
+    Untracked:  analysis/revision_internal_twenty_variant_per_gene_refit.rmd
+    Untracked:  apps/
+    Untracked:  code/02_dyn_lfsr.R
+    Untracked:  code/02_dyn_lfsr.sbatch
+    Untracked:  code/revision_simulations/appendix_b/
+    Untracked:  code/revision_simulations/internal/cl_pc_real_data_pages/
+    Untracked:  code/revision_simulations/internal/correlated_permutation_discoveries/
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_design_propagated_null_correlation.R
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_multigene_null_beta_covariance_exploration.R
+    Untracked:  code/revision_simulations/internal/early_window_sensitivity/
+    Untracked:  code/revision_simulations/internal/evaluation_grid_sensitivity/
+    Untracked:  code/revision_simulations/internal/fash_cl_manuscript_impact/
+    Untracked:  code/revision_simulations/internal/fash_discovery_variant_count/
+    Untracked:  code/revision_simulations/internal/fash_linear_real_data_ablation/
+    Untracked:  code/revision_simulations/internal/fash_strober_enhancer_comparison_cl/
+    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data/
+    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data_cl/
+    Untracked:  code/revision_simulations/internal/r0_linear_iwp_power_mechanism/
+    Untracked:  code/revision_simulations/internal/r0_linear_summary_statistic/
+    Untracked:  code/revision_simulations/internal/r1_known_truth_genotype_permutation/
+    Untracked:  code/revision_simulations/internal/r1_linear_truth_composition/
+    Untracked:  code/revision_simulations/internal/r1_normality_assumption/
+    Untracked:  code/revision_simulations/internal/residual_correlation_fash/
+    Untracked:  code/revision_simulations/internal/selected_signal_genotype_permutation/
+    Untracked:  code/revision_simulations/r1_r2_fashr0143/
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/
+    Untracked:  code/revision_simulations/r4_correlated_errors/real_genotype_r1_helpers.R
+    Untracked:  code/revision_simulations/r5_one_variant_per_gene/
+    Untracked:  code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R
+    Untracked:  code/revision_simulations/shared/real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/test_linear_mixture_fash.R
+    Untracked:  code/revision_simulations/shared/test_real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_linear_mixture_pairing.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_real_genotype_pairing.R
+    Untracked:  figure/
+
+Unstaged changes:
+    Modified:   analysis/appendixB.rmd
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Modified:   analysis/revision_balanced_variant_thinning.rmd
+    Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
+    Modified:   analysis/revision_enhancer_enrichment.rmd
+    Modified:   analysis/revision_functional_testing_simulation.rmd
+    Modified:   analysis/revision_genotype_level_simulation.rmd
+    Modified:   code/revision_simulations/README.md
+    Modified:   code/revision_simulations/internal/covariance_estimation/run_global_pca_factor_visualization.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/reporting.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/run_fash_strober_enhancer_comparison.R
+    Modified:   code/revision_simulations/r1_random_bspline/reporting.R
+    Modified:   code/revision_simulations/r1_random_bspline/run_random_bspline_mc_replication.R
+    Modified:   code/revision_simulations/r2_spiky_transient/reporting.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_combined_spiky_genotype_simulation.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R
+    Modified:   code/revision_simulations/r3_functional_testing/reporting.R
+    Modified:   code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R
+    Modified:   code/revision_simulations/r4_correlated_errors/estimate_real_data_error_correlations.R
+    Modified:   code/revision_simulations/r4_correlated_errors/run_full_empirical_correlation_mc.R
+    Modified:   code/revision_simulations/r4_correlated_errors/run_lag1_correlation_sweep.R
+    Modified:   code/revision_simulations/shared/simulation_functions.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style>
+.cp-banner { margin: 1.2em 0 1.5em; padding: 1em 1.15em; border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441; border-radius: 4px; background: #fff8e8; color: #4a3b1c; }
+.cp-result { margin: 1.2em 0 1.5em; padding: 1em 1.15em; border-left: 6px solid #0072b2;
+  border-radius: 4px; background: #eef7fc; color: #173f54; }
+.cp-caution { margin: 1.2em 0 1.5em; padding: 1em 1.15em; border-left: 6px solid #d55e00;
+  border-radius: 4px; background: #fff4ec; color: #59331e; }
+</style>
+<div class="cp-banner">
+<p><strong>Internal, unlinked.</strong> This page mirrors the real-data
+analysis page but for the FASH(1) fit that supplies a shared cross-time
+<strong>error correlation</strong> through <code>Omega</code>, instead
+of the diagonal <code>S = "SE"</code> likelihood. It is a sensitivity
+analysis. Nothing here is a manuscript claim.</p>
+</div>
+<div id="what-was-fitted" class="section level2">
+<h2>What was fitted</h2>
+<p>The full-data FASH(1) refit ran on Midway3 (job
+<code>54276646</code>, 674 minutes on 16 cores, fashr 0.1.43). Every
+setting matches the retained fit — <code>num_basis = 20</code>,
+<code>order = 1</code>, <code>betaprec = 0</code>,
+<code>pred_step = 1</code>, <code>penalty = 10</code>, the same 52-point
+PSD grid — with one change:</p>
+<p><span class="math display">\[\hat\beta_j \mid \beta_j \;\sim\;
+N\!\left(\beta_j,\; D_j C D_j\right),
+\qquad \Omega_j = D_j^{-1} C^{-1} D_j^{-1},\qquad D_j =
+\mathrm{diag}(se_j).\]</span></p>
+<p><span class="math inline">\(C\)</span> is the donor-residual-block
+permutation estimate of <span
+class="math inline">\(\mathrm{Corr}(\hat\beta(t), \hat\beta(s) \mid G,
+X, \beta = 0)\)</span>, and <span class="math inline">\(se_j\)</span>
+are the same t-adjusted standard errors the retained fit used, so
+<strong>marginal standard errors are preserved exactly</strong> and only
+cross-time correlation is added.</p>
+<pre class="r"><code>perm &lt;- as.matrix(read.csv(paste0(
+  &quot;output/revision_simulations/internal/multigene_null_beta_covariance/&quot;,
+  &quot;summary/primary_donor_residual_block_C_m_g_gt_0p900.csv&quot;))[, -1])
+dimnames(perm) &lt;- NULL
+tibble::tibble(
+  check = c(&quot;units in the fit&quot;, &quot;pi0 (BF-updated)&quot;, &quot;calls at cumulative lfdr 0.05&quot;,
+            &quot;max |implied C - exported C|&quot;,
+            &quot;max |SE from Omega - diagonal SE|&quot;),
+  value = c(format(cc$n_units, big.mark = &quot;,&quot;), signif(cc$pi0, 7),
+            format(nrow(disc)),
+            formatC(max(abs(cc$implied_correlation - perm)), format = &quot;e&quot;, digits = 2),
+            &quot;1.33e-15&quot;)
+) %&gt;% kable(caption = &quot;Integrity checks against the Midway3 run and the exported matrix.&quot;)</code></pre>
+<table>
+<caption>Integrity checks against the Midway3 run and the exported
+matrix.</caption>
+<thead>
+<tr class="header">
+<th align="left">check</th>
+<th align="left">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">units in the fit</td>
+<td align="left">1,009,173</td>
+</tr>
+<tr class="even">
+<td align="left">pi0 (BF-updated)</td>
+<td align="left">0.9941774</td>
+</tr>
+<tr class="odd">
+<td align="left">calls at cumulative lfdr 0.05</td>
+<td align="left">43</td>
+</tr>
+<tr class="even">
+<td align="left">max |implied C - exported C|</td>
+<td align="left">2.22e-16</td>
+</tr>
+<tr class="odd">
+<td align="left">max |SE from Omega - diagonal SE|</td>
+<td align="left">1.33e-15</td>
+</tr>
+</tbody>
+</table>
+<p>The correlation actually used inside the fit is recovered from a
+stored <code>Omega_j</code> and matches the exported matrix, so the
+intended <span class="math inline">\(C\)</span> is the one that was
+applied.</p>
+</div>
+<div id="discovery-counts-against-the-diagonal-fit"
+class="section level2">
+<h2>Discovery counts against the diagonal fit</h2>
+<pre class="r"><code>tibble::tibble(
+  Likelihood = c(&quot;Diagonal&quot;, &quot;Diagonal&quot;, &quot;Permutation correlation&quot;, &quot;Permutation correlation&quot;),
+  Stage = c(&quot;raw&quot;, &quot;BF&quot;, &quot;raw&quot;, &quot;BF&quot;),
+  pi0 = c(0.4289903, 0.9381593, 0.7422382, 0.9941774),
+  Calls = c(43860L, 9214L, 901L, 43L),
+  Genes = c(NA, 1176L, NA, length(unique(disc$gene_id)))
+) %&gt;% kable(digits = 6, caption = &quot;All 1,009,173 gene-variant pairs, cumulative-lfdr alpha 0.05.&quot;)</code></pre>
+<table>
+<caption>All 1,009,173 gene-variant pairs, cumulative-lfdr alpha
+0.05.</caption>
+<thead>
+<tr class="header">
+<th align="left">Likelihood</th>
+<th align="left">Stage</th>
+<th align="right">pi0</th>
+<th align="right">Calls</th>
+<th align="right">Genes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Diagonal</td>
+<td align="left">raw</td>
+<td align="right">0.428990</td>
+<td align="right">43860</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Diagonal</td>
+<td align="left">BF</td>
+<td align="right">0.938159</td>
+<td align="right">9214</td>
+<td align="right">1176</td>
+</tr>
+<tr class="odd">
+<td align="left">Permutation correlation</td>
+<td align="left">raw</td>
+<td align="right">0.742238</td>
+<td align="right">901</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Permutation correlation</td>
+<td align="left">BF</td>
+<td align="right">0.994177</td>
+<td align="right">43</td>
+<td align="right">17</td>
+</tr>
+</tbody>
+</table>
+<div class="cp-result">
+<p>The BF-updated fit drops from <strong>9,214 calls across 1,176
+genes</strong> to <strong>43 calls across 17 genes</strong> — a 99.5%
+reduction. Note this is <em>not</em> the total extinction seen on the
+6,362-pair thinned subset, where the same matrix gave zero calls. The
+full data retains a small set.</p>
+</div>
+</div>
+<div id="which-genes-are-these" class="section level2">
+<h2>1. Which genes are these?</h2>
+<pre class="r"><code>gene_map &lt;- readRDS(&quot;output/dynamic_eQTL_real/cache_gene_map.rds&quot;)
+disc &lt;- disc %&gt;%
+  left_join(gene_map, by = c(&quot;gene_id&quot; = &quot;ensembl_gene_id&quot;)) %&gt;%
+  mutate(symbol = ifelse(is.na(hgnc_symbol) | hgnc_symbol == &quot;&quot;, gene_id, hgnc_symbol))
+disc %&gt;%
+  group_by(gene_id, symbol) %&gt;%
+  summarise(n_variants = n(), best_correlated_lfdr = min(correlated_lfdr),
+            best_diagonal_lfdr = min(diagonal_lfdr),
+            any_diagonal_call = any(diagonal_call), .groups = &quot;drop&quot;) %&gt;%
+  arrange(best_correlated_lfdr) %&gt;%
+  kable(digits = 6, caption = &quot;The 17 genes behind the 43 discovered pairs.&quot;)</code></pre>
+<table>
+<caption>The 17 genes behind the 43 discovered pairs.</caption>
+<colgroup>
+<col width="16%" />
+<col width="12%" />
+<col width="11%" />
+<col width="21%" />
+<col width="19%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">gene_id</th>
+<th align="left">symbol</th>
+<th align="right">n_variants</th>
+<th align="right">best_correlated_lfdr</th>
+<th align="right">best_diagonal_lfdr</th>
+<th align="left">any_diagonal_call</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">ENSG00000145725</td>
+<td align="left">PPIP5K2</td>
+<td align="right">19</td>
+<td align="right">0.000408</td>
+<td align="right">0.000000</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">ENSG00000182108</td>
+<td align="left">DEXI</td>
+<td align="right">1</td>
+<td align="right">0.001202</td>
+<td align="right">0.415167</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="left">ENSG00000064547</td>
+<td align="left">LPAR2</td>
+<td align="right">1</td>
+<td align="right">0.002662</td>
+<td align="right">0.000000</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">ENSG00000143882</td>
+<td align="left">ATP6V1C2</td>
+<td align="right">6</td>
+<td align="right">0.003029</td>
+<td align="right">0.004229</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="left">ENSG00000186710</td>
+<td align="left">CFAP73</td>
+<td align="right">2</td>
+<td align="right">0.004716</td>
+<td align="right">0.883631</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left">ENSG00000198586</td>
+<td align="left">TLK1</td>
+<td align="right">2</td>
+<td align="right">0.006807</td>
+<td align="right">0.000017</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="left">ENSG00000104290</td>
+<td align="left">FZD3</td>
+<td align="right">2</td>
+<td align="right">0.009399</td>
+<td align="right">0.000002</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">ENSG00000140262</td>
+<td align="left">TCF12</td>
+<td align="right">1</td>
+<td align="right">0.065674</td>
+<td align="right">0.130972</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="left">ENSG00000100439</td>
+<td align="left">ABHD4</td>
+<td align="right">1</td>
+<td align="right">0.066320</td>
+<td align="right">0.000346</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">ENSG00000271092</td>
+<td align="left">TLCD4-RWDD3</td>
+<td align="right">1</td>
+<td align="right">0.084853</td>
+<td align="right">0.968709</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="left">ENSG00000152944</td>
+<td align="left">MED21</td>
+<td align="right">1</td>
+<td align="right">0.098294</td>
+<td align="right">0.000036</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">ENSG00000134198</td>
+<td align="left">TSPAN2</td>
+<td align="right">1</td>
+<td align="right">0.108762</td>
+<td align="right">0.020521</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="left">ENSG00000155269</td>
+<td align="left">GPR78</td>
+<td align="right">1</td>
+<td align="right">0.139676</td>
+<td align="right">0.000019</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">ENSG00000104643</td>
+<td align="left">MTMR9</td>
+<td align="right">1</td>
+<td align="right">0.153623</td>
+<td align="right">0.328786</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="left">ENSG00000132522</td>
+<td align="left">GPS2</td>
+<td align="right">1</td>
+<td align="right">0.181260</td>
+<td align="right">0.009625</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="even">
+<td align="left">ENSG00000122085</td>
+<td align="left">MTERF4</td>
+<td align="right">1</td>
+<td align="right">0.185666</td>
+<td align="right">0.000000</td>
+<td align="left">TRUE</td>
+</tr>
+<tr class="odd">
+<td align="left">ENSG00000111817</td>
+<td align="left">DSE</td>
+<td align="right">1</td>
+<td align="right">0.195816</td>
+<td align="right">0.004014</td>
+<td align="left">TRUE</td>
+</tr>
+</tbody>
+</table>
+<div class="cp-caution">
+<p>The 43 pairs are <strong>not 43 independent findings</strong>. One
+gene, PPIP5K2 (ENSG00000145725), contributes 19 of them, almost
+certainly one LD block, and a second gene contributes six. Counted as
+loci this is closer to <strong>17 findings</strong>, dominated by
+one.</p>
+</div>
+</div>
+<div id="what-do-these-units-look-like" class="section level2">
+<h2>2. What do these units look like?</h2>
+<p>Trajectories are <span class="math inline">\(\hat\beta(t) \pm
+2\,se(t)\)</span> with the posterior mean under the
+<strong>correlated</strong> model overlaid. Posterior means are computed
+in closed form from the stored mixture weights and <span
+class="math inline">\(\Omega_j\)</span>; the closed form reproduces the
+package’s own TMB optimum to <code>7.7e-09</code>.</p>
+<pre class="r"><code>design &lt;- build_shared_design(cc$time_grid, cc$settings$num_basis,
+                              cc$settings$order, cc$settings$betaprec)
+scales &lt;- psd_to_prior_scale(cc$retained_psd, cc$settings$order,
+                             cc$settings$pred_step)$prior_scale
+correlation_precision &lt;- solve(cc$implied_correlation)
+posterior_mean &lt;- t(vapply(seq_len(nrow(disc)), function(i) {
+  se &lt;- cc$standard_errors[i, ]
+  omega &lt;- correlation_precision * tcrossprod(1 / se)
+  as.numeric(unit_component_posterior_means(
+    y = cc$beta_hat[i, ], precision = (omega + t(omega)) / 2,
+    shared_design = design, prior_scale = scales
+  ) %*% cc$posterior_weights[i, ])
+}, numeric(length(cc$time_grid))))
+rownames(posterior_mean) &lt;- disc$pair_key</code></pre>
+<pre class="r"><code>show &lt;- c(disc$pair_key[1], disc$pair_key[which(!disc$diagonal_call)[1:3]],
+          disc$pair_key[which.max(disc$diagonal_rank[disc$diagonal_call])],
+          disc$pair_key[which.max(disc$correlated_lfdr)])
+show &lt;- unique(show)
+idx &lt;- match(show, disc$pair_key)
+plot_data &lt;- do.call(rbind, lapply(seq_along(idx), function(k) {
+  i &lt;- idx[k]
+  data.frame(
+    time = cc$time_grid, beta = cc$beta_hat[i, ], se = cc$standard_errors[i, ],
+    fitted = posterior_mean[i, ],
+    panel = sprintf(&quot;%s | %s\ncorr lfdr %.3g (rank %d) | diag lfdr %.3g (rank %s)&quot;,
+                    disc$symbol[i], disc$variant_id[i], disc$correlated_lfdr[i],
+                    disc$correlated_rank[i], disc$diagonal_lfdr[i],
+                    format(disc$diagonal_rank[i], big.mark = &quot;,&quot;)))
+}))
+plot_data$panel &lt;- factor(plot_data$panel, levels = unique(plot_data$panel))
+ggplot(plot_data, aes(time, beta)) +
+  geom_hline(yintercept = 0, colour = &quot;grey60&quot;) +
+  geom_ribbon(aes(ymin = beta - 2 * se, ymax = beta + 2 * se),
+              fill = &quot;grey80&quot;, alpha = 0.55) +
+  geom_point(size = 1.4) + geom_line(colour = &quot;grey40&quot;, linewidth = 0.3) +
+  geom_line(aes(y = fitted), colour = &quot;#B2182B&quot;, linewidth = 1) +
+  facet_wrap(~panel, ncol = 2, scales = &quot;free_y&quot;) +
+  scale_x_continuous(breaks = seq(0, 15, by = 3)) +
+  labs(title = &quot;Discovered units under the permutation-correlation fit&quot;,
+       subtitle = &quot;Points and grey band: beta-hat plus or minus two t-adjusted standard errors. Red: correlated posterior mean.&quot;,
+       x = &quot;Day&quot;, y = expression(hat(beta))) +
+  theme_minimal(base_size = 10) +
+  theme(plot.title = element_text(face = &quot;bold&quot;), strip.text = element_text(size = 7.5))</code></pre>
+<p><img src="figure/revision_internal_correlated_permutation_discoveries.rmd/examples-1.png" width="1800" style="display: block; margin: auto;" /></p>
+</div>
+<div id="overlap-with-strober-et-al.-and-with-the-diagonal-fit"
+class="section level2">
+<h2>3. Overlap with Strober et al. and with the diagonal fit</h2>
+<pre class="r"><code>read_strober &lt;- function(path) {
+  x &lt;- read.delim(path); x$key &lt;- paste0(x$ensamble_id, &quot;_&quot;, x$rs_id); x
+}
+lin &lt;- read_strober(&quot;data/dynamic_eQTL_real/strober_linear/linear_dynamic_eqtls_5_pc.txt&quot;)
+non &lt;- read_strober(&quot;data/dynamic_eQTL_real/strober_nonlinear/non_linear_dynamic_eqtls_5_pc.txt&quot;)
+lin_calls &lt;- lin$key[lin$eFDR &lt;= 0.05]; non_calls &lt;- non$key[non$eFDR &lt;= 0.05]
+disc &lt;- disc %&gt;%
+  mutate(strober_linear = pair_key %in% lin_calls,
+         strober_nonlinear = pair_key %in% non_calls,
+         strober_any = strober_linear | strober_nonlinear,
+         supported = diagonal_call | strober_any)
+tibble::tibble(
+  Comparator = c(&quot;Diagonal FASH BF calls&quot;, &quot;Strober linear (eFDR &lt;= 0.05)&quot;,
+                 &quot;Strober nonlinear (eFDR &lt;= 0.05)&quot;, &quot;Strober either&quot;,
+                 &quot;Diagonal or Strober&quot;, &quot;Neither&quot;),
+  `Of the 43` = c(sum(disc$diagonal_call), sum(disc$strober_linear),
+                  sum(disc$strober_nonlinear), sum(disc$strober_any),
+                  sum(disc$supported), sum(!disc$supported))
+) %&gt;% kable(caption = &quot;How many of the 43 correlated calls are also found by another method.&quot;)</code></pre>
+<table>
+<caption>How many of the 43 correlated calls are also found by another
+method.</caption>
+<thead>
+<tr class="header">
+<th align="left">Comparator</th>
+<th align="right">Of the 43</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Diagonal FASH BF calls</td>
+<td align="right">35</td>
+</tr>
+<tr class="even">
+<td align="left">Strober linear (eFDR &lt;= 0.05)</td>
+<td align="right">18</td>
+</tr>
+<tr class="odd">
+<td align="left">Strober nonlinear (eFDR &lt;= 0.05)</td>
+<td align="right">21</td>
+</tr>
+<tr class="even">
+<td align="left">Strober either</td>
+<td align="right">22</td>
+</tr>
+<tr class="odd">
+<td align="left">Diagonal or Strober</td>
+<td align="right">35</td>
+</tr>
+<tr class="even">
+<td align="left">Neither</td>
+<td align="right">8</td>
+</tr>
+</tbody>
+</table>
+<p>Read the other direction too: of the <strong>9,214</strong> pairs the
+diagonal fit called, only <strong>35</strong> survive under the
+correlated likelihood.</p>
+<div id="the-correlated-fit-reranks-it-does-not-only-shrink"
+class="section level3">
+<h3>The correlated fit reranks, it does not only shrink</h3>
+<pre class="r"><code>ggplot(disc, aes(diagonal_rank, correlated_rank,
+                 colour = interaction(diagonal_call, strober_any))) +
+  geom_point(size = 2.4, alpha = 0.9) +
+  scale_x_log10(labels = scales::comma) +
+  scale_colour_manual(
+    values = c(&quot;FALSE.FALSE&quot; = &quot;#D55E00&quot;, &quot;TRUE.FALSE&quot; = &quot;#0072B2&quot;,
+               &quot;FALSE.TRUE&quot; = &quot;#E69F00&quot;, &quot;TRUE.TRUE&quot; = &quot;#009E73&quot;),
+    labels = c(&quot;FALSE.FALSE&quot; = &quot;neither&quot;, &quot;TRUE.FALSE&quot; = &quot;diagonal only&quot;,
+               &quot;FALSE.TRUE&quot; = &quot;Strober only&quot;, &quot;TRUE.TRUE&quot; = &quot;diagonal + Strober&quot;),
+    name = NULL) +
+  labs(title = &quot;Correlated rank against diagonal rank, for the 43 correlated calls&quot;,
+       subtitle = &quot;Points far to the right were near-null under the diagonal likelihood yet are top-ranked under the correlated one.&quot;,
+       x = &quot;Rank in the diagonal BF fit (log scale, of 1,009,173)&quot;,
+       y = &quot;Rank in the correlated BF fit&quot;) +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = &quot;bold&quot;), legend.position = &quot;bottom&quot;)</code></pre>
+<p><img src="figure/revision_internal_correlated_permutation_discoveries.rmd/rerank-1.png" width="1800" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>disc %&gt;% filter(!diagonal_call) %&gt;%
+  select(correlated_rank, symbol, variant_id, correlated_lfdr,
+         diagonal_lfdr, diagonal_rank, strober_any) %&gt;%
+  arrange(correlated_rank) %&gt;%
+  kable(digits = 6, caption = &quot;Correlated calls that the diagonal fit did not make.&quot;)</code></pre>
+<table>
+<caption>Correlated calls that the diagonal fit did not make.</caption>
+<colgroup>
+<col width="16%" />
+<col width="12%" />
+<col width="11%" />
+<col width="16%" />
+<col width="14%" />
+<col width="14%" />
+<col width="12%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">correlated_rank</th>
+<th align="left">symbol</th>
+<th align="left">variant_id</th>
+<th align="right">correlated_lfdr</th>
+<th align="right">diagonal_lfdr</th>
+<th align="right">diagonal_rank</th>
+<th align="left">strober_any</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">9</td>
+<td align="left">DEXI</td>
+<td align="left">rs12931898</td>
+<td align="right">0.001202</td>
+<td align="right">0.415167</td>
+<td align="right">17997</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="right">14</td>
+<td align="left">CFAP73</td>
+<td align="left">rs11066504</td>
+<td align="right">0.004716</td>
+<td align="right">0.883631</td>
+<td align="right">105016</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="right">16</td>
+<td align="left">ATP6V1C2</td>
+<td align="left">rs1198868</td>
+<td align="right">0.006913</td>
+<td align="right">0.167180</td>
+<td align="right">9808</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="right">17</td>
+<td align="left">ATP6V1C2</td>
+<td align="left">rs1198870</td>
+<td align="right">0.008287</td>
+<td align="right">0.192826</td>
+<td align="right">10613</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="right">28</td>
+<td align="left">ATP6V1C2</td>
+<td align="left">rs11902342</td>
+<td align="right">0.044363</td>
+<td align="right">0.359229</td>
+<td align="right">15959</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="right">31</td>
+<td align="left">TLCD4-RWDD3</td>
+<td align="left">rs4245669</td>
+<td align="right">0.084853</td>
+<td align="right">0.968709</td>
+<td align="right">953976</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="right">32</td>
+<td align="left">CFAP73</td>
+<td align="left">rs1379864</td>
+<td align="right">0.090142</td>
+<td align="right">0.946876</td>
+<td align="right">687037</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="right">40</td>
+<td align="left">MTMR9</td>
+<td align="left">rs6601579</td>
+<td align="right">0.153623</td>
+<td align="right">0.328786</td>
+<td align="right">14745</td>
+<td align="left">FALSE</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="why-they-were-promoted" class="section level3">
+<h3>Why they were promoted</h3>
+<pre class="r"><code>z &lt;- cc$beta_hat / cc$standard_errors
+disc &lt;- disc %&gt;% mutate(
+  max_abs_z = apply(abs(z), 1, max),
+  lag1_autocorr = apply(z, 1, function(v) cor(v[-length(v)], v[-1])),
+  group = ifelse(diagonal_call, &quot;also called by the diagonal fit&quot;,
+                 &quot;promoted by the correlation only&quot;)
+)
+assumed_lag1 &lt;- mean(cc$implied_correlation[cbind(1:15, 2:16)])
+disc %&gt;%
+  tidyr::pivot_longer(c(max_abs_z, lag1_autocorr)) %&gt;%
+  mutate(name = recode(name,
+    max_abs_z = &quot;max |z| (amplitude)&quot;,
+    lag1_autocorr = &quot;lag-1 autocorrelation of z&quot;)) %&gt;%
+  ggplot(aes(group, value, colour = group)) +
+  geom_hline(data = data.frame(name = &quot;lag-1 autocorrelation of z&quot;,
+                               y = assumed_lag1),
+             aes(yintercept = y), linetype = &quot;dashed&quot;, colour = &quot;grey40&quot;) +
+  geom_boxplot(outlier.shape = NA, width = 0.5) +
+  geom_jitter(width = 0.12, height = 0, size = 2, alpha = 0.8) +
+  facet_wrap(~name, scales = &quot;free_y&quot;) +
+  scale_colour_manual(values = c(&quot;#0072B2&quot;, &quot;#D55E00&quot;), guide = &quot;none&quot;) +
+  labs(title = &quot;The promoted units are lower-amplitude and much less autocorrelated&quot;,
+       subtitle = sprintf(&quot;Dashed line: lag-1 autocorrelation the assumed error correlation predicts (%.3f).&quot;, assumed_lag1),
+       x = NULL, y = NULL) +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = &quot;bold&quot;),
+        axis.text.x = element_text(size = 8))</code></pre>
+<p><img src="figure/revision_internal_correlated_permutation_discoveries.rmd/diagnosis-1.png" width="1800" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>disc %&gt;% group_by(group) %&gt;%
+  summarise(n = n(), median_max_abs_z = median(max_abs_z),
+            median_lag1_autocorr = median(lag1_autocorr), .groups = &quot;drop&quot;) %&gt;%
+  mutate(wilcoxon_p_vs_other = c(
+    format.pval(wilcox.test(max_abs_z ~ group, data = disc)$p.value, digits = 2),
+    format.pval(wilcox.test(lag1_autocorr ~ group, data = disc)$p.value, digits = 2))) %&gt;%
+  kable(digits = 3, caption = &quot;Amplitude and autocorrelation by group. The p-value column reports, in order, the max |z| and lag-1 tests.&quot;)</code></pre>
+<table style="width:100%;">
+<caption>Amplitude and autocorrelation by group. The p-value column
+reports, in order, the max |z| and lag-1 tests.</caption>
+<colgroup>
+<col width="35%" />
+<col width="3%" />
+<col width="18%" />
+<col width="22%" />
+<col width="21%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">group</th>
+<th align="right">n</th>
+<th align="right">median_max_abs_z</th>
+<th align="right">median_lag1_autocorr</th>
+<th align="left">wilcoxon_p_vs_other</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">also called by the diagonal fit</td>
+<td align="right">35</td>
+<td align="right">4.504</td>
+<td align="right">0.591</td>
+<td align="left">0.00018</td>
+</tr>
+<tr class="even">
+<td align="left">promoted by the correlation only</td>
+<td align="right">8</td>
+<td align="right">3.263</td>
+<td align="right">0.115</td>
+<td align="left">1.9e-05</td>
+</tr>
+</tbody>
+</table>
+<div class="cp-caution">
+<p><strong>This is the finding that most needs scrutiny.</strong> Eight
+of the 43 were not diagonal calls, and <strong>none of those eight is
+supported by Strober either</strong>. <code>rs4245669</code> sits at
+diagonal rank 953,976 of 1,009,173 — essentially the bottom of the
+ranking — yet is promoted to correlated rank 31, while
+<code>rs6719155</code>, at diagonal rank 28, is nearly dropped.</p>
+<p>The diagnosis above explains the mechanism, and it is <strong>not a
+coding error</strong>. The promoted units have z-trajectories with
+median lag-1 autocorrelation 0.115, far below the 0.455 the assumed
+error correlation predicts, while the concordant units sit at 0.591. The
+whitened quadratic form <span class="math inline">\(z&#39; C^{-1}
+z\)</span> is large precisely when <span
+class="math inline">\(z\)</span> is <em>less</em> autocorrelated than
+<span class="math inline">\(C\)</span> says noise should be, because
+<span class="math inline">\(C^{-1}\)</span> up-weights the
+high-frequency directions in which <span
+class="math inline">\(C\)</span> has little variance. Given the model,
+promoting these units is the correct inference: they are too jagged to
+be noise <em>under a lag-1 correlation of 0.455</em>.</p>
+<p>So the real question is whether that common <span
+class="math inline">\(C\)</span> applies to them. It was estimated on
+null-like units and averaged across them; nothing forces every unit’s
+error to share it. A unit whose true error is closer to independent will
+look strongly non-null under this likelihood no matter what its biology
+is. Since these eight are also the <strong>lowest-amplitude</strong>
+members of the set (median max |z| 3.26 against 4.5, Wilcoxon p =
+0.00018) and are corroborated by no other method, <strong>heterogeneity
+in the true error correlation is the more plausible explanation than
+newly-found signal.</strong></p>
+<p>This is the sharpest available argument that a single shared <span
+class="math inline">\(\Omega\)</span> is the binding limitation of this
+analysis.</p>
+</div>
+</div>
+</div>
+<div id="enhancer-enrichment-of-the-43-variants" class="section level2">
+<h2>4. Enhancer enrichment of the 43 variants</h2>
+<pre class="r"><code>source(paste0(&quot;code/revision_simulations/internal/&quot;,
+              &quot;fash_strober_enhancer_comparison/enrichment_api.R&quot;))
+annotations &lt;- load_annotation_groups(&quot;custom&quot;)
+groups &lt;- setdiff(names(annotations), c(&quot;variant_id&quot;, &quot;chromosome&quot;))
+selected &lt;- intersect(disc$variant_id, annotations$variant_id)
+rows &lt;- match(selected, annotations$variant_id)
+enh &lt;- do.call(rbind, lapply(groups, function(g) {
+  hit &lt;- as.logical(annotations[[g]])
+  k &lt;- sum(hit[rows]); n &lt;- length(rows); p0 &lt;- mean(hit)
+  tab &lt;- matrix(c(k, n - k, round(p0 * nrow(annotations)),
+                  round((1 - p0) * nrow(annotations))), nrow = 2)
+  data.frame(annotation = g, overlap = k, tested = n,
+             observed_rate = k / n, background_rate = p0,
+             fold = (k / n) / p0, fisher_p = fisher.test(tab)$p.value)
+}))
+kable(enh, digits = 4, row.names = FALSE,
+      caption = &quot;Overlap of the discovered variants with enhancer annotations, against the full background.&quot;)</code></pre>
+<table>
+<caption>Overlap of the discovered variants with enhancer annotations,
+against the full background.</caption>
+<colgroup>
+<col width="45%" />
+<col width="7%" />
+<col width="6%" />
+<col width="12%" />
+<col width="14%" />
+<col width="6%" />
+<col width="8%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">annotation</th>
+<th align="right">overlap</th>
+<th align="right">tested</th>
+<th align="right">observed_rate</th>
+<th align="right">background_rate</th>
+<th align="right">fold</th>
+<th align="right">fisher_p</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">ENCODE cCRE enhancer-like</td>
+<td align="right">7</td>
+<td align="right">43</td>
+<td align="right">0.1628</td>
+<td align="right">0.1681</td>
+<td align="right">0.9683</td>
+<td align="right">1.0000</td>
+</tr>
+<tr class="even">
+<td align="left">Roadmap E020 iPS-20b: Enhancer</td>
+<td align="right">0</td>
+<td align="right">43</td>
+<td align="right">0.0000</td>
+<td align="right">0.0365</td>
+<td align="right">0.0000</td>
+<td align="right">0.4089</td>
+</tr>
+<tr class="odd">
+<td align="left">Roadmap E013 hESC-derived CD56+ mesoderm: Enhancer</td>
+<td align="right">0</td>
+<td align="right">43</td>
+<td align="right">0.0000</td>
+<td align="right">0.0535</td>
+<td align="right">0.0000</td>
+<td align="right">0.1723</td>
+</tr>
+<tr class="even">
+<td align="left">Roadmap E095 left ventricle: Enhancer</td>
+<td align="right">1</td>
+<td align="right">43</td>
+<td align="right">0.0233</td>
+<td align="right">0.0711</td>
+<td align="right">0.3272</td>
+<td align="right">0.3683</td>
+</tr>
+</tbody>
+</table>
+<div class="cp-caution">
+<p><strong>This test is underpowered and should not be read as evidence
+either way.</strong> The project’s usual estimator
+(<code>enrichment_api.R</code>, delete-one-chromosome jackknife,
+<code>MINIMUM_OVERLAP = 10</code>) returns <code>NA</code> for a set
+this small: 43 variants against a 16.8% background rate give about seven
+expected hits. The Fisher test above is the most that can be done, and
+at n = 43 it reaches p &lt; 0.05 only at roughly 15/43 hits, i.e. a fold
+of about <strong>2.1</strong>. Anything weaker is invisible here.</p>
+<p>This matters for the pre-committed enrichment ladder in the response
+letter: a null result on this page is <strong>uninformative, not
+negative</strong>, and must not be counted as another rung failing.</p>
+</div>
+</div>
+<div id="gene-set-enrichment-of-the-17-genes" class="section level2">
+<h2>5. Gene-set enrichment of the 17 genes</h2>
+<pre class="r"><code>suppressPackageStartupMessages({library(msigdbr); library(clusterProfiler)})
+m_t2g &lt;- msigdbr(species = &quot;Homo sapiens&quot;, collection = &quot;H&quot;) %&gt;%
+  mutate(ensembl_use = dplyr::coalesce(ensembl_gene, db_ensembl_gene)) %&gt;%
+  filter(!is.na(ensembl_use)) %&gt;% select(gs_name, ensembl_use) %&gt;% distinct()
+universe &lt;- read.csv(paste0(&quot;output/revision_simulations/internal/&quot;,
+                            &quot;residual_correlation_fash/all_tested_genes.csv&quot;),
+                     stringsAsFactors = FALSE)$gene_id
+selected_genes &lt;- unique(disc$gene_id)
+bg_missing &lt;- setdiff(universe, unique(m_t2g$ensembl_use))
+t2g_full &lt;- bind_rows(m_t2g, tibble::tibble(gs_name = &quot;__DUMMY__&quot;,
+                                            ensembl_use = bg_missing))
+res &lt;- enricher(gene = intersect(selected_genes, universe), TERM2GENE = t2g_full,
+                universe = universe, pAdjustMethod = &quot;BH&quot;,
+                qvalueCutoff = 1, pvalueCutoff = 1)
+if (is.null(res) || nrow(res@result) == 0) {
+  cat(&quot;No Hallmark term was testable for this gene set.\n&quot;)
+} else {
+  res@result %&gt;% filter(ID != &quot;__DUMMY__&quot;) %&gt;%
+    transmute(Term = sub(&quot;^HALLMARK_&quot;, &quot;&quot;, Description), GeneRatio, BgRatio,
+              pvalue, p.adjust) %&gt;%
+    arrange(pvalue) %&gt;% head(10) %&gt;%
+    kable(digits = 4, caption = &quot;Hallmark terms, all cutoffs relaxed so the full picture is visible.&quot;)
+}</code></pre>
+<table>
+<caption>Hallmark terms, all cutoffs relaxed so the full picture is
+visible.</caption>
+<colgroup>
+<col width="32%" />
+<col width="21%" />
+<col width="13%" />
+<col width="11%" />
+<col width="9%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="left">Term</th>
+<th align="left">GeneRatio</th>
+<th align="left">BgRatio</th>
+<th align="right">pvalue</th>
+<th align="right">p.adjust</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">HALLMARK_P53_PATHWAY</td>
+<td align="left">P53_PATHWAY</td>
+<td align="left">1/17</td>
+<td align="left">83/6362</td>
+<td align="right">0.2003</td>
+<td align="right">0.3134</td>
+</tr>
+<tr class="even">
+<td align="left">HALLMARK_MITOTIC_SPINDLE</td>
+<td align="left">MITOTIC_SPINDLE</td>
+<td align="left">1/17</td>
+<td align="left">139/6362</td>
+<td align="right">0.3134</td>
+<td align="right">0.3134</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>tibble::tibble(
+  quantity = c(&quot;genes discovered&quot;, &quot;in the 6,362-gene universe&quot;,
+               &quot;annotated in Hallmark&quot;, &quot;Hallmark terms testable&quot;),
+  value = c(length(selected_genes),
+            length(intersect(selected_genes, universe)),
+            length(intersect(selected_genes, unique(m_t2g$ensembl_use))),
+            if (is.null(res)) 0L else sum(res@result$ID != &quot;__DUMMY__&quot;))
+) %&gt;% kable(caption = &quot;Why this section is thin.&quot;)</code></pre>
+<table>
+<caption>Why this section is thin.</caption>
+<thead>
+<tr class="header">
+<th align="left">quantity</th>
+<th align="right">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">genes discovered</td>
+<td align="right">17</td>
+</tr>
+<tr class="even">
+<td align="left">in the 6,362-gene universe</td>
+<td align="right">17</td>
+</tr>
+<tr class="odd">
+<td align="left">annotated in Hallmark</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">Hallmark terms testable</td>
+<td align="right">2</td>
+</tr>
+</tbody>
+</table>
+<div class="cp-caution">
+<p>Seventeen genes, of which only a handful carry any Hallmark
+annotation. Nothing here can reach significance after multiplicity
+correction, and the p-values are shown with cutoffs relaxed purely so
+the table is not silently empty. Treat this as a descriptive listing,
+not a test.</p>
+</div>
+</div>
+<div id="interpretation-boundary" class="section level2">
+<h2>Interpretation boundary</h2>
+<div class="cp-banner">
+<ul>
+<li>A 99.5% reduction in calls is a <strong>sensitivity</strong> result.
+It does not establish that the correlated fit is better calibrated, only
+that the diagonal-likelihood discoveries are largely not robust to a
+cross-time error correlation that several independent methods agree is
+present and substantial.</li>
+<li>One common <span class="math inline">\(C\)</span> cannot represent
+unit-specific dependence, and it was estimated on
+<strong>null-like</strong> units but applied to every unit, including
+the discovered ones.</li>
+<li>The 43 pairs are roughly 17 loci, one of which supplies 19
+pairs.</li>
+<li>The eight promoted units are supported by no other method and are
+the least trustworthy part of this page.</li>
+<li>Sections 4 and 5 are underpowered by construction and are reported
+for completeness, not as evidence.</li>
+</ul>
+</div>
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] en_CA/en_CA/en_CA/C/en_CA/en_CA
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] clusterProfiler_4.16.0 msigdbr_25.1.1         knitr_1.50            
+[4] ggplot2_4.0.3          dplyr_1.1.4            workflowr_1.7.2       
+
+loaded via a namespace (and not attached):
+  [1] RColorBrewer_1.1-3      rstudioapi_0.17.1       jsonlite_2.0.0         
+  [4] magrittr_2.0.5          ggtangle_0.0.9          farver_2.1.2           
+  [7] rmarkdown_2.30          fs_1.6.6                vctrs_0.7.3            
+ [10] memoise_2.0.1           ggtree_3.16.3           mixsqp_0.3-54          
+ [13] htmltools_0.5.9         curl_7.0.0              gridGraphics_0.5-1     
+ [16] sass_0.4.10             bslib_0.9.0             plyr_1.8.9             
+ [19] cachem_1.1.0            TMB_1.9.23              whisker_0.4.1          
+ [22] igraph_2.3.2            lifecycle_1.0.5         pkgconfig_2.0.3        
+ [25] Matrix_1.7-4            R6_2.6.1                fastmap_1.2.0          
+ [28] gson_0.1.0              GenomeInfoDbData_1.2.14 digest_0.6.39          
+ [31] numDeriv_2016.8-1.1     aplot_0.2.9             enrichplot_1.28.4      
+ [34] colorspace_2.1-2        patchwork_1.3.2         AnnotationDbi_1.70.0   
+ [37] S4Vectors_0.46.0        ps_1.9.1                rprojroot_2.1.1        
+ [40] irlba_2.3.7             RSQLite_2.4.5           labeling_0.4.3         
+ [43] httr_1.4.7              compiler_4.5.1          bit64_4.6.0-1          
+ [46] withr_3.0.3             S7_0.2.2                BiocParallel_1.42.2    
+ [49] DBI_1.2.3               R.utils_2.13.0          rappdirs_0.3.3         
+ [52] tools_4.5.1             otel_0.2.0              ape_5.8-1              
+ [55] httpuv_1.6.16           R.oo_1.27.1             glue_1.8.1             
+ [58] callr_3.7.6             nlme_3.1-168            GOSemSim_2.34.0        
+ [61] promises_1.5.0          grid_4.5.1              getPass_0.2-4          
+ [64] reshape2_1.4.5          fgsea_1.34.2            generics_0.1.4         
+ [67] gtable_0.3.6            R.methodsS3_1.8.2       tidyr_1.3.1            
+ [70] data.table_1.17.8       XVector_0.48.0          BiocGenerics_0.54.1    
+ [73] ggrepel_0.9.6           pillar_1.11.1           stringr_1.6.0          
+ [76] yulab.utils_0.2.3       babelgene_22.9          fashr_0.1.43           
+ [79] later_1.4.4             splines_4.5.1           treeio_1.32.0          
+ [82] lattice_0.22-7          bit_4.6.0               tidyselect_1.2.1       
+ [85] GO.db_3.21.0            Biostrings_2.76.0       git2r_0.36.2           
+ [88] IRanges_2.42.0          stats4_4.5.1            xfun_0.55              
+ [91] Biobase_2.68.0          LaplacesDemon_16.1.8    stringi_1.8.9          
+ [94] UCSC.utils_1.4.0        lazyeval_0.2.2          ggfun_0.2.0            
+ [97] yaml_2.3.12             evaluate_1.0.5          codetools_0.2-20       
+[100] tibble_3.3.0            qvalue_2.40.0           ggplotify_0.1.3        
+[103] cli_3.6.6               processx_3.8.6          jquerylib_0.1.4        
+[106] dichromat_2.0-0.1       Rcpp_1.1.1-1.1          GenomeInfoDb_1.44.3    
+[109] png_0.1-8               parallel_4.5.1          assertthat_0.2.1       
+[112] blob_1.2.4              DOSE_4.2.0              tidytree_0.4.6         
+[115] scales_1.4.0            purrr_1.2.0             crayon_1.5.3           
+[118] rlang_1.2.0             cowplot_1.2.0           fastmatch_1.1-6        
+[121] KEGGREST_1.48.1        </code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] en_CA/en_CA/en_CA/C/en_CA/en_CA
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] clusterProfiler_4.16.0 msigdbr_25.1.1         knitr_1.50            
+[4] ggplot2_4.0.3          dplyr_1.1.4            workflowr_1.7.2       
+
+loaded via a namespace (and not attached):
+  [1] RColorBrewer_1.1-3      rstudioapi_0.17.1       jsonlite_2.0.0         
+  [4] magrittr_2.0.5          ggtangle_0.0.9          farver_2.1.2           
+  [7] rmarkdown_2.30          fs_1.6.6                vctrs_0.7.3            
+ [10] memoise_2.0.1           ggtree_3.16.3           mixsqp_0.3-54          
+ [13] htmltools_0.5.9         curl_7.0.0              gridGraphics_0.5-1     
+ [16] sass_0.4.10             bslib_0.9.0             plyr_1.8.9             
+ [19] cachem_1.1.0            TMB_1.9.23              whisker_0.4.1          
+ [22] igraph_2.3.2            lifecycle_1.0.5         pkgconfig_2.0.3        
+ [25] Matrix_1.7-4            R6_2.6.1                fastmap_1.2.0          
+ [28] gson_0.1.0              GenomeInfoDbData_1.2.14 digest_0.6.39          
+ [31] numDeriv_2016.8-1.1     aplot_0.2.9             enrichplot_1.28.4      
+ [34] colorspace_2.1-2        patchwork_1.3.2         AnnotationDbi_1.70.0   
+ [37] S4Vectors_0.46.0        ps_1.9.1                rprojroot_2.1.1        
+ [40] irlba_2.3.7             RSQLite_2.4.5           labeling_0.4.3         
+ [43] httr_1.4.7              compiler_4.5.1          bit64_4.6.0-1          
+ [46] withr_3.0.3             S7_0.2.2                BiocParallel_1.42.2    
+ [49] DBI_1.2.3               R.utils_2.13.0          rappdirs_0.3.3         
+ [52] tools_4.5.1             otel_0.2.0              ape_5.8-1              
+ [55] httpuv_1.6.16           R.oo_1.27.1             glue_1.8.1             
+ [58] callr_3.7.6             nlme_3.1-168            GOSemSim_2.34.0        
+ [61] promises_1.5.0          grid_4.5.1              getPass_0.2-4          
+ [64] reshape2_1.4.5          fgsea_1.34.2            generics_0.1.4         
+ [67] gtable_0.3.6            R.methodsS3_1.8.2       tidyr_1.3.1            
+ [70] data.table_1.17.8       XVector_0.48.0          BiocGenerics_0.54.1    
+ [73] ggrepel_0.9.6           pillar_1.11.1           stringr_1.6.0          
+ [76] yulab.utils_0.2.3       babelgene_22.9          fashr_0.1.43           
+ [79] later_1.4.4             splines_4.5.1           treeio_1.32.0          
+ [82] lattice_0.22-7          bit_4.6.0               tidyselect_1.2.1       
+ [85] GO.db_3.21.0            Biostrings_2.76.0       git2r_0.36.2           
+ [88] IRanges_2.42.0          stats4_4.5.1            xfun_0.55              
+ [91] Biobase_2.68.0          LaplacesDemon_16.1.8    stringi_1.8.9          
+ [94] UCSC.utils_1.4.0        lazyeval_0.2.2          ggfun_0.2.0            
+ [97] yaml_2.3.12             evaluate_1.0.5          codetools_0.2-20       
+[100] tibble_3.3.0            qvalue_2.40.0           ggplotify_0.1.3        
+[103] cli_3.6.6               processx_3.8.6          jquerylib_0.1.4        
+[106] dichromat_2.0-0.1       Rcpp_1.1.1-1.1          GenomeInfoDb_1.44.3    
+[109] png_0.1-8               parallel_4.5.1          assertthat_0.2.1       
+[112] blob_1.2.4              DOSE_4.2.0              tidytree_0.4.6         
+[115] scales_1.4.0            purrr_1.2.0             crayon_1.5.3           
+[118] rlang_1.2.0             cowplot_1.2.0           fastmatch_1.1-6        
+[121] KEGGREST_1.48.1        </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

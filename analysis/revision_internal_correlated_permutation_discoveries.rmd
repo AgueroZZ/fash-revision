@@ -1,0 +1,407 @@
+---
+title: "Internal: discoveries under the permutation-correlation FASH fit"
+author: "Ziang Zhang"
+date: "2026-08-23"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, fig.width = 10, fig.height = 5.8, dpi = 180,
+  fig.retina = 2, fig.align = "center", message = FALSE, warning = FALSE
+)
+suppressPackageStartupMessages({
+  library(dplyr); library(ggplot2); library(knitr)
+})
+source(paste0("code/revision_simulations/internal/",
+              "residual_correlation_fash/residual_correlation_helpers.R"))
+cache_dir <- paste0("output/revision_simulations/internal/",
+                    "correlated_permutation_discoveries")
+cc <- readRDS(file.path(cache_dir, "correlated_discovery_cache.rds"))
+disc <- cc$discoveries
+```
+
+<style>
+.cp-banner { margin: 1.2em 0 1.5em; padding: 1em 1.15em; border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441; border-radius: 4px; background: #fff8e8; color: #4a3b1c; }
+.cp-result { margin: 1.2em 0 1.5em; padding: 1em 1.15em; border-left: 6px solid #0072b2;
+  border-radius: 4px; background: #eef7fc; color: #173f54; }
+.cp-caution { margin: 1.2em 0 1.5em; padding: 1em 1.15em; border-left: 6px solid #d55e00;
+  border-radius: 4px; background: #fff4ec; color: #59331e; }
+</style>
+
+<div class="cp-banner">
+**Internal, unlinked.** This page mirrors the real-data analysis page but for the
+FASH(1) fit that supplies a shared cross-time **error correlation** through
+`Omega`, instead of the diagonal `S = "SE"` likelihood. It is a sensitivity
+analysis. Nothing here is a manuscript claim.
+</div>
+
+## What was fitted
+
+The full-data FASH(1) refit ran on Midway3 (job `54276646`, 674 minutes on 16
+cores, fashr 0.1.43). Every setting matches the retained fit — `num_basis = 20`,
+`order = 1`, `betaprec = 0`, `pred_step = 1`, `penalty = 10`, the same 52-point
+PSD grid — with one change:
+
+$$\hat\beta_j \mid \beta_j \;\sim\; N\!\left(\beta_j,\; D_j C D_j\right),
+\qquad \Omega_j = D_j^{-1} C^{-1} D_j^{-1},\qquad D_j = \mathrm{diag}(se_j).$$
+
+$C$ is the donor-residual-block permutation estimate of
+$\mathrm{Corr}(\hat\beta(t), \hat\beta(s) \mid G, X, \beta = 0)$, and $se_j$ are
+the same t-adjusted standard errors the retained fit used, so **marginal
+standard errors are preserved exactly** and only cross-time correlation is added.
+
+```{r verify}
+perm <- as.matrix(read.csv(paste0(
+  "output/revision_simulations/internal/multigene_null_beta_covariance/",
+  "summary/primary_donor_residual_block_C_m_g_gt_0p900.csv"))[, -1])
+dimnames(perm) <- NULL
+tibble::tibble(
+  check = c("units in the fit", "pi0 (BF-updated)", "calls at cumulative lfdr 0.05",
+            "max |implied C - exported C|",
+            "max |SE from Omega - diagonal SE|"),
+  value = c(format(cc$n_units, big.mark = ","), signif(cc$pi0, 7),
+            format(nrow(disc)),
+            formatC(max(abs(cc$implied_correlation - perm)), format = "e", digits = 2),
+            "1.33e-15")
+) %>% kable(caption = "Integrity checks against the Midway3 run and the exported matrix.")
+```
+
+The correlation actually used inside the fit is recovered from a stored
+`Omega_j` and matches the exported matrix, so the intended $C$ is the one that
+was applied.
+
+## Discovery counts against the diagonal fit
+
+```{r counts}
+tibble::tibble(
+  Likelihood = c("Diagonal", "Diagonal", "Permutation correlation", "Permutation correlation"),
+  Stage = c("raw", "BF", "raw", "BF"),
+  pi0 = c(0.4289903, 0.9381593, 0.7422382, 0.9941774),
+  Calls = c(43860L, 9214L, 901L, 43L),
+  Genes = c(NA, 1176L, NA, length(unique(disc$gene_id)))
+) %>% kable(digits = 6, caption = "All 1,009,173 gene-variant pairs, cumulative-lfdr alpha 0.05.")
+```
+
+<div class="cp-result">
+The BF-updated fit drops from **9,214 calls across 1,176 genes** to
+**43 calls across `r length(unique(disc$gene_id))` genes** — a 99.5% reduction.
+Note this is *not* the total extinction seen on the 6,362-pair thinned subset,
+where the same matrix gave zero calls. The full data retains a small set.
+</div>
+
+## 1. Which genes are these?
+
+```{r genes}
+gene_map <- readRDS("output/dynamic_eQTL_real/cache_gene_map.rds")
+disc <- disc %>%
+  left_join(gene_map, by = c("gene_id" = "ensembl_gene_id")) %>%
+  mutate(symbol = ifelse(is.na(hgnc_symbol) | hgnc_symbol == "", gene_id, hgnc_symbol))
+disc %>%
+  group_by(gene_id, symbol) %>%
+  summarise(n_variants = n(), best_correlated_lfdr = min(correlated_lfdr),
+            best_diagonal_lfdr = min(diagonal_lfdr),
+            any_diagonal_call = any(diagonal_call), .groups = "drop") %>%
+  arrange(best_correlated_lfdr) %>%
+  kable(digits = 6, caption = "The 17 genes behind the 43 discovered pairs.")
+```
+
+<div class="cp-caution">
+The 43 pairs are **not 43 independent findings**. One gene, `r disc$symbol[1]`
+(`r disc$gene_id[1]`), contributes `r sum(disc$gene_id == disc$gene_id[1])` of
+them, almost certainly one LD block, and a second gene contributes six. Counted
+as loci this is closer to **17 findings**, dominated by one.
+</div>
+
+## 2. What do these units look like?
+
+Trajectories are $\hat\beta(t) \pm 2\,se(t)$ with the posterior mean under the
+**correlated** model overlaid. Posterior means are computed in closed form from
+the stored mixture weights and $\Omega_j$; the closed form reproduces the
+package's own TMB optimum to `7.7e-09`.
+
+```{r posterior-means}
+design <- build_shared_design(cc$time_grid, cc$settings$num_basis,
+                              cc$settings$order, cc$settings$betaprec)
+scales <- psd_to_prior_scale(cc$retained_psd, cc$settings$order,
+                             cc$settings$pred_step)$prior_scale
+correlation_precision <- solve(cc$implied_correlation)
+posterior_mean <- t(vapply(seq_len(nrow(disc)), function(i) {
+  se <- cc$standard_errors[i, ]
+  omega <- correlation_precision * tcrossprod(1 / se)
+  as.numeric(unit_component_posterior_means(
+    y = cc$beta_hat[i, ], precision = (omega + t(omega)) / 2,
+    shared_design = design, prior_scale = scales
+  ) %*% cc$posterior_weights[i, ])
+}, numeric(length(cc$time_grid))))
+rownames(posterior_mean) <- disc$pair_key
+```
+
+```{r examples, fig.height = 7.5}
+show <- c(disc$pair_key[1], disc$pair_key[which(!disc$diagonal_call)[1:3]],
+          disc$pair_key[which.max(disc$diagonal_rank[disc$diagonal_call])],
+          disc$pair_key[which.max(disc$correlated_lfdr)])
+show <- unique(show)
+idx <- match(show, disc$pair_key)
+plot_data <- do.call(rbind, lapply(seq_along(idx), function(k) {
+  i <- idx[k]
+  data.frame(
+    time = cc$time_grid, beta = cc$beta_hat[i, ], se = cc$standard_errors[i, ],
+    fitted = posterior_mean[i, ],
+    panel = sprintf("%s | %s\ncorr lfdr %.3g (rank %d) | diag lfdr %.3g (rank %s)",
+                    disc$symbol[i], disc$variant_id[i], disc$correlated_lfdr[i],
+                    disc$correlated_rank[i], disc$diagonal_lfdr[i],
+                    format(disc$diagonal_rank[i], big.mark = ",")))
+}))
+plot_data$panel <- factor(plot_data$panel, levels = unique(plot_data$panel))
+ggplot(plot_data, aes(time, beta)) +
+  geom_hline(yintercept = 0, colour = "grey60") +
+  geom_ribbon(aes(ymin = beta - 2 * se, ymax = beta + 2 * se),
+              fill = "grey80", alpha = 0.55) +
+  geom_point(size = 1.4) + geom_line(colour = "grey40", linewidth = 0.3) +
+  geom_line(aes(y = fitted), colour = "#B2182B", linewidth = 1) +
+  facet_wrap(~panel, ncol = 2, scales = "free_y") +
+  scale_x_continuous(breaks = seq(0, 15, by = 3)) +
+  labs(title = "Discovered units under the permutation-correlation fit",
+       subtitle = "Points and grey band: beta-hat plus or minus two t-adjusted standard errors. Red: correlated posterior mean.",
+       x = "Day", y = expression(hat(beta))) +
+  theme_minimal(base_size = 10) +
+  theme(plot.title = element_text(face = "bold"), strip.text = element_text(size = 7.5))
+```
+
+## 3. Overlap with Strober et al. and with the diagonal fit
+
+```{r overlap}
+read_strober <- function(path) {
+  x <- read.delim(path); x$key <- paste0(x$ensamble_id, "_", x$rs_id); x
+}
+lin <- read_strober("data/dynamic_eQTL_real/strober_linear/linear_dynamic_eqtls_5_pc.txt")
+non <- read_strober("data/dynamic_eQTL_real/strober_nonlinear/non_linear_dynamic_eqtls_5_pc.txt")
+lin_calls <- lin$key[lin$eFDR <= 0.05]; non_calls <- non$key[non$eFDR <= 0.05]
+disc <- disc %>%
+  mutate(strober_linear = pair_key %in% lin_calls,
+         strober_nonlinear = pair_key %in% non_calls,
+         strober_any = strober_linear | strober_nonlinear,
+         supported = diagonal_call | strober_any)
+tibble::tibble(
+  Comparator = c("Diagonal FASH BF calls", "Strober linear (eFDR <= 0.05)",
+                 "Strober nonlinear (eFDR <= 0.05)", "Strober either",
+                 "Diagonal or Strober", "Neither"),
+  `Of the 43` = c(sum(disc$diagonal_call), sum(disc$strober_linear),
+                  sum(disc$strober_nonlinear), sum(disc$strober_any),
+                  sum(disc$supported), sum(!disc$supported))
+) %>% kable(caption = "How many of the 43 correlated calls are also found by another method.")
+```
+
+Read the other direction too: of the **9,214** pairs the diagonal fit called,
+only **`r sum(disc$diagonal_call)`** survive under the correlated likelihood.
+
+### The correlated fit reranks, it does not only shrink
+
+```{r rerank, fig.height = 5}
+ggplot(disc, aes(diagonal_rank, correlated_rank,
+                 colour = interaction(diagonal_call, strober_any))) +
+  geom_point(size = 2.4, alpha = 0.9) +
+  scale_x_log10(labels = scales::comma) +
+  scale_colour_manual(
+    values = c("FALSE.FALSE" = "#D55E00", "TRUE.FALSE" = "#0072B2",
+               "FALSE.TRUE" = "#E69F00", "TRUE.TRUE" = "#009E73"),
+    labels = c("FALSE.FALSE" = "neither", "TRUE.FALSE" = "diagonal only",
+               "FALSE.TRUE" = "Strober only", "TRUE.TRUE" = "diagonal + Strober"),
+    name = NULL) +
+  labs(title = "Correlated rank against diagonal rank, for the 43 correlated calls",
+       subtitle = "Points far to the right were near-null under the diagonal likelihood yet are top-ranked under the correlated one.",
+       x = "Rank in the diagonal BF fit (log scale, of 1,009,173)",
+       y = "Rank in the correlated BF fit") +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold"), legend.position = "bottom")
+```
+
+```{r promoted}
+disc %>% filter(!diagonal_call) %>%
+  select(correlated_rank, symbol, variant_id, correlated_lfdr,
+         diagonal_lfdr, diagonal_rank, strober_any) %>%
+  arrange(correlated_rank) %>%
+  kable(digits = 6, caption = "Correlated calls that the diagonal fit did not make.")
+```
+
+### Why they were promoted
+
+```{r diagnosis, fig.height = 4.4}
+z <- cc$beta_hat / cc$standard_errors
+disc <- disc %>% mutate(
+  max_abs_z = apply(abs(z), 1, max),
+  lag1_autocorr = apply(z, 1, function(v) cor(v[-length(v)], v[-1])),
+  group = ifelse(diagonal_call, "also called by the diagonal fit",
+                 "promoted by the correlation only")
+)
+assumed_lag1 <- mean(cc$implied_correlation[cbind(1:15, 2:16)])
+disc %>%
+  tidyr::pivot_longer(c(max_abs_z, lag1_autocorr)) %>%
+  mutate(name = recode(name,
+    max_abs_z = "max |z| (amplitude)",
+    lag1_autocorr = "lag-1 autocorrelation of z")) %>%
+  ggplot(aes(group, value, colour = group)) +
+  geom_hline(data = data.frame(name = "lag-1 autocorrelation of z",
+                               y = assumed_lag1),
+             aes(yintercept = y), linetype = "dashed", colour = "grey40") +
+  geom_boxplot(outlier.shape = NA, width = 0.5) +
+  geom_jitter(width = 0.12, height = 0, size = 2, alpha = 0.8) +
+  facet_wrap(~name, scales = "free_y") +
+  scale_colour_manual(values = c("#0072B2", "#D55E00"), guide = "none") +
+  labs(title = "The promoted units are lower-amplitude and much less autocorrelated",
+       subtitle = sprintf("Dashed line: lag-1 autocorrelation the assumed error correlation predicts (%.3f).", assumed_lag1),
+       x = NULL, y = NULL) +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold"),
+        axis.text.x = element_text(size = 8))
+```
+
+```{r diagnosis-table}
+disc %>% group_by(group) %>%
+  summarise(n = n(), median_max_abs_z = median(max_abs_z),
+            median_lag1_autocorr = median(lag1_autocorr), .groups = "drop") %>%
+  mutate(wilcoxon_p_vs_other = c(
+    format.pval(wilcox.test(max_abs_z ~ group, data = disc)$p.value, digits = 2),
+    format.pval(wilcox.test(lag1_autocorr ~ group, data = disc)$p.value, digits = 2))) %>%
+  kable(digits = 3, caption = "Amplitude and autocorrelation by group. The p-value column reports, in order, the max |z| and lag-1 tests.")
+```
+
+<div class="cp-caution">
+**This is the finding that most needs scrutiny.** Eight of the 43 were not
+diagonal calls, and **none of those eight is supported by Strober either**.
+`rs4245669` sits at diagonal rank 953,976 of 1,009,173 — essentially the bottom
+of the ranking — yet is promoted to correlated rank 31, while `rs6719155`, at
+diagonal rank 28, is nearly dropped.
+
+The diagnosis above explains the mechanism, and it is **not a coding error**.
+The promoted units have z-trajectories with median lag-1 autocorrelation
+`r round(median(disc$lag1_autocorr[disc$group == "promoted by the correlation only"]), 3)`,
+far below the `r round(assumed_lag1, 3)` the assumed error correlation predicts,
+while the concordant units sit at
+`r round(median(disc$lag1_autocorr[disc$group == "also called by the diagonal fit"]), 3)`.
+The whitened quadratic form $z' C^{-1} z$ is large precisely when $z$ is *less*
+autocorrelated than $C$ says noise should be, because $C^{-1}$ up-weights the
+high-frequency directions in which $C$ has little variance. Given the model,
+promoting these units is the correct inference: they are too jagged to be noise
+*under a lag-1 correlation of 0.455*.
+
+So the real question is whether that common $C$ applies to them. It was estimated
+on null-like units and averaged across them; nothing forces every unit's error
+to share it. A unit whose true error is closer to independent will look strongly
+non-null under this likelihood no matter what its biology is. Since these eight
+are also the **lowest-amplitude** members of the set (median max |z|
+`r round(median(disc$max_abs_z[disc$group == "promoted by the correlation only"]), 2)`
+against
+`r round(median(disc$max_abs_z[disc$group == "also called by the diagonal fit"]), 2)`,
+Wilcoxon p = `r format.pval(wilcox.test(max_abs_z ~ group, data = disc)$p.value, digits = 2)`)
+and are corroborated by no other method, **heterogeneity in the true error
+correlation is the more plausible explanation than newly-found signal.**
+
+This is the sharpest available argument that a single shared $\Omega$ is the
+binding limitation of this analysis.
+</div>
+
+## 4. Enhancer enrichment of the 43 variants
+
+```{r enhancer}
+source(paste0("code/revision_simulations/internal/",
+              "fash_strober_enhancer_comparison/enrichment_api.R"))
+annotations <- load_annotation_groups("custom")
+groups <- setdiff(names(annotations), c("variant_id", "chromosome"))
+selected <- intersect(disc$variant_id, annotations$variant_id)
+rows <- match(selected, annotations$variant_id)
+enh <- do.call(rbind, lapply(groups, function(g) {
+  hit <- as.logical(annotations[[g]])
+  k <- sum(hit[rows]); n <- length(rows); p0 <- mean(hit)
+  tab <- matrix(c(k, n - k, round(p0 * nrow(annotations)),
+                  round((1 - p0) * nrow(annotations))), nrow = 2)
+  data.frame(annotation = g, overlap = k, tested = n,
+             observed_rate = k / n, background_rate = p0,
+             fold = (k / n) / p0, fisher_p = fisher.test(tab)$p.value)
+}))
+kable(enh, digits = 4, row.names = FALSE,
+      caption = "Overlap of the discovered variants with enhancer annotations, against the full background.")
+```
+
+<div class="cp-caution">
+**This test is underpowered and should not be read as evidence either way.**
+The project's usual estimator (`enrichment_api.R`, delete-one-chromosome
+jackknife, `MINIMUM_OVERLAP = 10`) returns `NA` for a set this small: 43
+variants against a 16.8% background rate give about seven expected hits. The
+Fisher test above is the most that can be done, and at n = 43 it reaches
+p < 0.05 only at roughly 15/43 hits, i.e. a fold of about **2.1**. Anything
+weaker is invisible here.
+
+This matters for the pre-committed enrichment ladder in the response letter: a
+null result on this page is **uninformative, not negative**, and must not be
+counted as another rung failing.
+</div>
+
+## 5. Gene-set enrichment of the 17 genes
+
+```{r geneset}
+suppressPackageStartupMessages({library(msigdbr); library(clusterProfiler)})
+m_t2g <- msigdbr(species = "Homo sapiens", collection = "H") %>%
+  mutate(ensembl_use = dplyr::coalesce(ensembl_gene, db_ensembl_gene)) %>%
+  filter(!is.na(ensembl_use)) %>% select(gs_name, ensembl_use) %>% distinct()
+universe <- read.csv(paste0("output/revision_simulations/internal/",
+                            "residual_correlation_fash/all_tested_genes.csv"),
+                     stringsAsFactors = FALSE)$gene_id
+selected_genes <- unique(disc$gene_id)
+bg_missing <- setdiff(universe, unique(m_t2g$ensembl_use))
+t2g_full <- bind_rows(m_t2g, tibble::tibble(gs_name = "__DUMMY__",
+                                            ensembl_use = bg_missing))
+res <- enricher(gene = intersect(selected_genes, universe), TERM2GENE = t2g_full,
+                universe = universe, pAdjustMethod = "BH",
+                qvalueCutoff = 1, pvalueCutoff = 1)
+if (is.null(res) || nrow(res@result) == 0) {
+  cat("No Hallmark term was testable for this gene set.\n")
+} else {
+  res@result %>% filter(ID != "__DUMMY__") %>%
+    transmute(Term = sub("^HALLMARK_", "", Description), GeneRatio, BgRatio,
+              pvalue, p.adjust) %>%
+    arrange(pvalue) %>% head(10) %>%
+    kable(digits = 4, caption = "Hallmark terms, all cutoffs relaxed so the full picture is visible.")
+}
+tibble::tibble(
+  quantity = c("genes discovered", "in the 6,362-gene universe",
+               "annotated in Hallmark", "Hallmark terms testable"),
+  value = c(length(selected_genes),
+            length(intersect(selected_genes, universe)),
+            length(intersect(selected_genes, unique(m_t2g$ensembl_use))),
+            if (is.null(res)) 0L else sum(res@result$ID != "__DUMMY__"))
+) %>% kable(caption = "Why this section is thin.")
+```
+
+<div class="cp-caution">
+Seventeen genes, of which only a handful carry any Hallmark annotation. Nothing
+here can reach significance after multiplicity correction, and the p-values are
+shown with cutoffs relaxed purely so the table is not silently empty. Treat this
+as a descriptive listing, not a test.
+</div>
+
+## Interpretation boundary
+
+<div class="cp-banner">
+- A 99.5% reduction in calls is a **sensitivity** result. It does not establish
+  that the correlated fit is better calibrated, only that the diagonal-likelihood
+  discoveries are largely not robust to a cross-time error correlation that
+  several independent methods agree is present and substantial.
+- One common $C$ cannot represent unit-specific dependence, and it was estimated
+  on **null-like** units but applied to every unit, including the discovered ones.
+- The 43 pairs are roughly 17 loci, one of which supplies 19 pairs.
+- The eight promoted units are supported by no other method and are the least
+  trustworthy part of this page.
+- Sections 4 and 5 are underpowered by construction and are reported for
+  completeness, not as evidence.
+</div>
+
+```{r session}
+sessionInfo()
+```

@@ -1,0 +1,251 @@
+---
+title: "Internal analysis: small-M clean working-model null sensitivity"
+author: "Ziang Zhang"
+date: "2026-08-19"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 9.4,
+  fig.height = 6.4,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(file.path(
+  "code",
+  "revision_simulations",
+  "internal",
+  "selected_signal_genotype_permutation",
+  "report_small_m_clean_working_null_sensitivity.R"
+))
+```
+
+<style>
+.clean-null-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.clean-null-definition {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.clean-null-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #009e73;
+  border-radius: 4px;
+  background: #edf8f3;
+  color: #164d3a;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre,
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+
+<div class="clean-null-banner">
+<strong>Internal single-draw benchmark.</strong> This page is not linked from
+the workflowr homepage, manuscript, or response letter. It is a clean
+working-model diagnostic rather than a repeated-simulation calibration claim.
+</div>
+
+## Question and design
+
+The preceding small-$M$ analysis used synchronized signal-stripped residual
+permutations. This benchmark instead generates exact null observations under
+the diagonal Gaussian working likelihood:
+
+\[
+\widehat\beta_{jt}^{(0)}
+=
+s_{jt} Z_{jt},
+\qquad
+Z_{jt}\overset{\mathrm{iid}}{\sim}N(0,1).
+\]
+
+<div class="clean-null-definition">
+<ul>
+<li><strong>Targets:</strong> the same 6,362 one-random-variant-per-gene units
+selected with seed 20260817.</li>
+<li><strong>Preserved inputs:</strong> each target unit's SE vector, 16-point
+time grid, IWP grid, FASH settings, and cached target likelihood row.</li>
+<li><strong>Clean-null draw:</strong> one independent Gaussian pool of 6,362
+units generated with seed 20260819.</li>
+<li><strong>Nested ratios:</strong> (M/J=0.05,0.10,0.20,1.00), using subset
+seed 2026081901.</li>
+<li><strong>Full procedure:</strong> raw empirical-Bayes fitting and
+<code>BF_update()</code> are re-estimated for every merged universe; all lfdr
+values come from that universe-specific fit.</li>
+<li><strong>Uncertainty:</strong> this is one clean-null draw. No Monte Carlo
+interval is reported.</li>
+</ul>
+</div>
+
+The validated likelihood construction plus the resumed downstream fit took
+`r format_decimal(clean_configuration$total_seconds, 1L)` seconds in total.
+The likelihood construction itself took
+`r format_decimal(clean_configuration$null_likelihood_seconds, 1L)` seconds.
+
+## BF-adjusted result at alpha = 0.05
+
+```{r clean-bf-table, results='asis'}
+render_clean_table(
+  clean_bf_alpha005_table,
+  align = "rrrrrrrrrrr"
+)
+```
+
+<div class="clean-null-result">
+At nominal (\alpha=0.05), no clean working-model null was selected by the
+BF-adjusted procedure at any tested (M/J). Therefore (V/R_{\mathrm{merged}}),
+(V/M), and both plug-in FDR diagnostics are exactly zero for this one draw.
+</div>
+
+This zero is retained without a continuity correction. It does not establish
+that the corresponding probability is exactly zero; it says that the observed
+single-draw count is zero.
+
+## Comparison with synchronized residual controls
+
+The synchronized-residual entries below are the earlier median [IQR] across 20
+nested subsets of one fixed residual-permutation pool. The clean-null entries
+are single-draw values and therefore have no interval.
+
+```{r residual-comparison-table, results='asis'}
+render_clean_table(
+  clean_residual_comparison_table,
+  align = "rrrr"
+)
+```
+
+The contrast is large: the full synchronized-residual benchmark had
+$V/R_{\mathrm{merged}}=40.21\%$, whereas the clean working-model null draw has
+zero selected BF-adjusted controls. Thus the severe synchronized-residual
+result is not reproduced when the appended controls follow the fitted diagonal
+Gaussian working model exactly.
+
+## Raw-fit sanity check
+
+```{r clean-raw-table, results='asis'}
+render_clean_table(
+  clean_raw_alpha005_table,
+  align = "rrrrrrrrrrr"
+)
+```
+
+The raw procedure does select clean null controls: two at $M/J=0.20$ and three
+at $M/J=1.00$. Their known-null FDP lower bounds are 0.90% and 2.07%,
+respectively. This confirms that the simulated rows enter the selection and
+counting pipeline normally; the BF-adjusted zero is not a hard-coded or
+denominator artifact.
+
+## Known-null FDP lower-bound curve
+
+```{r clean-known-null-fdp, fig.height=6.4, fig.cap="BF-adjusted single-draw known-null FDP lower bound V/R_merged versus nominal alpha for directly simulated working-model null controls."}
+plot_clean_known_null_fdp()
+```
+
+If every appended unit is a valid known null, $V/R_{\mathrm{merged}}$ is a
+lower bound on the merged FDP because false target discoveries are not counted
+in $V$.
+
+## Plug-in FDR curves
+
+The plug-in diagnostics remain distinct from the direct lower bound:
+
+\[
+\widehat{\mathrm{FDR}}_T
+=
+\widehat\pi_{0,T}
+\frac{V/M}{R_T/J},
+\qquad
+\widehat{\mathrm{FDR}}_{\mathrm{merged}}
+=
+\widehat\pi_{0,\mathrm{merged}}
+\frac{V/M}{R_{\mathrm{merged}}/(J+M)}.
+\]
+
+```{r clean-plugin-fdr, fig.height=6.6, fig.cap="BF-adjusted target-pi0 and merged-pi0 plug-in FDR diagnostics for one clean working-model null draw."}
+plot_clean_plugin_fdr()
+```
+
+The formulas use $V/M$ to estimate a null selection probability. The directly
+counted discovery-set fraction remains $V/R_{\mathrm{merged}}$.
+
+## Estimated null weights
+
+```{r clean-pi0, fig.height=8.0, fig.cap="Raw and BF-adjusted merged and recovered-target null-proportion estimates after appending nested clean working-model null controls."}
+plot_clean_pi0()
+```
+
+For the BF-adjusted fit, merged $\widehat\pi_0$ rises from 0.930 in the
+target-only reference to 0.934, 0.938, 0.946, and 0.976 as $M/J$ increases.
+The recovered target estimate is comparatively stable, moving from 0.930 to
+0.931, 0.932, 0.935, and 0.952. Target calls decrease from 75 at $M/J=0.05$
+to 46 at $M/J=1.00$, showing that even valid clean null controls affect the
+re-estimated EB procedure when appended in large numbers.
+
+## Null-generation diagnostics
+
+The simulated null z-scores have overall mean
+`r format_decimal(clean_null_z_overall$overall_mean, 4L)`, overall SD
+`r format_decimal(clean_null_z_overall$overall_sd, 4L)`, and mean
+off-diagonal time correlation
+`r format_decimal(clean_null_z_overall$mean_off_diagonal_correlation, 4L)`.
+The mean absolute off-diagonal correlation is
+`r format_decimal(clean_null_z_overall$mean_absolute_off_diagonal_correlation, 4L)`.
+All 12 numerical validation checks passed with zero genuine FASH warnings.
+
+## Interpretation
+
+1. **The severe synchronized-residual inflation disappears under the clean
+working null.** No BF-adjusted clean null control is selected at
+$\alpha=0.05$ in this draw.
+2. **This is a working-model benchmark, not a real-data temporal-null model.**
+The iid Gaussian construction deliberately removes temporal dependence,
+signal leakage, heavy tails, and any other null misspecification.
+3. **The zero count is finite-sample evidence, not an exact probability.** A
+repeated simulation would be needed to estimate a small nonzero null selection
+rate precisely.
+4. **Large (M) still changes the EB fit.** Merged null weight increases and
+target discoveries decrease even though the appended units are valid nulls.
+Thus choosing (M\ll J) remains useful for limiting perturbation of the target
+procedure.
+
+## Reproduction and provenance
+
+From the workflowr repository root:
+
+```bash
+Rscript --vanilla code/revision_simulations/internal/selected_signal_genotype_permutation/test_small_m_clean_working_null_helpers.R
+Rscript --vanilla code/revision_simulations/internal/selected_signal_genotype_permutation/run_small_m_clean_working_null_sensitivity.R
+Rscript --vanilla -e 'workflowr::wflow_build("analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd")'
+```
+
+The run used the existing target likelihood cache but computed every clean-null
+likelihood row from the simulated effect estimates and retained SE vectors. It
+did not reuse residual-permutation null likelihood rows.

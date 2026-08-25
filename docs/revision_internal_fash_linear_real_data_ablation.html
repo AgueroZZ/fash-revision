@@ -1,0 +1,2598 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-11" />
+
+<title>Internal analysis: predictive-SD mixture FASH-linear real-data ablation</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Internal analysis: predictive-SD mixture
+FASH-linear real-data ablation</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-11</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-11
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Rplots.pdf
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/revision_simulations/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/playwright/
+    Ignored:    output/revision_simulations/
+
+Untracked files:
+    Untracked:  analysis/revision_internal_fash_cl_manuscript_impact.rmd
+    Untracked:  analysis/revision_internal_fash_linear_real_data_ablation.rmd
+    Untracked:  apps/
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_design_propagated_null_correlation.R
+    Untracked:  code/revision_simulations/internal/covariance_estimation/run_multigene_null_beta_covariance_exploration.R
+    Untracked:  code/revision_simulations/internal/fash_cl_manuscript_impact/
+    Untracked:  code/revision_simulations/internal/fash_linear_real_data_ablation/
+    Untracked:  code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R
+    Untracked:  code/revision_simulations/shared/real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/test_linear_mixture_fash.R
+    Untracked:  code/revision_simulations/shared/test_real_genotype_one_per_gene.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_linear_mixture_pairing.R
+    Untracked:  code/revision_simulations/shared/validate_r1_r2_real_genotype_pairing.R
+
+Unstaged changes:
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
+    Modified:   analysis/revision_genotype_level_simulation.rmd
+    Modified:   code/revision_simulations/internal/covariance_estimation/run_global_pca_factor_visualization.R
+    Modified:   code/revision_simulations/r1_random_bspline/reporting.R
+    Modified:   code/revision_simulations/r1_random_bspline/run_random_bspline_mc_replication.R
+    Modified:   code/revision_simulations/r2_spiky_transient/reporting.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_combined_spiky_genotype_simulation.R
+    Modified:   code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R
+    Modified:   code/revision_simulations/shared/simulation_functions.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style>
+.ablation-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.ablation-answer {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #b2182b;
+  border-radius: 4px;
+  background: #fff1f0;
+  color: #5a1f25;
+}
+.ablation-note {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #2c7fb8;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.ablation-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+.MathJax_Display,
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+<div class="ablation-banner">
+<p><strong>Internal exploratory ablation.</strong> This page is
+intentionally absent from the workflowr homepage, manuscript, and
+response letter. It uses the primary time-specific-PC effect estimates
+and compares the retained IWP1 FASH fit with the predictive-SD
+finite-mixture FASH-linear comparator. The separate FASH-CL analysis is
+explicitly deferred; this page does not update or reinterpret that
+comparison.</p>
+</div>
+<div id="executive-answer" class="section level2">
+<h2>Executive answer</h2>
+<div class="ablation-answer">
+<p><strong>The more comparable mixture prior does not reverse the main
+real-data count comparison, but it does change discovery
+membership.</strong> At cumulative-lfdr FDR 0.05 after BF adjustment,
+IWP1 FASH identifies 9,205 pairs, 1,177 genes, and 9,139 unique
+variants. The predictive-SD mixture FASH-linear comparator identifies
+14,900 pairs, 1,663 genes, and 14,759 variants.</p>
+</div>
+<p>Relative to the historical profiled single-slab version, the new
+linear mixture has 965 fewer BF-adjusted calls (6.1%), and the all-pair
+lfdr rankings remain highly correlated (Spearman 0.983). In contrast,
+its raw count is higher by 15,128 pairs (33.6%). The prior migration is
+therefore modest after BF adjustment but material before it.</p>
+<p>IWP1 FASH identifies 673 unique variants that FASH-linear misses, so
+flexibility produces a substantial distinct discovery set. However,
+FASH-linear identifies 6,293 variants that IWP1 FASH misses. These
+real-data counts and overlaps do not reveal which calls are true and
+cannot establish a power ordering between the covariance models.</p>
+</div>
+<div id="a-strongest-fash-linear-only-example" class="section level2">
+<h2>A strongest FASH-linear-only example</h2>
+<p>The example is selected deterministically rather than for visual
+appearance: among BF-adjusted FASH-linear discoveries that are not
+called by IWP1 FASH, choose the pair with the smallest FASH-linear lfdr;
+break ties by the largest IWP1 lfdr and then pair key. This selects
+MMP15 / rs12926803.</p>
+<pre class="r"><code>plot_linear_only_example()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_linear_real_data_ablation.rmd/linear-only-example-1.png" alt="A strongest predictive-SD mixture FASH-linear-only example. Points and error bars show the time-specific effect estimates and plus or minus two adjusted standard errors. Curves and ribbons show posterior means and 95% intervals under BF-adjusted IWP1 FASH and FASH-linear." width="1512" />
+<p class="caption">
+A strongest predictive-SD mixture FASH-linear-only example. Points and
+error bars show the time-specific effect estimates and plus or minus two
+adjusted standard errors. Curves and ribbons show posterior means and
+95% intervals under BF-adjusted IWP1 FASH and FASH-linear.
+</p>
+</div>
+<p>For this pair, the BF-adjusted lfdr is 0.00003 under FASH-linear and
+0.848 under IWP1. The fitted curves visualize how the rank-one linear
+and IWP covariance geometries pool the same observations differently.
+This deterministic example is diagnostic of model behavior; it is not
+external evidence that either call is true.</p>
+</div>
+<div id="discordant-trajectory-gallery" class="section level2">
+<h2>Discordant trajectory gallery</h2>
+<p>To avoid drawing a conclusion from one selected pair, the gallery
+below uses a symmetric deterministic rule: the three strongest
+BF-adjusted FASH-linear-only calls and the three strongest BF-adjusted
+IWP1-only calls, requiring a different gene for each panel. Each panel
+reports both FASH lfdr values and the linear/nonlinear Strober
+p-values.</p>
+<pre class="r"><code>plot_example_gallery()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_linear_real_data_ablation.rmd/discordant-example-gallery-1.png" alt="Deterministic discordant examples. The top row contains strong FASH-linear-only calls; the bottom row contains strong IWP1-only calls. Points and error bars are time-specific estimates and plus or minus two adjusted standard errors; curves and ribbons are posterior means and 95% intervals." width="2232" />
+<p class="caption">
+Deterministic discordant examples. The top row contains strong
+FASH-linear-only calls; the bottom row contains strong IWP1-only calls.
+Points and error bars are time-specific estimates and plus or minus two
+adjusted standard errors; curves and ribbons are posterior means and 95%
+intervals.
+</p>
+</div>
+<p>The panels show that discordance is bidirectional. The two covariance
+models can concentrate and shrink the same time-specific estimates
+differently even after their scale grids, exact-null component, penalty,
+and BF procedure are aligned. These examples are diagnostics of model
+behavior, not independent validation of either discovery set.</p>
+</div>
+<div id="interactive-trajectory-explorer" class="section level2">
+<h2>Interactive trajectory explorer</h2>
+<p>The companion local Shiny app searches all 1,009,173 tested pairs by
+HGNC symbol, Ensembl ID, or rsID. After selecting a pair, checkboxes
+independently show the observed estimates, IWP1 FASH, FASH-linear, and
+posterior intervals. The plot displays raw and BF-adjusted lfdr for both
+FASH fits and both Strober p-values; the adjacent table also displays
+Strober eFDR and discovery calls.</p>
+<p><a href="http://127.0.0.1:7421/">Open the FASH trajectory
+explorer</a> after starting the local app below.</p>
+<p>Run from the workflowr project root:</p>
+<pre class="r"><code>Rscript --vanilla \
+  apps/fash_trajectory_explorer/build_explorer_cache.R
+
+Rscript --vanilla -e \
+  &#39;shiny::runApp(&quot;apps/fash_trajectory_explorer&quot;, host = &quot;127.0.0.1&quot;, port = 7421, launch.browser = TRUE)&#39;</code></pre>
+<p>The compact search index is already retained in the project output
+directory, so the first command is needed only when an underlying fit or
+Strober table changes. App startup loads the large BF-adjusted IWP1 fit
+once; selected posterior trajectories are then computed on demand and
+cached in memory.</p>
+</div>
+<div id="matched-model-definition" class="section level2">
+<h2>Matched model definition</h2>
+<p>Both analyses use the same 1,009,173 time-specific-PC gene-variant
+effect estimates, t-adjusted standard errors, time grid, tested pairs,
+BF adjustment procedure, and cumulative-lfdr FDR threshold. For pair
+<span class="math inline">\(j\)</span>, the linear model is</p>
+<p><span class="math display">\[
+\beta_j(t) = a_j + d_j\frac{t-t_{j,\min}}{h}, \qquad h=1\text{ day},
+\]</span></p>
+<p>where the intercept <span class="math inline">\(a_j\)</span> is
+unrestricted under every component. The null is the exact point mass
+<span class="math inline">\(d_j=0\)</span>, so <span
+class="math inline">\(H_0\)</span> is a constant trajectory rather than
+a zero trajectory. Under the alternative,</p>
+<p><span class="math display">\[
+d_j \sim \sum_{k=1}^{51}\pi_k N(0,s_k^2),
+\]</span></p>
+<p>and the complete 52-point grid is <span
+class="math inline">\(s_0=0\)</span> plus the same 51 positive one-day
+predictive-SD values used for IWP1. Both fits use the same exact-zero
+component, null-favoring penalty of 10, and <code>fashr</code> BF-update
+semantics. This alignment is on predictive scale, not covariance
+geometry: FASH-linear induces a rank-one linear covariance across time,
+whereas IWP1 induces its integrated-Wiener covariance.</p>
+<pre class="r"><code>grid &lt;- default_revision_grid()
+linear_fit_raw &lt;- fit_linear_mixture_fash_from_stats(
+  statistics = statistics,
+  grid = grid,
+  pred_step = 1,
+  penalty = 10,
+  statistic_time_span = 15,
+  n_time = 16
+)
+linear_fit_bf &lt;- BF_update_linear_mixture_fash(linear_fit_raw)
+alpha &lt;- 0.05</code></pre>
+<p>The retained sufficient statistics use endpoint-scaled time <span
+class="math inline">\((t-t_{j,\min})/15\)</span>. The runner multiplies
+every one-day SD by 15 before the rank-one likelihood calculation,
+exactly bridging the reported one-day grid to that cached coefficient
+scale.</p>
+<p>The BF update follows <code>fashr</code> exactly. It performs an
+unpenalized full-grid mixture refit, drops the fitted null component and
+renormalizes the positive weights to form the conditional alternative,
+collapses the likelihood to null versus that alternative, computes each
+Bayes factor, estimates the BF-controlled total null weight, and
+rebuilds prior and posterior weights. Thus the BF-adjusted positive
+weights are based on this conditional-alternative refit, not the raw
+penalized fit’s conditional weights.</p>
+</div>
+<div id="discovery-counts" class="section level2">
+<h2>Discovery counts</h2>
+<pre class="r"><code>render_scrollable_table(
+  discovery_counts,
+  minimum_width = &quot;820px&quot;
+)</code></pre>
+<div class="ablation-table-scroll">
+<table class="table table-striped table-hover" style="min-width:820px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+method
+</th>
+<th style="text-align:left;">
+adjustment
+</th>
+<th style="text-align:right;">
+pair_count
+</th>
+<th style="text-align:right;">
+gene_count
+</th>
+<th style="text-align:right;">
+variant_count
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+43860
+</td>
+<td style="text-align:right;">
+3258
+</td>
+<td style="text-align:right;">
+42893
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+9205
+</td>
+<td style="text-align:right;">
+1177
+</td>
+<td style="text-align:right;">
+9139
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+60188
+</td>
+<td style="text-align:right;">
+3863
+</td>
+<td style="text-align:right;">
+58570
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+14900
+</td>
+<td style="text-align:right;">
+1663
+</td>
+<td style="text-align:right;">
+14759
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The predictive-SD mixture has 60,188 raw calls versus 43,860 for
+IWP1. After BF adjustment, the corresponding counts are 14,900 and
+9,205. Count differences do not identify which model has higher power
+because the truth is unknown in these data.</p>
+</div>
+<div id="learned-predictive-sd-mixture-weights" class="section level2">
+<h2>Learned predictive-SD mixture weights</h2>
+<pre class="r"><code>plot_prior_weights()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_linear_real_data_ablation.rmd/prior-weights-1.png" alt="Learned exact-null and conditional-alternative weights. The upper panels show the fitted exact-null weight for each method; the lower panels show weights on the shared positive one-day predictive-SD grid after conditioning on the alternative. Points mark active positive components." width="1890" />
+<p class="caption">
+Learned exact-null and conditional-alternative weights. The upper panels
+show the fitted exact-null weight for each method; the lower panels show
+weights on the shared positive one-day predictive-SD grid after
+conditioning on the alternative. Points mark active positive components.
+</p>
+</div>
+<pre class="r"><code>render_scrollable_table(
+  prior_summary,
+  digits = 6L,
+  minimum_width = &quot;640px&quot;
+)</code></pre>
+<div class="ablation-table-scroll">
+<table class="table table-striped table-hover" style="min-width:640px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+method
+</th>
+<th style="text-align:left;">
+adjustment
+</th>
+<th style="text-align:right;">
+null_weight
+</th>
+<th style="text-align:right;">
+active_nonnull_components
+</th>
+<th style="text-align:right;">
+alternative_rms_predstep_sd
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.428990
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0.160179
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+0.938153
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0.160065
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+0.457235
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0.095547
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+0.919251
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0.095532
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The linear mixture uses eight active positive components in both
+fits. Its null weight changes from 0.4572 to 0.9193 after BF adjustment;
+the conditional-alternative RMS one-day SD is 0.0955 raw and 0.0955
+after BF adjustment. Sharing a grid does not force the two covariance
+models to learn the same weights.</p>
+<pre class="r"><code>render_scrollable_table(
+  active_prior_weights,
+  digits = 6L,
+  minimum_width = &quot;760px&quot;
+)</code></pre>
+<div class="ablation-table-scroll">
+<table class="table table-striped table-hover" style="min-width:760px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+method
+</th>
+<th style="text-align:left;">
+adjustment
+</th>
+<th style="text-align:left;">
+component
+</th>
+<th style="text-align:right;">
+predstep_sd
+</th>
+<th style="text-align:right;">
+prior_weight
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Exact null
+</td>
+<td style="text-align:right;">
+0.000000
+</td>
+<td style="text-align:right;">
+0.428990
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.006738
+</td>
+<td style="text-align:right;">
+0.114737
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.040762
+</td>
+<td style="text-align:right;">
+0.101515
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.055023
+</td>
+<td style="text-align:right;">
+0.158922
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.100259
+</td>
+<td style="text-align:right;">
+0.029419
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.122456
+</td>
+<td style="text-align:right;">
+0.111020
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.223130
+</td>
+<td style="text-align:right;">
+0.025050
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.367879
+</td>
+<td style="text-align:right;">
+0.022618
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+1.000000
+</td>
+<td style="text-align:right;">
+0.007727
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Exact null
+</td>
+<td style="text-align:right;">
+0.000000
+</td>
+<td style="text-align:right;">
+0.938153
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.006738
+</td>
+<td style="text-align:right;">
+0.012630
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.040762
+</td>
+<td style="text-align:right;">
+0.006305
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.049787
+</td>
+<td style="text-align:right;">
+0.016598
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.060810
+</td>
+<td style="text-align:right;">
+0.005916
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.122456
+</td>
+<td style="text-align:right;">
+0.015019
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.246597
+</td>
+<td style="text-align:right;">
+0.002253
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.367879
+</td>
+<td style="text-align:right;">
+0.002286
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current FASH
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+1.000000
+</td>
+<td style="text-align:right;">
+0.000839
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Exact null
+</td>
+<td style="text-align:right;">
+0.000000
+</td>
+<td style="text-align:right;">
+0.457235
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.016573
+</td>
+<td style="text-align:right;">
+0.229739
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.036883
+</td>
+<td style="text-align:right;">
+0.183884
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.040762
+</td>
+<td style="text-align:right;">
+0.046349
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.100259
+</td>
+<td style="text-align:right;">
+0.046389
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.110803
+</td>
+<td style="text-align:right;">
+0.018792
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.272532
+</td>
+<td style="text-align:right;">
+0.012848
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.301194
+</td>
+<td style="text-align:right;">
+0.002036
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+1.000000
+</td>
+<td style="text-align:right;">
+0.002729
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Exact null
+</td>
+<td style="text-align:right;">
+0.000000
+</td>
+<td style="text-align:right;">
+0.919251
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.016573
+</td>
+<td style="text-align:right;">
+0.034225
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.036883
+</td>
+<td style="text-align:right;">
+0.027125
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.040762
+</td>
+<td style="text-align:right;">
+0.007095
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.100259
+</td>
+<td style="text-align:right;">
+0.006851
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.110803
+</td>
+<td style="text-align:right;">
+0.002834
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.272532
+</td>
+<td style="text-align:right;">
+0.001906
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+0.301194
+</td>
+<td style="text-align:right;">
+0.000306
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+Positive SD
+</td>
+<td style="text-align:right;">
+1.000000
+</td>
+<td style="text-align:right;">
+0.000406
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="historical-profile-to-mixture-migration"
+class="section level2">
+<h2>Historical profile-to-mixture migration</h2>
+<p>The profiled single-Gaussian slab is shown here only as the
+historical version being replaced; it is not the active FASH-linear
+comparator.</p>
+<pre class="r"><code>render_scrollable_table(
+  linear_version_comparison,
+  digits = 6L,
+  minimum_width = &quot;1500px&quot;
+)</code></pre>
+<div class="ablation-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1500px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+adjustment
+</th>
+<th style="text-align:right;">
+profile_pair_count
+</th>
+<th style="text-align:right;">
+mixture_pair_count
+</th>
+<th style="text-align:right;">
+pair_count_difference
+</th>
+<th style="text-align:right;">
+profile_gene_count
+</th>
+<th style="text-align:right;">
+mixture_gene_count
+</th>
+<th style="text-align:right;">
+profile_variant_count
+</th>
+<th style="text-align:right;">
+mixture_variant_count
+</th>
+<th style="text-align:right;">
+intersection_pair_count
+</th>
+<th style="text-align:right;">
+profile_only_pair_count
+</th>
+<th style="text-align:right;">
+mixture_only_pair_count
+</th>
+<th style="text-align:right;">
+pair_jaccard
+</th>
+<th style="text-align:right;">
+pearson_lfdr
+</th>
+<th style="text-align:right;">
+spearman_lfdr
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:right;">
+45060
+</td>
+<td style="text-align:right;">
+60188
+</td>
+<td style="text-align:right;">
+15128
+</td>
+<td style="text-align:right;">
+3157
+</td>
+<td style="text-align:right;">
+3863
+</td>
+<td style="text-align:right;">
+44044
+</td>
+<td style="text-align:right;">
+58570
+</td>
+<td style="text-align:right;">
+45060
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+15128
+</td>
+<td style="text-align:right;">
+0.748654
+</td>
+<td style="text-align:right;">
+0.966044
+</td>
+<td style="text-align:right;">
+0.983274
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:right;">
+15865
+</td>
+<td style="text-align:right;">
+14900
+</td>
+<td style="text-align:right;">
+-965
+</td>
+<td style="text-align:right;">
+1657
+</td>
+<td style="text-align:right;">
+1663
+</td>
+<td style="text-align:right;">
+15731
+</td>
+<td style="text-align:right;">
+14759
+</td>
+<td style="text-align:right;">
+12655
+</td>
+<td style="text-align:right;">
+3210
+</td>
+<td style="text-align:right;">
+2245
+</td>
+<td style="text-align:right;">
+0.698785
+</td>
+<td style="text-align:right;">
+0.966071
+</td>
+<td style="text-align:right;">
+0.983262
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>For raw lfdr, the mixture retains every historical profiled-slab
+discovery and adds 15,128 pairs; the set Jaccard index is 0.749. After
+BF adjustment, the total changes from 15,865 to 14,900, but membership
+is not identical: 3,210 pairs are historical-profile-only and 2,245 are
+mixture-only (Jaccard 0.699). The BF-adjusted lfdr Spearman correlation
+is 0.983.</p>
+</div>
+<div id="bf-adjusted-discovery-overlap" class="section level2">
+<h2>BF-adjusted discovery overlap</h2>
+<pre class="r"><code>render_scrollable_table(
+  overlap_summary,
+  digits = 4L,
+  minimum_width = &quot;980px&quot;
+)</code></pre>
+<div class="ablation-table-scroll">
+<table class="table table-striped table-hover" style="min-width:980px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+unit
+</th>
+<th style="text-align:right;">
+current_count
+</th>
+<th style="text-align:right;">
+linear_count
+</th>
+<th style="text-align:right;">
+intersection_count
+</th>
+<th style="text-align:right;">
+current_only_count
+</th>
+<th style="text-align:right;">
+linear_only_count
+</th>
+<th style="text-align:right;">
+union_count
+</th>
+<th style="text-align:right;">
+jaccard
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Gene-variant pairs
+</td>
+<td style="text-align:right;">
+9205
+</td>
+<td style="text-align:right;">
+14900
+</td>
+<td style="text-align:right;">
+8528
+</td>
+<td style="text-align:right;">
+677
+</td>
+<td style="text-align:right;">
+6372
+</td>
+<td style="text-align:right;">
+15577
+</td>
+<td style="text-align:right;">
+0.5475
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Genes
+</td>
+<td style="text-align:right;">
+1177
+</td>
+<td style="text-align:right;">
+1663
+</td>
+<td style="text-align:right;">
+1113
+</td>
+<td style="text-align:right;">
+64
+</td>
+<td style="text-align:right;">
+550
+</td>
+<td style="text-align:right;">
+1727
+</td>
+<td style="text-align:right;">
+0.6445
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Variants
+</td>
+<td style="text-align:right;">
+9139
+</td>
+<td style="text-align:right;">
+14759
+</td>
+<td style="text-align:right;">
+8466
+</td>
+<td style="text-align:right;">
+673
+</td>
+<td style="text-align:right;">
+6293
+</td>
+<td style="text-align:right;">
+15432
+</td>
+<td style="text-align:right;">
+0.5486
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>plot_overlap_venns()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_linear_real_data_ablation.rmd/overlap-venns-1.png" alt="BF-adjusted cumulative-lfdr FDR-0.05 overlap between IWP1 FASH and predictive-SD mixture FASH-linear at the gene-variant-pair, gene, and unique-variant levels." width="2160" />
+<p class="caption">
+BF-adjusted cumulative-lfdr FDR-0.05 overlap between IWP1 FASH and
+predictive-SD mixture FASH-linear at the gene-variant-pair, gene, and
+unique-variant levels.
+</p>
+</div>
+<p>The pair-level intersection is 8,528. IWP1 FASH contributes 677
+exclusive pairs, whereas FASH-linear contributes 6,372.</p>
+</div>
+<div id="global-lfdr-comparison" class="section level2">
+<h2>Global lfdr comparison</h2>
+<p>The left panel contains all tested pairs. The right panel selects one
+pair per gene using only the minimum current-FASH BF-adjusted lfdr, then
+evaluates the same pair under FASH-linear.</p>
+<pre class="r"><code>plot_lfdr_scatter()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_linear_real_data_ablation.rmd/lfdr-scatter-1.png" alt="BF-adjusted lfdr comparison for all tested pairs and one current-FASH-selected top pair per gene. Colors indicate cumulative-lfdr FDR-0.05 discovery membership." width="2070" />
+<p class="caption">
+BF-adjusted lfdr comparison for all tested pairs and one
+current-FASH-selected top pair per gene. Colors indicate cumulative-lfdr
+FDR-0.05 discovery membership.
+</p>
+</div>
+<p>The all-pair Spearman correlation is 0.907; for current-FASH-selected
+top pairs it is 0.905.</p>
+</div>
+<div id="interpretation-for-manuscript-strategy" class="section level2">
+<h2>Interpretation for manuscript strategy</h2>
+<div class="ablation-note">
+<p>The matched mixture makes FASH-linear substantially more comparable
+to IWP1 in effect-size prior, exact-null, penalty, and BF semantics. The
+BF-adjusted result is broadly stable relative to the historical profile
+version: the linear count falls by 965 (6.1%), and lfdr rankings remain
+highly correlated. The raw mixture count, however, is materially higher,
+and neither the historical nor IWP1 discovery memberships are identical
+to the new mixture membership.</p>
+</div>
+<p>The remaining scientific contrast is primarily covariance geometry,
+but the models also learn their mixture weights separately from the
+data. This real-data analysis has no known truth, so it cannot establish
+relative power or validate either model’s exclusive discoveries.
+Orthogonal evidence such as replication, functional enrichment, or
+prespecified shape diagnostics would be needed for that claim. The
+FASH-CL comparison remains deferred to its separate page and is outside
+this update.</p>
+</div>
+<div id="reproducibility" class="section level2">
+<h2>Reproducibility</h2>
+<p>Routine page builds read the retained cache and do not refit the
+million-pair comparator.</p>
+<pre class="r"><code>Rscript --vanilla \
+  code/revision_simulations/internal/fash_linear_real_data_ablation/\
+run_fash_linear_real_data_ablation.R
+
+Rscript --vanilla \
+  apps/fash_trajectory_explorer/build_explorer_cache.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_linear_real_data_ablation/\
+build_example_gallery.R
+
+Rscript --vanilla -e \
+  &#39;workflowr::wflow_build(&quot;analysis/revision_internal_fash_linear_real_data_ablation.rmd&quot;, local = TRUE)&#39;</code></pre>
+<pre class="r"><code>render_scrollable_table(runtime_summary, digits = 1L, minimum_width = &quot;760px&quot;)</code></pre>
+<div class="ablation-table-scroll">
+<table class="table table-striped table-hover" style="min-width:760px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+task
+</th>
+<th style="text-align:right;">
+elapsed_seconds
+</th>
+<th style="text-align:right;">
+pair_count
+</th>
+<th style="text-align:right;">
+predictive_sd_grid_size
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Full current-PC predictive-SD mixture FASH-linear real-data ablation
+</td>
+<td style="text-align:right;">
+85.8
+</td>
+<td style="text-align:right;">
+1009173
+</td>
+<td style="text-align:right;">
+52
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The reporting loader requires a completed versioned run, the retained
+cache and compact-fit MD5 values, exact grid settings, and all 11
+unchanged-IWP checks before exposing any page object.</p>
+<pre class="r"><code>render_scrollable_table(
+  unchanged_iwp_validation,
+  minimum_width = &quot;620px&quot;
+)</code></pre>
+<div class="ablation-table-scroll">
+<table class="table table-striped table-hover" style="min-width:620px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+check
+</th>
+<th style="text-align:left;">
+pass
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+input_md5_datasets
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+input_md5_current_iwp1_raw
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+input_md5_current_iwp1_bf
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+input_md5_historical_profile_raw
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+input_md5_historical_profile_bf
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+input_md5_historical_profile_cache
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pair_count_and_order
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+matched_grid_predstep_penalty
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+raw_discovery_counts
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+bf_discovery_counts
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+historical_bf_lfdr
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>render_scrollable_table(fit_provenance, minimum_width = &quot;1280px&quot;)</code></pre>
+<div class="ablation-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1280px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+label
+</th>
+<th style="text-align:left;">
+path
+</th>
+<th style="text-align:right;">
+bytes
+</th>
+<th style="text-align:left;">
+modified
+</th>
+<th style="text-align:left;">
+md5
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+linear_raw
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/revision_simulations/internal/fash_linear_real_data_ablation_mixture_predstep1_penalty10/linear_fit_raw.rds
+</td>
+<td style="text-align:right;">
+69252241
+</td>
+<td style="text-align:left;">
+2026-08-11 17:01:50 UTC
+</td>
+<td style="text-align:left;">
+71d1df8a2d03c3da1f6cecfa2484ba29
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+linear_bf
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/revision_simulations/internal/fash_linear_real_data_ablation_mixture_predstep1_penalty10/linear_fit_bf.rds
+</td>
+<td style="text-align:right;">
+74627788
+</td>
+<td style="text-align:left;">
+2026-08-11 17:02:25 UTC
+</td>
+<td style="text-align:left;">
+e5a4ba559e6386233494e7ff746d9b87
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>render_scrollable_table(input_provenance, minimum_width = &quot;1420px&quot;)</code></pre>
+<div class="ablation-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1420px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+label
+</th>
+<th style="text-align:left;">
+path
+</th>
+<th style="text-align:right;">
+bytes
+</th>
+<th style="text-align:left;">
+modified
+</th>
+<th style="text-align:left;">
+md5
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+datasets
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/dynamic_eQTL_real/datasets_corrected.RData
+</td>
+<td style="text-align:right;">
+297966635
+</td>
+<td style="text-align:left;">
+2026-01-20 18:00:33 UTC
+</td>
+<td style="text-align:left;">
+689d8c8e63844b1a9d7814d468533dd8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+current_iwp1_raw
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/dynamic_eQTL_real/fash_fit1_all.RData
+</td>
+<td style="text-align:right;">
+576110361
+</td>
+<td style="text-align:left;">
+2026-01-20 17:57:38 UTC
+</td>
+<td style="text-align:left;">
+e8aa07c1ebbd600b5dd192e5e91cb794
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+current_iwp1_bf
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/dynamic_eQTL_real/fash_fit1_update.RData
+</td>
+<td style="text-align:right;">
+581122554
+</td>
+<td style="text-align:left;">
+2026-01-20 20:29:11 UTC
+</td>
+<td style="text-align:left;">
+af46b39a04b241cf1e6116a645dbcc3e
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gene_map
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/dynamic_eQTL_real/cache_gene_map.rds
+</td>
+<td style="text-align:right;">
+50218
+</td>
+<td style="text-align:left;">
+2026-01-20 21:18:50 UTC
+</td>
+<td style="text-align:left;">
+3b869a545b734496af235decaa6648e6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+historical_profile_raw
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/revision_simulations/internal/fash_linear_real_data_ablation/linear_fit_raw.rds
+</td>
+<td style="text-align:right;">
+32047293
+</td>
+<td style="text-align:left;">
+2026-08-10 22:38:14 UTC
+</td>
+<td style="text-align:left;">
+50ebfabca31b4b6aad93428768212fd5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+historical_profile_bf
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/revision_simulations/internal/fash_linear_real_data_ablation/linear_fit_bf.rds
+</td>
+<td style="text-align:right;">
+37257133
+</td>
+<td style="text-align:left;">
+2026-08-10 22:38:16 UTC
+</td>
+<td style="text-align:left;">
+54488e51ad6b737ee3c1741d9daafa35
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+historical_profile_cache
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/revision_simulations/internal/fash_linear_real_data_ablation/analysis_cache.rds
+</td>
+<td style="text-align:right;">
+10962792
+</td>
+<td style="text-align:left;">
+2026-08-10 22:18:02 UTC
+</td>
+<td style="text-align:left;">
+f2fede0d8590e35c3524dd07906ce6f4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+helper
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/code/revision_simulations/internal/fash_linear_real_data_ablation/fash_linear_real_data_helpers.R
+</td>
+<td style="text-align:right;">
+20070
+</td>
+<td style="text-align:left;">
+2026-08-11 16:53:00 UTC
+</td>
+<td style="text-align:left;">
+1c4c195fcc0724fe9763d2b49adad24f
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+shared_functions
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/code/revision_simulations/shared/simulation_functions.R
+</td>
+<td style="text-align:right;">
+279352
+</td>
+<td style="text-align:left;">
+2026-08-11 16:53:13 UTC
+</td>
+<td style="text-align:left;">
+d9748fb9cffa5cfa0fa0fa1f917a6954
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+runner
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/code/revision_simulations/internal/fash_linear_real_data_ablation/run_fash_linear_real_data_ablation.R
+</td>
+<td style="text-align:right;">
+30676
+</td>
+<td style="text-align:left;">
+2026-08-11 17:01:04 UTC
+</td>
+<td style="text-align:left;">
+850c45a217b1f9f7ba98a99edf0532bd
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+historical_sufficient_statistics
+</td>
+<td style="text-align:left;">
+/Users/ziangzhang/Desktop/FASH/fash-revision/coderepo-local/output/revision_simulations/internal/fash_linear_real_data_ablation/sufficient_statistics.rds
+</td>
+<td style="text-align:right;">
+43366324
+</td>
+<td style="text-align:left;">
+2026-08-10 22:38:02 UTC
+</td>
+<td style="text-align:left;">
+750078337aed6e35369c759ddd0ddd0a
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+ [1] sass_0.4.10         generics_0.1.4      stringi_1.8.7      
+ [4] digest_0.6.39       magrittr_2.0.5      evaluate_1.0.5     
+ [7] grid_4.5.1          RColorBrewer_1.1-3  fastmap_1.2.0      
+[10] rprojroot_2.1.1     workflowr_1.7.2     jsonlite_2.0.0     
+[13] ggrastr_1.0.2       promises_1.5.0      scales_1.4.0       
+[16] jquerylib_0.1.4     cli_3.6.6           rlang_1.2.0        
+[19] withr_3.0.2         cachem_1.1.0        yaml_2.3.12        
+[22] otel_0.2.0          ggbeeswarm_0.7.3    tools_4.5.1        
+[25] dplyr_1.1.4         ggplot2_4.0.1       httpuv_1.6.16      
+[28] vctrs_0.7.3         R6_2.6.1            lifecycle_1.0.5    
+[31] git2r_0.36.2        stringr_1.6.0       fs_1.6.6           
+[34] vipor_0.4.7         pkgconfig_2.0.3     beeswarm_0.4.0     
+[37] pillar_1.11.1       bslib_0.9.0         later_1.4.4        
+[40] gtable_0.3.6        glue_1.8.1          Rcpp_1.1.1-1.1     
+[43] xfun_0.55           tibble_3.3.0        tidyselect_1.2.1   
+[46] rstudioapi_0.17.1   knitr_1.50          dichromat_2.0-0.1  
+[49] farver_2.1.2        htmltools_0.5.9     patchwork_1.3.2    
+[52] rmarkdown_2.30      labeling_0.4.3      ggVennDiagram_1.5.4
+[55] Cairo_1.7-0         compiler_4.5.1      S7_0.2.1           </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

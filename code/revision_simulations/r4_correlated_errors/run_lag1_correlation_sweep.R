@@ -445,17 +445,13 @@ summarize_lag1_diagnostics <- function(lag_rows) {
 }
 
 validate_zero_against_r1 <- function(alpha_rows,
-                                     workflowr_root,
+                                     r1_cache_dir,
                                      methods,
                                      expected_seeds) {
   reference_path <- file.path(
-    workflowr_root,
-    "output",
-    "revision_simulations",
-    "mc",
-    "r1_random_bspline_main_effect_pilot5",
+    r1_cache_dir,
     "summary",
-    "all_replicate_alpha_curves.csv"
+    "r1_all_replicate_fash_alpha_curves.csv"
   )
   if (!file.exists(reference_path)) {
     stop("The default R1 alpha-curve cache is missing.")
@@ -509,16 +505,12 @@ validate_zero_against_r1 <- function(alpha_rows,
 }
 
 validate_zero_pi0_against_r1 <- function(pi0_rows,
-                                         workflowr_root,
+                                         r1_cache_dir,
                                          expected_seeds) {
   reference_path <- file.path(
-    workflowr_root,
-    "output",
-    "revision_simulations",
-    "mc",
-    "r1_random_bspline_main_effect_pilot5",
+    r1_cache_dir,
     "summary",
-    "all_replicate_pi0.csv"
+    "r1_all_replicate_pi0.csv"
   )
   if (!file.exists(reference_path)) {
     stop("The default R1 pi0 cache is missing.")
@@ -581,11 +573,25 @@ source(file.path(
   workflowr_root,
   "code",
   "revision_simulations",
+  "shared",
+  "real_genotype_one_per_gene.R"
+))
+source(file.path(
+  workflowr_root,
+  "code",
+  "revision_simulations",
+  "r4_correlated_errors",
+  "real_genotype_r1_helpers.R"
+))
+source(file.path(
+  workflowr_root,
+  "code",
+  "revision_simulations",
   "r4_correlated_errors",
   "plotting.R"
 ))
 
-J <- as.integer(get_arg("--J", "1000"))
+J <- as.integer(get_arg("--J", "6362"))
 n_donors <- as.integer(get_arg("--n-donors", "19"))
 n_covariates <- as.integer(get_arg("--n-covariates", "5"))
 expression_noise_sd <- as.numeric(get_arg("--noise-sd", "1"))
@@ -603,8 +609,27 @@ num_cores <- as.integer(get_arg("--num-cores", "4"))
 num_basis <- as.integer(get_arg("--num-basis", "20"))
 output_id <- get_arg(
   "--output-id",
-  "r4_lag1_correlation_sweep_m0p3_to_p0p3_pi0_pilot5"
+  "r4_lag1_correlation_sweep_J6362_m0p3_to_p0p3_fashr0143_pilot5"
 )
+genotype_cache_path <- get_arg(
+  "--genotype-cache",
+  file.path(
+    workflowr_root,
+    "output", "revision_simulations", "shared",
+    "real_genotype_one_per_gene_J6362_pilot5",
+    "genotype_samples.rds"
+  )
+)
+r1_cache_dir <- get_arg(
+  "--r1-cache-dir",
+  file.path(
+    workflowr_root,
+    "output", "revision_simulations", "mc", "r1_r2_fashr0143"
+  )
+)
+output_dir_argument <- get_arg("--output-dir", "")
+expected_fashr_version <- get_arg("--expected-fashr-version", "")
+expected_fashr_remote_sha <- get_arg("--expected-fashr-remote-sha", "")
 overwrite <- as_flag(get_arg("--overwrite", "false"))
 
 if (is.na(J) || J < 10L || is.na(n_donors) ||
@@ -614,9 +639,53 @@ if (is.na(J) || J < 10L || is.na(n_donors) ||
     is.na(num_cores) || num_cores < 1L ||
     is.na(num_basis) || num_basis < 2L ||
     length(rho_grid) < 3L || anyDuplicated(rho_grid) ||
-    !any(rho_grid == 0) || !nzchar(output_id)) {
+    !any(rho_grid == 0) || !nzchar(output_id) ||
+    !file.exists(genotype_cache_path) || !dir.exists(r1_cache_dir)) {
   stop("Invalid R4 correlation-sweep arguments.")
 }
+genotype_cache_path <- normalizePath(
+  genotype_cache_path, winslash = "/", mustWork = TRUE
+)
+r1_cache_dir <- normalizePath(r1_cache_dir, winslash = "/", mustWork = TRUE)
+
+if (!requireNamespace("fashr", quietly = TRUE)) {
+  stop("The fashr package is required for the R4 simulation.")
+}
+fashr_description <- utils::packageDescription("fashr")
+package_provenance <- list(
+  package = "fashr",
+  version = as.character(utils::packageVersion("fashr")),
+  remote_sha = if (is.null(fashr_description$RemoteSha)) {
+    NA_character_
+  } else {
+    as.character(fashr_description$RemoteSha)
+  },
+  library_path = normalizePath(
+    find.package("fashr"), winslash = "/", mustWork = TRUE
+  ),
+  r_version = R.version.string,
+  platform = R.version$platform
+)
+if (nzchar(expected_fashr_version) &&
+    !identical(package_provenance$version, expected_fashr_version)) {
+  stop(
+    "Expected fashr ", expected_fashr_version,
+    "; found ", package_provenance$version, "."
+  )
+}
+if (nzchar(expected_fashr_remote_sha) &&
+    !identical(package_provenance$remote_sha, expected_fashr_remote_sha)) {
+  stop(
+    "Expected fashr RemoteSha ", expected_fashr_remote_sha,
+    "; found ", package_provenance$remote_sha, "."
+  )
+}
+genotype_cache <- validate_r4_real_genotype_cache(
+  readRDS(genotype_cache_path),
+  seed_list = seed_list,
+  J = J,
+  n_donors = n_donors
+)
 
 time_grid <- make_time_grid()
 correlation_matrices <- lapply(rho_grid, function(rho) {
@@ -645,7 +714,14 @@ correlation_checks <- do.call(rbind, lapply(seq_along(rho_grid), function(i) {
 }))
 
 class_probs <- c(dynamic_bspline = 0.20, constant = 0.40, zero = 0.40)
-scenario <- "genotype_random_bspline_main_effect_dynamic_eqtl"
+scenario <- paste0(
+  "r1_real_genotype_one_per_gene_",
+  "random_bspline_main_effect_dynamic_eqtl"
+)
+expected_class_counts <- exact_proportional_counts(J, class_probs)
+true_pi0 <- unname(
+  sum(expected_class_counts[c("constant", "zero")]) / J
+)
 fash_methods <- c(
   "FASH-IWP1-Raw",
   "FASH-IWP1-BF",
@@ -656,13 +732,17 @@ pi0_methods <- c("FASH-IWP1-Raw", "FASH-IWP1-BF")
 nominal_alpha <- 0.05
 empirical_generating_rho <- -0.09
 
-output_dir <- file.path(
-  workflowr_root,
-  "output",
-  "revision_simulations",
-  "mc",
-  output_id
-)
+output_dir <- if (nzchar(output_dir_argument)) {
+  output_dir_argument
+} else {
+  file.path(
+    workflowr_root,
+    "output",
+    "revision_simulations",
+    "mc",
+    output_id
+  )
+}
 replicate_dir <- file.path(output_dir, "replicates")
 summary_dir <- file.path(output_dir, "summary")
 figure_dir <- file.path(output_dir, "figures")
@@ -684,18 +764,27 @@ configuration <- list(
   dynamic_main_effect_sd = 1,
   num_basis = num_basis,
   class_probs = class_probs,
+  expected_class_counts = expected_class_counts,
   dynamic_amplitude = 2,
   bspline_df = 6,
   bspline_coefficient_sd = 1,
-  true_pi0 = 0.8,
+  true_pi0 = true_pi0,
   seed_list = seed_list,
   rho_grid = rho_grid,
   correlation_structure = "lag1_only",
   nominal_alpha = nominal_alpha,
   empirical_generating_rho = empirical_generating_rho,
   pi0_methods = pi0_methods,
+  genotype_cache_path = genotype_cache_path,
+  genotype_cache_fingerprint = artifact_fingerprint(genotype_cache_path),
+  genotype_source = "paper-derived YRI DS dosage",
+  genotype_selection_rule = genotype_cache$configuration$selection_rule,
+  maf_truth_balance_method =
+    "exact global class counts with within-MAF-decile permutation",
+  package_provenance = package_provenance,
   pairing_tolerance = 1e-10,
-  r1_reference_output_id = "r1_random_bspline_main_effect_pilot5"
+  r1_reference_output_id = "r1_r2_fashr0143",
+  r1_reference_cache_dir = r1_cache_dir
 )
 configuration_path <- file.path(output_dir, "configuration.rds")
 if (file.exists(configuration_path) && !overwrite) {
@@ -709,29 +798,24 @@ if (file.exists(configuration_path) && !overwrite) {
   saveRDS(configuration, configuration_path)
 }
 
-run_condition <- function(seed, rho) {
-  message("Running R4 sweep seed ", seed, ", rho = ", rho_text(rho), ".")
+run_condition <- function(seed_inputs, rho) {
+  message(
+    "Running R4 sweep seed ", seed_inputs$seed,
+    ", rho = ", rho_text(rho), "."
+  )
   correlation <- if (rho == 0) {
     NULL
   } else {
     correlation_matrices[[rho_text(rho)]]
   }
-  out <- run_genotype_level_bspline_eqtl_simulation(
-    n_donors = n_donors,
-    n_variants = J,
-    time_grid = time_grid,
-    n_covariates = n_covariates,
-    class_probs = class_probs,
-    expression_noise_sd = expression_noise_sd,
-    dynamic_main_effect_sd = 1,
-    scenario = scenario,
-    alpha = nominal_alpha,
-    seed = seed,
+  out <- run_r4_real_genotype_r1_condition(
+    seed_inputs = seed_inputs,
+    expression_error_correlation = correlation,
     num_cores = num_cores,
     num_basis = num_basis,
-    save_outputs = FALSE,
-    verbose = FALSE,
-    expression_error_correlation = correlation
+    nominal_alpha = nominal_alpha,
+    output_dir = output_dir,
+    verbose = FALSE
   )
   if (!isTRUE(all.equal(
     dynamic_null_proportion(out$unit_info, target = "dynamic"),
@@ -744,7 +828,18 @@ run_condition <- function(seed, rho) {
 
 make_replicate <- function(seed) {
   execution_rhos <- c(0, rho_grid[rho_grid != 0])
-  reference <- run_condition(seed, 0)
+  seed_inputs <- prepare_r4_real_genotype_r1_seed(
+    genotype_cache = genotype_cache,
+    seed = seed,
+    J = J,
+    n_donors = n_donors,
+    n_covariates = n_covariates,
+    time_grid = time_grid,
+    class_probs = class_probs,
+    expression_noise_sd = expression_noise_sd,
+    dynamic_main_effect_sd = 1
+  )
+  reference <- run_condition(seed_inputs, 0)
   reference_errors <- extract_expression_errors(reference)
   alpha_parts <- list(extract_alpha005(
     reference,
@@ -764,7 +859,7 @@ make_replicate <- function(seed) {
   ))
 
   for (rho in execution_rhos[execution_rhos != 0]) {
-    candidate <- run_condition(seed, rho)
+    candidate <- run_condition(seed_inputs, rho)
     maximum_difference <- validate_against_zero_reference(
       reference,
       candidate,
@@ -815,6 +910,8 @@ make_replicate <- function(seed) {
   list(
     configuration = configuration,
     seed = seed,
+    genotype_digest = seed_inputs$genotype_sample$genotype_digest,
+    selected_pair_keys = seed_inputs$genotype_sample$selection$pair_key,
     alpha_005 = alpha_rows,
     pi0 = pi0_rows,
     lag1_diagnostics = lag_rows,
@@ -825,11 +922,19 @@ make_replicate <- function(seed) {
 validate_replicate <- function(replicate, seed) {
   required_fields <- c(
     "configuration", "seed", "alpha_005", "pi0", "lag1_diagnostics",
-    "pairing_check"
+    "pairing_check", "genotype_digest", "selected_pair_keys"
   )
   if (!all(required_fields %in% names(replicate)) ||
       !identical(replicate$seed, seed) ||
-      !isTRUE(all.equal(replicate$configuration, configuration))) {
+      !isTRUE(all.equal(replicate$configuration, configuration)) ||
+      !identical(
+        replicate$genotype_digest,
+        genotype_cache$samples[[as.character(seed)]]$genotype_digest
+      ) ||
+      !identical(
+        replicate$selected_pair_keys,
+        genotype_cache$samples[[as.character(seed)]]$selection$pair_key
+      )) {
     return(FALSE)
   }
   expected_alpha_rows <- length(rho_grid) * length(fash_methods)
@@ -883,7 +988,7 @@ paired_pi0_summary <- summarize_paired_pi0_vs_zero(all_pi0)
 lag1_summary <- summarize_lag1_diagnostics(all_lag1)
 
 default_reference_setting <-
-  identical(J, 1000L) &&
+  identical(J, 6362L) &&
   identical(n_donors, 19L) &&
   identical(n_covariates, 5L) &&
   isTRUE(all.equal(expression_noise_sd, 1)) &&
@@ -892,7 +997,7 @@ default_reference_setting <-
 r1_reference_check <- if (default_reference_setting) {
   validate_zero_against_r1(
     all_alpha_005,
-    workflowr_root = workflowr_root,
+    r1_cache_dir = r1_cache_dir,
     methods = fash_methods,
     expected_seeds = seed_list
   )
@@ -908,7 +1013,7 @@ r1_reference_check <- if (default_reference_setting) {
 r1_pi0_reference_check <- if (default_reference_setting) {
   validate_zero_pi0_against_r1(
     all_pi0,
-    workflowr_root = workflowr_root,
+    r1_cache_dir = r1_cache_dir,
     expected_seeds = seed_list
   )
 } else {

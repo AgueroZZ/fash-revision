@@ -27,6 +27,24 @@ require_reporting_package <- function(package) {
   invisible(TRUE)
 }
 
+sha256_file <- function(path) {
+  output <- system2(
+    "shasum",
+    args = c("-a", "256", normalizePath(path, mustWork = TRUE)),
+    stdout = TRUE,
+    stderr = TRUE
+  )
+  status <- attr(output, "status")
+  if ((!is.null(status) && status != 0L) || length(output) != 1L) {
+    stop("Could not compute SHA-256 for ", path, ".")
+  }
+  hash <- strsplit(output, "[[:space:]]+")[[1L]][1L]
+  if (!grepl("^[0-9a-f]{64}$", hash)) {
+    stop("Unexpected SHA-256 output for ", path, ".")
+  }
+  hash
+}
+
 require_reporting_package("ggplot2")
 require_reporting_package("knitr")
 
@@ -36,7 +54,7 @@ cache_path <- file.path(
   "output",
   "revision_simulations",
   "internal",
-  "fash_strober_enhancer_comparison",
+  "fash_strober_enhancer_comparison_fashr0143",
   "analysis_cache.rds"
 )
 if (!file.exists(cache_path)) {
@@ -59,10 +77,21 @@ expected_sets <- c(
   "current_all", "current_lead", "linear_all", "linear_lead",
   "quadratic_all", "quadratic_lead", "current_only_all", "current_only_lead"
 )
+expected_cache_id <- "fash_strober_enhancer_comparison_fashr0143"
+expected_fashr_provenance <- list(
+  package = "fashr",
+  version = "0.1.43",
+  remote_sha = "bf223df75da6e41ae48607a56b4cd12d7c3b24e7"
+)
 if (!all(required_fields %in% names(cache)) ||
     !identical(
       cache$configuration$analysis_id,
-      "revision_internal_fash_strober_enhancer_comparison"
+      "revision_internal_fash_strober_enhancer_comparison_fashr0143"
+    ) ||
+    !identical(cache$configuration$cache_id, expected_cache_id) ||
+    !identical(
+      cache$configuration$package_provenance,
+      expected_fashr_provenance
     ) ||
     cache$configuration$matching_seed_count != 100L ||
     cache$configuration$controls_per_variant != 5L ||
@@ -71,10 +100,35 @@ if (!all(required_fields %in% names(cache)) ||
   stop("The retained comparison cache failed structural validation.")
 }
 
-current_md5 <- unname(tools::md5sum(cache$input_provenance$path))
-if (anyNA(current_md5) ||
-    !identical(current_md5, cache$input_provenance$md5)) {
+required_provenance_columns <- c(
+  "path", "byte_size", "md5", "sha256", "modified_at"
+)
+current_sha256 <- unname(vapply(
+  cache$input_provenance$path,
+  sha256_file,
+  character(1)
+))
+if (!all(required_provenance_columns %in% names(cache$input_provenance)) ||
+    anyNA(current_sha256) ||
+    !identical(current_sha256, cache$input_provenance$sha256)) {
   stop("At least one retained analysis input changed after cache creation.")
+}
+expected_current_fit_path <- normalizePath(file.path(
+  workflowr_root,
+  "output",
+  "dynamic_eQTL_real",
+  "fash_fit1_update.RData"
+), winslash = "/", mustWork = TRUE)
+current_fit_provenance <- cache$input_provenance[
+  cache$input_provenance$path == expected_current_fit_path,
+  ,
+  drop = FALSE
+]
+if (nrow(current_fit_provenance) != 1L ||
+    current_fit_provenance$byte_size != 581123504 ||
+    current_fit_provenance$sha256 !=
+      "7f0ca9ab0fbeab89a13c83d2a0fb7c24195f7b5a5835f209399cf0e359001f50") {
+  stop("The corrected BF-updated FASH input failed provenance validation.")
 }
 
 configuration <- cache$configuration
@@ -89,6 +143,45 @@ enhancer_results <- cache$enhancer_results
 enhancer_summary <- cache$enhancer_summary
 matching_balance <- cache$matching_balance
 runtime_summary <- cache$runtime_summary
+
+expected_pair_counts <- c(
+  current_all = 9214L,
+  current_lead = 1176L,
+  linear_all = 5404L,
+  linear_lead = 550L,
+  quadratic_all = 6824L,
+  quadratic_lead = 693L,
+  current_only_all = 8042L,
+  current_only_lead = 1035L
+)
+expected_variant_counts <- c(
+  current_all = 9148L,
+  current_lead = 1169L,
+  linear_all = 5387L,
+  linear_lead = 548L,
+  quadratic_all = 6797L,
+  quadratic_lead = 690L,
+  current_only_all = 7981L,
+  current_only_lead = 1029L
+)
+discovery_order <- match(expected_sets, discovery_set_summary$discovery_set)
+if (anyNA(discovery_order) ||
+    !identical(
+      stats::setNames(
+        as.integer(discovery_set_summary$pair_count[discovery_order]),
+        expected_sets
+      ),
+      expected_pair_counts
+    ) ||
+    !identical(
+      stats::setNames(
+        as.integer(discovery_set_summary$unique_variant_count[discovery_order]),
+        expected_sets
+      ),
+      expected_variant_counts
+    )) {
+  stop("The corrected R6 discovery-set counts failed validation.")
+}
 
 n_sets <- length(expected_sets)
 if (nrow(enrichment_results) != n_sets * (29L + 83L) ||
@@ -128,6 +221,7 @@ lookup_runtime <- function(stage) {
 }
 
 render_scrollable_table <- function(data,
+                                    caption = NULL,
                                     digits = 3L,
                                     align = NULL,
                                     minimum_width = "760px",
@@ -136,6 +230,7 @@ render_scrollable_table <- function(data,
     data,
     format = "html",
     escape = escape,
+    caption = caption,
     align = align,
     row.names = FALSE,
     digits = digits,

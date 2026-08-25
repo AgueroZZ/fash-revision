@@ -18,9 +18,9 @@ Here are examples of how to apply FASH
 
 + [Simulated data examples](appendixB.html)
 
-+ [Testing dynamic eQTLs using iPSC data](dynamic_eQTL_real.html)
++ [Testing dynamic eQTLs using iPSC data](dynamic_eQTL_real.html) ([CL version](dynamic_eQTL_real_cl.html))
 
-+ [Testing nonlinear dynamic eQTLs using iPSC data](nonlinear_dynamic_eQTL_real.html)
++ [Testing nonlinear dynamic eQTLs using iPSC data](nonlinear_dynamic_eQTL_real.html) ([CL version](nonlinear_dynamic_eQTL_real_cl.html))
 
 **Revision work:**
 
@@ -34,6 +34,22 @@ These pages collect simulations and analyses added during the revision process.
 
 + [Revision Real-data Sensitivity R4: temporal correlation](revision_correlated_error_simulation.html)
 
-+ [Revision Real-data Sensitivity R5: balanced variant thinning](revision_balanced_variant_thinning.html)
++ [Revision Real-data Sensitivity R5: one random variant per gene](revision_balanced_variant_thinning.html)
 
-+ [Revision Real-data Analysis R6: enhancer enrichment of FASH dynamic eQTLs](revision_enhancer_enrichment.html)
++ [Revision Real-data Analysis R6: enhancer enrichment of FASH dynamic eQTLs](revision_enhancer_enrichment.html) ([CL version](revision_enhancer_enrichment_cl.html))
+
++ [Revision Real-data Analysis R7: matched FASH-linear comparison](revision_internal_matched_fash_linear_real_data.html) ([CL version](revision_internal_matched_fash_linear_real_data_cl.html))
+
+**Revision apps:**
+
+These local interactive tools support internal exploration of revision results.
+
++ [Open the FASH trajectory explorer](http://127.0.0.1:7421/) — two tabs over all 1,009,173 tested pairs. **Trajectory explorer:** search any gene-variant pair and compare observed estimates, IWP1 FASH, predictive-SD mixture FASH-linear, an optional Strober-style weighted trend, and matched Strober statistics. **All-pair browser:** sort and filter the full result table by per-method significance, optionally keep only each gene's most significant variant, read live counts and co-significance for the current view, and click any row to plot it. Filtering and thinning are display operations; significance always reflects the full-data FDR-0.05 calls.
+
+The link above only resolves while the app is running, since a static page cannot start an R process. Run the launcher from the workflowr project root; it reuses an already-running instance, otherwise starts one and waits until it answers, then opens the browser:
+
+```{bash, eval=FALSE}
+./apps/fash_trajectory_explorer/run_explorer.sh
+```
+
+`run_explorer.sh status`, `stop`, `restart`, and `log` are also available. Cold start takes about 20 seconds while the retained IWP1 fit loads.

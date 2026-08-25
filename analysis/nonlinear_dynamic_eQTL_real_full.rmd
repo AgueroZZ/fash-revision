@@ -584,13 +584,15 @@ par(mfrow = c(1,1))
 
 Following the definition in Strober et.al, we will classify the detected eQTLs into different categories:
 
-- *Early*: eQTLs with strongest effect during the first three days: $\max_{t\leq3} |\beta(t)| - \max_{t> 3} |\beta(t)| > 0$.
+- *Early*: eQTLs with strongest effect during the first three days: $\sup_{t\leq3} |\beta(t)| - \sup_{t> 3} |\beta(t)| > 0$.
 
-- *Late*: eQTLs with strongest effect during the last four days: $\max_{t\geq 12} |\beta(t)| - \max_{t< 12} |\beta(t)| > 0$.
+- *Late*: eQTLs with strongest effect during the last four days: $\sup_{t\geq 12} |\beta(t)| - \sup_{t< 12} |\beta(t)| > 0$.
 
-- *Middle*: eQTLs with strongest effect during days 4-11: $\max_{4\leq t\leq 11} |\beta(t)| - \max_{t> 11 | t< 4} |\beta(t)| > 0$.
+- *Middle*: eQTLs with strongest effect during days 4-11: $\sup_{4\leq t\leq 11} |\beta(t)| - \sup_{t> 11 | t< 4} |\beta(t)| > 0$.
 
-- *Switch*: eQTLs with effect sign switch during the time course: $\min\{\max\beta(t)^+,\max\beta(t)^-\}-c $ where $c$ is a threshold that we set to 0.25 (which means with two alleles, the maximal difference of effect size is at least $\geq 2\times\min\{\max\beta(t)^+,\max\beta(t)^-\}\times2 \geq  2 \times 0.25  \times 2 = 1$).
+- *Switch*: eQTLs with effect sign switch during the time course: $\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}-c $ where $c$ is a threshold that we set to 0.25 (which means with two alleles, the maximal difference of effect size is at least $\geq 2\times\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}\times2 \geq  2 \times 0.25  \times 2 = 1$).
+
+The displayed functionals are continuous-time definitions using suprema; the code below uses maxima on the `0.1`-day evaluation grid as their discrete approximation.
 
 We first take a look at the significant pairs detected by FASH (order 2), and classify them based on the false sign rate (lfsr):
 
@@ -1043,4 +1045,3 @@ result@result %>%
   filter(pvalue < 0.05) %>%
   dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)
 ```
-

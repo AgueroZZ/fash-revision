@@ -1,0 +1,553 @@
+---
+title: "Internal sensitivity analysis: original Middle window"
+author: "Ziang Zhang"
+date: "2026-08-20"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+    toc: true
+    toc_float: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 8.0,
+  fig.height = 7.2,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
+
+cache_dir <- file.path(
+  "output",
+  "revision_simulations",
+  "internal",
+  "evaluation_grid_mc_all_category_baseline_discoveries_middle_4_11"
+)
+
+configuration <- readRDS(file.path(cache_dir, "configuration.rds"))
+population <- read.csv(
+  file.path(cache_dir, "baseline_discovery_population.csv"),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+population_summary <- read.csv(
+  file.path(cache_dir, "population_summary.csv"),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+pair_lfsr <- read.csv(
+  file.path(cache_dir, "pair_lfsr_by_setting.csv"),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+comparison_summary <- read.csv(
+  file.path(cache_dir, "comparison_summary.csv"),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+runtime <- read.csv(
+  file.path(cache_dir, "runtime.csv"),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+cache_validation <- read.csv(
+  file.path(cache_dir, "validation.csv"),
+  stringsAsFactors = FALSE,
+  check.names = FALSE
+)
+
+category_order <- c("early", "middle", "late", "switch")
+category_labels <- c(
+  early = "Early",
+  middle = "Middle",
+  late = "Late",
+  switch = "Switch"
+)
+expected_pair_counts <- c(
+  early = 124L,
+  middle = 24L,
+  late = 20L,
+  switch = 984L
+)
+expected_gene_counts <- c(
+  early = 8L,
+  middle = 5L,
+  late = 12L,
+  switch = 250L
+)
+expected_setting_ids <- c(
+  "grid_0p15_M3000",
+  "grid_0p10_M3000",
+  "grid_0p05_M3000",
+  "grid_0p10_M2000",
+  "grid_0p10_M5000"
+)
+expected_comparison_ids <- c(
+  "grid_0p10_vs_0p15_M3000",
+  "grid_0p10_vs_0p05_M3000",
+  "M2000_vs_M3000_grid_0p10",
+  "M3000_vs_M5000_grid_0p10"
+)
+
+if (
+  configuration$seed != 20260820L ||
+  configuration$num_cores != 4L ||
+  configuration$alpha != 0.05 ||
+  configuration$switch_threshold != 0.25 ||
+  configuration$category_pair_count != sum(expected_pair_counts) ||
+  configuration$unique_pair_count != 1145L ||
+  configuration$middle_definition != "closed_4_11" ||
+  !identical(configuration$category_order, category_order) ||
+  !identical(
+    unname(configuration$expected_pair_counts),
+    unname(expected_pair_counts)
+  ) ||
+  !identical(
+    unname(configuration$expected_gene_counts),
+    unname(expected_gene_counts)
+  ) ||
+  !setequal(pair_lfsr$setting_id, expected_setting_ids) ||
+  !identical(
+    unique(comparison_summary$comparison_id),
+    expected_comparison_ids
+  ) ||
+  nrow(population) != sum(expected_pair_counts) ||
+  nrow(pair_lfsr) != sum(expected_pair_counts) *
+    length(expected_setting_ids) ||
+  nrow(comparison_summary) != length(category_order) *
+    length(expected_comparison_ids) ||
+  anyDuplicated(population[c("category", "pair_id")]) ||
+  anyDuplicated(pair_lfsr[c("category", "pair_id", "setting_id")]) ||
+  any(!is.finite(pair_lfsr$lfsr)) ||
+  any(pair_lfsr$lfsr < 0 | pair_lfsr$lfsr > 1) ||
+  !all(cache_validation$passed)
+) {
+  stop("The all-category numerical-sensitivity cache failed page validation.")
+}
+
+population_summary <- population_summary[
+  match(category_order, population_summary$category),
+  ,
+  drop = FALSE
+]
+comparison_summary <- comparison_summary[
+  order(
+    match(comparison_summary$comparison_id, expected_comparison_ids),
+    match(comparison_summary$category, category_order)
+  ),
+  ,
+  drop = FALSE
+]
+```
+
+<style type="text/css">
+.sensitivity-key-result {
+  border-left: 5px solid #2c7fb8;
+  background: #eef6fb;
+  padding: 0.9em 1.1em;
+  margin: 1em 0 1.4em 0;
+}
+
+table > caption,
+p.caption {
+  color: #1f2937 !important;
+  font-size: 1.10em !important;
+  font-weight: 700 !important;
+  line-height: 1.35;
+  text-align: left !important;
+  margin-top: 0.7em;
+  margin-bottom: 0.7em;
+}
+
+table > caption {
+  caption-side: top;
+}
+
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 1em;
+}
+
+.table-scroll table {
+  min-width: 1040px;
+}
+</style>
+
+# Question and conclusion
+
+This temporary comparison changes only the Middle functional back to the
+original window $4\leq t\leq11$. It asks whether evaluation-grid step 0.10 and
+3,000 posterior draws are sufficiently stable for the baseline-discovery pairs
+in Early, original Middle, Late, and Switch.
+
+<div class="sensitivity-key-result">
+The original Middle functional is <strong>sensitive to the evaluation
+grid</strong>. Its mean absolute LFSR change is 0.0135 for grid 0.10 versus 0.15
+and 0.0396 for grid 0.10 versus 0.05, compared with 0.0005 and 0.0003 under the
+open $3<t<12$ definition. Monte Carlo sensitivity remains small: the original
+Middle mean absolute change is 0.0017 for 3,000 versus 5,000 draws. Thus, the
+instability is specific to how the original Middle boundary is represented on
+the evaluation grid, rather than to posterior Monte Carlo size.
+</div>
+
+This is a **reported-pair sensitivity analysis**: the baseline discovery
+population is held fixed. It does not rerank all 9,205 candidate pairs under
+each numerical setting and therefore does not claim identical full discovery
+sets. A full-universe server run would be the appropriate follow-up only if
+this targeted diagnostic showed material instability.
+
+# Estimands and fixed analysis population
+
+For posterior trajectory draw $b^{(m)}(t)$, the four statistics are
+
+$$
+\begin{aligned}
+T_{\mathrm{early}}^{(m)}
+&= \sup_{t\leq3}|b^{(m)}(t)|-\sup_{t>3}|b^{(m)}(t)|,\\
+T_{\mathrm{middle}}^{(m)}
+&= \sup_{4\leq t\leq11}|b^{(m)}(t)|
+   -\sup_{t<4\;\mathrm{or}\;t>11}|b^{(m)}(t)|,\\
+T_{\mathrm{late}}^{(m)}
+&= \sup_{t\geq12}|b^{(m)}(t)|-\sup_{t<12}|b^{(m)}(t)|,\\
+T_{\mathrm{switch}}^{(m)}
+&= \min\!\left\{\sup_t b^{(m)}(t),-\inf_t b^{(m)}(t)\right\}-0.25.
+\end{aligned}
+$$
+
+These are continuous-time functionals. Each numerical setting approximates
+the suprema and infima by extrema on its stated evaluation grid.
+
+For each category $c$, the estimated local false sign rate is
+
+$$
+\widehat{\mathrm{LFSR}}_c
+=\frac{1}{M}\sum_{m=1}^{M}I\!\left\{T_c^{(m)}\leq0\right\}.
+$$
+
+All four categories use the saved manuscript discoveries with cumulative FSR
+at most 0.05. In particular, the original Middle population contains 24 pairs
+from 5 genes. The same category-specific pairs are retained in every
+comparison.
+
+```{r analysis-population-table}
+# Display the exact fixed population used in every sensitivity comparison.
+population_table <- data.frame(
+  Category = unname(category_labels[population_summary$category]),
+  Definition = c(
+    "Largest absolute effect at t <= 3",
+    "Largest absolute effect at 4 <= t <= 11",
+    "Largest absolute effect at t >= 12",
+    "Positive and negative excursions both exceed 0.25"
+  ),
+  `Baseline pairs` = population_summary$n_pairs,
+  `Baseline genes` = population_summary$n_genes,
+  check.names = FALSE
+)
+
+knitr::kable(
+  population_table,
+  align = c("l", "l", "r", "r"),
+  caption = paste(
+    "Table 1. Fixed baseline-discovery population for the original-Middle",
+    "conditional sensitivity analysis."
+  )
+)
+```
+
+# Numerical construction
+
+Grid sensitivity is evaluated at steps 0.15, 0.10, and 0.05 with the same
+3,000 posterior draws. The 0.15 and 0.10 grids are exact row subsets of the
+0.05 grid.
+
+For Monte Carlo sensitivity, `predict.fash()` returns draws grouped by sampled
+prior PSD component. Therefore, taking its unmodified first columns would not
+produce a representative posterior prefix. For each fitted pair, we generate
+5,000 draws once, apply a fixed pair-specific random column permutation, and
+use the first 2,000, 3,000, and 5,000 permuted columns. This construction makes
+the Monte Carlo comparisons nested while holding the posterior sample stream
+fixed. Seven pairs occur in more than one category, so 1,152 category-pair rows
+require 1,145 unique posterior-sampling calls.
+
+```{r numerical-design-code, eval=FALSE}
+# Reproducible construction used by the cache-building script for each pair.
+set.seed(20260820L + pair_index)
+posterior_samples <- predict(
+  fash_fit1_update,
+  index = pair_index,
+  smooth_var = seq(0, 15, by = 0.05),
+  only.samples = TRUE,
+  M = 5000L
+)
+
+# predict.fash groups columns by PSD component, so randomize column order
+# deterministically before taking nested Monte Carlo prefixes.
+set.seed(20260820L + 1000000L + pair_index)
+posterior_samples <- posterior_samples[
+  ,
+  sample.int(ncol(posterior_samples)),
+  drop = FALSE
+]
+
+samples_M2000 <- posterior_samples[, seq_len(2000L), drop = FALSE]
+samples_M3000 <- posterior_samples[, seq_len(3000L), drop = FALSE]
+samples_M5000 <- posterior_samples[, seq_len(5000L), drop = FALSE]
+```
+
+```{r comparison-summary-table, results='asis'}
+# Report continuous agreement before the auxiliary individual-LFSR cutoff.
+summary_table <- data.frame(
+  Comparison = comparison_summary$comparison,
+  Category = unname(category_labels[comparison_summary$category]),
+  Pairs = comparison_summary$n_pairs,
+  `Mean |change|` = sprintf(
+    "%.4f",
+    comparison_summary$mean_absolute_change
+  ),
+  `90th percentile |change|` = sprintf(
+    "%.4f",
+    comparison_summary$q90_absolute_change
+  ),
+  `Maximum |change|` = sprintf(
+    "%.4f",
+    comparison_summary$maximum_absolute_change
+  ),
+  Spearman = sprintf("%.3f", comparison_summary$spearman_correlation),
+  `Within 0.01` = paste0(
+    sprintf("%.1f", 100 * comparison_summary$fraction_within_0p01),
+    "%"
+  ),
+  `LFSR-0.05 agreement` = paste0(
+    sprintf(
+      "%.1f",
+      100 * comparison_summary$lfsr_0p05_classification_agreement
+    ),
+    "%"
+  ),
+  check.names = FALSE
+)
+
+summary_table_html <- knitr::kable(
+  summary_table,
+  format = "html",
+  align = c("l", "l", "r", rep("r", 6)),
+  caption = paste(
+    "Table 2. Paired LFSR agreement for every baseline-discovery pair.",
+    "The last column is an auxiliary individual-LFSR diagnostic, not a",
+    "recomputed cumulative-FSR discovery classification."
+  )
+)
+knitr::asis_output(paste0(
+  '<div class="table-scroll">',
+  summary_table_html,
+  '</div>'
+))
+```
+
+The continuous metrics show that the original Middle grid effect is not merely
+an isolated 0.05 crossing. For grid 0.10 versus 0.05, only 12.5% of the 24
+Middle pairs are within 0.01 and the maximum absolute change is 0.076.
+
+# Four paired LFSR comparisons
+
+The plotting code below explicitly joins the same category-pair rows between
+the requested horizontal- and vertical-axis settings. Every panel uses the
+same 0--0.16 scale. This is slightly wider than the open-Middle page so that
+the original-Middle LFSR of 0.152 is not clipped. The solid diagonal is
+equality, dotted diagonals mark an absolute difference of 0.01, and orange
+points cross the auxiliary individual-LFSR value 0.05.
+
+```{r scatter-construction}
+library(ggplot2)
+
+build_comparison_data <- function(comparison_id) {
+  comparison_spec <- configuration$comparisons[
+    configuration$comparisons$comparison_id == comparison_id,
+    ,
+    drop = FALSE
+  ]
+  if (nrow(comparison_spec) != 1L) {
+    stop("The requested comparison is not uniquely specified.")
+  }
+
+  x_rows <- pair_lfsr[
+    pair_lfsr$setting_id == comparison_spec$x_setting_id,
+    c("category", "pair_id", "gene_symbol", "lfsr"),
+    drop = FALSE
+  ]
+  y_rows <- pair_lfsr[
+    pair_lfsr$setting_id == comparison_spec$y_setting_id,
+    c("category", "pair_id", "lfsr"),
+    drop = FALSE
+  ]
+  names(x_rows)[names(x_rows) == "lfsr"] <- "x_lfsr"
+  names(y_rows)[names(y_rows) == "lfsr"] <- "y_lfsr"
+
+  plot_data <- merge(
+    x_rows,
+    y_rows,
+    by = c("category", "pair_id"),
+    all = FALSE,
+    sort = FALSE
+  )
+  expected_rows <- sum(configuration$expected_pair_counts)
+  if (nrow(plot_data) != expected_rows ||
+      anyDuplicated(plot_data[c("category", "pair_id")])) {
+    stop("The paired plotting population is incomplete.")
+  }
+
+  plot_data$category_panel <- factor(
+    plot_data$category,
+    levels = category_order,
+    labels = unname(category_labels[category_order])
+  )
+  plot_data$cutoff_status <- ifelse(
+    (plot_data$x_lfsr <= 0.05) == (plot_data$y_lfsr <= 0.05),
+    "Same side of 0.05",
+    "Crosses 0.05"
+  )
+  plot_data
+}
+
+build_comparison_plot <- function(comparison_id, x_label, y_label) {
+  plot_data <- build_comparison_data(comparison_id)
+
+  ggplot(plot_data, aes(x = x_lfsr, y = y_lfsr)) +
+    geom_abline(
+      intercept = c(-0.01, 0.01),
+      slope = 1,
+      color = "grey65",
+      linewidth = 0.45,
+      linetype = "dotted"
+    ) +
+    geom_abline(
+      intercept = 0,
+      slope = 1,
+      color = "grey20",
+      linewidth = 0.55
+    ) +
+    geom_vline(
+      xintercept = 0.05,
+      color = "grey72",
+      linewidth = 0.4,
+      linetype = "dashed"
+    ) +
+    geom_hline(
+      yintercept = 0.05,
+      color = "grey72",
+      linewidth = 0.4,
+      linetype = "dashed"
+    ) +
+    geom_point(
+      aes(color = cutoff_status),
+      alpha = 0.62,
+      size = 1.35
+    ) +
+    facet_wrap(~category_panel, ncol = 2) +
+    scale_color_manual(
+      values = c(
+        "Same side of 0.05" = "#2c7fb8",
+        "Crosses 0.05" = "#d95f02"
+      )
+    ) +
+    scale_x_continuous(
+      limits = c(0, 0.16),
+      breaks = c(0, 0.025, 0.05, 0.075, 0.10, 0.125, 0.15),
+      labels = scales::label_number(accuracy = 0.001),
+      expand = expansion(mult = c(0.01, 0.02))
+    ) +
+    scale_y_continuous(
+      limits = c(0, 0.16),
+      breaks = c(0, 0.025, 0.05, 0.075, 0.10, 0.125, 0.15),
+      labels = scales::label_number(accuracy = 0.001),
+      expand = expansion(mult = c(0.01, 0.02))
+    ) +
+    coord_equal() +
+    labs(
+      x = x_label,
+      y = y_label,
+      color = NULL
+    ) +
+    theme_bw(base_size = 11.5) +
+    theme(
+      panel.grid.minor = element_blank(),
+      panel.grid.major = element_line(color = "grey92", linewidth = 0.35),
+      strip.background = element_rect(fill = "grey94", color = "grey70"),
+      strip.text = element_text(face = "bold"),
+      legend.position = "bottom",
+      legend.margin = margin(t = -2),
+      panel.spacing = grid::unit(0.8, "lines")
+    )
+}
+```
+
+```{r grid-0p10-vs-0p15, fig.cap="Figure 1. Grid-step sensitivity with the original Middle window: 0.10 versus 0.15 at 3,000 posterior draws. Panels contain all baseline-discovery pairs for each category; the discovery population is held fixed."}
+build_comparison_plot(
+  comparison_id = "grid_0p10_vs_0p15_M3000",
+  x_label = "LFSR at grid step 0.10",
+  y_label = "LFSR at grid step 0.15"
+)
+```
+
+Early, Late, and Switch remain close to equality, but original Middle does not.
+Its mean absolute change is 0.0135, its maximum change is 0.0327, and only 25%
+of its pairs are within 0.01.
+
+```{r grid-0p10-vs-0p05, fig.cap="Figure 2. Grid-step sensitivity with the original Middle window: 0.10 versus 0.05 at 3,000 posterior draws. Panels contain all baseline-discovery pairs for each category; the discovery population is held fixed."}
+build_comparison_plot(
+  comparison_id = "grid_0p10_vs_0p05_M3000",
+  x_label = "LFSR at grid step 0.10",
+  y_label = "LFSR at grid step 0.05"
+)
+```
+
+The original-Middle separation becomes larger on the finer grid: mean absolute
+change 0.0396, 90th percentile 0.0650, maximum 0.0760, and only 12.5% of pairs
+within 0.01. The other three category panels are unchanged from the
+open-Middle analysis.
+
+```{r M2000-vs-M3000, fig.cap="Figure 3. Posterior Monte Carlo sensitivity with the original Middle window: 2,000 versus 3,000 nested draws at grid step 0.10. Panels contain all baseline-discovery pairs for each category; columns were deterministically permuted before taking prefixes."}
+build_comparison_plot(
+  comparison_id = "M2000_vs_M3000_grid_0p10",
+  x_label = "LFSR with 2,000 posterior draws",
+  y_label = "LFSR with 3,000 posterior draws"
+)
+```
+
+The original-Middle mean absolute change is 0.0025, all 24 pairwise changes are
+within 0.01, and the signed mean change is close to zero. This is consistent
+with ordinary Monte Carlo fluctuation.
+
+```{r M3000-vs-M5000, fig.cap="Figure 4. Posterior Monte Carlo sensitivity with the original Middle window: 3,000 versus 5,000 nested draws at grid step 0.10. Panels contain all baseline-discovery pairs for each category; columns were deterministically permuted before taking prefixes."}
+build_comparison_plot(
+  comparison_id = "M3000_vs_M5000_grid_0p10",
+  x_label = "LFSR with 3,000 posterior draws",
+  y_label = "LFSR with 5,000 posterior draws"
+)
+```
+
+The original-Middle mean absolute change decreases to 0.0017 and every pair is
+within 0.01. Thus, 3,000 posterior draws remain adequate; increasing Monte
+Carlo size does not resolve the original functional's grid sensitivity.
+
+# Final numerical choices
+
+- Functional definitions: Early $t\leq3$; Middle $4\leq t\leq11$; Late $t\geq12$;
+  Switch threshold 0.25.
+- Evaluation grid under comparison: `seq(0, 15, by = 0.10)`.
+- Posterior Monte Carlo size: 3,000 draws.
+- Sensitivity population: all baseline-discovery pairs within each category,
+  held fixed across settings.
+- Randomization: pair-specific seed 20260820 plus fitted-pair index, followed
+  by a pair-specific deterministic column permutation for nested prefixes.
+- Computation: one R job with four workers; the production posterior-sampling
+  stage took `r sprintf("%.1f", runtime$elapsed_seconds[runtime$stage == "posterior_sampling_and_evaluation"])`
+  seconds.

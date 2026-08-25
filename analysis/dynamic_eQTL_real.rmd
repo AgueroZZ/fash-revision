@@ -41,11 +41,6 @@ cache_write <- function(x, path) {
   x
 }
 
-sample_int <- function(n, size, seed = 1L) {
-  set.seed(seed)
-  sample.int(n, size = min(size, n))
-}
-
 # Parse "ENSG..._rs..." keys once
 parse_pair_keys <- function(keys) {
   m <- str_match(keys, "^([^_]+)_(.+)$")
@@ -381,10 +376,8 @@ fash_fit1$prior_weights
 If we measure the significance using the false discovery rate, then it is sensitive to the value of $\pi_0$.
 The estimated $\pi_0$ is `r fash_fit1$prior_weights$prior_weight[1]`, which is way too small to be realistic.
 
-One likely reason could be due to model-misspecification under the alternative hypothesis.
-To account for this, we will consider the following approaches:
-
-(i): Computing a conservative estimate of $\pi_0$ based on the BF procedure:
+One likely reason could be model misspecification under the alternative hypothesis.
+We therefore compute a conservative estimate of $\pi_0$ using the BF procedure:
 
 ```{r eval=FALSE}
 fash_fit1_update <- BF_update(fash_fit1, plot = FALSE)
@@ -393,12 +386,16 @@ save(fash_fit1_update, file = paste0(result_dir, "/fash_fit1_update.RData"))
 ```
 
 ```{r echo=FALSE}
-load(file.path(result_dir, "fash_fit1_update.RData"))
+stopifnot(as.character(packageVersion("fashr")) == "0.1.43")
+loaded_fit1_update <- load(file.path(result_dir, "fash_fit1_update.RData"))
+stopifnot(
+  identical(loaded_fit1_update, "fash_fit1_update"),
+  inherits(fash_fit1_update, "fash")
+)
+rm(loaded_fit1_update)
 ```
 
-
-
-The conservative estimate is `r fash_fit1_update$prior_weights$prior_weight[1]`, which is much more realistic.
+All BF-adjusted results below use the retained fit recomputed with `fashr` 0.1.43. The conservative estimate is `r fash_fit1_update$prior_weights$prior_weight[1]`, which is much more realistic.
 
 
 ```{r}
@@ -459,69 +456,6 @@ ggsave(filename = paste0(result_dir, "/fash_prior_comparison_order1_after.pdf"),
        width = 8, height = 6)
 ```
 
-
-
-(ii): Instead of looking at the FDR which is based on the estimated $\pi_0$, we can use the minimum local false sign rate ($\text{min-lfsr}_i$) to measure significance:
-$$
-\text{min-lfsr}_i = \min_{t} \left\{ \text{lfsr}(W_i(t)) \right\},
-$$
-where $W_i(t) = \beta_i(t) - \beta_i(0)$.
-
-Let's compute the significance using the minimum local false sign rate ($\text{min-lfsr}_i$):
-
-```{r eval=FALSE}
-smooth_var_refined = seq(0,15, by = 0.1)
-min_lfsr_summary1 <- min_lfsr_summary(fash_fit1, num_cores = num_cores, smooth_var = smooth_var_refined)
-save(min_lfsr_summary1, file = "./results/min_lfsr_summary1.RData")
-min_lfsr_summary1_update <- min_lfsr_summary(fash_fit1_update, num_cores = num_cores, smooth_var = smooth_var_refined)
-save(min_lfsr_summary1_update, file = "./results/min_lfsr_summary1_update.RData")
-```
-
-Let's visualize how the min-lfsr compares with the local false discovery rate (lfdr):
-
-```{r visualize_minlfsr}
-load(file.path(result_dir, "min_lfsr_summary1.RData"))
-
-# sample some indices for easy visualization
-sample_indices <- sample_int(length(min_lfsr_summary1$min_lfsr), size = 1e5, seed = 1)
-
-min_lfsr1_unadj <- min_lfsr_summary1$min_lfsr[sample_indices]
-lfdr1_vec_unadj <- fash_fit1$lfdr[min_lfsr_summary1$index][sample_indices]
-
-plot(lfdr1_vec_unadj, min_lfsr1_unadj, 
-     pch = 20, cex = 0.1,
-     ylim = c(0,1), xlim = c(0,1),
-     xlab = "lfdr", ylab = "min-lfsr", main = "lfdr vs min-lfsr (Un-adjusted)")
-lines(c(0,1), c(0,1), col = "red")
-```
-
-Let's also visualize the min-lfsr and the lfdr from the BF-updated model:
-
-```{r visualize_minlfsr_bf}
-load(file.path(result_dir, "min_lfsr_summary1_update.RData"))
-
-min_lfsr1 <- min_lfsr_summary1_update$min_lfsr[sample_indices]
-lfdr1_vec <- fash_fit1_update$lfdr[min_lfsr_summary1_update$index][sample_indices]
-
-plot(lfdr1_vec, min_lfsr1, 
-     pch = 20, cex = 0.1,
-     ylim = c(0,1), xlim = c(0,1),
-     xlab = "lfdr", ylab = "min-lfsr", main = "lfdr vs min-lfsr (BF-adjusted)")
-lines(c(0,1), c(0,1), col = "red")
-```
-
-Indeed, the min-lfsr tends to be more conservative than the lfdr, especially when $\hat{\pi_0}$ has not been adjusted using the BF procedure.
-
-Let's also assess how does the BF-update of $\pi_0$ affect the min-lfsr.
-
-```{r visualize_minlfsr_bf_vs_unadj}
-plot(min_lfsr1_unadj, min_lfsr1, 
-     pch = 20, cex = 0.1,
-     ylim = c(0,1), xlim = c(0,1),
-     xlab = "min-lfsr (unadjusted)", ylab = "min-lfsr", main = "Effect of BF adjustment on min-lfsr")
-lines(c(0,1), c(0,1), col = "red")
-```
-
 ## Detecting dynamic eQTLs
 
 We will use the updated FASH model (1) to detect dynamic eQTLs.
@@ -570,23 +504,7 @@ length(genes_highlighted1_before)
 length(genes_highlighted1_before)/length(all_genes)
 ```
 
-Let's see how many pairs and genes remain significant after controlling the min-lfsr:
-
-```{r}
-fash_highlighted1_lfsr <- min_lfsr_summary1_update$index[min_lfsr_summary1_update$fsr <= alpha]
-pairs_highlighted1_lfsr <- names(datasets)[fash_highlighted1_lfsr]
-length(pairs_highlighted1_lfsr)
-length(pairs_highlighted1_lfsr)/length(datasets)
-```
-
-```{r}
-genes_highlighted1_lfsr <- unique(pair_tbl$ens_id[pair_tbl$idx %in% fash_highlighted1_lfsr])
-length(genes_highlighted1_lfsr)
-length(genes_highlighted1_lfsr)/length(all_genes)
-```
-
-It seems like once $\hat{\pi_0}$ is adjusted, there is not much difference between measuring significance using the min-lfsr or the lfdr.
-From now on, we will consider the pairs that are significant using the lfdr.
+The remainder of the analysis uses the cumulative-lfdr discoveries from the BF-adjusted fit.
 
 Visualize top-ranked pairs for some selected genes:
 
@@ -979,6 +897,12 @@ plot_lfdr_vs_p(
 # Helper to show lfsr (adj) on top of each panel for the dynamic-eQTL classification examples.
 # This avoids changing plot_pair_base() so earlier figures remain identical.
 plot_many_pairs_lfsr <- function(idxs, testing_obj, nrow = 2, ncol = 2, ...) {
+  idxs <- as.integer(idxs)
+  idxs <- idxs[is.finite(idxs) & idxs >= 1L]
+  if (length(idxs) == 0L) {
+    return(invisible(NULL))
+  }
+
   oldpar <- par(no.readonly = TRUE)
   on.exit(par(oldpar), add = TRUE)
   par(mfrow = c(nrow, ncol))
@@ -999,13 +923,15 @@ plot_many_pairs_lfsr <- function(idxs, testing_obj, nrow = 2, ncol = 2, ...) {
 
 Following the definition in Strober et.al, we will classify the detected dynamic eQTLs into different categories:
 
-- *Early*: eQTLs with strongest effect during the first three days: $\max_{t\leq3} |\beta(t)| - \max_{t> 3} |\beta(t)| > 0$.
+- *Early*: eQTLs with strongest effect during the first three days: $\sup_{t\leq3} |\beta(t)| - \sup_{t> 3} |\beta(t)| > 0$.
 
-- *Late*: eQTLs with strongest effect during the last four days: $\max_{t\geq 12} |\beta(t)| - \max_{t< 12} |\beta(t)| > 0$.
+- *Late*: eQTLs with strongest effect during the last four days: $\sup_{t\geq 12} |\beta(t)| - \sup_{t< 12} |\beta(t)| > 0$.
 
-- *Middle*: eQTLs with strongest effect during days 4-11: $\max_{4\leq t\leq 11} |\beta(t)| - \max_{t> 11 | t< 4} |\beta(t)| > 0$.
+- *Middle*: eQTLs with strongest effect in the open middle interval: $\sup_{3<t<12} |\beta(t)| - \sup_{t\leq3\;\text{or}\;t\geq12} |\beta(t)| > 0$.
 
-- *Switch*: eQTLs with effect sign switch during the time course such that $\min\{\max\beta(t)^+,\max\beta(t)^-\}-c>0$ where $c$ is a threshold that we set to 0.25 (which means with two alleles, the maximal difference of effect size is at least $\geq 2\times\min\{\max\beta(t)^+,\max\beta(t)^-\}\times2 \geq  2 \times 0.25  \times 2 = 1$).
+- *Switch*: eQTLs with effect sign switch during the time course such that $\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}-c>0$ where $c$ is a threshold that we set to 0.25 (which means with two alleles, the maximal difference of effect size is at least $\geq 2\times\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}\times2 \geq  2 \times 0.25  \times 2 = 1$).
+
+The displayed functionals are continuous-time definitions using suprema; the code below uses maxima on the `0.1`-day evaluation grid as their discrete approximation.
 
 We will take a look at the significant pairs detected by FASH (order 1), and classify them based on the false sign rate (lfsr).
 
@@ -1018,7 +944,7 @@ functional_early <- function(x){
 }
 testing_early_dyn <- testing_functional(functional_early,
                                               lfsr_cal = function(x){mean(x <= 0)},
-                                              fash = fash_fit1,
+                                              fash = fash_fit1_update,
                                               indices = fash_highlighted1,
                                               smooth_var = smooth_var_refined)
 ```
@@ -1062,11 +988,12 @@ plot_many_pairs_lfsr(
 
 ```{r eval=FALSE}
 functional_middle <- function(x){
-  max(abs(x[smooth_var_refined <= 11 & smooth_var_refined >= 4])) - max(abs(x[smooth_var_refined > 11]), abs(x[smooth_var_refined < 4]))
+  max(abs(x[smooth_var_refined > 3 & smooth_var_refined < 12])) -
+    max(abs(x[smooth_var_refined <= 3 | smooth_var_refined >= 12]))
 }
 testing_middle_dyn <- testing_functional(functional_middle, 
                                                lfsr_cal = function(x){mean(x <= 0)},
-                                               fash = fash_fit1, 
+                                               fash = fash_fit1_update,
                                                indices = fash_highlighted1, 
                                                num_cores = num_cores,
                                                smooth_var = smooth_var_refined)
@@ -1115,7 +1042,7 @@ functional_late <- function(x){
 }
 testing_late_dyn <- testing_functional(functional_late, 
                                              lfsr_cal = function(x){mean(x <= 0)},
-                                             fash = fash_fit1, 
+                                             fash = fash_fit1_update,
                                              indices = fash_highlighted1, 
                                              num_cores = num_cores,
                                              smooth_var = smooth_var_refined)
@@ -1137,7 +1064,7 @@ Let's take a look at the top-ranked late dynamic eQTLs:
 keep   <- testing_late_dyn$indices %in% late_indices
 idx_v  <- testing_late_dyn$indices[keep]
 rn_v   <- rownames(testing_late_dyn)[keep]
-genes_use <- late_genes[c(9:12)]
+genes_use <- tail(late_genes, min(4L, length(late_genes)))
 idxs_late <- vapply(genes_use, function(g) {
   pos <- match(TRUE, str_detect(rn_v, fixed(g))) 
   if (is.na(pos)) NA_integer_ else as.integer(idx_v[pos])
@@ -1172,7 +1099,7 @@ functional_switch <- function(x){
 }
 testing_switch_dyn <- testing_functional(functional_switch, 
                                                lfsr_cal = function(x){mean(x <= 0)},
-                                               fash = fash_fit1, 
+                                               fash = fash_fit1_update,
                                                indices = fash_highlighted1, 
                                                num_cores = num_cores,
                                                smooth_var = smooth_var_refined)
@@ -1332,7 +1259,7 @@ result@result %>%
 
 Summarize all the result into a table:
 
-```{r eval=FALSE}
+```{r save_enrichment_results}
 result_fash <- enrich_set(genes_selected = genes_highlighted1, background_gene = all_genes)
 result_fash_table <- result_fash@result %>% 
   dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)
@@ -1364,10 +1291,5 @@ result_all <- rbind(
 
 save(result_all, file = file.path(result_dir, "gene_set_enrichment_results.RData"))
 ```
-
-
-
-
-
 
 

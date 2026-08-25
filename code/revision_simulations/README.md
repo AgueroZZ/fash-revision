@@ -10,7 +10,7 @@ simulations. Run all commands from the workflowr repository root.
 | R1: random B-spline effects | `analysis/revision_genotype_level_simulation.rmd` | `r1_random_bspline/run_random_bspline_mc_replication.R` |
 | R2: spiky transient effects | `analysis/revision_combined_spiky_genotype_simulation.rmd` | `r2_spiky_transient/run_spiky_transient_mc_replication.R` |
 | R3: functional testing | `analysis/revision_functional_testing_simulation.rmd` | `r3_functional_testing/run_matched_functional_testing_mc_replication.R` |
-| R4: correlated expression errors | `analysis/revision_correlated_error_simulation.rmd` | `r4_correlated_errors/estimate_real_data_error_correlations.R`; `r4_correlated_errors/run_full_empirical_correlation_mc.R`; `r4_correlated_errors/run_lag1_correlation_sweep.R` |
+| R4: unit-specific residual-permutation correlations | `analysis/revision_correlated_error_simulation.rmd` | `r4_correlated_errors/run_unit_specific_residual_permutation.R`; `r4_correlated_errors/unit_specific_residual_permutation_helpers.R` |
 
 The R2 folder also contains the single-replicate driver used while developing
 the five-seed analysis.
@@ -27,6 +27,12 @@ for auditability but is no longer the reviewer-page entry point.
 `shared/simulation_functions.R` contains the reusable data generation,
 FASH fitting, direct-interaction testing, functional testing, summarization,
 and plotting functions used across R1-R4.
+
+Formal R1-R3 use the versioned YRI `DS` dosage cache built by
+`shared/build_real_genotype_one_per_gene_cache.R`: for each seed, one tested
+cis variant is sampled uniformly from each of 6,362 tested genes. The same
+ordered genotype matrix is shared across R1, R2, R3A, and R3B and audited by
+`shared/validate_r1_r2_real_genotype_pairing.R`.
 
 Each analysis directory contains a `reporting.R` file. These scripts load and
 validate the versioned cache and prepare report-only tables and plotting
