@@ -86,8 +86,9 @@ pre {
 
 The complete FASH(1) analysis treats each tested gene--variant pair as one
 empirical-Bayes unit. Its 1,009,173 pairs come from 6,362 genes, so genes
-contribute unequal numbers of units. The reviewer suggested repeating key
-summaries with one representative variant per gene.
+contribute unequal numbers of units. Because that imbalance could drive the
+headline summaries on its own, we repeat them with one representative variant
+per gene.
 
 For each of 100 prespecified seeds, we uniformly sampled one tested variant
 from every gene without using beta estimates, standard errors, likelihoods,
