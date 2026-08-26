@@ -374,7 +374,7 @@ enrichment of FASH dynamic eQTLs</h1>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+workflowr <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -385,8 +385,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> </a>
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -399,9 +399,9 @@ aria-hidden="true"></span> </a>
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 1
+aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>coderepo-local/</code> <span
@@ -424,21 +424,18 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
-<span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
-changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges"
+<div id="strongRMarkdownfilestronguptodate"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown file has unstaged changes. To know which version of
-the R Markdown file created these results, you’ll want to first commit
-it to the Git repo. If you’re still working on the analysis, you can
-ignore this warning. When you’re finished, you can run
-<code>wflow_publish</code> to commit the R Markdown file and build the
-HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
@@ -529,15 +526,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreef0ce96ee094ac7d2da4b98579ef55c3971985af2targetblankf0ce96ea">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreecf611a8dc7856d4099d0a73a7284fbf688dec073targetblankcf611a8a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/AgueroZZ/fash-revision/tree/f0ce96ee094ac7d2da4b98579ef55c3971985af2" target="_blank">f0ce96e</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/cf611a8dc7856d4099d0a73a7284fbf688dec073" target="_blank">cf611a8</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreef0ce96ee094ac7d2da4b98579ef55c3971985af2targetblankf0ce96ea"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreecf611a8dc7856d4099d0a73a7284fbf688dec073targetblankcf611a8a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -547,7 +544,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/AgueroZZ/fash-revision/tree/f0ce96ee094ac7d2da4b98579ef55c3971985af2" target="_blank">f0ce96e</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/cf611a8dc7856d4099d0a73a7284fbf688dec073" target="_blank">cf611a8</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -568,7 +565,6 @@ Ignored files:
     Ignored:    Rplots.pdf
     Ignored:    analysis/.DS_Store
     Ignored:    analysis/.Rhistory
-    Ignored:    analysis/site_libs/
     Ignored:    code/.DS_Store
     Ignored:    code/.Rhistory
     Ignored:    code/revision_simulations/.DS_Store
@@ -590,10 +586,10 @@ Untracked files:
     Untracked:  code/03_nonlindyn_lfsr.sbatch
     Untracked:  code/revision_simulations/internal/fash_knockoff/reporting.R
     Untracked:  code/revision_simulations/internal/fash_knockoff/test_reporting.R
-    Untracked:  code/revision_simulations/internal/fash_strober_enhancer_comparison/run_r6_roadmap_panel.R
     Untracked:  code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/
     Untracked:  code/revision_simulations/r1_r2_fashr0143/source_snapshots/
+    Untracked:  code/revision_simulations/r3_functional_testing/test_reporting.R
     Untracked:  code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_core.R
     Untracked:  code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_fashr0143.R
     Untracked:  code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_fashr0143.sbatch
@@ -612,9 +608,7 @@ Unstaged changes:
     Modified:   analysis/nonlinear_dynamic_eQTL_real_full.rmd
     Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
     Modified:   analysis/revision_correlated_error_simulation.rmd
-    Modified:   analysis/revision_enhancer_enrichment.rmd
     Modified:   analysis/revision_genotype_level_simulation.rmd
-    Modified:   analysis/revision_internal_roadmap_enhancer_exploration.rmd
     Deleted:    code/02_dyn.R
     Modified:   code/02_dyn_lfsr.R
     Modified:   code/02_dyn_lfsr.sbatch
@@ -622,9 +616,6 @@ Unstaged changes:
     Modified:   code/revision_simulations/README.md
     Modified:   code/revision_simulations/internal/fash_knockoff/plot_lfdr_histograms.R
     Modified:   code/revision_simulations/internal/fash_knockoff/plot_w_boxplot_by_discovery.R
-    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/reporting.R
-    Modified:   code/revision_simulations/internal/roadmap_enhancer_exploration/reporting.R
-    Modified:   code/revision_simulations/internal/roadmap_enhancer_exploration/roadmap_enhancer_exploration_helpers.R
     Modified:   code/revision_simulations/r1_r2_fashr0143/reporting_overlay.R
     Modified:   code/revision_simulations/r4_correlated_errors/reporting.R
     Modified:   code/revision_simulations/r4_correlated_errors/test_unit_specific_residual_permutation_helpers.R
@@ -674,6 +665,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/cf611a8dc7856d4099d0a73a7284fbf688dec073/analysis/revision_enhancer_enrichment.rmd" target="_blank">cf611a8</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-26
+</td>
+<td>
+R6: adopt the EpiCompare 6/7/12 enhancer definition and shorten the page
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/cf611a8dc7856d4099d0a73a7284fbf688dec073/docs/revision_enhancer_enrichment.html" target="_blank">cf611a8</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-26
+</td>
+<td>
+R6: adopt the EpiCompare 6/7/12 enhancer definition and shorten the page
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -978,6 +1003,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/cf611a8dc7856d4099d0a73a7284fbf688dec073/docs/figure/revision_enhancer_enrichment.rmd/section1-1.png" target="_blank">cf611a8</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-26
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/AgueroZZ/fash-revision/blob/f0ce96ee094ac7d2da4b98579ef55c3971985af2/docs/figure/revision_enhancer_enrichment.rmd/section1-1.png" target="_blank">f0ce96e</a>
 </td>
 <td>
@@ -1074,6 +1110,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/cf611a8dc7856d4099d0a73a7284fbf688dec073/docs/figure/revision_enhancer_enrichment.rmd/section2-1.png" target="_blank">cf611a8</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-26
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/AgueroZZ/fash-revision/blob/f0ce96ee094ac7d2da4b98579ef55c3971985af2/docs/figure/revision_enhancer_enrichment.rmd/section2-1.png" target="_blank">f0ce96e</a>
