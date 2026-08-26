@@ -120,9 +120,15 @@ ENHANCER_DEFINITIONS <- list(
 
 # Short tags that go into annotation column names, so a column name alone says
 # which state set produced it.
+# `EpiCompare` is the three-state definition the reviewer-facing R6 page adopted
+# on 2026-08-26 (He & Wang 2017: ChromHMM states 6, 7, 12). It is a naming entry
+# only -- deliberately absent from ENHANCER_DEFINITIONS, so the default state set
+# this experiment builds is unchanged and its cache and page are unaffected. The
+# R6 run script passes its own definition list explicitly.
 ENHANCER_DEFINITION_TAGS <- c(
   R6 = "R6 EnhG+Enh",
-  Strober = "Strober EnhG+Enh+EnhBiv+BivFlnk"
+  Strober = "Strober EnhG+Enh+EnhBiv+BivFlnk",
+  EpiCompare = "EpiCompare EnhG+Enh+EnhBiv"
 )
 
 #' The annotation column name for one epigenome under one definition.

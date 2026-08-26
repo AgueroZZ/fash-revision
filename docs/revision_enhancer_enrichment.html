@@ -529,15 +529,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree55cacb9e763382afe44ca3f41f08c68b72ebfbabtargetblank55cacb9a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreef0ce96ee094ac7d2da4b98579ef55c3971985af2targetblankf0ce96ea">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/AgueroZZ/fash-revision/tree/55cacb9e763382afe44ca3f41f08c68b72ebfbab" target="_blank">55cacb9</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/f0ce96ee094ac7d2da4b98579ef55c3971985af2" target="_blank">f0ce96e</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree55cacb9e763382afe44ca3f41f08c68b72ebfbabtargetblank55cacb9a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreef0ce96ee094ac7d2da4b98579ef55c3971985af2targetblankf0ce96ea"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -547,7 +547,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/AgueroZZ/fash-revision/tree/55cacb9e763382afe44ca3f41f08c68b72ebfbab" target="_blank">55cacb9</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/f0ce96ee094ac7d2da4b98579ef55c3971985af2" target="_blank">f0ce96e</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -568,6 +568,7 @@ Ignored files:
     Ignored:    Rplots.pdf
     Ignored:    analysis/.DS_Store
     Ignored:    analysis/.Rhistory
+    Ignored:    analysis/site_libs/
     Ignored:    code/.DS_Store
     Ignored:    code/.Rhistory
     Ignored:    code/revision_simulations/.DS_Store
@@ -589,6 +590,7 @@ Untracked files:
     Untracked:  code/03_nonlindyn_lfsr.sbatch
     Untracked:  code/revision_simulations/internal/fash_knockoff/reporting.R
     Untracked:  code/revision_simulations/internal/fash_knockoff/test_reporting.R
+    Untracked:  code/revision_simulations/internal/fash_strober_enhancer_comparison/run_r6_roadmap_panel.R
     Untracked:  code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/
     Untracked:  code/revision_simulations/r1_r2_fashr0143/source_snapshots/
@@ -602,13 +604,17 @@ Untracked files:
     Untracked:  code/revision_simulations/r4_correlated_errors/compute_pc_residual_expression_correlation.R
 
 Unstaged changes:
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   analysis/dynamic_eQTL_real_cl.rmd
     Modified:   analysis/dynamic_eQTL_real_full.rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real_cl.Rmd
     Modified:   analysis/nonlinear_dynamic_eQTL_real_full.rmd
     Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
     Modified:   analysis/revision_correlated_error_simulation.rmd
     Modified:   analysis/revision_enhancer_enrichment.rmd
     Modified:   analysis/revision_genotype_level_simulation.rmd
-    Modified:   analysis/revision_internal_temporal_class_roadmap_enrichment.rmd
+    Modified:   analysis/revision_internal_roadmap_enhancer_exploration.rmd
     Deleted:    code/02_dyn.R
     Modified:   code/02_dyn_lfsr.R
     Modified:   code/02_dyn_lfsr.sbatch
@@ -617,22 +623,12 @@ Unstaged changes:
     Modified:   code/revision_simulations/internal/fash_knockoff/plot_lfdr_histograms.R
     Modified:   code/revision_simulations/internal/fash_knockoff/plot_w_boxplot_by_discovery.R
     Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/reporting.R
-    Modified:   code/revision_simulations/internal/temporal_class_roadmap_enrichment/reporting.R
-    Modified:   code/revision_simulations/internal/temporal_class_roadmap_enrichment/run_temporal_class_roadmap_enrichment.R
-    Modified:   code/revision_simulations/internal/temporal_class_roadmap_enrichment/temporal_class_roadmap_helpers.R
-    Modified:   code/revision_simulations/internal/temporal_class_roadmap_enrichment/test_temporal_class_roadmap_helpers.R
+    Modified:   code/revision_simulations/internal/roadmap_enhancer_exploration/reporting.R
+    Modified:   code/revision_simulations/internal/roadmap_enhancer_exploration/roadmap_enhancer_exploration_helpers.R
     Modified:   code/revision_simulations/r1_r2_fashr0143/reporting_overlay.R
     Modified:   code/revision_simulations/r4_correlated_errors/reporting.R
     Modified:   code/revision_simulations/r4_correlated_errors/test_unit_specific_residual_permutation_helpers.R
     Modified:   code/revision_simulations/r4_correlated_errors/unit_specific_residual_permutation_helpers.R
-
-Staged changes:
-    New:        analysis/revision_internal_temporal_class_roadmap_enrichment.rmd
-    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/reporting.R
-    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/run_temporal_class_roadmap_enrichment.R
-    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/temporal_class_roadmap_helpers.R
-    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/test_reporting.R
-    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/test_temporal_class_roadmap_helpers.R
 
 </code></pre>
 <p>
@@ -678,6 +674,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/f0ce96ee094ac7d2da4b98579ef55c3971985af2/analysis/revision_enhancer_enrichment.rmd" target="_blank">f0ce96e</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-26
+</td>
+<td>
+Broaden R6 enhancer enrichment to the 13-epigenome Roadmap panel
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/f0ce96ee094ac7d2da4b98579ef55c3971985af2/docs/revision_enhancer_enrichment.html" target="_blank">f0ce96e</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-26
+</td>
+<td>
+Broaden R6 enhancer enrichment to the 13-epigenome Roadmap panel
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -804,32 +834,35 @@ pre {
 </style>
 <div id="question" class="section level2">
 <h2>Question</h2>
-<p>Do the dynamic eQTLs that FASH discovers fall in functionally
-relevant enhancers? As an orthogonal biological check, we ask whether
-one lead variant per discovered gene overlaps established Roadmap
-enhancer annotations more often than the variants tested in this study
-do. We consider Roadmap epigenomes relevant to pluripotent, germ-layer,
-cardiac, and related vascular states, and use the enhancer definition
-adopted by Strober et al. (2019). The estimates below are descriptive
-and exploratory: they are not a fully adjusted functional enrichment
-analysis, and they are not evidence that any individual discovery is
-correct.</p>
-<p>Two sections, both using one lead variant per discovered gene:</p>
-<ul>
-<li><strong>Section 1</strong> compares current FASH with Strober’s
-linear and quadratic/nonlinear analyses.</li>
-<li><strong>Section 2</strong> compares all FASH lead variants with the
-subset at rsIDs that neither Strober analysis identified.</li>
-</ul>
+<p>Do dynamic eQTLs discovered by FASH show orthogonal evidence of
+regulatory function? We tested whether one lead variant per discovered
+gene preferentially overlaps enhancer annotations from biologically
+relevant Roadmap epigenomes, using the Roadmap 15-state ChromHMM
+enhancer definition of states 6, 7 and 12 described by He and Wang
+(2017).</p>
+<p>Section 1 compares the FASH and Strober discovery sets. Section 2
+examines the FASH lead variants that neither Strober analysis
+identified.</p>
+<p>The analysis is a descriptive, exploratory check, in six steps:</p>
+<ol style="list-style-type: decimal">
+<li>take the published FASH and Strober discovery sets;</li>
+<li>keep one lead variant per discovered gene;</li>
+<li>define Roadmap enhancers as ChromHMM states 6, 7 and 12;</li>
+<li>record whether each variant overlaps each epigenome’s enhancer
+annotation;</li>
+<li>compare the overlap proportion with the remaining tested
+variants;</li>
+<li>estimate uncertainty with a leave-one-autosome-out jackknife.</li>
+</ol>
 </div>
 <div id="roadmap-enhancer-annotations" class="section level2">
 <h2>Roadmap enhancer annotations</h2>
-<p>Following Strober et al. (2019), enhancer regions were defined using
-the Roadmap 15-state ChromHMM enhancer annotations (<code>Enh</code>,
-<code>EnhG</code>, <code>EnhBiv</code>, and <code>BivFlnk</code>)
-(Roadmap Epigenomics Consortium et al. 2015). Using an established
-annotation procedure avoids introducing an enhancer definition of our
-own. Thirteen epigenomes are displayed, in four groups:</p>
+<p>We used the Roadmap Epigenomics 15-state ChromHMM annotations
+(Roadmap Epigenomics Consortium et al. 2015) and defined enhancers as
+states <code>6_EnhG</code>, <code>7_Enh</code> and
+<code>12_EnhBiv</code> (He and Wang 2017). Each of the 745,867 tested
+variants was assigned an overlap indicator for each of the thirteen
+epigenomes below.</p>
 <table>
 <thead>
 <tr class="header">
@@ -906,30 +939,19 @@ own. Thirteen epigenomes are displayed, in four groups:</p>
 </tr>
 </tbody>
 </table>
-<p>The iPSC and heart epigenome choices follow Strober et al. (2019);
-the three hESC-derived germ-layer epigenomes are included because
-cardiomyocytes arise through mesoderm. E065 aorta is a vascular rather
-than a cardiac tissue, so it is kept as a separate, related vascular
-annotation and is never counted among the cardiac epigenomes. Each
-tested variant is treated as a single base and intersected with the
-published Roadmap enhancer intervals, giving one indicator per variant
-per epigenome over all 745,867 tested variants.</p>
 </div>
 <div id="section-1-fash-versus-strober" class="section level2">
 <h2>Section 1: FASH versus Strober</h2>
 <pre class="r"><code>plot_method_comparison()</code></pre>
 <div class="figure" style="text-align: center">
-<img src="figure/revision_enhancer_enrichment.rmd/section1-1.png" alt="Figure 1. Enhancer enrichment for current FASH, Strober linear, and Strober quadratic/nonlinear discoveries, using one lead variant per discovered gene. Enhancer regions are the Strober et al. (2019) Roadmap 15-state ChromHMM enhancer states, across thirteen epigenomes grouped as iPSC, germ layer, cardiac, and related vascular. Fold enrichment is the overlap rate in the variant set divided by the overlap rate among the remaining tested variants; the dashed line marks no enrichment. Bars are leave-one-autosome-out jackknife 95% intervals. One cell has too few overlapping variants to estimate and is absent: E065 (Strober linear)." width="1548" />
+<img src="figure/revision_enhancer_enrichment.rmd/section1-1.png" alt="Figure 1. Enhancer enrichment for the FASH, Strober linear, and Strober quadratic/nonlinear lead-per-gene discovery sets across thirteen Roadmap epigenomes. Points are fold enrichment, bars are pointwise leave-one-autosome-out jackknife 95% intervals, and the dashed line marks no enrichment. One cell falls below the ten-variant overlap floor and is absent: E065 (Strober linear)." width="1548" />
 <p class="caption">
-Figure 1. Enhancer enrichment for current FASH, Strober linear, and
-Strober quadratic/nonlinear discoveries, using one lead variant per
-discovered gene. Enhancer regions are the Strober et al. (2019) Roadmap
-15-state ChromHMM enhancer states, across thirteen epigenomes grouped as
-iPSC, germ layer, cardiac, and related vascular. Fold enrichment is the
-overlap rate in the variant set divided by the overlap rate among the
-remaining tested variants; the dashed line marks no enrichment. Bars are
-leave-one-autosome-out jackknife 95% intervals. One cell has too few
-overlapping variants to estimate and is absent: E065 (Strober linear).
+Figure 1. Enhancer enrichment for the FASH, Strober linear, and Strober
+quadratic/nonlinear lead-per-gene discovery sets across thirteen Roadmap
+epigenomes. Points are fold enrichment, bars are pointwise
+leave-one-autosome-out jackknife 95% intervals, and the dashed line
+marks no enrichment. One cell falls below the ten-variant overlap floor
+and is absent: E065 (Strober linear).
 </p>
 </div>
 <p>
@@ -954,6 +976,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/f0ce96ee094ac7d2da4b98579ef55c3971985af2/docs/figure/revision_enhancer_enrichment.rmd/section1-1.png" target="_blank">f0ce96e</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-26
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/AgueroZZ/fash-revision/blob/83ed33754c311f714dd93e3109ee7018f2b46f3d/docs/figure/revision_enhancer_enrichment.rmd/section1-1.png" target="_blank">83ed337</a>
@@ -991,52 +1024,32 @@ Ziang Zhang
 </table>
 </div>
 </div>
-<p>FASH’s 1,169 lead variants are enriched in 6 of 13 displayed
-annotations, over a narrow range of 1.24-1.48-fold. The annotations
-whose intervals lie entirely above 1 are E021, E022, E011, E012, E013,
-E095 — that is, two iPSC epigenomes, all three germ layers, and left
-ventricle. The three remaining cardiac annotations point the same way
-with intervals that reach or cross 1 (E083 1.19, E105 1.28, E104
-1.13).</p>
-<p>Both Strober lead sets point the same way. Their intervals are wider,
-which is what their smaller size would predict — 548 and 690 lead
-variants against FASH’s 1,169 — and where they do clear 1 it is at
-annotations drawn from the same groups: E022, E013, E083, E105 for
-linear and E013 for quadratic/nonlinear. The three discovery sets differ
-in size, membership and gene composition, so this is not a formal
-comparison between methods.</p>
-<p>The enrichment is spread across pluripotent, germ-layer and cardiac
-annotations rather than concentrated in any one of them, and within each
-group some members clear 1 while others do not. These lead-per-gene
-estimates therefore support the general statement that lead variants
-identified by FASH are enriched in several established Roadmap enhancer
-annotations relevant to this differentiation system, and they do not
-support any claim of developmental-stage or tissue specificity. E065
-aorta, the sparsest annotation in the panel and the only related
-vascular one, carries the single below-1 point estimate, 0.70-fold (95%
-CI 0.41-1.20), and rests on the fewest overlapping variants, so it
-should be read as neither support nor contradiction.</p>
+<p>FASH’s 1,169 lead variants show modest enrichment across several of
+the annotations: 7 of the 13 Roadmap annotations had pointwise jackknife
+intervals entirely above 1 (E021, E022, E011, E012, E013, E095, E105),
+spanning 1.25-1.51-fold. Both Strober lead sets point in broadly similar
+directions, with wider intervals that likely reflect in part their
+smaller discovery sets (548 and 690 lead variants). The pattern is
+spread across pluripotent, germ-layer and cardiac annotations, so it
+supports general regulatory enrichment rather than stage or tissue
+specificity. The three sets differ in size, membership and gene
+composition, and no formal statistical comparison between them is made
+here.</p>
 </div>
 <div id="section-2-fash-specific-discoveries" class="section level2">
 <h2>Section 2: FASH-specific discoveries</h2>
-<p>An rsID is counted as FASH-only if it appears in neither Strober
-analysis, regardless of which gene it was paired with; this is the
-conservative reading, since an enhancer annotation is a property of a
-variant rather than of a gene-variant pair. FASH’s lowest-lfdr variant
-is chosen for each gene first and the exclusion is applied afterwards,
-so a gene whose best variant Strober also found drops out rather than
-falling back to a weaker one. That leaves 1,029 of FASH’s 1,169 lead
-variants.</p>
+<p>An rsID is counted as FASH-only if neither Strober analysis
+identified it, regardless of gene pairing. Lead selection happens first
+and the exclusion is applied afterwards, leaving 1,029 of FASH’s 1,169
+lead variants. This is rsID-level exclusivity, not LD-independent
+locus-level novelty.</p>
 <pre class="r"><code>plot_fash_only()</code></pre>
 <div class="figure" style="text-align: center">
-<img src="figure/revision_enhancer_enrichment.rmd/section2-1.png" alt="Figure 2. Enhancer enrichment for FASH lead variants at rsIDs that neither Strober analysis identified (blue), against all FASH lead variants as a reference (grey), using one lead variant per discovered gene. Same thirteen Roadmap epigenomes, same Strober et al. (2019) enhancer definition, and same estimator as Figure 1. Bars are leave-one-autosome-out jackknife 95% intervals." width="1548" />
+<img src="figure/revision_enhancer_enrichment.rmd/section2-1.png" alt="Figure 2. Enhancer enrichment for FASH lead variants at rsIDs that neither Strober analysis identified (blue), against all FASH lead variants (grey). Same annotations, estimator and jackknife as Figure 1." width="1548" />
 <p class="caption">
 Figure 2. Enhancer enrichment for FASH lead variants at rsIDs that
 neither Strober analysis identified (blue), against all FASH lead
-variants as a reference (grey), using one lead variant per discovered
-gene. Same thirteen Roadmap epigenomes, same Strober et al. (2019)
-enhancer definition, and same estimator as Figure 1. Bars are
-leave-one-autosome-out jackknife 95% intervals.
+variants (grey). Same annotations, estimator and jackknife as Figure 1.
 </p>
 </div>
 <p>
@@ -1061,6 +1074,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/f0ce96ee094ac7d2da4b98579ef55c3971985af2/docs/figure/revision_enhancer_enrichment.rmd/section2-1.png" target="_blank">f0ce96e</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-26
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/AgueroZZ/fash-revision/blob/83ed33754c311f714dd93e3109ee7018f2b46f3d/docs/figure/revision_enhancer_enrichment.rmd/section2-1.png" target="_blank">83ed337</a>
@@ -1098,68 +1122,51 @@ Ziang Zhang
 </table>
 </div>
 </div>
-<p>The enrichment survives the exclusion essentially intact. The same 6
-of 13 annotations clear 1 — E021, E022, E011, E012, E013, E095 — at
-1.24-1.58-fold, against 1.24-1.48-fold for the unfiltered FASH lead set,
-and the point estimates barely move (E013 1.39 against 1.48; E022 1.43
-against 1.42; E095 1.24 against 1.24).</p>
-<p>So the enhancer-enrichment pattern is largely retained among FASH
-lead variants at rsIDs that neither Strober analysis identified. Taken
-with Section 1, this is orthogonal support for the regulatory relevance
-of these discoveries as a set, resting on externally established Roadmap
-and Strober annotations rather than on anything fitted here. It is not
-validation of any individual discovery, and it does not establish
-specificity to a particular differentiation stage or tissue.</p>
+<p>The enrichment estimates were similar after excluding rsIDs
+identified by either Strober analysis: 7 of the 13 annotations had
+pointwise intervals entirely above 1, spanning 1.24-1.61-fold against
+1.25-1.51-fold for the unfiltered lead set. This gives orthogonal
+support for the regulatory relevance of the additional FASH discoveries
+as a set, rather than validating individual variants.</p>
 </div>
 <div id="methods" class="section level2">
 <h2>Methods</h2>
-<p><strong>Background.</strong> All 745,867 variants tested in this
-study that lie on an autosome and participate in at least one tested
-gene-variant pair. No external reference panel enters, so the background
-is exactly the cis-eQTL testing universe from which the discoveries were
-drawn.</p>
 <p><strong>Discovery sets and lead variants.</strong> FASH uses
 cumulative lfdr at FDR 0.05 after the BF correction; both Strober
 analyses use their reported eFDR 0.05, with
 <code>non_linear_dynamic_eqtls_5_pc.txt</code> labelled
-quadratic/nonlinear throughout. Every set displayed here keeps, for each
-discovered gene, one lead variant: the variant with the lowest lfdr
-(FASH) or the smallest p-value (Strober). Using one lead variant per
-gene reduces the repeated contribution of multiple correlated variants
-associated with the same gene.</p>
-<p><strong>Enhancer annotation.</strong> Roadmap Epigenomics 15-state
-ChromHMM segmentations for the thirteen epigenomes above, with enhancer
-regions defined by the states <code>Enh</code>, <code>EnhG</code>,
-<code>EnhBiv</code> and <code>BivFlnk</code> as in Strober et
-al. (2019). The iPSC and heart epigenome choices follow the same
-source.</p>
-<p><strong>Fold enrichment.</strong> For a variant set and an enhancer
-annotation,</p>
-<p><span class="math display">\[\text{fold enrichment} =
-\frac{\text{proportion of selected variants overlapping the
-enhancer}}{\text{proportion of the remaining tested variants overlapping
-the enhancer}}\]</span></p>
-<p>The background excludes the set being tested, so a set is never part
-of its own comparator. No matched controls are used: the purpose here is
-a simple exploratory check, and every background variant already comes
-from the same testing universe. A set-annotation pair with fewer than 10
-overlapping variants is reported as not estimable rather than
-estimated.</p>
+quadratic/nonlinear. For each discovered gene we selected its strongest
+discovered variant — lowest lfdr (FASH) or smallest p-value (Strober) —
+and then evaluated the resulting unique lead variants, so a duplicated
+rsID counts once. A variant is FASH-only if neither Strober analysis
+reported that rsID.</p>
+<p><strong>Enhancer annotations.</strong> Roadmap Epigenomics 15-state
+ChromHMM segmentations for the thirteen epigenomes above, with enhancers
+defined as states <code>6_EnhG</code>, <code>7_Enh</code> and
+<code>12_EnhBiv</code> (Roadmap Epigenomics Consortium et al. 2015; He
+and Wang 2017). Results were qualitatively similar using the broader
+enhancer-related definition (<code>EnhG</code>, <code>Enh</code>,
+<code>EnhBiv</code> and <code>BivFlnk</code>) implemented in the
+companion code for Strober et al. (2019) (fold enrichments correlated at
+0.98 across the 51 cells estimable under both).</p>
+<p><strong>Fold enrichment.</strong> The proportion of selected variants
+overlapping the annotation divided by the same proportion among the
+remaining tested variants, which excludes the selected set from its own
+comparator. No matched controls are used. A pair with fewer than 10
+overlapping selected variants is reported as not estimable.</p>
 <p><strong>Uncertainty.</strong> Uncertainty was assessed using a
 leave-one-autosome-out jackknife to account approximately for local
-dependence among variants. All intervals shown are 95% jackknife
-intervals; nominal p-values are available in the output CSVs but are not
-used on this page.</p>
+dependence among variants. The intervals are pointwise, and the related
+Roadmap annotations should not be interpreted as independent tests; no
+multiplicity correction is applied.</p>
 </div>
 <div id="reproducibility" class="section level2">
 <h2>Reproducibility</h2>
-<p>The figures on this page read the validated thirteen-epigenome
-indicator table and estimates built by <a
-href="https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/internal/roadmap_enhancer_exploration/run_roadmap_enhancer_exploration.R"><code>run_roadmap_enhancer_exploration.R</code></a>,
-through the shared estimator in <a
-href="https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R"><code>enrichment_api.R</code></a>.
-The annotation intervals are not rebuilt here. Exactly the calls below
-reproduce every estimate shown above:</p>
+<p><code>code/revision_simulations/internal/fash_strober_enhancer_comparison/run_r6_roadmap_panel.R</code>
+builds the annotation indicators and every estimate this page displays,
+reusing the epigenome panel and segmentation reader from
+<code>roadmap_enhancer_exploration/</code> and the estimator from
+<code>enrichment_api.R</code>:</p>
 <pre class="r"><code>source(
   &quot;code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R&quot;
 )
@@ -1167,45 +1174,20 @@ source(
   &quot;code/revision_simulations/internal/roadmap_enhancer_exploration/roadmap_enhancer_exploration_helpers.R&quot;
 )
 
-# 1. Background: every autosomal variant tested in this study.
-background &lt;- load_background()
-
-# 2. Discovery sets, one lead variant per discovered gene.
-sets &lt;- load_variant_sets()[c(
+background &lt;- load_background()                       # tested variants
+sets &lt;- load_variant_sets()[c(                        # lead per gene
   &quot;current_lead&quot;, &quot;linear_lead&quot;, &quot;quadratic_lead&quot;, &quot;current_only_lead&quot;
 )]
 
-# 3. The thirteen Roadmap epigenomes, as the indicator table built by the
-#    exploration run script.
-annotations &lt;- readRDS(file.path(
-  roadmap_output_directory(), &quot;roadmap_enhancer_annotation_matrix.rds&quot;
-))
-
-# 4. The Strober four-state enhancer definition, one column per epigenome.
-strober &lt;- grep(
-  &quot;[Strober EnhG+Enh+EnhBiv+BivFlnk]&quot;, names(annotations),
-  fixed = TRUE, value = TRUE
+annotations &lt;- build_enhancer_annotation_matrix(       # Roadmap indicators
+  background[, c(&quot;variant_id&quot;, &quot;chromosome&quot;, &quot;position&quot;)],
+  definitions = list(EpiCompare = c(&quot;6_EnhG&quot;, &quot;7_Enh&quot;, &quot;12_EnhBiv&quot;))
 )
 
-# 5. Fold enrichment against the tested-variant background, with
-# 6. leave-one-autosome-out jackknife 95% intervals.
-compute_enrichment(
-  sets,
-  background,
-  annotations[, c(&quot;variant_id&quot;, &quot;chromosome&quot;, strober)],
-  controls = &quot;background&quot;
+compute_enrichment(                                   # fold enrichment and
+  sets, background, annotations, controls = &quot;background&quot;  # chromosome jackknife
 )</code></pre>
-<p><code>compute_enrichment()</code> takes any named list of variant
-vectors, so substituting your own sets needs no other change:</p>
-<pre class="r"><code>compute_enrichment(
-  list(my_hits = readLines(&quot;my_variants.txt&quot;), fash_only = sets$current_only_lead),
-  background,
-  annotations[, c(&quot;variant_id&quot;, &quot;chromosome&quot;, strober)],
-  controls = &quot;background&quot;
-)</code></pre>
-<p>Rebuilding the inputs from source — the tested variant universe, then
-the discovery sets, then the thirteen Roadmap segmentations and the
-estimates this page displays:</p>
+<p>Rebuilding the inputs and then this page’s cache:</p>
 <pre class="bash"><code>Rscript --vanilla \
   code/revision_simulations/internal/variant_annotation_enrichment/download_variant_annotations.R
 Rscript --vanilla \
@@ -1213,15 +1195,24 @@ Rscript --vanilla \
 Rscript --vanilla \
   code/revision_simulations/internal/fash_strober_enhancer_comparison/run_fash_strober_enhancer_comparison.R
 Rscript --vanilla \
-  code/revision_simulations/internal/roadmap_enhancer_exploration/run_roadmap_enhancer_exploration.R</code></pre>
-<p>Intermediate data stays under <code>output/</code>, which is not
-tracked in git; the repository carries code, not data. Rebuilding this
+  code/revision_simulations/internal/roadmap_enhancer_exploration/run_roadmap_enhancer_exploration.R
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_strober_enhancer_comparison/run_r6_roadmap_panel.R</code></pre>
+<p>The run script also checks that the state-6/7/12 indicators contain
+the state-6/7 indicators and are contained in the state-6/7/11/12
+indicators, on every epigenome. Intermediate data stays under
+<code>output/</code>, which is not tracked in git. Rebuilding this
 page:</p>
 <pre class="bash"><code>Rscript --vanilla -e \
   &#39;workflowr::wflow_build(&quot;analysis/revision_enhancer_enrichment.rmd&quot;)&#39;</code></pre>
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>
+<p>He, Y. and Wang, T. (2017). EpiCompare: an online tool to define and
+explore genomic regions with tissue or cell type-specific epigenomic
+features. <em>Bioinformatics</em> <strong>33</strong>(20), 3268–3275. <a
+href="https://doi.org/10.1093/bioinformatics/btx371"
+class="uri">https://doi.org/10.1093/bioinformatics/btx371</a></p>
 <p>Roadmap Epigenomics Consortium, Kundaje, A., Meuleman, W., Ernst, J.,
 Bilenky, M., Yen, A., et al. (2015). Integrative analysis of 111
 reference human epigenomes. <em>Nature</em> <strong>518</strong>,

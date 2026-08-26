@@ -1,29 +1,17 @@
 # Reporting helpers for the R6 enhancer-enrichment page.
 #
-# The page is a short, exploratory, orthogonal check: do the lead variants of
-# the genes FASH discovers fall inside established Roadmap enhancer annotations
-# more often than the tested-variant background does?
+# Displayed scope:
+#   * enhancers = Roadmap 15-state ChromHMM states 6, 7 and 12 (He & Wang 2017);
+#   * thirteen epigenomes in four biological groups;
+#   * one lead variant per discovered gene;
+#   * fold enrichment against the remaining tested variants, no matched controls;
+#   * leave-one-autosome-out jackknife, pointwise 95% intervals.
 #
-# Displayed scope, deliberately narrow:
-#   * thirteen Roadmap epigenomes in four biological groups (iPSC, germ layer,
-#     cardiac, and aorta as a related vascular annotation);
-#   * the Strober et al. (2019) four-state enhancer definition;
-#   * one lead variant per discovered gene, and nothing else;
-#   * fold enrichment against all tested variants, no matched controls;
-#   * leave-one-autosome-out jackknife 95% intervals.
-#
-# The estimates are read from the cache built by
-# roadmap_enhancer_exploration/run_roadmap_enhancer_exploration.R rather than
-# recomputed here: that script downloads and checksums the thirteen
-# segmentations, builds the indicator table, and verifies that its own estimates
-# reproduce the previously published three-epigenome R6 numbers exactly, so the
-# cache is not a place where the estimator could quietly drift. The panel, the
-# state definitions and the estimator itself are all reused from the validated
-# modules rather than restated here.
-#
-# The all-variant view, both enhancer definitions side by side, and the full
-# per-cell tables remain available on the internal exploration page; this file
-# simply does not surface them.
+# Estimates are read from the cache built by run_r6_roadmap_panel.R, which also
+# checks that the three-state indicators sit between the {6,7} and {6,7,11,12}
+# indicator sets the internal exploration already validated. The broader
+# four-state definition is carried in the same cache and surfaces on the page as
+# a single sensitivity sentence, not as a second figure.
 
 find_workflowr_root <- function(start = getwd()) {
   current <- normalizePath(start, winslash = "/", mustWork = TRUE)
@@ -47,147 +35,80 @@ for (package in c("ggplot2", "knitr")) {
   }
 }
 
-# The epigenome manifest, the two enhancer-state definitions, and the location
-# of the validated cache all come from here. Nothing is redefined.
-source(file.path(
-  workflowr_root, "code", "revision_simulations", "internal",
-  "roadmap_enhancer_exploration", "roadmap_enhancer_exploration_helpers.R"
-))
+# ---- The cache ---------------------------------------------------------------
 
-# load_variant_sets() comes from here, and it is the same API the page's
-# reproducibility section calls.
-source(file.path(
-  workflowr_root, "code", "revision_simulations", "internal",
-  "fash_strober_enhancer_comparison", "enrichment_api.R"
-))
-
-# ---- Displayed scope --------------------------------------------------------
-
-# Strober et al. (2019), get_valid_markers() in
-# dynamic_eqtl_calling/perform_tissue_specific_chrom_hmm_enrichment_analysis.py:
-# 7_Enh, 6_EnhG, 12_EnhBiv, 11_BivFlnk. Held against the constant the
-# exploration module built its annotation table from, so the page cannot show
-# estimates from a different state set than the one it documents.
-enhancer_definition <- "Strober"
-strober_enhancer_states <- c("7_Enh", "6_EnhG", "12_EnhBiv", "11_BivFlnk")
-
-# One lead variant per discovered gene: the three Section 1 discovery sets plus
-# the FASH-only set of Section 2. The all-variant sets are deliberately absent.
-displayed_sets <- c(
-  "current_lead", "linear_lead", "quadratic_lead", "current_only_lead"
+cache_path <- file.path(
+  workflowr_root, "output", "revision_simulations", "internal",
+  "r6_roadmap_enhancer_panel", "analysis_cache.rds"
 )
-expected_variant_counts <- c(
-  current_lead = 1169L,
-  linear_lead = 548L,
-  quadratic_lead = 690L,
-  current_only_lead = 1029L
-)
-
-method_levels <- c(
-  "Current FASH", "Strober linear", "Strober quadratic/nonlinear"
-)
-
-# Display names for the manifest's biological groups. Roadmap files E065 aorta
-# under its `Heart` GROUP, but its `ANATOMY` is `VASCULAR`; it keeps a group of
-# its own so that no statement about cardiac epigenomes is silently carried by a
-# vascular tissue.
-group_display_labels <- c(
-  "iPSC" = "iPSC",
-  "Germ layer" = "Germ layer",
-  "Heart" = "Cardiac",
-  "Vascular" = "Vascular"
-)
-
-# ---- The verified panel -----------------------------------------------------
-
-panel <- load_epigenome_panel()
-expected_epigenomes <- c(
-  "E018", "E019", "E020", "E021", "E022",
-  "E011", "E012", "E013",
-  "E083", "E095", "E104", "E105",
-  "E065"
-)
-
-# ---- The displayed estimates ------------------------------------------------
-
-cache_path <- file.path(roadmap_output_directory(), "analysis_cache.rds")
 if (!file.exists(cache_path)) {
   stop(
-    "The Roadmap enhancer cache is missing. Run ",
-    "code/revision_simulations/internal/roadmap_enhancer_exploration/",
-    "run_roadmap_enhancer_exploration.R first."
+    "The R6 panel cache is missing. Run ",
+    "code/revision_simulations/internal/fash_strober_enhancer_comparison/",
+    "run_r6_roadmap_panel.R first."
   )
 }
 cache <- readRDS(cache_path)
 
 configuration <- cache$configuration
-minimum_overlap <- cache$minimum_overlap
+panel <- cache$panel
+sensitivity <- cache$sensitivity
+minimum_overlap <- configuration$minimum_overlap
 background_variant_count <- configuration$background_variant_count
+expected_variant_counts <- configuration$expected_variant_counts
+
+primary_states <- c("6_EnhG", "7_Enh", "12_EnhBiv")
+displayed_sets <- c(
+  "current_lead", "linear_lead", "quadratic_lead", "current_only_lead"
+)
+method_levels <- c(
+  "Current FASH", "Strober linear", "Strober quadratic/nonlinear"
+)
+
+# Display names for the manifest's biological groups. Roadmap files E065 aorta
+# under its `Heart` GROUP but its `ANATOMY` is `VASCULAR`, so it keeps its own
+# group and is never counted as cardiac.
+group_display_labels <- c(
+  "iPSC" = "iPSC", "Germ layer" = "Germ layer",
+  "Heart" = "Cardiac", "Vascular" = "Vascular"
+)
+
+set_metadata <- data.frame(
+  variant_set = displayed_sets,
+  method = c(method_levels, NA_character_),
+  section = c(1L, 1L, 1L, 2L),
+  stringsAsFactors = FALSE
+)
 
 enrichment <- cache$enrichment
 enrichment <- enrichment[
-  enrichment$enhancer_definition == enhancer_definition &
-    enrichment$variant_set %in% displayed_sets,
-  ,
-  drop = FALSE
+  enrichment$enhancer_definition == "EpiCompare", , drop = FALSE
 ]
+enrichment <- merge(
+  enrichment, set_metadata, by = "variant_set", all.x = TRUE, sort = FALSE
+)
 
-variant_sets <- load_variant_sets()
+# ---- One consistency gate on what the page claims ----------------------------
 
-# ---- One consistency gate on everything the page claims ---------------------
-#
-# Each clause below corresponds to a statement the page makes in prose, so a
-# stale cache or an edited manifest fails the render rather than publishing a
-# number that no longer matches its own description.
-strober_union <- union(variant_sets$linear_all, variant_sets$quadratic_all)
-if (
-  # The enhancer definition is exactly Strober's four states.
-  !setequal(strober_enhancer_states, STROBER_ENHANCER_STATES) ||
-    !setequal(strober_enhancer_states,
-              ENHANCER_DEFINITIONS[[enhancer_definition]]) ||
-    # The panel is the thirteen verified epigenomes, in four groups.
+if (!identical(configuration$primary_states, primary_states) ||
+    !identical(sort(configuration$sensitivity_states),
+               sort(c(primary_states, "11_BivFlnk"))) ||
     nrow(panel) != 13L ||
-    !identical(panel$epigenome_id, expected_epigenomes) ||
     !setequal(unique(panel$biological_group), names(group_display_labels)) ||
-    !identical(
-      biological_group_levels(panel),
-      intersect(names(group_display_labels), panel$biological_group)
-    ) ||
-    # Every displayed cell is present, once: thirteen epigenomes x four sets.
-    !identical(sort(unique(enrichment$epigenome_id)),
-               sort(expected_epigenomes)) ||
-    !identical(sort(unique(enrichment$variant_set)), sort(displayed_sets)) ||
     nrow(enrichment) != 13L * length(displayed_sets) ||
-    # Lead-per-gene set sizes are the published ones.
-    !identical(
-      configuration$expected_variant_counts[displayed_sets],
-      expected_variant_counts
-    ) ||
-    !identical(
-      stats::setNames(lengths(variant_sets[displayed_sets]), displayed_sets),
-      expected_variant_counts
-    ) ||
-    # The FASH-only definition: rsID-level, applied after the lead variant of
-    # each gene has been chosen, so it is a subset of the FASH lead set that
-    # shares no rsID with either Strober analysis.
-    !all(variant_sets$current_only_lead %in% variant_sets$current_lead) ||
-    length(intersect(variant_sets$current_only_lead, strober_union)) != 0L ||
-    # A cell may lack an estimate only for the documented reason: fewer than
-    # `minimum_overlap` selected variants inside the annotation.
+    !setequal(unique(enrichment$epigenome_id), panel$epigenome_id) ||
+    !setequal(unique(enrichment$variant_set), displayed_sets) ||
+    anyNA(enrichment$section) ||
+    # a cell may lack an estimate only for the documented reason
     any(!enrichment$estimable &
           enrichment$selected_overlap >= minimum_overlap) ||
-    any(enrichment$estimable &
-          (!is.finite(enrichment$fold_enrichment) |
-             !is.finite(enrichment$ci_lower_fold) |
-             !is.finite(enrichment$ci_upper_fold))) ||
-    # The cache reproduced the previously published R6 estimates exactly, which
-    # is what licenses reading estimates from it instead of recomputing them.
-    any(cache$r6_agreement$n_disagreements != 0L) ||
-    max(abs(cache$r6_estimate_reproduction$fold_enrichment_published -
-              cache$r6_estimate_reproduction$fold_enrichment_here),
-        na.rm = TRUE) > 1e-10
-) {
-  stop("The displayed Roadmap enhancer estimates failed validation.")
+    # the estimator must be the unmatched, set-excluded background
+    !all(enrichment$controls == "background") ||
+    # every displayed set is a lead-per-gene set of unique rsIDs
+    !identical(names(expected_variant_counts), displayed_sets) ||
+    any(enrichment$selected_total !=
+          unname(expected_variant_counts[enrichment$variant_set]))) {
+  stop("The displayed R6 enrichment estimates failed validation.")
 }
 
 enrichment$display_group <- factor(
@@ -196,8 +117,7 @@ enrichment$display_group <- factor(
 )
 # Rows read top to bottom in panel order, so `rev()` on the factor levels.
 enrichment$display_label <- factor(
-  enrichment$display_label,
-  levels = rev(panel$display_label)
+  enrichment$display_label, levels = rev(panel$display_label)
 )
 
 # ---- Formatting -------------------------------------------------------------
@@ -210,11 +130,9 @@ format_decimal <- function(value, digits = 2L) {
   formatC(as.numeric(value), format = "f", digits = digits)
 }
 
-#' One row of the estimate table, addressed the way the prose addresses it.
 enrichment_lookup <- function(set_name, epigenome) {
   row <- enrichment[
-    enrichment$variant_set == set_name & enrichment$epigenome_id == epigenome,
-    ,
+    enrichment$variant_set == set_name & enrichment$epigenome_id == epigenome, ,
     drop = FALSE
   ]
   if (nrow(row) != 1L || !row$estimable) {
@@ -223,7 +141,7 @@ enrichment_lookup <- function(set_name, epigenome) {
   row
 }
 
-# "1.48-fold (95% CI 1.15-1.90)"
+# "1.47-fold (95% CI 1.15-1.89)"
 describe_fold <- function(set_name, epigenome, digits = 2L) {
   row <- enrichment_lookup(set_name, epigenome)
   paste0(
@@ -241,7 +159,6 @@ set_size <- function(set_name) {
   format_integer(unname(expected_variant_counts[[set_name]]))
 }
 
-#' The estimable rows of one discovery set, in panel order.
 set_rows <- function(set_name) {
   rows <- enrichment[
     enrichment$variant_set == set_name & enrichment$estimable, , drop = FALSE
@@ -249,30 +166,22 @@ set_rows <- function(set_name) {
   rows[order(rows$group_order, rows$epigenome_order), , drop = FALSE]
 }
 
-#' How many epigenomes have a jackknife interval entirely above 1, of how many.
+#' How many annotations have a pointwise interval entirely above 1, of how many.
 #'
-#' The page reads the panel by counts and by which epigenomes clear 1, never by
-#' picking a single best cell.
+#' The page reads the panel by counts and by which annotations clear 1, never by
+#' picking a single best cell, and the surrounding prose says "pointwise" so this
+#' is not read as thirteen independent tests.
 count_above_one <- function(set_name) {
   rows <- set_rows(set_name)
-  paste0(sum(rows$ci_lower_fold > 1), " of ", nrow(rows))
+  paste0(sum(rows$ci_lower_fold > 1), " of the ", nrow(rows))
 }
 
-#' Which epigenomes clear 1, named, as "E021, E022, E011".
-labels_above_one <- function(set_name, what = c("id", "label")) {
-  what <- match.arg(what)
+labels_above_one <- function(set_name) {
   rows <- set_rows(set_name)
-  hits <- rows[rows$ci_lower_fold > 1, , drop = FALSE]
-  if (!nrow(hits)) {
-    return("none")
-  }
-  paste(
-    if (what == "id") hits$epigenome_id else as.character(hits$display_label),
-    collapse = ", "
-  )
+  hits <- rows$epigenome_id[rows$ci_lower_fold > 1]
+  if (!length(hits)) "none" else paste(hits, collapse = ", ")
 }
 
-#' Range of fold enrichment over the epigenomes that clear 1, for one set.
 range_above_one <- function(set_name, digits = 2L) {
   rows <- set_rows(set_name)
   hits <- rows[rows$ci_lower_fold > 1, , drop = FALSE]
@@ -285,17 +194,15 @@ range_above_one <- function(set_name, digits = 2L) {
   )
 }
 
-#' The cells with too few overlapping variants for an estimate, named.
+#' Set-annotation pairs below the minimum-overlap floor, named for the caption.
 not_estimable_note <- function() {
   rows <- enrichment[!enrichment$estimable, , drop = FALSE]
   if (!nrow(rows)) {
-    return("")
+    return("none")
   }
   paste(
-    paste0(
-      rows$epigenome_id, " (",
-      unname(set_display_labels[as.character(rows$variant_set)]), ")"
-    ),
+    paste0(rows$epigenome_id, " (",
+           unname(set_display_labels[as.character(rows$variant_set)]), ")"),
     collapse = ", "
   )
 }
@@ -307,6 +214,16 @@ set_display_labels <- c(
   current_only_lead = "FASH only"
 )
 
+#' Agreement between the primary three-state and the broader four-state
+#' definition, for the one-sentence sensitivity statement.
+sensitivity_summary <- function() {
+  paste0(
+    "fold enrichments correlated at ",
+    format_decimal(sensitivity$correlation, 2), " across the ",
+    sensitivity$n_cells, " cells estimable under both"
+  )
+}
+
 # ---- Figures ----------------------------------------------------------------
 
 method_colors <- c(
@@ -316,55 +233,38 @@ method_colors <- c(
 )
 reference_color <- "#9A9A9A"
 
-# One shared grammar for both figures: epigenomes down the rows in panel order,
+# One shared grammar for both figures: annotations down the rows in panel order,
 # grouped into biological blocks; series in colour; fold enrichment on the
 # x-axis with a reference line at 1.
-#
-# `facet_grid` with `space = "free_y"` keeps every row the same height whatever
-# the group sizes are, so the five-member iPSC block does not visually dominate
-# the single vascular row.
 enhancer_forest <- function(data, series_colors) {
-  # Cells below the minimum-overlap threshold have no estimate to draw; the
-  # figure caption names them rather than leaving an unexplained gap.
   data <- data[data$estimable, , drop = FALSE]
   data$series <- factor(data$series, levels = names(series_colors))
+  if (anyNA(data$series)) {
+    stop("A series label did not map onto the colour scale.")
+  }
   dodge <- ggplot2::position_dodge(width = 0.6)
-  # `group = series` keeps the points dodged onto the same rows as their own
-  # intervals.
   ggplot2::ggplot(
     data,
     ggplot2::aes(
-      x = fold_enrichment,
-      y = display_label,
-      color = series,
-      group = series
+      x = fold_enrichment, y = display_label, color = series, group = series
     )
   ) +
     ggplot2::geom_vline(
-      xintercept = 1,
-      linetype = "dashed",
-      color = "grey45",
-      linewidth = 0.45
+      xintercept = 1, linetype = "dashed", color = "grey45", linewidth = 0.45
     ) +
     ggplot2::geom_errorbar(
       ggplot2::aes(xmin = ci_lower_fold, xmax = ci_upper_fold),
-      orientation = "y",
-      width = 0.22,
-      linewidth = 0.5,
-      position = dodge
+      orientation = "y", width = 0.22, linewidth = 0.5, position = dodge
     ) +
     ggplot2::geom_point(size = 2.1, position = dodge) +
     ggplot2::facet_grid(
       rows = ggplot2::vars(display_group),
-      scales = "free_y",
-      space = "free_y",
-      switch = "y"
+      scales = "free_y", space = "free_y", switch = "y"
     ) +
     ggplot2::scale_color_manual(values = series_colors, drop = FALSE) +
     ggplot2::labs(
-      x = "Fold enrichment relative to all tested variants",
-      y = NULL,
-      color = NULL
+      x = "Fold enrichment relative to remaining tested variants",
+      y = NULL, color = NULL
     ) +
     ggplot2::theme_minimal(base_size = 11.5) +
     ggplot2::theme(
@@ -378,40 +278,33 @@ enhancer_forest <- function(data, series_colors) {
     )
 }
 
-# Section 1: FASH against both Strober analyses, lead variant per gene.
+# Section 1: FASH against both Strober analyses.
 plot_method_comparison <- function() {
   data <- enrichment[enrichment$section == 1L, , drop = FALSE]
   data$series <- factor(data$method, levels = method_levels)
   enhancer_forest(data, method_colors)
 }
 
-# Section 2: the FASH-only lead set, with the unfiltered FASH lead set behind it
-# in grey so the effect of the exclusion is visible.
+# Section 2: the FASH-only lead set, with all FASH lead variants behind it.
 plot_fash_only <- function() {
-  exclusive_label <- "FASH only (Strober rsIDs removed)"
-  reference_label <- "FASH, all lead variants"
-  exclusive <- enrichment[
-    enrichment$exclusivity == "Variant-level", , drop = FALSE
-  ]
-  reference <- enrichment[
-    enrichment$section == 1L & enrichment$method == "Current FASH", ,
-    drop = FALSE
-  ]
-  exclusive$series <- exclusive_label
-  reference$series <- reference_label
-  colors <- stats::setNames(
-    c(unname(method_colors[["Current FASH"]]), reference_color),
-    c(exclusive_label, reference_label)
+  labels <- c("FASH only (Strober rsIDs removed)", "FASH, all lead variants")
+  exclusive <- enrichment[enrichment$variant_set == "current_only_lead", ,
+                          drop = FALSE]
+  reference <- enrichment[enrichment$variant_set == "current_lead", ,
+                          drop = FALSE]
+  exclusive$series <- labels[[1L]]
+  reference$series <- labels[[2L]]
+  enhancer_forest(
+    rbind(exclusive, reference),
+    stats::setNames(
+      c(unname(method_colors[["Current FASH"]]), reference_color), labels
+    )
   )
-  enhancer_forest(rbind(exclusive, reference), colors)
 }
 
-# ---- Tables -----------------------------------------------------------------
+# ---- Table ------------------------------------------------------------------
 
-#' The displayed panel: biological group, Roadmap ID, official Roadmap name.
-#'
-#' `roadmap_std_name` is Roadmap's own label from `EID_metadata.tab`, carried
-#' through the manifest rather than retyped.
+#' The displayed panel: group, Roadmap ID, official Roadmap name.
 panel_table <- function() {
   knitr::kable(
     data.frame(

@@ -289,16 +289,22 @@ definition_colors <- c(
   "Strober (EnhG+Enh+EnhBiv+BivFlnk)" = "#009E73"
 )
 
-# The three epigenomes R6 shows are drawn as filled circles, the ten new ones as
-# open circles, so the reader can see at a glance whether R6's choice sits inside
-# or outside its group's pattern.
-r6_shapes <- c("Shown in R6" = 16L, "Added here" = 21L)
+# The three epigenomes the original three-epigenome R6 page showed are drawn as
+# filled circles, the ten new ones as open circles, so the reader can see at a
+# glance whether that choice sat inside or outside its group's pattern. R6 has
+# since been broadened to all thirteen, so `in_r6_page` names the original panel.
+r6_shapes <- c("Shown on the 3-epigenome R6 page" = 16L, "Added here" = 21L)
 
 r6_membership <- function(data) {
-  factor(
-    ifelse(data$in_r6_page, "Shown in R6", "Added here"),
-    levels = names(r6_shapes)
+  labels <- names(r6_shapes)
+  membership <- factor(
+    ifelse(data$in_r6_page, labels[[1L]], labels[[2L]]),
+    levels = labels
   )
+  if (anyNA(membership)) {
+    stop("Panel membership did not map onto the shape legend labels.")
+  }
+  membership
 }
 
 #' The shared forest grammar: epigenomes down the rows, grouped into biological
@@ -497,7 +503,7 @@ panel_table <- function() {
       Mnemonic = panel$roadmap_mnemonic,
       `Roadmap GROUP` = panel$roadmap_group,
       Anatomy = panel$roadmap_anatomy,
-      `In R6` = ifelse(panel$in_r6_page, "yes", ""),
+      `In original R6 panel` = ifelse(panel$in_r6_page, "yes", ""),
       check.names = FALSE
     ),
     row.names = FALSE

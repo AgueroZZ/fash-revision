@@ -81,6 +81,15 @@ inspect the full Roadmap pattern before deciding whether the reviewer-facing R6
 page should stay focused on E020/E013/E095.
 </div>
 
+<div class="roadmap-note">
+**Update, 2026-08-26.** The decision this page was built to inform has since been
+made: R6 now shows all thirteen epigenomes under the Strober four-state enhancer
+definition, using one lead variant per gene only. Everything below describes the
+earlier three-epigenome R6 page and is kept, unrecomputed, as a dated record of
+what that decision rested on. References to "the R6 page", and the `R6` label on
+the `EnhG + Enh` definition, mean that earlier version throughout.
+</div>
+
 ## Question
 
 The reviewer-facing R6 page,
@@ -176,7 +185,7 @@ not differences in effect.
 
 ## Section 2: FASH versus Strober across the panel
 
-```{r figure-a, fig.cap="Figure A. Enhancer enrichment for current FASH, Strober linear, and Strober quadratic/nonlinear discoveries across thirteen Roadmap epigenomes, using all discovered variants (left) and one lead variant per gene (right). Enhancer regions are the R6 definition, Roadmap ChromHMM states EnhG and Enh. Rows are grouped by biology; filled circles are the three epigenomes the R6 page shows, open circles the ten added here. Fold enrichment is the overlap rate in the variant set divided by the overlap rate among all tested variants; the dashed line marks no enrichment. Bars are leave-one-autosome-out jackknife 95% intervals."}
+```{r figure-a, fig.cap="Figure A. Enhancer enrichment for current FASH, Strober linear, and Strober quadratic/nonlinear discoveries across thirteen Roadmap epigenomes, using all discovered variants (left) and one lead variant per gene (right). Enhancer regions are the R6 definition, Roadmap ChromHMM states EnhG and Enh. Rows are grouped by biology; filled circles are the three epigenomes the original R6 page showed, open circles the ten added here. Fold enrichment is the overlap rate in the variant set divided by the overlap rate among all tested variants; the dashed line marks no enrichment. Bars are leave-one-autosome-out jackknife 95% intervals."}
 plot_method_comparison("R6")
 ```
 
@@ -221,7 +230,7 @@ discovered variants, and `r set_size("current_only_lead")` of its
 `r set_size("current_lead")` lead variants, are at rsIDs that neither Strober
 analysis identified.
 
-```{r figure-b, fig.cap="Figure B. Enhancer enrichment for FASH discoveries at variants that neither Strober analysis identified (blue), against all FASH discoveries as a reference (grey), across thirteen Roadmap epigenomes. All discovered variants on the left, one lead variant per gene on the right. R6 enhancer definition; filled circles are the three epigenomes R6 shows. Bars are leave-one-autosome-out jackknife 95% intervals."}
+```{r figure-b, fig.cap="Figure B. Enhancer enrichment for FASH discoveries at variants that neither Strober analysis identified (blue), against all FASH discoveries as a reference (grey), across thirteen Roadmap epigenomes. All discovered variants on the left, one lead variant per gene on the right. R6 enhancer definition; filled circles are the three epigenomes the original R6 page showed. Bars are leave-one-autosome-out jackknife 95% intervals."}
 plot_fash_only("R6")
 ```
 
@@ -394,10 +403,11 @@ also appears in their `promotor` marker set, so their marker classes are not
 disjoint; we reproduce their enhancer set as written rather than tidying it.
 
 <div class="roadmap-note">
-**The two definitions are reported separately and the R6 definition is primary.**
-Every figure and table above uses `EnhG + Enh`. Nothing on this page silently
-substitutes the four-state definition for it. Section 5 is the only place the
-Strober definition appears.
+**The two definitions are reported separately; this page's primary definition is
+`EnhG + Enh`.** Every figure and table above uses it, and nothing on this page
+silently substitutes the four-state definition for it. Section 5 is the only
+place the Strober definition appears. R6 has since adopted the four-state
+definition, so the `R6` label used here for `EnhG + Enh` is historical.
 </div>
 
 State by state, on E095 as an example — the two extra states are small
@@ -465,9 +475,10 @@ is not available from these data, and we should not tell it.
 
 **The lead-per-gene view has no tissue pattern.** It has larger enrichments, but
 distributed across iPSC, germ layer and heart without structure, and its single
-largest estimate is at an iPSC epigenome. R6 currently leans on the lead view for
-its strongest numbers while describing them in differentiation-stage terms. Those
-two things are in tension, and this page is where that tension shows up.
+largest estimate is at an iPSC epigenome. At the time, R6 leaned on the lead view
+for its strongest numbers while describing them in differentiation-stage terms.
+Those two things were in tension; this page is where that tension showed up, and
+R6 was subsequently rewritten to drop the stage-specific reading.
 
 **Neither E013 nor E095 is an isolated result, but they are not equally solid.**
 E095 sits comfortably inside a tight, coherent cardiac block. E013 is the top of
