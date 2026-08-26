@@ -1,0 +1,671 @@
+---
+title: "Internal analysis: a broader Roadmap enhancer panel"
+author: "Ziang Zhang"
+date: "2026-08-25"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+    toc: true
+    toc_depth: 3
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 9.5,
+  fig.height = 8.2,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(file.path(
+  "code",
+  "revision_simulations",
+  "internal",
+  "roadmap_enhancer_exploration",
+  "reporting.R"
+))
+```
+
+<style>
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.roadmap-internal-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.roadmap-note {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.roadmap-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.roadmap-table-scroll table {
+  margin-bottom: 1em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre,
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+
+<div class="roadmap-internal-banner">
+<strong>Internal analysis page.</strong> This page is not linked from the
+workflowr homepage, the manuscript, or the response letter. It exists to let us
+inspect the full Roadmap pattern before deciding whether the reviewer-facing R6
+page should stay focused on E020/E013/E095.
+</div>
+
+## Question
+
+The reviewer-facing R6 page,
+[`revision_enhancer_enrichment.rmd`](revision_enhancer_enrichment.html), reports
+enhancer enrichment against exactly three Roadmap epigenomes — E020 (iPSC), E013
+(mesoderm), E095 (left ventricle) — chosen to bracket the differentiation. Those
+three were picked *a priori*, but we have never checked whether each is
+representative of its biological neighbours. If E013 and E095 are typical of
+mesoderm and heart annotations, the narrow panel is a fair summary. If they are
+isolated, the narrow panel is a selection artefact.
+
+This page widens the panel to **thirteen** epigenomes in four pre-specified
+groups and reports the same estimator on the same discovery sets. It changes
+nothing about R6: the R6 page, its code, and its retained output cache are
+read-only here, and the run script verifies that its own estimates for the three
+R6 epigenomes reproduce R6's published numbers to the last digit.
+
+Everything below is descriptive and exploratory. It contains no manuscript claim
+and no formal comparison between epigenomes or between methods.
+
+## What is held fixed
+
+Exactly the R6 analysis, with a wider annotation table:
+
+* **Discovery sets.** The same eight published sets — FASH, Strober linear, and
+  Strober quadratic/nonlinear, each as all discovered variants and as one lead
+  variant per gene, plus the two FASH-only sets. Nothing is refit.
+* **FASH-only definition.** rsID-level: an rsID counts as FASH-only if it appears
+  in neither Strober analysis, regardless of gene pairing. For the lead column,
+  FASH's lowest-lfdr variant is chosen per gene first and the exclusion applied
+  afterwards, exactly as on the R6 page.
+* **Background.** All `r format_integer(background_variant_count)` autosomal
+  variants tested in this study.
+* **Estimator.** Fold enrichment = overlap rate in the variant set divided by
+  overlap rate in the background, with the set excluded from its own comparator;
+  leave-one-autosome-out jackknife 95% intervals. Both come from
+  `enrichment_api.R::compute_enrichment(..., controls = "background")`,
+  unmodified.
+* **No matched controls**, and no formal pairwise tests between epigenomes or
+  methods. The nominal p-values the shared API returns are in the output CSVs but
+  are not shown here and carry no multiplicity correction.
+
+The one thing that is genuinely new is the *set* of annotations, and — in
+Section 5 only — the ChromHMM state definition behind them.
+
+## Section 1: the verified epigenome panel
+
+Every epigenome ID and label below was taken from Roadmap's own metadata table,
+[`EID_metadata.tab`](https://egg2.wustl.edu/roadmap/data/byFileType/metadata/EID_metadata.tab),
+rather than from any secondary description. `Roadmap STD_NAME` is the official
+label; `Mnemonic` and `Roadmap GROUP` are Roadmap's own grouping fields.
+
+```{r panel, echo=FALSE}
+panel_table()
+```
+
+Two things in that table are worth noting before any result.
+
+**E065 aorta is not a heart annotation.** Roadmap files it under the `Heart`
+GROUP, but its `ANATOMY` is `VASCULAR`. It is kept in its own display group
+throughout, and drawn on its own row, so that no statement about "heart
+epigenomes" is ever silently carried by a vascular tissue.
+
+**The panel is Strober's, not ours.** The iPSC set {E018, E019, E020, E021,
+E022} and the heart set {E083, E095, E104, E105, E065} are exactly the two lists
+hard-coded in `get_cell_line_ids()` in Strober et al.'s
+`perform_tissue_specific_chrom_hmm_enrichment_analysis.py`. The three germ-layer
+epigenomes are added here as the specificity check, since cardiomyocytes arise
+through mesoderm.
+
+The annotation source is the one R6 already uses: the Roadmap 15-state ChromHMM
+core-marks segmentation, `<EID>_15_coreMarks_mnemonics.bed.gz`, from
+`https://egg2.wustl.edu/roadmap/data/byFileType/chromhmmSegmentations/ChmmModels/coreMarks/jointModel/final/`.
+The files actually retrieved, with checksums:
+
+<div class="roadmap-table-scroll">
+```{r provenance, echo=FALSE}
+provenance_table()
+```
+</div>
+
+<div class="roadmap-note">
+**The epigenomes are not equally powered.** Background enhancer coverage varies
+roughly fourfold across this panel — from
+`r format_decimal(100 * min(summary_table$background_overlap_proportion[summary_table$enhancer_definition == "R6"]), 1)`%
+of tested variants for the sparsest annotation to
+`r format_decimal(100 * max(summary_table$background_overlap_proportion[summary_table$enhancer_definition == "R6"]), 1)`%
+for the densest. A fold enrichment from E065 aorta rests on far fewer
+overlapping variants than one from E083 fetal heart, and its interval is
+correspondingly wider. Differences in interval width across rows are mostly this,
+not differences in effect.
+</div>
+
+## Section 2: FASH versus Strober across the panel
+
+```{r figure-a, fig.cap="Figure A. Enhancer enrichment for current FASH, Strober linear, and Strober quadratic/nonlinear discoveries across thirteen Roadmap epigenomes, using all discovered variants (left) and one lead variant per gene (right). Enhancer regions are the R6 definition, Roadmap ChromHMM states EnhG and Enh. Rows are grouped by biology; filled circles are the three epigenomes the R6 page shows, open circles the ten added here. Fold enrichment is the overlap rate in the variant set divided by the overlap rate among all tested variants; the dashed line marks no enrichment. Bars are leave-one-autosome-out jackknife 95% intervals."}
+plot_method_comparison("R6")
+```
+
+Reading the **all-variants** column first, because it is the cleaner of the two.
+All three methods show the same block structure: the four cardiac epigenomes are
+enriched and the five iPSC epigenomes are not. For FASH, every cardiac interval
+lies entirely above 1 (`r group_above_one("current_all", "Heart")`), over a
+narrow range of `r group_fold_range("current_all", "Heart")`
+(`r group_fold_list("current_all", "Heart")`), while no iPSC epigenome reaches
+that (`r group_above_one("current_all", "iPSC")`, range
+`r group_fold_range("current_all", "iPSC")`). The germ-layer epigenomes fall in
+between and none of them clears 1
+(`r group_above_one("current_all", "Germ layer")`, range
+`r group_fold_range("current_all", "Germ layer")`). Both Strober analyses give
+the same ordering with somewhat larger estimates: cardiac
+`r group_above_one("linear_all", "Heart")` for linear and
+`r group_above_one("quadratic_all", "Heart")` for quadratic.
+
+The **lead-per-gene** column does not reproduce that ordering, and this is the
+most important negative result on the page. For FASH's
+`r set_size("current_lead")` lead variants the enrichment is no longer
+concentrated in heart: `r group_above_one("current_lead", "Heart")` cardiac
+intervals clear 1, but so do `r group_above_one("current_lead", "Germ layer")`
+germ-layer and `r group_above_one("current_lead", "iPSC")` iPSC intervals, and
+the largest single estimate in the whole column is an iPSC one
+(`r describe_fold("current_lead", "E021")` at E021 iPS DF 6.9). Lead-per-gene
+selection sharpens the *overall* enrichment — which is what R6 reports — but it
+does not sharpen tissue specificity. If anything it removes it.
+
+```{r heatmap-a, fig.height=7.4, fig.cap="Figure A2. Fold enrichment for all eight discovery sets against all thirteen epigenomes, R6 enhancer definition. Bold entries are estimates whose jackknife 95% interval lies entirely above 1. Colour is symmetric on the log2 scale so that no enrichment is neutral. The blank cell is a set-annotation pair with fewer than ten overlapping variants; see Section 6."}
+plot_fold_heatmap("R6")
+```
+
+The heatmap makes the two regimes visible at once. In the four all-variant
+columns the bold cells sit almost entirely in the heart block. In the four
+lead columns they scatter across iPSC, germ layer, and heart.
+
+## Section 3: FASH-only discoveries
+
+`r set_size("current_only_all")` of FASH's `r set_size("current_all")`
+discovered variants, and `r set_size("current_only_lead")` of its
+`r set_size("current_lead")` lead variants, are at rsIDs that neither Strober
+analysis identified.
+
+```{r figure-b, fig.cap="Figure B. Enhancer enrichment for FASH discoveries at variants that neither Strober analysis identified (blue), against all FASH discoveries as a reference (grey), across thirteen Roadmap epigenomes. All discovered variants on the left, one lead variant per gene on the right. R6 enhancer definition; filled circles are the three epigenomes R6 shows. Bars are leave-one-autosome-out jackknife 95% intervals."}
+plot_fash_only("R6")
+```
+
+The exclusion changes almost nothing, in either column. The FASH-only lead set
+gives `r group_above_one("current_only_lead", "Germ layer")` germ-layer,
+`r group_above_one("current_only_lead", "Heart")` cardiac and
+`r group_above_one("current_only_lead", "iPSC")` iPSC intervals above 1 —
+the same counts, at the same epigenomes
+(`r group_above_one_labels("current_only_lead", "iPSC")` in iPSC), as the
+unfiltered FASH lead set. The FASH-only all-variant set weakens uniformly
+relative to all FASH discoveries: `r group_above_one("current_only_all", "Heart")`
+cardiac intervals clear 1 rather than
+`r group_above_one("current_all", "Heart")`, with the point estimates shifted
+down only slightly (`r group_fold_range("current_only_all", "Heart")` against
+`r group_fold_range("current_all", "Heart")`). That is consistent with the
+smaller set size widening the intervals rather than with the exclusion removing
+signal, but this analysis cannot separate those two explanations.
+
+Whatever pattern the full FASH set carries, the FASH-only subset carries the
+same one. That is the useful conclusion here, and it holds for both the
+biologically coherent all-variant pattern and the incoherent lead pattern.
+
+## Section 4: the summary questions, answered directly
+
+### Is E020 representative of the other iPSC epigenomes?
+
+**In the all-variants view, yes; in the lead view, no.** Across all FASH
+discoveries the five iPSC epigenomes are tightly grouped at or below no
+enrichment — `r group_fold_list("current_all", "iPSC")` — with E020 the lowest
+of the five and none of the five clearing 1. R6's statement that the starting
+state gives no signal is therefore not specific to E020.
+
+For FASH lead variants the group splits. E018, E019 and E020 sit at
+`r fold_value("current_lead", "E018")`, `r fold_value("current_lead", "E019")`
+and `r fold_value("current_lead", "E020")`, all with intervals crossing 1, while
+E021 and E022 give `r describe_fold("current_lead", "E021")` and
+`r describe_fold("current_lead", "E022")`. So E020 is representative of the
+majority of the iPSC panel, but the iPSC panel itself is not internally
+coherent under lead selection, and E020 happens to be on the quiet side of the
+split. Reporting E020 alone as "the iPSC epigenome" would have hidden that.
+
+### Is E013 mesoderm more enriched than E011 endoderm and E012 ectoderm?
+
+**No — not for FASH.** This was the cleanest specificity prediction on the page
+and it does not hold. For FASH lead variants the three germ layers are
+`r group_fold_list("current_lead", "Germ layer")`; all three intervals lie
+entirely above 1 and all three overlap each other heavily. Across all FASH
+discoveries they are `r group_fold_list("current_all", "Germ layer")`, and none
+of the three clears 1. E013 is nominally the largest of the three in both views,
+but by a margin the intervals cannot support.
+
+The one place mesoderm does stand out slightly is Strober quadratic/nonlinear
+over all variants: `r fold_value("quadratic_all", "E013")` at E013 against
+`r fold_value("quadratic_all", "E011")` and
+`r fold_value("quadratic_all", "E012")`. That is one cell of one method, and the
+intervals still overlap.
+
+The honest reading is that these enrichments do not distinguish the germ layer
+that gives rise to cardiomyocytes from the two that do not.
+
+### Is E095 representative of the other heart-related epigenomes?
+
+**Yes, clearly — this is the strongest coherence result on the page.** Across all
+FASH discoveries the four cardiac epigenomes give
+`r group_fold_list("current_all", "Heart")`, a spread of well under 0.1-fold,
+with all four intervals entirely above 1 and E095 sitting in the middle of the
+four. The same holds for both Strober sets: linear
+`r group_fold_range("linear_all", "Heart")` and quadratic
+`r group_fold_range("quadratic_all", "Heart")`, each
+`r group_above_one("linear_all", "Heart")` and
+`r group_above_one("quadratic_all", "Heart")` above 1.
+
+For FASH lead variants the cardiac block is looser —
+`r group_fold_list("current_lead", "Heart")`, with
+`r group_above_one("current_lead", "Heart")` intervals above 1 — but E095 is
+still not an outlier within it.
+
+E065 aorta behaves differently from the four cardiac annotations, and differently
+in the two views: `r fold_value("current_all", "E065")` over all FASH variants
+but `r describe_fold("current_lead", "E065")` for the lead set, the only
+below-1 point estimate in that column. It is also the sparsest annotation in the
+panel, so its estimates are the least stable. Keeping it visually separate was
+the right call; it should not be read as either support or contradiction.
+
+### Do fetal heart and adult chamber-specific heart annotations differ?
+
+**Not for FASH.** E083 fetal heart gives `r fold_value("current_all", "E083")`
+against `r fold_value("current_all", "E095")`,
+`r fold_value("current_all", "E104")` and `r fold_value("current_all", "E105")`
+for the three adult chambers over all discoveries, and
+`r fold_value("current_lead", "E083")` against
+`r group_fold_range("current_lead", "Heart")` for the lead set. There is no
+fetal-versus-adult separation.
+
+There is a hint of one for **Strober linear**, where E083 is the largest cardiac
+estimate in both views: `r describe_fold("linear_all", "E083")` over all
+variants and `r describe_fold("linear_lead", "E083")` for lead variants, against
+`r fold_value("linear_all", "E095")`/`r fold_value("linear_all", "E104")`/`r fold_value("linear_all", "E105")`
+for the adult chambers. The intervals overlap, and we do not test this, so it is
+an observation to keep in mind rather than a finding.
+
+Among the three adult chambers there is no discernible structure at all: left
+ventricle, right atrium and right ventricle behave interchangeably for every
+discovery set.
+
+### Do the FASH-only lead variants retain the same pattern?
+
+**Yes.** Section 3 covers this: the FASH-only lead set reproduces the unfiltered
+FASH lead set epigenome by epigenome, including which two iPSC epigenomes are
+enriched and which two cardiac ones are. The pattern the FASH-only variants
+retain is the *lead-view* pattern, which is the one without tissue specificity.
+
+### Are the conclusions sensitive to the exact enhancer-state definition?
+
+**No.** Section 5 covers this in full. Across the
+`r definition_agreement()$n_cells` cells estimable under both definitions the
+fold enrichments correlate at
+`r format_decimal(definition_agreement()$correlation, 3)`, the largest single
+shift is `r format_decimal(definition_agreement()$max_absolute_shift, 2)`-fold,
+and only `r definition_agreement()$point_crossings` cells move their point
+estimate across 1.
+
+### How does this compare qualitatively with Strober et al. (2019)?
+
+Strober et al. reported that *early* dynamic eQTLs are enriched in iPSC
+ChromHMM enhancers but not heart-related ones, and *late* dynamic eQTLs in
+heart-related enhancers but not iPSC ones. The all-variant half of this page is
+qualitatively consistent with the second of those two statements and with
+nothing more: every method's full discovery set is enriched in the cardiac block
+and flat in the iPSC block.
+
+Three structural differences make this a loose comparison rather than a
+replication, and none of them is closeable with the estimator held fixed here:
+
+1. **No time split.** Strober's contrast is between early and late subsets of
+   their discoveries. The sets on this page are time-collapsed, so their "early
+   in iPSC" half has no counterpart here at all. The internal page
+   [`revision_internal_fash_temporal_class_enhancer_enrichment.rmd`](revision_internal_fash_temporal_class_enhancer_enrichment.html)
+   is where that split is examined, and it reports that stage matching does not
+   hold for FASH.
+2. **No pooling or set difference.** Strober pool the five epigenomes of a group
+   into one binary mask and then subtract — their "heart only" annotation is
+   heart-and-not-iPSC. This page keeps one epigenome per row, which is what
+   makes the within-group coherence question askable but is not the quantity
+   they report.
+3. **A different null.** Their enrichment is against permuted or matched
+   background variant sets; this page uses the tested-variant background with a
+   chromosome jackknife.
+
+## Section 5: the exact Strober enhancer-state definition
+
+The R6 page defines enhancer regions as ChromHMM states `EnhG` and `Enh`. Strober
+et al. (2019) use a **broader** set. This is not inferred from the paper text,
+which does not enumerate states; it is read off their source. In
+`BennyStrobes/ipsc_cardiomyocyte_differentiation@master`,
+`dynamic_eqtl_calling/perform_tissue_specific_chrom_hmm_enrichment_analysis.py`,
+`get_valid_markers()`:
+
+```python
+elif marker_type == 'enhancer':
+    valid_markers['7_Enh'] = 1
+    valid_markers['6_EnhG'] = 1
+    valid_markers['12_EnhBiv'] = 1
+    valid_markers['11_BivFlnk'] = 1
+```
+
+So their enhancer set is four states, adding the bivalent enhancer state
+`12_EnhBiv` and the bivalent flanking state `11_BivFlnk`. Note that `11_BivFlnk`
+also appears in their `promotor` marker set, so their marker classes are not
+disjoint; we reproduce their enhancer set as written rather than tidying it.
+
+<div class="roadmap-note">
+**The two definitions are reported separately and the R6 definition is primary.**
+Every figure and table above uses `EnhG + Enh`. Nothing on this page silently
+substitutes the four-state definition for it. Section 5 is the only place the
+Strober definition appears.
+</div>
+
+State by state, on E095 as an example — the two extra states are small
+relative to the two shared ones:
+
+<div class="roadmap-table-scroll">
+```{r state-table, echo=FALSE}
+state_table("E095")
+```
+</div>
+
+Across the panel the four-state definition adds between
+`r format_decimal(100 * (min(definition_coverage$strober_over_r6) - 1), 1)`% and
+`r format_decimal(100 * (max(definition_coverage$strober_over_r6) - 1), 1)`% to
+the autosomal bases covered:
+
+<div class="roadmap-table-scroll">
+```{r coverage-table, echo=FALSE}
+definition_coverage_table()
+```
+</div>
+
+```{r figure-c, fig.height=8.6, fig.cap="Figure C. The two enhancer-state definitions side by side for three FASH discovery sets: the R6 definition (EnhG + Enh, blue) and the Strober definition (EnhG + Enh + EnhBiv + BivFlnk, green). Same estimator, same discovery sets, same background; only the state set differs. Bars are leave-one-autosome-out jackknife 95% intervals."}
+plot_definition_sensitivity()
+```
+
+```{r sensitivity-numbers, echo=FALSE}
+agreement <- definition_agreement()
+```
+
+The two definitions are close to interchangeable here. Over the
+`r agreement$n_cells` estimable cells the fold enrichments correlate at
+`r format_decimal(agreement$correlation, 3)`; the largest absolute shift in any
+single cell is `r format_decimal(agreement$max_absolute_shift, 3)`-fold;
+`r agreement$point_crossings` cells move their point estimate across 1, and
+`r agreement$interval_crossings` change whether their jackknife interval lies
+entirely above 1 — all of the latter at boundaries where the interval already
+touched 1. No answer in Section 4 changes under the Strober definition.
+
+The full Strober-definition estimates, for the record:
+
+<div class="roadmap-table-scroll">
+```{r strober-heatmap, fig.height=7.4, fig.cap="Figure C2. Fold enrichment under the Strober four-state enhancer definition, all eight discovery sets against all thirteen epigenomes. Compare with Figure A2.", echo=FALSE}
+plot_fold_heatmap("Strober")
+```
+</div>
+
+## Section 6: reading of the whole pattern
+
+The pre-committed interpretation rule for this page was: report a biological
+pattern only if it holds across the members of a group, and say so plainly if a
+headline epigenome turns out to be isolated. Applying it:
+
+**There is a coherent tissue pattern, but only in the all-variants view.** Little
+or no enrichment in iPSC, an intermediate and non-significant germ layer, and
+enrichment across all four cardiac epigenomes, is exactly the shape the reviewer
+comment would predict — and it holds for FASH, for Strober linear and for
+Strober quadratic alike, so it is a property of the discovery universe more than
+of any one method. The cardiac block in particular is remarkably uniform.
+
+**The specificity check inside the germ layer fails.** E013 mesoderm is not
+distinguishable from E011 endoderm or E012 ectoderm for FASH under either
+selection strategy. The clean "mesoderm but not the other two germ layers" story
+is not available from these data, and we should not tell it.
+
+**The lead-per-gene view has no tissue pattern.** It has larger enrichments, but
+distributed across iPSC, germ layer and heart without structure, and its single
+largest estimate is at an iPSC epigenome. R6 currently leans on the lead view for
+its strongest numbers while describing them in differentiation-stage terms. Those
+two things are in tension, and this page is where that tension shows up.
+
+**Neither E013 nor E095 is an isolated result, but they are not equally solid.**
+E095 sits comfortably inside a tight, coherent cardiac block. E013 is the top of
+a germ-layer group whose three members are indistinguishable, so its apparent
+mesoderm specificity is not reproduced by contrast with its neighbours — it is
+just the general level of the group. E020 is representative of the iPSC group in
+the all-variants view and on the quiet side of a split group in the lead view.
+
+**A caution against annotation shopping.** The single largest estimate anywhere in
+this design is `r describe_fold("quadratic_all", "E065")` — Strober quadratic,
+all variants, at *aorta*, the sparsest and least relevant annotation in the
+panel. Anything that generous a search space produces a best-looking cell; that
+is the reason to read groups rather than cells.
+
+### Cells with too few overlapping variants to estimate
+
+`compute_enrichment()` returns no estimate when fewer than
+`r minimum_overlap` selected variants fall inside an annotation. That happens in
+`r nrow(not_estimable)` of the `r nrow(enrichment)` cells in this design, both at
+the sparsest annotation against the smallest discovery set:
+
+```{r not-estimable, echo=FALSE}
+not_estimable_table()
+```
+
+These cells are blank in the heatmaps and absent from the forest plots. No other
+cell is missing an estimate.
+
+## Section 7: the full estimate table
+
+One row per epigenome × discovery set, R6 enhancer definition. `Overlap prop.` is
+the fraction of the discovery set inside the annotation, `Background prop.` the
+same fraction among the tested variants used as the comparator (which excludes
+the set itself, so it varies slightly by row).
+
+<div class="roadmap-table-scroll">
+```{r summary-table-r6, echo=FALSE}
+full_summary_table("R6")
+```
+</div>
+
+The same table under the Strober four-state definition:
+
+<div class="roadmap-table-scroll">
+```{r summary-table-strober, echo=FALSE}
+full_summary_table("Strober")
+```
+</div>
+
+## Methods
+
+**Annotation.** Roadmap Epigenomics 15-state ChromHMM core-marks segmentations,
+`<EID>_15_coreMarks_mnemonics.bed.gz`, hg19, for the thirteen epigenomes in
+Section 1. BED intervals are converted from 0-based half-open to 1-based
+inclusive; each tested variant is treated as a single base and intersected
+against the enhancer intervals, giving one indicator per variant per epigenome
+per definition over all `r format_integer(background_variant_count)` tested
+variants.
+
+**Enhancer definitions.** `R6` = states `6_EnhG`, `7_Enh`. `Strober` = states
+`6_EnhG`, `7_Enh`, `12_EnhBiv`, `11_BivFlnk`. The first is nested in the second,
+and the run script asserts that nesting on all
+`r format_integer(background_variant_count)` variants for all thirteen
+epigenomes.
+
+**Background.** All `r format_integer(background_variant_count)` variants tested
+in this study that lie on an autosome and participate in at least one tested
+gene-variant pair. No external reference panel enters.
+
+**Fold enrichment.**
+
+$$\text{fold enrichment} = \frac{\text{proportion of selected variants overlapping the enhancer}}{\text{proportion of all tested variants overlapping the enhancer}}$$
+
+with the tested set excluded from the background so that a set is never part of
+its own comparator. No matched controls.
+
+**Discovery sets.** FASH uses cumulative lfdr at FDR 0.05 after the BF
+correction; both Strober analyses use their reported eFDR 0.05, with
+`non_linear_dynamic_eqtls_5_pc.txt` labelled quadratic/nonlinear. "One lead
+variant per gene" keeps, for each discovered gene, the variant with the lowest
+lfdr (FASH) or the smallest p-value (Strober).
+
+**Uncertainty.** Leave-one-autosome-out jackknife, to account approximately for
+local dependence among variants. All intervals are 95% jackknife intervals. No
+formal test compares two epigenomes or two methods.
+
+**Consistency with R6.** The run script performs two checks and refuses to
+produce a cache if either fails. First, the R6-definition indicators for E020,
+E013 and E095 built here are compared variant by variant against the three
+`Roadmap ...: Enhancer` columns of the published annotation matrix:
+`r format_integer(sum(r6_agreement$n_disagreements))` disagreements over
+`r format_integer(r6_agreement$n_variants[1])` variants. Second, the eight
+discovery sets are run through `compute_enrichment` against the published
+annotation matrix and the resulting fold enrichments compared with the ones on
+this page: `r nrow(r6_estimate_reproduction)` estimates, maximum absolute
+difference
+`r format(max(abs(r6_estimate_reproduction$fold_enrichment_published - r6_estimate_reproduction$fold_enrichment_here), na.rm = TRUE), digits = 3)`.
+
+## Reproducibility
+
+Rebuild the cache this page reads — downloads and checksums the thirteen
+segmentations, builds the indicator table, and computes all
+`r nrow(enrichment)` estimates:
+
+```{bash rebuild, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/roadmap_enhancer_exploration/run_roadmap_enhancer_exploration.R
+```
+
+It is idempotent: a valid indicator table and valid segmentation downloads are
+reused rather than rebuilt, so a re-run costs about a minute rather than the
+full pass. It depends on two caches it never writes to — the tested-variant
+background from `variant_annotation_enrichment/`, and the published discovery
+sets from `fash_strober_enhancer_comparison_fashr0143/`. Rebuild those first if
+they are absent:
+
+```{bash rebuild-inputs, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/variant_annotation_enrichment/download_variant_annotations.R
+Rscript --vanilla \
+  code/revision_simulations/internal/variant_annotation_enrichment/run_variant_annotation_enrichment.R
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_strober_enhancer_comparison/run_fash_strober_enhancer_comparison.R
+```
+
+Tests:
+
+```{bash tests, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/roadmap_enhancer_exploration/test_roadmap_enhancer_exploration_helpers.R
+Rscript --vanilla \
+  code/revision_simulations/internal/roadmap_enhancer_exploration/test_reporting.R
+```
+
+Rebuild this page:
+
+```{bash reproduction-command, eval=FALSE}
+Rscript --vanilla -e \
+  'workflowr::wflow_build("analysis/revision_internal_roadmap_enhancer_exploration.rmd", local = TRUE)'
+```
+
+The enrichment API is unchanged and still takes any named list of variant
+vectors, so a different panel needs no new code:
+
+```{r api-demo, eval=FALSE}
+source(
+  "code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R"
+)
+source(
+  "code/revision_simulations/internal/roadmap_enhancer_exploration/roadmap_enhancer_exploration_helpers.R"
+)
+
+background <- load_background()
+sets <- load_variant_sets()
+
+# The thirteen-epigenome, two-definition indicator table built by the run script.
+annotations <- readRDS(file.path(
+  roadmap_output_directory(), "roadmap_enhancer_annotation_matrix.rds"
+))
+
+# Any subset of its columns; here the four cardiac epigenomes, R6 definition.
+cardiac <- grep(
+  "^Roadmap E(083|095|104|105) .*\\[R6 EnhG\\+Enh\\]$",
+  names(annotations),
+  value = TRUE
+)
+compute_enrichment(
+  sets["current_lead"],
+  background,
+  annotations[, c("variant_id", "chromosome", cardiac)],
+  controls = "background"
+)
+```
+
+Everything this experiment writes lives under
+`output/revision_simulations/internal/roadmap_enhancer_exploration/` and
+`data/revision_simulations/internal/roadmap_enhancer_exploration/`, neither of
+which is tracked in git; the repository carries code, not data. The output
+directory holds `annotation_provenance.csv`, `chromhmm_state_summary.csv`,
+`definition_coverage.csv`, `r6_definition_agreement.csv`,
+`r6_estimate_reproduction.csv`, `not_estimable_cells.csv`,
+`enrichment_results.csv`, `enrichment_summary_table.csv`,
+`roadmap_enhancer_annotation_matrix.rds` and `analysis_cache.rds`.
+
+Built `r configuration$built_at_utc` with `r configuration$r_version`,
+in `r format_decimal(configuration$elapsed_minutes, 1)` minutes.
+
+## References
+
+Roadmap Epigenomics Consortium, Kundaje, A., Meuleman, W., Ernst, J.,
+Bilenky, M., Yen, A., et al. (2015). Integrative analysis of 111 reference
+human epigenomes. *Nature* **518**, 317–330.
+<https://doi.org/10.1038/nature14248>
+
+Strober, B. J., Elorbany, R., Rhodes, K., Krishnan, N., Tayeb, K.,
+Battle, A., Gilad, Y. (2019). Dynamic genetic regulation of gene expression
+during cellular differentiation. *Science* **364**, 1287–1290.
+<https://doi.org/10.1126/science.aaw0040>. Enhancer-state definition read from
+the accompanying code repository,
+<https://github.com/BennyStrobes/ipsc_cardiomyocyte_differentiation>,
+`dynamic_eqtl_calling/perform_tissue_specific_chrom_hmm_enrichment_analysis.py`.

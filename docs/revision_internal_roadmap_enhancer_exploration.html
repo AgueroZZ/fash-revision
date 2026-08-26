@@ -1,0 +1,4425 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-25" />
+
+<title>Internal analysis: a broader Roadmap enhancer panel</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Internal analysis: a broader Roadmap
+enhancer panel</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-25</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-25
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree83ed33754c311f714dd93e3109ee7018f2b46f3dtargetblank83ed337a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/83ed33754c311f714dd93e3109ee7018f2b46f3d" target="_blank">83ed337</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree83ed33754c311f714dd93e3109ee7018f2b46f3dtargetblank83ed337a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/AgueroZZ/fash-revision/tree/83ed33754c311f714dd93e3109ee7018f2b46f3d" target="_blank">83ed337</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Rplots.pdf
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/revision_simulations/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/playwright/
+    Ignored:    output/revision_simulations/
+    Ignored:    scripts/
+
+Untracked files:
+    Untracked:  analysis/revision_internal_fash_knockoff.rmd
+    Untracked:  analysis/revision_internal_fash_temporal_class_enhancer_enrichment.rmd
+    Untracked:  analysis/revision_internal_roadmap_enhancer_exploration.rmd
+    Untracked:  code/revision_simulations/internal/fash_knockoff/reporting.R
+    Untracked:  code/revision_simulations/internal/fash_knockoff/test_reporting.R
+    Untracked:  code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/
+    Untracked:  code/revision_simulations/internal/roadmap_enhancer_exploration/
+
+Unstaged changes:
+    Modified:   code/revision_simulations/internal/fash_knockoff/plot_lfdr_histograms.R
+    Modified:   code/revision_simulations/internal/fash_knockoff/plot_w_boxplot_by_discovery.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style>
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.roadmap-internal-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.roadmap-note {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.roadmap-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.roadmap-table-scroll table {
+  margin-bottom: 1em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre,
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+<div class="roadmap-internal-banner">
+<p><strong>Internal analysis page.</strong> This page is not linked from
+the workflowr homepage, the manuscript, or the response letter. It
+exists to let us inspect the full Roadmap pattern before deciding
+whether the reviewer-facing R6 page should stay focused on
+E020/E013/E095.</p>
+</div>
+<div id="question" class="section level2">
+<h2>Question</h2>
+<p>The reviewer-facing R6 page, <a
+href="revision_enhancer_enrichment.html"><code>revision_enhancer_enrichment.rmd</code></a>,
+reports enhancer enrichment against exactly three Roadmap epigenomes —
+E020 (iPSC), E013 (mesoderm), E095 (left ventricle) — chosen to bracket
+the differentiation. Those three were picked <em>a priori</em>, but we
+have never checked whether each is representative of its biological
+neighbours. If E013 and E095 are typical of mesoderm and heart
+annotations, the narrow panel is a fair summary. If they are isolated,
+the narrow panel is a selection artefact.</p>
+<p>This page widens the panel to <strong>thirteen</strong> epigenomes in
+four pre-specified groups and reports the same estimator on the same
+discovery sets. It changes nothing about R6: the R6 page, its code, and
+its retained output cache are read-only here, and the run script
+verifies that its own estimates for the three R6 epigenomes reproduce
+R6’s published numbers to the last digit.</p>
+<p>Everything below is descriptive and exploratory. It contains no
+manuscript claim and no formal comparison between epigenomes or between
+methods.</p>
+</div>
+<div id="what-is-held-fixed" class="section level2">
+<h2>What is held fixed</h2>
+<p>Exactly the R6 analysis, with a wider annotation table:</p>
+<ul>
+<li><strong>Discovery sets.</strong> The same eight published sets —
+FASH, Strober linear, and Strober quadratic/nonlinear, each as all
+discovered variants and as one lead variant per gene, plus the two
+FASH-only sets. Nothing is refit.</li>
+<li><strong>FASH-only definition.</strong> rsID-level: an rsID counts as
+FASH-only if it appears in neither Strober analysis, regardless of gene
+pairing. For the lead column, FASH’s lowest-lfdr variant is chosen per
+gene first and the exclusion applied afterwards, exactly as on the R6
+page.</li>
+<li><strong>Background.</strong> All 745,867 autosomal variants tested
+in this study.</li>
+<li><strong>Estimator.</strong> Fold enrichment = overlap rate in the
+variant set divided by overlap rate in the background, with the set
+excluded from its own comparator; leave-one-autosome-out jackknife 95%
+intervals. Both come from
+<code>enrichment_api.R::compute_enrichment(..., controls = "background")</code>,
+unmodified.</li>
+<li><strong>No matched controls</strong>, and no formal pairwise tests
+between epigenomes or methods. The nominal p-values the shared API
+returns are in the output CSVs but are not shown here and carry no
+multiplicity correction.</li>
+</ul>
+<p>The one thing that is genuinely new is the <em>set</em> of
+annotations, and — in Section 5 only — the ChromHMM state definition
+behind them.</p>
+</div>
+<div id="section-1-the-verified-epigenome-panel" class="section level2">
+<h2>Section 1: the verified epigenome panel</h2>
+<p>Every epigenome ID and label below was taken from Roadmap’s own
+metadata table, <a
+href="https://egg2.wustl.edu/roadmap/data/byFileType/metadata/EID_metadata.tab"><code>EID_metadata.tab</code></a>,
+rather than from any secondary description.
+<code>Roadmap STD_NAME</code> is the official label;
+<code>Mnemonic</code> and <code>Roadmap GROUP</code> are Roadmap’s own
+grouping fields.</p>
+<table style="width:100%;">
+<colgroup>
+<col width="9%" />
+<col width="11%" />
+<col width="37%" />
+<col width="13%" />
+<col width="12%" />
+<col width="10%" />
+<col width="5%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Group</th>
+<th align="left">Epigenome ID</th>
+<th align="left">Roadmap STD_NAME</th>
+<th align="left">Mnemonic</th>
+<th align="left">Roadmap GROUP</th>
+<th align="left">Anatomy</th>
+<th align="left">In R6</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">iPSC</td>
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">IPSC.15b</td>
+<td align="left">iPSC</td>
+<td align="left">IPSC</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">iPSC</td>
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">IPSC.18</td>
+<td align="left">iPSC</td>
+<td align="left">IPSC</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">iPSC</td>
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">IPSC.20B</td>
+<td align="left">iPSC</td>
+<td align="left">IPSC</td>
+<td align="left">yes</td>
+</tr>
+<tr class="even">
+<td align="left">iPSC</td>
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">IPSC.DF.6.9</td>
+<td align="left">iPSC</td>
+<td align="left">IPSC</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">iPSC</td>
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">IPSC.DF.19.11</td>
+<td align="left">iPSC</td>
+<td align="left">IPSC</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Germ layer</td>
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">ESDR.CD184.ENDO</td>
+<td align="left">ES-deriv</td>
+<td align="left">ESC_DERIVED</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Germ layer</td>
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">ESDR.CD56.ECTO</td>
+<td align="left">ES-deriv</td>
+<td align="left">ESC_DERIVED</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Germ layer</td>
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">ESDR.CD56.MESO</td>
+<td align="left">ES-deriv</td>
+<td align="left">ESC_DERIVED</td>
+<td align="left">yes</td>
+</tr>
+<tr class="odd">
+<td align="left">Heart</td>
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">HRT.FET</td>
+<td align="left">Heart</td>
+<td align="left">HEART</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Heart</td>
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">HRT.VENT.L</td>
+<td align="left">Heart</td>
+<td align="left">HEART</td>
+<td align="left">yes</td>
+</tr>
+<tr class="odd">
+<td align="left">Heart</td>
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">HRT.ATR.R</td>
+<td align="left">Heart</td>
+<td align="left">HEART</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">Heart</td>
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">HRT.VNT.R</td>
+<td align="left">Heart</td>
+<td align="left">HEART</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">Vascular</td>
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">VAS.AOR</td>
+<td align="left">Heart</td>
+<td align="left">VASCULAR</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+<p>Two things in that table are worth noting before any result.</p>
+<p><strong>E065 aorta is not a heart annotation.</strong> Roadmap files
+it under the <code>Heart</code> GROUP, but its <code>ANATOMY</code> is
+<code>VASCULAR</code>. It is kept in its own display group throughout,
+and drawn on its own row, so that no statement about “heart epigenomes”
+is ever silently carried by a vascular tissue.</p>
+<p><strong>The panel is Strober’s, not ours.</strong> The iPSC set
+{E018, E019, E020, E021, E022} and the heart set {E083, E095, E104,
+E105, E065} are exactly the two lists hard-coded in
+<code>get_cell_line_ids()</code> in Strober et al.’s
+<code>perform_tissue_specific_chrom_hmm_enrichment_analysis.py</code>.
+The three germ-layer epigenomes are added here as the specificity check,
+since cardiomyocytes arise through mesoderm.</p>
+<p>The annotation source is the one R6 already uses: the Roadmap
+15-state ChromHMM core-marks segmentation,
+<code>&lt;EID&gt;_15_coreMarks_mnemonics.bed.gz</code>, from
+<code>https://egg2.wustl.edu/roadmap/data/byFileType/chromhmmSegmentations/ChmmModels/coreMarks/jointModel/final/</code>.
+The files actually retrieved, with checksums:</p>
+<div class="roadmap-table-scroll">
+<table>
+<colgroup>
+<col width="6%" />
+<col width="42%" />
+<col width="12%" />
+<col width="39%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">ID</th>
+<th align="left">File</th>
+<th align="left">Bytes</th>
+<th align="left">MD5</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">E018</td>
+<td align="left">E018_15_coreMarks_mnemonics.bed.gz</td>
+<td align="left">2,632,050</td>
+<td align="left">06309f35643075d8f0c3d7df933e9933</td>
+</tr>
+<tr class="even">
+<td align="left">E019</td>
+<td align="left">E019_15_coreMarks_mnemonics.bed.gz</td>
+<td align="left">2,784,913</td>
+<td align="left">f2060a2de8466ec0157a92f3865dedf7</td>
+</tr>
+<tr class="odd">
+<td align="left">E020</td>
+<td align="left">E020_15_coreMarks_mnemonics.bed.gz</td>
+<td align="left">2,873,029</td>
+<td align="left">cedf4fff2f7342ea9cb5bbc9456d1597</td>
+</tr>
+<tr class="even">
+<td align="left">E021</td>
+<td align="left">E021_15_coreMarks_mnemonics.bed.gz</td>
+<td align="left">1,724,123</td>
+<td align="left">5d4558745608e9b6fa42f14d354875ab</td>
+</tr>
+<tr class="odd">
+<td align="left">E022</td>
+<td align="left">E022_15_coreMarks_mnemonics.bed.gz</td>
+<td align="left">2,703,883</td>
+<td align="left">fb7bd7cfc8f824387c889a762f6f8faf</td>
+</tr>
+<tr class="even">
+<td align="left">E011</td>
+<td align="left">E011_15_coreMarks_mnemonics.bed.gz</td>
+<td align="left">3,296,959</td>
+<td align="left">195e51c026d1cf9034e937ade00f96a3</td>
+</tr>
+<tr class="odd">
+<td align="left">E012</td>
+<td align="left">E012_15_coreMarks_mnemonics.bed.gz</td>
+<td align="left">2,079,228</td>
+<td align="left">f9695c51db87c3578a42dcdd28880aa1</td>
+</tr>
+<tr class="even">
+<td align="left">E013</td>
+<td align="left">E013_15_coreMarks_mnemonics.bed.gz</td>
+<td align="left">2,483,570</td>
+<td align="left">640532177fa816c5032f300d45cca3c9</td>
+</tr>
+<tr class="odd">
+<td align="left">E083</td>
+<td align="left">E083_15_coreMarks_mnemonics.bed.gz</td>
+<td align="left">2,169,548</td>
+<td align="left">cdb7ce95dfb3bb6fadd76fe4ab43c9a5</td>
+</tr>
+<tr class="even">
+<td align="left">E095</td>
+<td align="left">E095_15_coreMarks_mnemonics.bed.gz</td>
+<td align="left">2,732,556</td>
+<td align="left">d7c6b90285e032eebbd9c3b6a0b444a6</td>
+</tr>
+<tr class="odd">
+<td align="left">E104</td>
+<td align="left">E104_15_coreMarks_mnemonics.bed.gz</td>
+<td align="left">2,007,772</td>
+<td align="left">4342ad9c85e0ce8b5f199b337fc90979</td>
+</tr>
+<tr class="even">
+<td align="left">E105</td>
+<td align="left">E105_15_coreMarks_mnemonics.bed.gz</td>
+<td align="left">2,079,527</td>
+<td align="left">7424f02ebf219f9628e30e0c72c459e8</td>
+</tr>
+<tr class="odd">
+<td align="left">E065</td>
+<td align="left">E065_15_coreMarks_mnemonics.bed.gz</td>
+<td align="left">2,361,143</td>
+<td align="left">0a37cdaea927423a33e66a33dee339ad</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="roadmap-note">
+<p><strong>The epigenomes are not equally powered.</strong> Background
+enhancer coverage varies roughly fourfold across this panel — from 1.6%
+of tested variants for the sparsest annotation to 9.3% for the densest.
+A fold enrichment from E065 aorta rests on far fewer overlapping
+variants than one from E083 fetal heart, and its interval is
+correspondingly wider. Differences in interval width across rows are
+mostly this, not differences in effect.</p>
+</div>
+</div>
+<div id="section-2-fash-versus-strober-across-the-panel"
+class="section level2">
+<h2>Section 2: FASH versus Strober across the panel</h2>
+<pre class="r"><code>plot_method_comparison(&quot;R6&quot;)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_roadmap_enhancer_exploration.rmd/figure-a-1.png" alt="Figure A. Enhancer enrichment for current FASH, Strober linear, and Strober quadratic/nonlinear discoveries across thirteen Roadmap epigenomes, using all discovered variants (left) and one lead variant per gene (right). Enhancer regions are the R6 definition, Roadmap ChromHMM states EnhG and Enh. Rows are grouped by biology; filled circles are the three epigenomes the R6 page shows, open circles the ten added here. Fold enrichment is the overlap rate in the variant set divided by the overlap rate among all tested variants; the dashed line marks no enrichment. Bars are leave-one-autosome-out jackknife 95% intervals." width="1710" />
+<p class="caption">
+Figure A. Enhancer enrichment for current FASH, Strober linear, and
+Strober quadratic/nonlinear discoveries across thirteen Roadmap
+epigenomes, using all discovered variants (left) and one lead variant
+per gene (right). Enhancer regions are the R6 definition, Roadmap
+ChromHMM states EnhG and Enh. Rows are grouped by biology; filled
+circles are the three epigenomes the R6 page shows, open circles the ten
+added here. Fold enrichment is the overlap rate in the variant set
+divided by the overlap rate among all tested variants; the dashed line
+marks no enrichment. Bars are leave-one-autosome-out jackknife 95%
+intervals.
+</p>
+</div>
+<p>Reading the <strong>all-variants</strong> column first, because it is
+the cleaner of the two. All three methods show the same block structure:
+the four cardiac epigenomes are enriched and the five iPSC epigenomes
+are not. For FASH, every cardiac interval lies entirely above 1 (4 of
+4), over a narrow range of 1.21-1.25-fold (E083 1.21, E095 1.22, E104
+1.25, E105 1.22), while no iPSC epigenome reaches that (0 of 5, range
+0.86-1.10-fold). The germ-layer epigenomes fall in between and none of
+them clears 1 (0 of 3, range 1.02-1.11-fold). Both Strober analyses give
+the same ordering with somewhat larger estimates: cardiac 4 of 4 for
+linear and 4 of 4 for quadratic.</p>
+<p>The <strong>lead-per-gene</strong> column does not reproduce that
+ordering, and this is the most important negative result on the page.
+For FASH’s 1,169 lead variants the enrichment is no longer concentrated
+in heart: 2 of 4 cardiac intervals clear 1, but so do 3 of 3 germ-layer
+and 2 of 5 iPSC intervals, and the largest single estimate in the whole
+column is an iPSC one (1.51-fold (95% CI 1.18-1.93) at E021 iPS DF 6.9).
+Lead-per-gene selection sharpens the <em>overall</em> enrichment — which
+is what R6 reports — but it does not sharpen tissue specificity. If
+anything it removes it.</p>
+<pre class="r"><code>plot_fold_heatmap(&quot;R6&quot;)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_roadmap_enhancer_exploration.rmd/heatmap-a-1.png" alt="Figure A2. Fold enrichment for all eight discovery sets against all thirteen epigenomes, R6 enhancer definition. Bold entries are estimates whose jackknife 95% interval lies entirely above 1. Colour is symmetric on the log2 scale so that no enrichment is neutral. The blank cell is a set-annotation pair with fewer than ten overlapping variants; see Section 6." width="1710" />
+<p class="caption">
+Figure A2. Fold enrichment for all eight discovery sets against all
+thirteen epigenomes, R6 enhancer definition. Bold entries are estimates
+whose jackknife 95% interval lies entirely above 1. Colour is symmetric
+on the log2 scale so that no enrichment is neutral. The blank cell is a
+set-annotation pair with fewer than ten overlapping variants; see
+Section 6.
+</p>
+</div>
+<p>The heatmap makes the two regimes visible at once. In the four
+all-variant columns the bold cells sit almost entirely in the heart
+block. In the four lead columns they scatter across iPSC, germ layer,
+and heart.</p>
+</div>
+<div id="section-3-fash-only-discoveries" class="section level2">
+<h2>Section 3: FASH-only discoveries</h2>
+<p>7,981 of FASH’s 9,148 discovered variants, and 1,029 of its 1,169
+lead variants, are at rsIDs that neither Strober analysis
+identified.</p>
+<pre class="r"><code>plot_fash_only(&quot;R6&quot;)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_roadmap_enhancer_exploration.rmd/figure-b-1.png" alt="Figure B. Enhancer enrichment for FASH discoveries at variants that neither Strober analysis identified (blue), against all FASH discoveries as a reference (grey), across thirteen Roadmap epigenomes. All discovered variants on the left, one lead variant per gene on the right. R6 enhancer definition; filled circles are the three epigenomes R6 shows. Bars are leave-one-autosome-out jackknife 95% intervals." width="1710" />
+<p class="caption">
+Figure B. Enhancer enrichment for FASH discoveries at variants that
+neither Strober analysis identified (blue), against all FASH discoveries
+as a reference (grey), across thirteen Roadmap epigenomes. All
+discovered variants on the left, one lead variant per gene on the right.
+R6 enhancer definition; filled circles are the three epigenomes R6
+shows. Bars are leave-one-autosome-out jackknife 95% intervals.
+</p>
+</div>
+<p>The exclusion changes almost nothing, in either column. The FASH-only
+lead set gives 3 of 3 germ-layer, 2 of 4 cardiac and 2 of 5 iPSC
+intervals above 1 — the same counts, at the same epigenomes (E021, E022
+in iPSC), as the unfiltered FASH lead set. The FASH-only all-variant set
+weakens uniformly relative to all FASH discoveries: 1 of 4 cardiac
+intervals clear 1 rather than 4 of 4, with the point estimates shifted
+down only slightly (1.14-1.21-fold against 1.21-1.25-fold). That is
+consistent with the smaller set size widening the intervals rather than
+with the exclusion removing signal, but this analysis cannot separate
+those two explanations.</p>
+<p>Whatever pattern the full FASH set carries, the FASH-only subset
+carries the same one. That is the useful conclusion here, and it holds
+for both the biologically coherent all-variant pattern and the
+incoherent lead pattern.</p>
+</div>
+<div id="section-4-the-summary-questions-answered-directly"
+class="section level2">
+<h2>Section 4: the summary questions, answered directly</h2>
+<div id="is-e020-representative-of-the-other-ipsc-epigenomes"
+class="section level3">
+<h3>Is E020 representative of the other iPSC epigenomes?</h3>
+<p><strong>In the all-variants view, yes; in the lead view, no.</strong>
+Across all FASH discoveries the five iPSC epigenomes are tightly grouped
+at or below no enrichment — E018 0.93, E019 0.93, E020 0.86, E021 1.10,
+E022 1.00 — with E020 the lowest of the five and none of the five
+clearing 1. R6’s statement that the starting state gives no signal is
+therefore not specific to E020.</p>
+<p>For FASH lead variants the group splits. E018, E019 and E020 sit at
+1.04, 1.07 and 1.05, all with intervals crossing 1, while E021 and E022
+give 1.51-fold (95% CI 1.18-1.93) and 1.42-fold (95% CI 1.22-1.66). So
+E020 is representative of the majority of the iPSC panel, but the iPSC
+panel itself is not internally coherent under lead selection, and E020
+happens to be on the quiet side of the split. Reporting E020 alone as
+“the iPSC epigenome” would have hidden that.</p>
+</div>
+<div
+id="is-e013-mesoderm-more-enriched-than-e011-endoderm-and-e012-ectoderm"
+class="section level3">
+<h3>Is E013 mesoderm more enriched than E011 endoderm and E012
+ectoderm?</h3>
+<p><strong>No — not for FASH.</strong> This was the cleanest specificity
+prediction on the page and it does not hold. For FASH lead variants the
+three germ layers are E011 1.33, E012 1.39, E013 1.47; all three
+intervals lie entirely above 1 and all three overlap each other heavily.
+Across all FASH discoveries they are E011 1.02, E012 1.09, E013 1.11,
+and none of the three clears 1. E013 is nominally the largest of the
+three in both views, but by a margin the intervals cannot support.</p>
+<p>The one place mesoderm does stand out slightly is Strober
+quadratic/nonlinear over all variants: 1.52 at E013 against 1.29 and
+1.20. That is one cell of one method, and the intervals still
+overlap.</p>
+<p>The honest reading is that these enrichments do not distinguish the
+germ layer that gives rise to cardiomyocytes from the two that do
+not.</p>
+</div>
+<div id="is-e095-representative-of-the-other-heart-related-epigenomes"
+class="section level3">
+<h3>Is E095 representative of the other heart-related epigenomes?</h3>
+<p><strong>Yes, clearly — this is the strongest coherence result on the
+page.</strong> Across all FASH discoveries the four cardiac epigenomes
+give E083 1.21, E095 1.22, E104 1.25, E105 1.22, a spread of well under
+0.1-fold, with all four intervals entirely above 1 and E095 sitting in
+the middle of the four. The same holds for both Strober sets: linear
+1.39-1.56-fold and quadratic 1.41-1.52-fold, each 4 of 4 and 4 of 4
+above 1.</p>
+<p>For FASH lead variants the cardiac block is looser — E083 1.20, E095
+1.26, E104 1.13, E105 1.30, with 2 of 4 intervals above 1 — but E095 is
+still not an outlier within it.</p>
+<p>E065 aorta behaves differently from the four cardiac annotations, and
+differently in the two views: 1.22 over all FASH variants but 0.71-fold
+(95% CI 0.42-1.20) for the lead set, the only below-1 point estimate in
+that column. It is also the sparsest annotation in the panel, so its
+estimates are the least stable. Keeping it visually separate was the
+right call; it should not be read as either support or
+contradiction.</p>
+</div>
+<div
+id="do-fetal-heart-and-adult-chamber-specific-heart-annotations-differ"
+class="section level3">
+<h3>Do fetal heart and adult chamber-specific heart annotations
+differ?</h3>
+<p><strong>Not for FASH.</strong> E083 fetal heart gives 1.21 against
+1.22, 1.25 and 1.22 for the three adult chambers over all discoveries,
+and 1.20 against 1.13-1.30-fold for the lead set. There is no
+fetal-versus-adult separation.</p>
+<p>There is a hint of one for <strong>Strober linear</strong>, where
+E083 is the largest cardiac estimate in both views: 1.56-fold (95% CI
+1.24-1.96) over all variants and 1.59-fold (95% CI 1.23-2.05) for lead
+variants, against 1.44/1.39/1.45 for the adult chambers. The intervals
+overlap, and we do not test this, so it is an observation to keep in
+mind rather than a finding.</p>
+<p>Among the three adult chambers there is no discernible structure at
+all: left ventricle, right atrium and right ventricle behave
+interchangeably for every discovery set.</p>
+</div>
+<div id="do-the-fash-only-lead-variants-retain-the-same-pattern"
+class="section level3">
+<h3>Do the FASH-only lead variants retain the same pattern?</h3>
+<p><strong>Yes.</strong> Section 3 covers this: the FASH-only lead set
+reproduces the unfiltered FASH lead set epigenome by epigenome,
+including which two iPSC epigenomes are enriched and which two cardiac
+ones are. The pattern the FASH-only variants retain is the
+<em>lead-view</em> pattern, which is the one without tissue
+specificity.</p>
+</div>
+<div
+id="are-the-conclusions-sensitive-to-the-exact-enhancer-state-definition"
+class="section level3">
+<h3>Are the conclusions sensitive to the exact enhancer-state
+definition?</h3>
+<p><strong>No.</strong> Section 5 covers this in full. Across the 103
+cells estimable under both definitions the fold enrichments correlate at
+0.980, the largest single shift is 0.18-fold, and only 2 cells move
+their point estimate across 1.</p>
+</div>
+<div id="how-does-this-compare-qualitatively-with-strober-et-al.-2019"
+class="section level3">
+<h3>How does this compare qualitatively with Strober et al. (2019)?</h3>
+<p>Strober et al. reported that <em>early</em> dynamic eQTLs are
+enriched in iPSC ChromHMM enhancers but not heart-related ones, and
+<em>late</em> dynamic eQTLs in heart-related enhancers but not iPSC
+ones. The all-variant half of this page is qualitatively consistent with
+the second of those two statements and with nothing more: every method’s
+full discovery set is enriched in the cardiac block and flat in the iPSC
+block.</p>
+<p>Three structural differences make this a loose comparison rather than
+a replication, and none of them is closeable with the estimator held
+fixed here:</p>
+<ol style="list-style-type: decimal">
+<li><strong>No time split.</strong> Strober’s contrast is between early
+and late subsets of their discoveries. The sets on this page are
+time-collapsed, so their “early in iPSC” half has no counterpart here at
+all. The internal page <a
+href="revision_internal_fash_temporal_class_enhancer_enrichment.html"><code>revision_internal_fash_temporal_class_enhancer_enrichment.rmd</code></a>
+is where that split is examined, and it reports that stage matching does
+not hold for FASH.</li>
+<li><strong>No pooling or set difference.</strong> Strober pool the five
+epigenomes of a group into one binary mask and then subtract — their
+“heart only” annotation is heart-and-not-iPSC. This page keeps one
+epigenome per row, which is what makes the within-group coherence
+question askable but is not the quantity they report.</li>
+<li><strong>A different null.</strong> Their enrichment is against
+permuted or matched background variant sets; this page uses the
+tested-variant background with a chromosome jackknife.</li>
+</ol>
+</div>
+</div>
+<div id="section-5-the-exact-strober-enhancer-state-definition"
+class="section level2">
+<h2>Section 5: the exact Strober enhancer-state definition</h2>
+<p>The R6 page defines enhancer regions as ChromHMM states
+<code>EnhG</code> and <code>Enh</code>. Strober et al. (2019) use a
+<strong>broader</strong> set. This is not inferred from the paper text,
+which does not enumerate states; it is read off their source. In
+<code>BennyStrobes/ipsc_cardiomyocyte_differentiation@master</code>,
+<code>dynamic_eqtl_calling/perform_tissue_specific_chrom_hmm_enrichment_analysis.py</code>,
+<code>get_valid_markers()</code>:</p>
+<pre class="python"><code>elif marker_type == &#39;enhancer&#39;:
+    valid_markers[&#39;7_Enh&#39;] = 1
+    valid_markers[&#39;6_EnhG&#39;] = 1
+    valid_markers[&#39;12_EnhBiv&#39;] = 1
+    valid_markers[&#39;11_BivFlnk&#39;] = 1</code></pre>
+<p>So their enhancer set is four states, adding the bivalent enhancer
+state <code>12_EnhBiv</code> and the bivalent flanking state
+<code>11_BivFlnk</code>. Note that <code>11_BivFlnk</code> also appears
+in their <code>promotor</code> marker set, so their marker classes are
+not disjoint; we reproduce their enhancer set as written rather than
+tidying it.</p>
+<div class="roadmap-note">
+<p><strong>The two definitions are reported separately and the R6
+definition is primary.</strong> Every figure and table above uses
+<code>EnhG + Enh</code>. Nothing on this page silently substitutes the
+four-state definition for it. Section 5 is the only place the Strober
+definition appears.</p>
+</div>
+<p>State by state, on E095 as an example — the two extra states are
+small relative to the two shared ones:</p>
+<div class="roadmap-table-scroll">
+<table>
+<thead>
+<tr class="header">
+<th align="left">State</th>
+<th align="left">R6</th>
+<th align="left">Strober</th>
+<th align="left">Intervals</th>
+<th align="right">Autosomal Mb</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1_TssA</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">18,463</td>
+<td align="right">24.2</td>
+</tr>
+<tr class="even">
+<td align="left">2_TssAFlnk</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">15,655</td>
+<td align="right">5.3</td>
+</tr>
+<tr class="odd">
+<td align="left">3_TxFlnk</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">797</td>
+<td align="right">0.6</td>
+</tr>
+<tr class="even">
+<td align="left">4_Tx</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">38,331</td>
+<td align="right">110.3</td>
+</tr>
+<tr class="odd">
+<td align="left">5_TxWk</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">117,033</td>
+<td align="right">499.8</td>
+</tr>
+<tr class="even">
+<td align="left">6_EnhG</td>
+<td align="left">yes</td>
+<td align="left">yes</td>
+<td align="left">16,480</td>
+<td align="right">14.2</td>
+</tr>
+<tr class="odd">
+<td align="left">7_Enh</td>
+<td align="left">yes</td>
+<td align="left">yes</td>
+<td align="left">96,824</td>
+<td align="right">90.5</td>
+</tr>
+<tr class="even">
+<td align="left">8_ZNF/Rpts</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">4,359</td>
+<td align="right">4.5</td>
+</tr>
+<tr class="odd">
+<td align="left">9_Het</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">36,819</td>
+<td align="right">64.4</td>
+</tr>
+<tr class="even">
+<td align="left">10_TssBiv</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">2,194</td>
+<td align="right">1.3</td>
+</tr>
+<tr class="odd">
+<td align="left">11_BivFlnk</td>
+<td align="left"></td>
+<td align="left">yes</td>
+<td align="left">2,630</td>
+<td align="right">0.9</td>
+</tr>
+<tr class="even">
+<td align="left">12_EnhBiv</td>
+<td align="left"></td>
+<td align="left">yes</td>
+<td align="left">5,311</td>
+<td align="right">2.4</td>
+</tr>
+<tr class="odd">
+<td align="left">13_ReprPC</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">13,665</td>
+<td align="right">18.1</td>
+</tr>
+<tr class="even">
+<td align="left">14_ReprPCWk</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">34,409</td>
+<td align="right">340.5</td>
+</tr>
+<tr class="odd">
+<td align="left">15_Quies</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left">71,797</td>
+<td align="right">1704.0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Across the panel the four-state definition adds between 0.2% and
+12.8% to the autosomal bases covered:</p>
+<div class="roadmap-table-scroll">
+<table>
+<thead>
+<tr class="header">
+<th align="left">Epigenome</th>
+<th align="right">R6 states (Mb)</th>
+<th align="right">Strober states (Mb)</th>
+<th align="right">Ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">E018 iPS-15b</td>
+<td align="right">104.3</td>
+<td align="right">116.5</td>
+<td align="right">1.12</td>
+</tr>
+<tr class="even">
+<td align="left">E019 iPS-18</td>
+<td align="right">108.2</td>
+<td align="right">122.1</td>
+<td align="right">1.13</td>
+</tr>
+<tr class="odd">
+<td align="left">E020 iPS-20b</td>
+<td align="right">87.1</td>
+<td align="right">97.8</td>
+<td align="right">1.12</td>
+</tr>
+<tr class="even">
+<td align="left">E021 iPS DF 6.9</td>
+<td align="right">45.9</td>
+<td align="right">49.9</td>
+<td align="right">1.09</td>
+</tr>
+<tr class="odd">
+<td align="left">E022 iPS DF 19.11</td>
+<td align="right">98.8</td>
+<td align="right">109.1</td>
+<td align="right">1.10</td>
+</tr>
+<tr class="even">
+<td align="left">E011 endoderm</td>
+<td align="right">98.6</td>
+<td align="right">105.0</td>
+<td align="right">1.07</td>
+</tr>
+<tr class="odd">
+<td align="left">E012 ectoderm</td>
+<td align="right">83.4</td>
+<td align="right">94.1</td>
+<td align="right">1.13</td>
+</tr>
+<tr class="even">
+<td align="left">E013 mesoderm</td>
+<td align="right">100.4</td>
+<td align="right">102.3</td>
+<td align="right">1.02</td>
+</tr>
+<tr class="odd">
+<td align="left">E083 fetal heart</td>
+<td align="right">162.5</td>
+<td align="right">166.9</td>
+<td align="right">1.03</td>
+</tr>
+<tr class="even">
+<td align="left">E095 left ventricle</td>
+<td align="right">104.7</td>
+<td align="right">108.0</td>
+<td align="right">1.03</td>
+</tr>
+<tr class="odd">
+<td align="left">E104 right atrium</td>
+<td align="right">80.3</td>
+<td align="right">80.4</td>
+<td align="right">1.00</td>
+</tr>
+<tr class="even">
+<td align="left">E105 right ventricle</td>
+<td align="right">82.6</td>
+<td align="right">85.0</td>
+<td align="right">1.03</td>
+</tr>
+<tr class="odd">
+<td align="left">E065 aorta</td>
+<td align="right">33.7</td>
+<td align="right">34.0</td>
+<td align="right">1.01</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>plot_definition_sensitivity()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_roadmap_enhancer_exploration.rmd/figure-c-1.png" alt="Figure C. The two enhancer-state definitions side by side for three FASH discovery sets: the R6 definition (EnhG + Enh, blue) and the Strober definition (EnhG + Enh + EnhBiv + BivFlnk, green). Same estimator, same discovery sets, same background; only the state set differs. Bars are leave-one-autosome-out jackknife 95% intervals." width="1710" />
+<p class="caption">
+Figure C. The two enhancer-state definitions side by side for three FASH
+discovery sets: the R6 definition (EnhG + Enh, blue) and the Strober
+definition (EnhG + Enh + EnhBiv + BivFlnk, green). Same estimator, same
+discovery sets, same background; only the state set differs. Bars are
+leave-one-autosome-out jackknife 95% intervals.
+</p>
+</div>
+<p>The two definitions are close to interchangeable here. Over the 103
+estimable cells the fold enrichments correlate at 0.980; the largest
+absolute shift in any single cell is 0.175-fold; 2 cells move their
+point estimate across 1, and 6 change whether their jackknife interval
+lies entirely above 1 — all of the latter at boundaries where the
+interval already touched 1. No answer in Section 4 changes under the
+Strober definition.</p>
+<p>The full Strober-definition estimates, for the record:</p>
+<div class="roadmap-table-scroll">
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_roadmap_enhancer_exploration.rmd/strober-heatmap-1.png" alt="Figure C2. Fold enrichment under the Strober four-state enhancer definition, all eight discovery sets against all thirteen epigenomes. Compare with Figure A2." width="1710" />
+<p class="caption">
+Figure C2. Fold enrichment under the Strober four-state enhancer
+definition, all eight discovery sets against all thirteen epigenomes.
+Compare with Figure A2.
+</p>
+</div>
+</div>
+</div>
+<div id="section-6-reading-of-the-whole-pattern" class="section level2">
+<h2>Section 6: reading of the whole pattern</h2>
+<p>The pre-committed interpretation rule for this page was: report a
+biological pattern only if it holds across the members of a group, and
+say so plainly if a headline epigenome turns out to be isolated.
+Applying it:</p>
+<p><strong>There is a coherent tissue pattern, but only in the
+all-variants view.</strong> Little or no enrichment in iPSC, an
+intermediate and non-significant germ layer, and enrichment across all
+four cardiac epigenomes, is exactly the shape the reviewer comment would
+predict — and it holds for FASH, for Strober linear and for Strober
+quadratic alike, so it is a property of the discovery universe more than
+of any one method. The cardiac block in particular is remarkably
+uniform.</p>
+<p><strong>The specificity check inside the germ layer fails.</strong>
+E013 mesoderm is not distinguishable from E011 endoderm or E012 ectoderm
+for FASH under either selection strategy. The clean “mesoderm but not
+the other two germ layers” story is not available from these data, and
+we should not tell it.</p>
+<p><strong>The lead-per-gene view has no tissue pattern.</strong> It has
+larger enrichments, but distributed across iPSC, germ layer and heart
+without structure, and its single largest estimate is at an iPSC
+epigenome. R6 currently leans on the lead view for its strongest numbers
+while describing them in differentiation-stage terms. Those two things
+are in tension, and this page is where that tension shows up.</p>
+<p><strong>Neither E013 nor E095 is an isolated result, but they are not
+equally solid.</strong> E095 sits comfortably inside a tight, coherent
+cardiac block. E013 is the top of a germ-layer group whose three members
+are indistinguishable, so its apparent mesoderm specificity is not
+reproduced by contrast with its neighbours — it is just the general
+level of the group. E020 is representative of the iPSC group in the
+all-variants view and on the quiet side of a split group in the lead
+view.</p>
+<p><strong>A caution against annotation shopping.</strong> The single
+largest estimate anywhere in this design is 1.69-fold (95% CI 1.34-2.12)
+— Strober quadratic, all variants, at <em>aorta</em>, the sparsest and
+least relevant annotation in the panel. Anything that generous a search
+space produces a best-looking cell; that is the reason to read groups
+rather than cells.</p>
+<div id="cells-with-too-few-overlapping-variants-to-estimate"
+class="section level3">
+<h3>Cells with too few overlapping variants to estimate</h3>
+<p><code>compute_enrichment()</code> returns no estimate when fewer than
+10 selected variants fall inside an annotation. That happens in 2 of the
+208 cells in this design, both at the sparsest annotation against the
+smallest discovery set:</p>
+<table style="width:100%;">
+<colgroup>
+<col width="14%" />
+<col width="26%" />
+<col width="12%" />
+<col width="16%" />
+<col width="14%" />
+<col width="15%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Definition</th>
+<th align="left">Discovery set</th>
+<th align="left">Epigenome</th>
+<th align="left">Roadmap name</th>
+<th align="left">N variants</th>
+<th align="left">Overlapping</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Strober</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">548</td>
+<td align="left">9</td>
+</tr>
+<tr class="even">
+<td align="left">R6</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">548</td>
+<td align="left">9</td>
+</tr>
+</tbody>
+</table>
+<p>These cells are blank in the heatmaps and absent from the forest
+plots. No other cell is missing an estimate.</p>
+</div>
+</div>
+<div id="section-7-the-full-estimate-table" class="section level2">
+<h2>Section 7: the full estimate table</h2>
+<p>One row per epigenome × discovery set, R6 enhancer definition.
+<code>Overlap prop.</code> is the fraction of the discovery set inside
+the annotation, <code>Background prop.</code> the same fraction among
+the tested variants used as the comparator (which excludes the set
+itself, so it varies slightly by row).</p>
+<div class="roadmap-table-scroll">
+<table style="width:100%;">
+<colgroup>
+<col width="3%" />
+<col width="29%" />
+<col width="7%" />
+<col width="15%" />
+<col width="7%" />
+<col width="9%" />
+<col width="11%" />
+<col width="3%" />
+<col width="5%" />
+<col width="5%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">ID</th>
+<th align="left">Roadmap name</th>
+<th align="left">Group</th>
+<th align="left">Discovery set</th>
+<th align="left">N variants</th>
+<th align="left">Overlap prop.</th>
+<th align="left">Background prop.</th>
+<th align="left">Fold</th>
+<th align="left">CI lower</th>
+<th align="left">CI upper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0444</td>
+<td align="left">0.0480</td>
+<td align="left">0.925</td>
+<td align="left">0.796</td>
+<td align="left">1.075</td>
+</tr>
+<tr class="even">
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0496</td>
+<td align="left">0.0479</td>
+<td align="left">1.035</td>
+<td align="left">0.881</td>
+<td align="left">1.217</td>
+</tr>
+<tr class="odd">
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0501</td>
+<td align="left">0.0479</td>
+<td align="left">1.046</td>
+<td align="left">0.836</td>
+<td align="left">1.310</td>
+</tr>
+<tr class="even">
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0584</td>
+<td align="left">0.0479</td>
+<td align="left">1.219</td>
+<td align="left">0.895</td>
+<td align="left">1.659</td>
+</tr>
+<tr class="odd">
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0565</td>
+<td align="left">0.0478</td>
+<td align="left">1.181</td>
+<td align="left">0.967</td>
+<td align="left">1.442</td>
+</tr>
+<tr class="even">
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0478</td>
+<td align="left">0.0479</td>
+<td align="left">0.998</td>
+<td align="left">0.752</td>
+<td align="left">1.324</td>
+</tr>
+<tr class="odd">
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0456</td>
+<td align="left">0.0479</td>
+<td align="left">0.951</td>
+<td align="left">0.814</td>
+<td align="left">1.111</td>
+</tr>
+<tr class="even">
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0505</td>
+<td align="left">0.0479</td>
+<td align="left">1.055</td>
+<td align="left">0.912</td>
+<td align="left">1.219</td>
+</tr>
+<tr class="odd">
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0399</td>
+<td align="left">0.0431</td>
+<td align="left">0.926</td>
+<td align="left">0.729</td>
+<td align="left">1.177</td>
+</tr>
+<tr class="even">
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0462</td>
+<td align="left">0.0430</td>
+<td align="left">1.073</td>
+<td align="left">0.808</td>
+<td align="left">1.426</td>
+</tr>
+<tr class="odd">
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0464</td>
+<td align="left">0.0430</td>
+<td align="left">1.079</td>
+<td align="left">0.797</td>
+<td align="left">1.461</td>
+</tr>
+<tr class="even">
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0456</td>
+<td align="left">0.0430</td>
+<td align="left">1.060</td>
+<td align="left">0.778</td>
+<td align="left">1.444</td>
+</tr>
+<tr class="odd">
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0511</td>
+<td align="left">0.0430</td>
+<td align="left">1.188</td>
+<td align="left">0.940</td>
+<td align="left">1.502</td>
+</tr>
+<tr class="even">
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0449</td>
+<td align="left">0.0430</td>
+<td align="left">1.044</td>
+<td align="left">0.741</td>
+<td align="left">1.470</td>
+</tr>
+<tr class="odd">
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0403</td>
+<td align="left">0.0431</td>
+<td align="left">0.937</td>
+<td align="left">0.724</td>
+<td align="left">1.212</td>
+</tr>
+<tr class="even">
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0447</td>
+<td align="left">0.0430</td>
+<td align="left">1.039</td>
+<td align="left">0.753</td>
+<td align="left">1.432</td>
+</tr>
+<tr class="odd">
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0315</td>
+<td align="left">0.0366</td>
+<td align="left">0.860</td>
+<td align="left">0.690</td>
+<td align="left">1.072</td>
+</tr>
+<tr class="even">
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0385</td>
+<td align="left">0.0365</td>
+<td align="left">1.054</td>
+<td align="left">0.775</td>
+<td align="left">1.433</td>
+</tr>
+<tr class="odd">
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0377</td>
+<td align="left">0.0365</td>
+<td align="left">1.032</td>
+<td align="left">0.817</td>
+<td align="left">1.303</td>
+</tr>
+<tr class="even">
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0401</td>
+<td align="left">0.0365</td>
+<td align="left">1.099</td>
+<td align="left">0.795</td>
+<td align="left">1.519</td>
+</tr>
+<tr class="odd">
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0443</td>
+<td align="left">0.0365</td>
+<td align="left">1.215</td>
+<td align="left">1.040</td>
+<td align="left">1.419</td>
+</tr>
+<tr class="even">
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0377</td>
+<td align="left">0.0365</td>
+<td align="left">1.031</td>
+<td align="left">0.692</td>
+<td align="left">1.537</td>
+</tr>
+<tr class="odd">
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0313</td>
+<td align="left">0.0366</td>
+<td align="left">0.856</td>
+<td align="left">0.677</td>
+<td align="left">1.082</td>
+</tr>
+<tr class="even">
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0379</td>
+<td align="left">0.0365</td>
+<td align="left">1.038</td>
+<td align="left">0.744</td>
+<td align="left">1.447</td>
+</tr>
+<tr class="odd">
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0310</td>
+<td align="left">0.0283</td>
+<td align="left">1.097</td>
+<td align="left">0.887</td>
+<td align="left">1.357</td>
+</tr>
+<tr class="even">
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0428</td>
+<td align="left">0.0283</td>
+<td align="left">1.511</td>
+<td align="left">1.183</td>
+<td align="left">1.929</td>
+</tr>
+<tr class="odd">
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0290</td>
+<td align="left">0.0283</td>
+<td align="left">1.022</td>
+<td align="left">0.754</td>
+<td align="left">1.385</td>
+</tr>
+<tr class="even">
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0347</td>
+<td align="left">0.0283</td>
+<td align="left">1.224</td>
+<td align="left">0.719</td>
+<td align="left">2.083</td>
+</tr>
+<tr class="odd">
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0307</td>
+<td align="left">0.0283</td>
+<td align="left">1.086</td>
+<td align="left">0.878</td>
+<td align="left">1.343</td>
+</tr>
+<tr class="even">
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0319</td>
+<td align="left">0.0283</td>
+<td align="left">1.125</td>
+<td align="left">0.777</td>
+<td align="left">1.629</td>
+</tr>
+<tr class="odd">
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0326</td>
+<td align="left">0.0283</td>
+<td align="left">1.151</td>
+<td align="left">0.932</td>
+<td align="left">1.422</td>
+</tr>
+<tr class="even">
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0457</td>
+<td align="left">0.0283</td>
+<td align="left">1.613</td>
+<td align="left">1.253</td>
+<td align="left">2.076</td>
+</tr>
+<tr class="odd">
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0803</td>
+<td align="left">0.0807</td>
+<td align="left">0.996</td>
+<td align="left">0.808</td>
+<td align="left">1.227</td>
+</tr>
+<tr class="even">
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.1146</td>
+<td align="left">0.0806</td>
+<td align="left">1.422</td>
+<td align="left">1.220</td>
+<td align="left">1.658</td>
+</tr>
+<tr class="odd">
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0826</td>
+<td align="left">0.0806</td>
+<td align="left">1.024</td>
+<td align="left">0.840</td>
+<td align="left">1.249</td>
+</tr>
+<tr class="even">
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.1095</td>
+<td align="left">0.0806</td>
+<td align="left">1.358</td>
+<td align="left">1.075</td>
+<td align="left">1.715</td>
+</tr>
+<tr class="odd">
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0871</td>
+<td align="left">0.0806</td>
+<td align="left">1.081</td>
+<td align="left">0.914</td>
+<td align="left">1.278</td>
+</tr>
+<tr class="even">
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0899</td>
+<td align="left">0.0806</td>
+<td align="left">1.114</td>
+<td align="left">0.880</td>
+<td align="left">1.411</td>
+</tr>
+<tr class="odd">
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0821</td>
+<td align="left">0.0806</td>
+<td align="left">1.018</td>
+<td align="left">0.831</td>
+<td align="left">1.246</td>
+</tr>
+<tr class="even">
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.1176</td>
+<td align="left">0.0806</td>
+<td align="left">1.459</td>
+<td align="left">1.264</td>
+<td align="left">1.683</td>
+</tr>
+<tr class="odd">
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0407</td>
+<td align="left">0.0400</td>
+<td align="left">1.018</td>
+<td align="left">0.851</td>
+<td align="left">1.217</td>
+</tr>
+<tr class="even">
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0530</td>
+<td align="left">0.0399</td>
+<td align="left">1.328</td>
+<td align="left">1.061</td>
+<td align="left">1.661</td>
+</tr>
+<tr class="odd">
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0451</td>
+<td align="left">0.0399</td>
+<td align="left">1.130</td>
+<td align="left">0.864</td>
+<td align="left">1.477</td>
+</tr>
+<tr class="even">
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0401</td>
+<td align="left">0.0400</td>
+<td align="left">1.004</td>
+<td align="left">0.654</td>
+<td align="left">1.543</td>
+</tr>
+<tr class="odd">
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0515</td>
+<td align="left">0.0399</td>
+<td align="left">1.292</td>
+<td align="left">1.084</td>
+<td align="left">1.540</td>
+</tr>
+<tr class="even">
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0420</td>
+<td align="left">0.0400</td>
+<td align="left">1.052</td>
+<td align="left">0.588</td>
+<td align="left">1.879</td>
+</tr>
+<tr class="odd">
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0400</td>
+<td align="left">0.0400</td>
+<td align="left">1.000</td>
+<td align="left">0.830</td>
+<td align="left">1.205</td>
+</tr>
+<tr class="even">
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0505</td>
+<td align="left">0.0400</td>
+<td align="left">1.265</td>
+<td align="left">1.007</td>
+<td align="left">1.589</td>
+</tr>
+<tr class="odd">
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0455</td>
+<td align="left">0.0418</td>
+<td align="left">1.088</td>
+<td align="left">0.893</td>
+<td align="left">1.324</td>
+</tr>
+<tr class="even">
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0582</td>
+<td align="left">0.0418</td>
+<td align="left">1.391</td>
+<td align="left">1.131</td>
+<td align="left">1.710</td>
+</tr>
+<tr class="odd">
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0470</td>
+<td align="left">0.0418</td>
+<td align="left">1.123</td>
+<td align="left">0.922</td>
+<td align="left">1.368</td>
+</tr>
+<tr class="even">
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0511</td>
+<td align="left">0.0418</td>
+<td align="left">1.221</td>
+<td align="left">0.810</td>
+<td align="left">1.840</td>
+</tr>
+<tr class="odd">
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0503</td>
+<td align="left">0.0418</td>
+<td align="left">1.204</td>
+<td align="left">1.000</td>
+<td align="left">1.451</td>
+</tr>
+<tr class="even">
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0478</td>
+<td align="left">0.0418</td>
+<td align="left">1.143</td>
+<td align="left">0.780</td>
+<td align="left">1.674</td>
+</tr>
+<tr class="odd">
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0462</td>
+<td align="left">0.0418</td>
+<td align="left">1.106</td>
+<td align="left">0.908</td>
+<td align="left">1.348</td>
+</tr>
+<tr class="even">
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0603</td>
+<td align="left">0.0418</td>
+<td align="left">1.440</td>
+<td align="left">1.176</td>
+<td align="left">1.765</td>
+</tr>
+<tr class="odd">
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0594</td>
+<td align="left">0.0534</td>
+<td align="left">1.111</td>
+<td align="left">0.908</td>
+<td align="left">1.358</td>
+</tr>
+<tr class="even">
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0787</td>
+<td align="left">0.0535</td>
+<td align="left">1.472</td>
+<td align="left">1.150</td>
+<td align="left">1.883</td>
+</tr>
+<tr class="odd">
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0683</td>
+<td align="left">0.0534</td>
+<td align="left">1.279</td>
+<td align="left">0.981</td>
+<td align="left">1.667</td>
+</tr>
+<tr class="even">
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0693</td>
+<td align="left">0.0535</td>
+<td align="left">1.296</td>
+<td align="left">0.987</td>
+<td align="left">1.701</td>
+</tr>
+<tr class="odd">
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0808</td>
+<td align="left">0.0533</td>
+<td align="left">1.516</td>
+<td align="left">1.239</td>
+<td align="left">1.855</td>
+</tr>
+<tr class="even">
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0725</td>
+<td align="left">0.0535</td>
+<td align="left">1.355</td>
+<td align="left">0.981</td>
+<td align="left">1.871</td>
+</tr>
+<tr class="odd">
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0586</td>
+<td align="left">0.0535</td>
+<td align="left">1.097</td>
+<td align="left">0.917</td>
+<td align="left">1.311</td>
+</tr>
+<tr class="even">
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0739</td>
+<td align="left">0.0535</td>
+<td align="left">1.381</td>
+<td align="left">1.117</td>
+<td align="left">1.708</td>
+</tr>
+<tr class="odd">
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">Heart</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.1122</td>
+<td align="left">0.0928</td>
+<td align="left">1.208</td>
+<td align="left">1.029</td>
+<td align="left">1.419</td>
+</tr>
+<tr class="even">
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">Heart</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.1112</td>
+<td align="left">0.0930</td>
+<td align="left">1.195</td>
+<td align="left">0.990</td>
+<td align="left">1.443</td>
+</tr>
+<tr class="odd">
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">Heart</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.1442</td>
+<td align="left">0.0927</td>
+<td align="left">1.556</td>
+<td align="left">1.238</td>
+<td align="left">1.955</td>
+</tr>
+<tr class="even">
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">Heart</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.1478</td>
+<td align="left">0.0930</td>
+<td align="left">1.589</td>
+<td align="left">1.229</td>
+<td align="left">2.054</td>
+</tr>
+<tr class="odd">
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">Heart</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.1412</td>
+<td align="left">0.0926</td>
+<td align="left">1.525</td>
+<td align="left">1.298</td>
+<td align="left">1.791</td>
+</tr>
+<tr class="even">
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">Heart</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.1159</td>
+<td align="left">0.0930</td>
+<td align="left">1.246</td>
+<td align="left">0.966</td>
+<td align="left">1.608</td>
+</tr>
+<tr class="odd">
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">Heart</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.1060</td>
+<td align="left">0.0929</td>
+<td align="left">1.141</td>
+<td align="left">0.972</td>
+<td align="left">1.339</td>
+</tr>
+<tr class="even">
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">Heart</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.1088</td>
+<td align="left">0.0930</td>
+<td align="left">1.170</td>
+<td align="left">0.956</td>
+<td align="left">1.431</td>
+</tr>
+<tr class="odd">
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0864</td>
+<td align="left">0.0709</td>
+<td align="left">1.218</td>
+<td align="left">1.031</td>
+<td align="left">1.439</td>
+</tr>
+<tr class="even">
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0898</td>
+<td align="left">0.0710</td>
+<td align="left">1.264</td>
+<td align="left">1.045</td>
+<td align="left">1.530</td>
+</tr>
+<tr class="odd">
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.1017</td>
+<td align="left">0.0708</td>
+<td align="left">1.436</td>
+<td align="left">1.106</td>
+<td align="left">1.864</td>
+</tr>
+<tr class="even">
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0894</td>
+<td align="left">0.0711</td>
+<td align="left">1.258</td>
+<td align="left">0.964</td>
+<td align="left">1.643</td>
+</tr>
+<tr class="odd">
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.1024</td>
+<td align="left">0.0708</td>
+<td align="left">1.447</td>
+<td align="left">1.201</td>
+<td align="left">1.742</td>
+</tr>
+<tr class="even">
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0826</td>
+<td align="left">0.0711</td>
+<td align="left">1.163</td>
+<td align="left">0.899</td>
+<td align="left">1.504</td>
+</tr>
+<tr class="odd">
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0827</td>
+<td align="left">0.0709</td>
+<td align="left">1.166</td>
+<td align="left">0.998</td>
+<td align="left">1.361</td>
+</tr>
+<tr class="even">
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0894</td>
+<td align="left">0.0710</td>
+<td align="left">1.258</td>
+<td align="left">1.038</td>
+<td align="left">1.526</td>
+</tr>
+<tr class="odd">
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">Heart</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0632</td>
+<td align="left">0.0506</td>
+<td align="left">1.249</td>
+<td align="left">1.041</td>
+<td align="left">1.499</td>
+</tr>
+<tr class="even">
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">Heart</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0573</td>
+<td align="left">0.0507</td>
+<td align="left">1.130</td>
+<td align="left">0.879</td>
+<td align="left">1.452</td>
+</tr>
+<tr class="odd">
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">Heart</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0704</td>
+<td align="left">0.0506</td>
+<td align="left">1.391</td>
+<td align="left">1.054</td>
+<td align="left">1.834</td>
+</tr>
+<tr class="even">
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">Heart</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0639</td>
+<td align="left">0.0507</td>
+<td align="left">1.259</td>
+<td align="left">0.929</td>
+<td align="left">1.706</td>
+</tr>
+<tr class="odd">
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">Heart</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0714</td>
+<td align="left">0.0505</td>
+<td align="left">1.412</td>
+<td align="left">1.130</td>
+<td align="left">1.764</td>
+</tr>
+<tr class="even">
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">Heart</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0565</td>
+<td align="left">0.0507</td>
+<td align="left">1.114</td>
+<td align="left">0.810</td>
+<td align="left">1.533</td>
+</tr>
+<tr class="odd">
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">Heart</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0613</td>
+<td align="left">0.0506</td>
+<td align="left">1.210</td>
+<td align="left">1.007</td>
+<td align="left">1.454</td>
+</tr>
+<tr class="even">
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">Heart</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0554</td>
+<td align="left">0.0507</td>
+<td align="left">1.092</td>
+<td align="left">0.880</td>
+<td align="left">1.355</td>
+</tr>
+<tr class="odd">
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0740</td>
+<td align="left">0.0609</td>
+<td align="left">1.215</td>
+<td align="left">1.009</td>
+<td align="left">1.464</td>
+</tr>
+<tr class="even">
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0796</td>
+<td align="left">0.0610</td>
+<td align="left">1.304</td>
+<td align="left">1.014</td>
+<td align="left">1.675</td>
+</tr>
+<tr class="odd">
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0884</td>
+<td align="left">0.0609</td>
+<td align="left">1.452</td>
+<td align="left">1.128</td>
+<td align="left">1.869</td>
+</tr>
+<tr class="even">
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0876</td>
+<td align="left">0.0610</td>
+<td align="left">1.435</td>
+<td align="left">1.067</td>
+<td align="left">1.929</td>
+</tr>
+<tr class="odd">
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0859</td>
+<td align="left">0.0608</td>
+<td align="left">1.412</td>
+<td align="left">1.140</td>
+<td align="left">1.750</td>
+</tr>
+<tr class="even">
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0710</td>
+<td align="left">0.0610</td>
+<td align="left">1.163</td>
+<td align="left">0.865</td>
+<td align="left">1.565</td>
+</tr>
+<tr class="odd">
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0718</td>
+<td align="left">0.0609</td>
+<td align="left">1.178</td>
+<td align="left">0.982</td>
+<td align="left">1.413</td>
+</tr>
+<tr class="even">
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0787</td>
+<td align="left">0.0610</td>
+<td align="left">1.290</td>
+<td align="left">1.015</td>
+<td align="left">1.639</td>
+</tr>
+<tr class="odd">
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">Vascular</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0191</td>
+<td align="left">0.0157</td>
+<td align="left">1.221</td>
+<td align="left">0.910</td>
+<td align="left">1.638</td>
+</tr>
+<tr class="even">
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">Vascular</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0111</td>
+<td align="left">0.0157</td>
+<td align="left">0.707</td>
+<td align="left">0.416</td>
+<td align="left">1.203</td>
+</tr>
+<tr class="odd">
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">Vascular</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0187</td>
+<td align="left">0.0157</td>
+<td align="left">1.195</td>
+<td align="left">0.882</td>
+<td align="left">1.619</td>
+</tr>
+<tr class="even">
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">Vascular</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0164</td>
+<td align="left">0.0157</td>
+<td align="left">-</td>
+<td align="left">-</td>
+<td align="left">-</td>
+</tr>
+<tr class="odd">
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">Vascular</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0263</td>
+<td align="left">0.0156</td>
+<td align="left">1.686</td>
+<td align="left">1.342</td>
+<td align="left">2.118</td>
+</tr>
+<tr class="even">
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">Vascular</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0203</td>
+<td align="left">0.0157</td>
+<td align="left">1.291</td>
+<td align="left">0.794</td>
+<td align="left">2.100</td>
+</tr>
+<tr class="odd">
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">Vascular</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0197</td>
+<td align="left">0.0157</td>
+<td align="left">1.255</td>
+<td align="left">0.925</td>
+<td align="left">1.704</td>
+</tr>
+<tr class="even">
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">Vascular</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0107</td>
+<td align="left">0.0157</td>
+<td align="left">0.680</td>
+<td align="left">0.394</td>
+<td align="left">1.172</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The same table under the Strober four-state definition:</p>
+<div class="roadmap-table-scroll">
+<table style="width:100%;">
+<colgroup>
+<col width="3%" />
+<col width="29%" />
+<col width="7%" />
+<col width="15%" />
+<col width="7%" />
+<col width="9%" />
+<col width="11%" />
+<col width="3%" />
+<col width="5%" />
+<col width="5%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">ID</th>
+<th align="left">Roadmap name</th>
+<th align="left">Group</th>
+<th align="left">Discovery set</th>
+<th align="left">N variants</th>
+<th align="left">Overlap prop.</th>
+<th align="left">Background prop.</th>
+<th align="left">Fold</th>
+<th align="left">CI lower</th>
+<th align="left">CI upper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0501</td>
+<td align="left">0.0539</td>
+<td align="left">0.928</td>
+<td align="left">0.792</td>
+<td align="left">1.088</td>
+</tr>
+<tr class="even">
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0547</td>
+<td align="left">0.0539</td>
+<td align="left">1.016</td>
+<td align="left">0.860</td>
+<td align="left">1.200</td>
+</tr>
+<tr class="odd">
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0587</td>
+<td align="left">0.0538</td>
+<td align="left">1.089</td>
+<td align="left">0.884</td>
+<td align="left">1.342</td>
+</tr>
+<tr class="even">
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0657</td>
+<td align="left">0.0539</td>
+<td align="left">1.219</td>
+<td align="left">0.889</td>
+<td align="left">1.672</td>
+</tr>
+<tr class="odd">
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0652</td>
+<td align="left">0.0538</td>
+<td align="left">1.212</td>
+<td align="left">1.004</td>
+<td align="left">1.463</td>
+</tr>
+<tr class="even">
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0565</td>
+<td align="left">0.0539</td>
+<td align="left">1.049</td>
+<td align="left">0.768</td>
+<td align="left">1.432</td>
+</tr>
+<tr class="odd">
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0510</td>
+<td align="left">0.0539</td>
+<td align="left">0.946</td>
+<td align="left">0.809</td>
+<td align="left">1.106</td>
+</tr>
+<tr class="even">
+<td align="left">E018</td>
+<td align="left">iPS-15b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0544</td>
+<td align="left">0.0539</td>
+<td align="left">1.010</td>
+<td align="left">0.861</td>
+<td align="left">1.185</td>
+</tr>
+<tr class="odd">
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0482</td>
+<td align="left">0.0498</td>
+<td align="left">0.968</td>
+<td align="left">0.776</td>
+<td align="left">1.207</td>
+</tr>
+<tr class="even">
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0573</td>
+<td align="left">0.0498</td>
+<td align="left">1.151</td>
+<td align="left">0.903</td>
+<td align="left">1.468</td>
+</tr>
+<tr class="odd">
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0557</td>
+<td align="left">0.0497</td>
+<td align="left">1.119</td>
+<td align="left">0.858</td>
+<td align="left">1.461</td>
+</tr>
+<tr class="even">
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0529</td>
+<td align="left">0.0498</td>
+<td align="left">1.063</td>
+<td align="left">0.798</td>
+<td align="left">1.415</td>
+</tr>
+<tr class="odd">
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0594</td>
+<td align="left">0.0497</td>
+<td align="left">1.196</td>
+<td align="left">0.981</td>
+<td align="left">1.458</td>
+</tr>
+<tr class="even">
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0536</td>
+<td align="left">0.0498</td>
+<td align="left">1.077</td>
+<td align="left">0.759</td>
+<td align="left">1.528</td>
+</tr>
+<tr class="odd">
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0487</td>
+<td align="left">0.0498</td>
+<td align="left">0.979</td>
+<td align="left">0.775</td>
+<td align="left">1.236</td>
+</tr>
+<tr class="even">
+<td align="left">E019</td>
+<td align="left">iPS-18 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0564</td>
+<td align="left">0.0498</td>
+<td align="left">1.132</td>
+<td align="left">0.860</td>
+<td align="left">1.491</td>
+</tr>
+<tr class="odd">
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0386</td>
+<td align="left">0.0421</td>
+<td align="left">0.917</td>
+<td align="left">0.758</td>
+<td align="left">1.109</td>
+</tr>
+<tr class="even">
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0436</td>
+<td align="left">0.0420</td>
+<td align="left">1.038</td>
+<td align="left">0.773</td>
+<td align="left">1.393</td>
+</tr>
+<tr class="odd">
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0453</td>
+<td align="left">0.0420</td>
+<td align="left">1.078</td>
+<td align="left">0.877</td>
+<td align="left">1.325</td>
+</tr>
+<tr class="even">
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0511</td>
+<td align="left">0.0420</td>
+<td align="left">1.215</td>
+<td align="left">0.905</td>
+<td align="left">1.632</td>
+</tr>
+<tr class="odd">
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0521</td>
+<td align="left">0.0420</td>
+<td align="left">1.241</td>
+<td align="left">1.067</td>
+<td align="left">1.445</td>
+</tr>
+<tr class="even">
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0507</td>
+<td align="left">0.0420</td>
+<td align="left">1.207</td>
+<td align="left">0.874</td>
+<td align="left">1.667</td>
+</tr>
+<tr class="odd">
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0388</td>
+<td align="left">0.0421</td>
+<td align="left">0.923</td>
+<td align="left">0.757</td>
+<td align="left">1.126</td>
+</tr>
+<tr class="even">
+<td align="left">E020</td>
+<td align="left">iPS-20b Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0428</td>
+<td align="left">0.0420</td>
+<td align="left">1.017</td>
+<td align="left">0.753</td>
+<td align="left">1.374</td>
+</tr>
+<tr class="odd">
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0336</td>
+<td align="left">0.0301</td>
+<td align="left">1.116</td>
+<td align="left">0.905</td>
+<td align="left">1.377</td>
+</tr>
+<tr class="even">
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0445</td>
+<td align="left">0.0301</td>
+<td align="left">1.478</td>
+<td align="left">1.161</td>
+<td align="left">1.882</td>
+</tr>
+<tr class="odd">
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0327</td>
+<td align="left">0.0301</td>
+<td align="left">1.085</td>
+<td align="left">0.825</td>
+<td align="left">1.429</td>
+</tr>
+<tr class="even">
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0383</td>
+<td align="left">0.0301</td>
+<td align="left">1.273</td>
+<td align="left">0.819</td>
+<td align="left">1.977</td>
+</tr>
+<tr class="odd">
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0338</td>
+<td align="left">0.0301</td>
+<td align="left">1.125</td>
+<td align="left">0.916</td>
+<td align="left">1.382</td>
+</tr>
+<tr class="even">
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0348</td>
+<td align="left">0.0301</td>
+<td align="left">1.155</td>
+<td align="left">0.853</td>
+<td align="left">1.564</td>
+</tr>
+<tr class="odd">
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0353</td>
+<td align="left">0.0301</td>
+<td align="left">1.175</td>
+<td align="left">0.961</td>
+<td align="left">1.437</td>
+</tr>
+<tr class="even">
+<td align="left">E021</td>
+<td align="left">iPS DF 6.9 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0476</td>
+<td align="left">0.0301</td>
+<td align="left">1.582</td>
+<td align="left">1.251</td>
+<td align="left">2.002</td>
+</tr>
+<tr class="odd">
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0866</td>
+<td align="left">0.0861</td>
+<td align="left">1.005</td>
+<td align="left">0.822</td>
+<td align="left">1.230</td>
+</tr>
+<tr class="even">
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.1223</td>
+<td align="left">0.0861</td>
+<td align="left">1.421</td>
+<td align="left">1.216</td>
+<td align="left">1.661</td>
+</tr>
+<tr class="odd">
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0937</td>
+<td align="left">0.0861</td>
+<td align="left">1.089</td>
+<td align="left">0.906</td>
+<td align="left">1.309</td>
+</tr>
+<tr class="even">
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.1168</td>
+<td align="left">0.0861</td>
+<td align="left">1.356</td>
+<td align="left">1.068</td>
+<td align="left">1.723</td>
+</tr>
+<tr class="odd">
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0947</td>
+<td align="left">0.0861</td>
+<td align="left">1.101</td>
+<td align="left">0.937</td>
+<td align="left">1.294</td>
+</tr>
+<tr class="even">
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0928</td>
+<td align="left">0.0861</td>
+<td align="left">1.077</td>
+<td align="left">0.844</td>
+<td align="left">1.374</td>
+</tr>
+<tr class="odd">
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0885</td>
+<td align="left">0.0861</td>
+<td align="left">1.027</td>
+<td align="left">0.845</td>
+<td align="left">1.248</td>
+</tr>
+<tr class="even">
+<td align="left">E022</td>
+<td align="left">iPS DF 19.11 Cells</td>
+<td align="left">iPSC</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.1234</td>
+<td align="left">0.0861</td>
+<td align="left">1.434</td>
+<td align="left">1.242</td>
+<td align="left">1.655</td>
+</tr>
+<tr class="odd">
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0443</td>
+<td align="left">0.0425</td>
+<td align="left">1.042</td>
+<td align="left">0.881</td>
+<td align="left">1.232</td>
+</tr>
+<tr class="even">
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0607</td>
+<td align="left">0.0425</td>
+<td align="left">1.430</td>
+<td align="left">1.149</td>
+<td align="left">1.778</td>
+</tr>
+<tr class="odd">
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0497</td>
+<td align="left">0.0425</td>
+<td align="left">1.172</td>
+<td align="left">0.918</td>
+<td align="left">1.496</td>
+</tr>
+<tr class="even">
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0438</td>
+<td align="left">0.0425</td>
+<td align="left">1.030</td>
+<td align="left">0.707</td>
+<td align="left">1.501</td>
+</tr>
+<tr class="odd">
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0569</td>
+<td align="left">0.0424</td>
+<td align="left">1.343</td>
+<td align="left">1.136</td>
+<td align="left">1.589</td>
+</tr>
+<tr class="even">
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0449</td>
+<td align="left">0.0425</td>
+<td align="left">1.057</td>
+<td align="left">0.631</td>
+<td align="left">1.769</td>
+</tr>
+<tr class="odd">
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0436</td>
+<td align="left">0.0425</td>
+<td align="left">1.026</td>
+<td align="left">0.863</td>
+<td align="left">1.219</td>
+</tr>
+<tr class="even">
+<td align="left">E011</td>
+<td align="left">hESC Derived CD184+ Endoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0573</td>
+<td align="left">0.0425</td>
+<td align="left">1.349</td>
+<td align="left">1.093</td>
+<td align="left">1.666</td>
+</tr>
+<tr class="odd">
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0547</td>
+<td align="left">0.0480</td>
+<td align="left">1.140</td>
+<td align="left">0.941</td>
+<td align="left">1.381</td>
+</tr>
+<tr class="even">
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0676</td>
+<td align="left">0.0480</td>
+<td align="left">1.408</td>
+<td align="left">1.176</td>
+<td align="left">1.686</td>
+</tr>
+<tr class="odd">
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0581</td>
+<td align="left">0.0480</td>
+<td align="left">1.211</td>
+<td align="left">0.975</td>
+<td align="left">1.505</td>
+</tr>
+<tr class="even">
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0620</td>
+<td align="left">0.0480</td>
+<td align="left">1.292</td>
+<td align="left">0.946</td>
+<td align="left">1.765</td>
+</tr>
+<tr class="odd">
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0591</td>
+<td align="left">0.0479</td>
+<td align="left">1.234</td>
+<td align="left">1.009</td>
+<td align="left">1.509</td>
+</tr>
+<tr class="even">
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0609</td>
+<td align="left">0.0480</td>
+<td align="left">1.267</td>
+<td align="left">0.919</td>
+<td align="left">1.748</td>
+</tr>
+<tr class="odd">
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0551</td>
+<td align="left">0.0480</td>
+<td align="left">1.150</td>
+<td align="left">0.953</td>
+<td align="left">1.387</td>
+</tr>
+<tr class="even">
+<td align="left">E012</td>
+<td align="left">hESC Derived CD56+ Ectoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0690</td>
+<td align="left">0.0480</td>
+<td align="left">1.437</td>
+<td align="left">1.210</td>
+<td align="left">1.707</td>
+</tr>
+<tr class="odd">
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0608</td>
+<td align="left">0.0543</td>
+<td align="left">1.119</td>
+<td align="left">0.917</td>
+<td align="left">1.365</td>
+</tr>
+<tr class="even">
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0804</td>
+<td align="left">0.0544</td>
+<td align="left">1.479</td>
+<td align="left">1.154</td>
+<td align="left">1.897</td>
+</tr>
+<tr class="odd">
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0694</td>
+<td align="left">0.0543</td>
+<td align="left">1.279</td>
+<td align="left">0.991</td>
+<td align="left">1.651</td>
+</tr>
+<tr class="even">
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0712</td>
+<td align="left">0.0544</td>
+<td align="left">1.309</td>
+<td align="left">1.001</td>
+<td align="left">1.711</td>
+</tr>
+<tr class="odd">
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0821</td>
+<td align="left">0.0541</td>
+<td align="left">1.516</td>
+<td align="left">1.247</td>
+<td align="left">1.844</td>
+</tr>
+<tr class="even">
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0768</td>
+<td align="left">0.0544</td>
+<td align="left">1.413</td>
+<td align="left">1.015</td>
+<td align="left">1.966</td>
+</tr>
+<tr class="odd">
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0603</td>
+<td align="left">0.0543</td>
+<td align="left">1.109</td>
+<td align="left">0.931</td>
+<td align="left">1.322</td>
+</tr>
+<tr class="even">
+<td align="left">E013</td>
+<td align="left">hESC Derived CD56+ Mesoderm Cultured Cells</td>
+<td align="left">Germ layer</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0758</td>
+<td align="left">0.0544</td>
+<td align="left">1.394</td>
+<td align="left">1.130</td>
+<td align="left">1.721</td>
+</tr>
+<tr class="odd">
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">Heart</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.1142</td>
+<td align="left">0.0948</td>
+<td align="left">1.206</td>
+<td align="left">1.026</td>
+<td align="left">1.416</td>
+</tr>
+<tr class="even">
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">Heart</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.1129</td>
+<td align="left">0.0950</td>
+<td align="left">1.189</td>
+<td align="left">0.995</td>
+<td align="left">1.421</td>
+</tr>
+<tr class="odd">
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">Heart</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.1476</td>
+<td align="left">0.0946</td>
+<td align="left">1.560</td>
+<td align="left">1.259</td>
+<td align="left">1.932</td>
+</tr>
+<tr class="even">
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">Heart</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.1496</td>
+<td align="left">0.0950</td>
+<td align="left">1.576</td>
+<td align="left">1.218</td>
+<td align="left">2.039</td>
+</tr>
+<tr class="odd">
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">Heart</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.1434</td>
+<td align="left">0.0945</td>
+<td align="left">1.517</td>
+<td align="left">1.304</td>
+<td align="left">1.766</td>
+</tr>
+<tr class="even">
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">Heart</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.1188</td>
+<td align="left">0.0950</td>
+<td align="left">1.251</td>
+<td align="left">0.971</td>
+<td align="left">1.612</td>
+</tr>
+<tr class="odd">
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">Heart</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.1083</td>
+<td align="left">0.0949</td>
+<td align="left">1.141</td>
+<td align="left">0.974</td>
+<td align="left">1.338</td>
+</tr>
+<tr class="even">
+<td align="left">E083</td>
+<td align="left">Fetal Heart</td>
+<td align="left">Heart</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.1108</td>
+<td align="left">0.0950</td>
+<td align="left">1.167</td>
+<td align="left">0.963</td>
+<td align="left">1.413</td>
+</tr>
+<tr class="odd">
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0870</td>
+<td align="left">0.0722</td>
+<td align="left">1.205</td>
+<td align="left">1.020</td>
+<td align="left">1.423</td>
+</tr>
+<tr class="even">
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0898</td>
+<td align="left">0.0724</td>
+<td align="left">1.241</td>
+<td align="left">1.027</td>
+<td align="left">1.500</td>
+</tr>
+<tr class="odd">
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.1021</td>
+<td align="left">0.0722</td>
+<td align="left">1.415</td>
+<td align="left">1.089</td>
+<td align="left">1.838</td>
+</tr>
+<tr class="even">
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0894</td>
+<td align="left">0.0724</td>
+<td align="left">1.235</td>
+<td align="left">0.944</td>
+<td align="left">1.616</td>
+</tr>
+<tr class="odd">
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.1027</td>
+<td align="left">0.0721</td>
+<td align="left">1.424</td>
+<td align="left">1.180</td>
+<td align="left">1.718</td>
+</tr>
+<tr class="even">
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0826</td>
+<td align="left">0.0724</td>
+<td align="left">1.141</td>
+<td align="left">0.880</td>
+<td align="left">1.480</td>
+</tr>
+<tr class="odd">
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0834</td>
+<td align="left">0.0723</td>
+<td align="left">1.155</td>
+<td align="left">0.988</td>
+<td align="left">1.349</td>
+</tr>
+<tr class="even">
+<td align="left">E095</td>
+<td align="left">Left Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0894</td>
+<td align="left">0.0724</td>
+<td align="left">1.235</td>
+<td align="left">1.020</td>
+<td align="left">1.496</td>
+</tr>
+<tr class="odd">
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">Heart</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0632</td>
+<td align="left">0.0506</td>
+<td align="left">1.249</td>
+<td align="left">1.040</td>
+<td align="left">1.499</td>
+</tr>
+<tr class="even">
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">Heart</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0573</td>
+<td align="left">0.0507</td>
+<td align="left">1.129</td>
+<td align="left">0.879</td>
+<td align="left">1.451</td>
+</tr>
+<tr class="odd">
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">Heart</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0704</td>
+<td align="left">0.0506</td>
+<td align="left">1.390</td>
+<td align="left">1.054</td>
+<td align="left">1.833</td>
+</tr>
+<tr class="even">
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">Heart</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0639</td>
+<td align="left">0.0508</td>
+<td align="left">1.258</td>
+<td align="left">0.929</td>
+<td align="left">1.706</td>
+</tr>
+<tr class="odd">
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">Heart</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0714</td>
+<td align="left">0.0506</td>
+<td align="left">1.411</td>
+<td align="left">1.129</td>
+<td align="left">1.763</td>
+</tr>
+<tr class="even">
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">Heart</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0565</td>
+<td align="left">0.0508</td>
+<td align="left">1.114</td>
+<td align="left">0.809</td>
+<td align="left">1.532</td>
+</tr>
+<tr class="odd">
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">Heart</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0613</td>
+<td align="left">0.0506</td>
+<td align="left">1.210</td>
+<td align="left">1.007</td>
+<td align="left">1.453</td>
+</tr>
+<tr class="even">
+<td align="left">E104</td>
+<td align="left">Right Atrium</td>
+<td align="left">Heart</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0554</td>
+<td align="left">0.0508</td>
+<td align="left">1.091</td>
+<td align="left">0.879</td>
+<td align="left">1.355</td>
+</tr>
+<tr class="odd">
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0746</td>
+<td align="left">0.0619</td>
+<td align="left">1.205</td>
+<td align="left">1.001</td>
+<td align="left">1.449</td>
+</tr>
+<tr class="even">
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0796</td>
+<td align="left">0.0620</td>
+<td align="left">1.283</td>
+<td align="left">0.998</td>
+<td align="left">1.649</td>
+</tr>
+<tr class="odd">
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0897</td>
+<td align="left">0.0618</td>
+<td align="left">1.450</td>
+<td align="left">1.131</td>
+<td align="left">1.858</td>
+</tr>
+<tr class="even">
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0894</td>
+<td align="left">0.0620</td>
+<td align="left">1.442</td>
+<td align="left">1.071</td>
+<td align="left">1.941</td>
+</tr>
+<tr class="odd">
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0870</td>
+<td align="left">0.0618</td>
+<td align="left">1.407</td>
+<td align="left">1.138</td>
+<td align="left">1.738</td>
+</tr>
+<tr class="even">
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0710</td>
+<td align="left">0.0620</td>
+<td align="left">1.145</td>
+<td align="left">0.849</td>
+<td align="left">1.543</td>
+</tr>
+<tr class="odd">
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0724</td>
+<td align="left">0.0619</td>
+<td align="left">1.169</td>
+<td align="left">0.977</td>
+<td align="left">1.400</td>
+</tr>
+<tr class="even">
+<td align="left">E105</td>
+<td align="left">Right Ventricle</td>
+<td align="left">Heart</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0787</td>
+<td align="left">0.0620</td>
+<td align="left">1.269</td>
+<td align="left">0.999</td>
+<td align="left">1.612</td>
+</tr>
+<tr class="odd">
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">Vascular</td>
+<td align="left">FASH, all</td>
+<td align="left">9,148</td>
+<td align="left">0.0191</td>
+<td align="left">0.0158</td>
+<td align="left">1.213</td>
+<td align="left">0.904</td>
+<td align="left">1.628</td>
+</tr>
+<tr class="even">
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">Vascular</td>
+<td align="left">FASH, lead</td>
+<td align="left">1,169</td>
+<td align="left">0.0111</td>
+<td align="left">0.0158</td>
+<td align="left">0.703</td>
+<td align="left">0.413</td>
+<td align="left">1.196</td>
+</tr>
+<tr class="odd">
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">Vascular</td>
+<td align="left">Strober linear, all</td>
+<td align="left">5,387</td>
+<td align="left">0.0187</td>
+<td align="left">0.0158</td>
+<td align="left">1.188</td>
+<td align="left">0.876</td>
+<td align="left">1.610</td>
+</tr>
+<tr class="even">
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">Vascular</td>
+<td align="left">Strober linear, lead</td>
+<td align="left">548</td>
+<td align="left">0.0164</td>
+<td align="left">0.0158</td>
+<td align="left">-</td>
+<td align="left">-</td>
+<td align="left">-</td>
+</tr>
+<tr class="odd">
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">Vascular</td>
+<td align="left">Strober quadratic, all</td>
+<td align="left">6,797</td>
+<td align="left">0.0263</td>
+<td align="left">0.0157</td>
+<td align="left">1.676</td>
+<td align="left">1.334</td>
+<td align="left">2.105</td>
+</tr>
+<tr class="even">
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">Vascular</td>
+<td align="left">Strober quadratic, lead</td>
+<td align="left">690</td>
+<td align="left">0.0203</td>
+<td align="left">0.0158</td>
+<td align="left">1.284</td>
+<td align="left">0.790</td>
+<td align="left">2.087</td>
+</tr>
+<tr class="odd">
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">Vascular</td>
+<td align="left">FASH only, all</td>
+<td align="left">7,981</td>
+<td align="left">0.0197</td>
+<td align="left">0.0158</td>
+<td align="left">1.248</td>
+<td align="left">0.919</td>
+<td align="left">1.694</td>
+</tr>
+<tr class="even">
+<td align="left">E065</td>
+<td align="left">Aorta</td>
+<td align="left">Vascular</td>
+<td align="left">FASH only, lead</td>
+<td align="left">1,029</td>
+<td align="left">0.0107</td>
+<td align="left">0.0158</td>
+<td align="left">0.676</td>
+<td align="left">0.392</td>
+<td align="left">1.165</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="methods" class="section level2">
+<h2>Methods</h2>
+<p><strong>Annotation.</strong> Roadmap Epigenomics 15-state ChromHMM
+core-marks segmentations,
+<code>&lt;EID&gt;_15_coreMarks_mnemonics.bed.gz</code>, hg19, for the
+thirteen epigenomes in Section 1. BED intervals are converted from
+0-based half-open to 1-based inclusive; each tested variant is treated
+as a single base and intersected against the enhancer intervals, giving
+one indicator per variant per epigenome per definition over all 745,867
+tested variants.</p>
+<p><strong>Enhancer definitions.</strong> <code>R6</code> = states
+<code>6_EnhG</code>, <code>7_Enh</code>. <code>Strober</code> = states
+<code>6_EnhG</code>, <code>7_Enh</code>, <code>12_EnhBiv</code>,
+<code>11_BivFlnk</code>. The first is nested in the second, and the run
+script asserts that nesting on all 745,867 variants for all thirteen
+epigenomes.</p>
+<p><strong>Background.</strong> All 745,867 variants tested in this
+study that lie on an autosome and participate in at least one tested
+gene-variant pair. No external reference panel enters.</p>
+<p><strong>Fold enrichment.</strong></p>
+<p><span class="math display">\[\text{fold enrichment} =
+\frac{\text{proportion of selected variants overlapping the
+enhancer}}{\text{proportion of all tested variants overlapping the
+enhancer}}\]</span></p>
+<p>with the tested set excluded from the background so that a set is
+never part of its own comparator. No matched controls.</p>
+<p><strong>Discovery sets.</strong> FASH uses cumulative lfdr at FDR
+0.05 after the BF correction; both Strober analyses use their reported
+eFDR 0.05, with <code>non_linear_dynamic_eqtls_5_pc.txt</code> labelled
+quadratic/nonlinear. “One lead variant per gene” keeps, for each
+discovered gene, the variant with the lowest lfdr (FASH) or the smallest
+p-value (Strober).</p>
+<p><strong>Uncertainty.</strong> Leave-one-autosome-out jackknife, to
+account approximately for local dependence among variants. All intervals
+are 95% jackknife intervals. No formal test compares two epigenomes or
+two methods.</p>
+<p><strong>Consistency with R6.</strong> The run script performs two
+checks and refuses to produce a cache if either fails. First, the
+R6-definition indicators for E020, E013 and E095 built here are compared
+variant by variant against the three <code>Roadmap ...: Enhancer</code>
+columns of the published annotation matrix: 0 disagreements over 745,867
+variants. Second, the eight discovery sets are run through
+<code>compute_enrichment</code> against the published annotation matrix
+and the resulting fold enrichments compared with the ones on this page:
+24 estimates, maximum absolute difference 0.</p>
+</div>
+<div id="reproducibility" class="section level2">
+<h2>Reproducibility</h2>
+<p>Rebuild the cache this page reads — downloads and checksums the
+thirteen segmentations, builds the indicator table, and computes all 208
+estimates:</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/internal/roadmap_enhancer_exploration/run_roadmap_enhancer_exploration.R</code></pre>
+<p>It is idempotent: a valid indicator table and valid segmentation
+downloads are reused rather than rebuilt, so a re-run costs about a
+minute rather than the full pass. It depends on two caches it never
+writes to — the tested-variant background from
+<code>variant_annotation_enrichment/</code>, and the published discovery
+sets from <code>fash_strober_enhancer_comparison_fashr0143/</code>.
+Rebuild those first if they are absent:</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/internal/variant_annotation_enrichment/download_variant_annotations.R
+Rscript --vanilla \
+  code/revision_simulations/internal/variant_annotation_enrichment/run_variant_annotation_enrichment.R
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_strober_enhancer_comparison/run_fash_strober_enhancer_comparison.R</code></pre>
+<p>Tests:</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/internal/roadmap_enhancer_exploration/test_roadmap_enhancer_exploration_helpers.R
+Rscript --vanilla \
+  code/revision_simulations/internal/roadmap_enhancer_exploration/test_reporting.R</code></pre>
+<p>Rebuild this page:</p>
+<pre class="bash"><code>Rscript --vanilla -e \
+  &#39;workflowr::wflow_build(&quot;analysis/revision_internal_roadmap_enhancer_exploration.rmd&quot;, local = TRUE)&#39;</code></pre>
+<p>The enrichment API is unchanged and still takes any named list of
+variant vectors, so a different panel needs no new code:</p>
+<pre class="r"><code>source(
+  &quot;code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R&quot;
+)
+source(
+  &quot;code/revision_simulations/internal/roadmap_enhancer_exploration/roadmap_enhancer_exploration_helpers.R&quot;
+)
+
+background &lt;- load_background()
+sets &lt;- load_variant_sets()
+
+# The thirteen-epigenome, two-definition indicator table built by the run script.
+annotations &lt;- readRDS(file.path(
+  roadmap_output_directory(), &quot;roadmap_enhancer_annotation_matrix.rds&quot;
+))
+
+# Any subset of its columns; here the four cardiac epigenomes, R6 definition.
+cardiac &lt;- grep(
+  &quot;^Roadmap E(083|095|104|105) .*\\[R6 EnhG\\+Enh\\]$&quot;,
+  names(annotations),
+  value = TRUE
+)
+compute_enrichment(
+  sets[&quot;current_lead&quot;],
+  background,
+  annotations[, c(&quot;variant_id&quot;, &quot;chromosome&quot;, cardiac)],
+  controls = &quot;background&quot;
+)</code></pre>
+<p>Everything this experiment writes lives under
+<code>output/revision_simulations/internal/roadmap_enhancer_exploration/</code>
+and
+<code>data/revision_simulations/internal/roadmap_enhancer_exploration/</code>,
+neither of which is tracked in git; the repository carries code, not
+data. The output directory holds <code>annotation_provenance.csv</code>,
+<code>chromhmm_state_summary.csv</code>,
+<code>definition_coverage.csv</code>,
+<code>r6_definition_agreement.csv</code>,
+<code>r6_estimate_reproduction.csv</code>,
+<code>not_estimable_cells.csv</code>,
+<code>enrichment_results.csv</code>,
+<code>enrichment_summary_table.csv</code>,
+<code>roadmap_enhancer_annotation_matrix.rds</code> and
+<code>analysis_cache.rds</code>.</p>
+<p>Built 2026-08-25 19:44:56 UTC with R version 4.5.1 (2025-06-13), in
+0.9 minutes.</p>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<p>Roadmap Epigenomics Consortium, Kundaje, A., Meuleman, W., Ernst, J.,
+Bilenky, M., Yen, A., et al. (2015). Integrative analysis of 111
+reference human epigenomes. <em>Nature</em> <strong>518</strong>,
+317–330. <a href="https://doi.org/10.1038/nature14248"
+class="uri">https://doi.org/10.1038/nature14248</a></p>
+<p>Strober, B. J., Elorbany, R., Rhodes, K., Krishnan, N., Tayeb, K.,
+Battle, A., Gilad, Y. (2019). Dynamic genetic regulation of gene
+expression during cellular differentiation. <em>Science</em>
+<strong>364</strong>, 1287–1290. <a
+href="https://doi.org/10.1126/science.aaw0040"
+class="uri">https://doi.org/10.1126/science.aaw0040</a>. Enhancer-state
+definition read from the accompanying code repository, <a
+href="https://github.com/BennyStrobes/ipsc_cardiomyocyte_differentiation"
+class="uri">https://github.com/BennyStrobes/ipsc_cardiomyocyte_differentiation</a>,
+<code>dynamic_eqtl_calling/perform_tissue_specific_chrom_hmm_enrichment_analysis.py</code>.</p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] en_CA/en_CA/en_CA/C/en_CA/en_CA
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+ [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.1.4        compiler_4.5.1    
+ [5] promises_1.5.0     tidyselect_1.2.1   Rcpp_1.1.1-1.1     stringr_1.6.0     
+ [9] git2r_0.36.2       dichromat_2.0-0.1  later_1.4.4        jquerylib_0.1.4   
+[13] scales_1.4.0       yaml_2.3.12        fastmap_1.2.0      ggplot2_4.0.3     
+[17] R6_2.6.1           labeling_0.4.3     generics_0.1.4     workflowr_1.7.2   
+[21] knitr_1.50         tibble_3.3.0       rprojroot_2.1.1    bslib_0.9.0       
+[25] pillar_1.11.1      RColorBrewer_1.1-3 rlang_1.2.0        cachem_1.1.0      
+[29] stringi_1.8.9      httpuv_1.6.16      xfun_0.55          S7_0.2.2          
+[33] fs_1.6.6           sass_0.4.10        otel_0.2.0         cli_3.6.6         
+[37] withr_3.0.3        magrittr_2.0.5     digest_0.6.39      grid_4.5.1        
+[41] rstudioapi_0.17.1  lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5    
+[45] glue_1.8.1         farver_2.1.2       rmarkdown_2.30     tools_4.5.1       
+[49] pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

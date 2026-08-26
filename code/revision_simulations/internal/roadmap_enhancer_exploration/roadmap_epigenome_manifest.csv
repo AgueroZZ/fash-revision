@@ -1,0 +1,14 @@
+epigenome_id,biological_group,group_order,epigenome_order,roadmap_std_name,roadmap_mnemonic,roadmap_group,roadmap_anatomy,display_label,in_r6_page
+E018,iPSC,1,1,iPS-15b Cells,IPSC.15b,iPSC,IPSC,E018 iPS-15b,FALSE
+E019,iPSC,1,2,iPS-18 Cells,IPSC.18,iPSC,IPSC,E019 iPS-18,FALSE
+E020,iPSC,1,3,iPS-20b Cells,IPSC.20B,iPSC,IPSC,E020 iPS-20b,TRUE
+E021,iPSC,1,4,iPS DF 6.9 Cells,IPSC.DF.6.9,iPSC,IPSC,E021 iPS DF 6.9,FALSE
+E022,iPSC,1,5,iPS DF 19.11 Cells,IPSC.DF.19.11,iPSC,IPSC,E022 iPS DF 19.11,FALSE
+E011,Germ layer,2,1,hESC Derived CD184+ Endoderm Cultured Cells,ESDR.CD184.ENDO,ES-deriv,ESC_DERIVED,E011 endoderm,FALSE
+E012,Germ layer,2,2,hESC Derived CD56+ Ectoderm Cultured Cells,ESDR.CD56.ECTO,ES-deriv,ESC_DERIVED,E012 ectoderm,FALSE
+E013,Germ layer,2,3,hESC Derived CD56+ Mesoderm Cultured Cells,ESDR.CD56.MESO,ES-deriv,ESC_DERIVED,E013 mesoderm,TRUE
+E083,Heart,3,1,Fetal Heart,HRT.FET,Heart,HEART,E083 fetal heart,FALSE
+E095,Heart,3,2,Left Ventricle,HRT.VENT.L,Heart,HEART,E095 left ventricle,TRUE
+E104,Heart,3,3,Right Atrium,HRT.ATR.R,Heart,HEART,E104 right atrium,FALSE
+E105,Heart,3,4,Right Ventricle,HRT.VNT.R,Heart,HEART,E105 right ventricle,FALSE
+E065,Vascular,4,1,Aorta,VAS.AOR,Heart,VASCULAR,E065 aorta,FALSE
