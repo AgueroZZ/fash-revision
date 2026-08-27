@@ -395,13 +395,13 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2026-08-21
+<strong>Last updated:</strong> 2026-08-26
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 5
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 1
+aria-hidden="true"></span> 2
 </p>
 <p>
 <strong>Knit directory:</strong> <code>coderepo-local/</code> <span
@@ -433,10 +433,10 @@ changes </a>
 <div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R
-Markdown file created these results, you’ll want to first commit it to
-the Git repo. If you’re still working on the analysis, you can ignore
-this warning. When you’re finished, you can run
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
 <code>wflow_publish</code> to commit the R Markdown file and build the
 HTML.</p>
 </div>
@@ -445,17 +445,792 @@ HTML.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
-<span class="glyphicon glyphicon-ok text-success"
-aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongobjectspresent">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>Environment:</strong> objects present
+</a>
 </p>
 </div>
-<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div id="strongEnvironmentstrongobjectspresent"
+class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! The global environment was empty. Objects defined in the
-global environment can affect the analysis in your R Markdown file in
-unknown ways. For reproduciblity it’s best to always run the code in an
-empty environment.</p>
+<p>
+The global environment had objects present when the code in the R
+Markdown file was run. These objects can affect the analysis in your R
+Markdown file in unknown ways. For reproduciblity it’s best to always
+run the code in an empty environment. Use <code>wflow_publish</code> or
+<code>wflow_build</code> to ensure that the code is always run in an
+empty environment.
+</p>
+<p>
+The following objects were defined in the global environment when these
+results were created:
+</p>
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th style="text-align:left;">
+Name
+</th>
+<th style="text-align:left;">
+Class
+</th>
+<th style="text-align:left;">
+Size
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+all_genes
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+447.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+alpha
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+code_dir
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+232 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+data_dir
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+232 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+datasets
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+1.5 Gb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+early_genes
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+48 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+early_indices
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+48 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+enrich_set
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+97.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fash_fit2
+</td>
+<td style="text-align:left;">
+fash
+</td>
+<td style="text-align:left;">
+2.3 Gb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fash_fit2_update
+</td>
+<td style="text-align:left;">
+fash
+</td>
+<td style="text-align:left;">
+2.3 Gb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fash_highlighted2
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+224 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fash_highlighted2_before
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+688 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fine_grid
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+464 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fmt_sci
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+7.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+full_map
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+841.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+g_after
+</td>
+<td style="text-align:left;">
+ggplot2::ggplot;ggplot;ggplot2::gg;S7_object;gg
+</td>
+<td style="text-align:left;">
+27.8 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+g_before
+</td>
+<td style="text-align:left;">
+ggplot2::ggplot;ggplot;ggplot2::gg;S7_object;gg
+</td>
+<td style="text-align:left;">
+27.8 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gene_fashr_only
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+336 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gene_missed
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+54 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genes_highlighted_strober_linear
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+38.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genes_highlighted_strober_nonlinear
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+48.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genes_highlighted2
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+752 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genes_highlighted2_before
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+2.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genes_highlighted2_subset
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+312 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genes_highlighted2_subset_ens
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+336 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genes_not_highlighted2
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+446.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+i
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+idxs_late
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+64 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+idxs_middle
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+64 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+idxs_sw
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+late_genes
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+480 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+late_indices
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+176 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+lfdr_adj_vec
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+174.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log_prec
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+456 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+m_t2g
+</td>
+<td style="text-align:left;">
+tbl_df;tbl;data.frame
+</td>
+<td style="text-align:left;">
+394.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+map
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mart
+</td>
+<td style="text-align:left;">
+Mart
+</td>
+<td style="text-align:left;">
+1.6 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+middle_genes
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+336 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+middle_indices
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+176 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pairs_highlighted_strober_linear
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+464.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pairs_highlighted_strober_nonlinear
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+586.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pairs_highlighted2
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+3.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pairs_highlighted2_before
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+13.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pairs_not_highlighted2
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+84.7 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pairs_of_selected_gene
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+159.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+parse_pair_key
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+3.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_many_pairs_nonlinear
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+6.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_many_pairs_nonlinear_lfsr
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+29.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_pair_nonlinear_base
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+191.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+result
+</td>
+<td style="text-align:left;">
+enrichResult
+</td>
+<td style="text-align:left;">
+774.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+result_dir
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+232 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sample_int
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+3.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+selected_gene
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+120 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+selected_index
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+selected_indices
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+7.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+strober_linear
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+161.4 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+strober_linear_highlighted
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1005.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+strober_nonlinear
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+161.4 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+strober_nonlinear_highlighted
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.2 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+switch_genes
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+120 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+switch_indices
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+symbol_of
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+28.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+test2
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+107.8 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+test2_before
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+107.8 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+testing_early_nonlin_dyn
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+5.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+testing_late_nonlin_dyn
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+5.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+testing_middle_nonlin_dyn
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+5.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+testing_switch_nonlin_dyn
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+5.6 Kb
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
@@ -529,15 +1304,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree55cacb9e763382afe44ca3f41f08c68b72ebfbabtargetblank55cacb9a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/55cacb9e763382afe44ca3f41f08c68b72ebfbab" target="_blank">55cacb9</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree55cacb9e763382afe44ca3f41f08c68b72ebfbabtargetblank55cacb9a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -547,7 +1322,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/55cacb9e763382afe44ca3f41f08c68b72ebfbab" target="_blank">55cacb9</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -568,7 +1343,6 @@ Ignored files:
     Ignored:    Rplots.pdf
     Ignored:    analysis/.DS_Store
     Ignored:    analysis/.Rhistory
-    Ignored:    analysis/figure/
     Ignored:    code/.DS_Store
     Ignored:    code/.Rhistory
     Ignored:    code/revision_simulations/.DS_Store
@@ -580,76 +1354,65 @@ Ignored files:
     Ignored:    output/pdf/
     Ignored:    output/playwright/
     Ignored:    output/revision_simulations/
+    Ignored:    scripts/
 
 Untracked files:
-    Untracked:  analysis/dynamic_eQTL_real_cl.rmd
-    Untracked:  analysis/nonlinear_dynamic_eQTL_real_cl.Rmd
-    Untracked:  analysis/revision_enhancer_enrichment_cl.rmd
-    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd
-    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity_middle_4_11.rmd
-    Untracked:  analysis/revision_internal_fash_cl_manuscript_impact.rmd
-    Untracked:  analysis/revision_internal_fash_discovery_variant_count.rmd
-    Untracked:  analysis/revision_internal_fash_linear_real_data_ablation.rmd
-    Untracked:  analysis/revision_internal_fashr_correlated_observation_model.rmd
-    Untracked:  analysis/revision_internal_matched_fash_linear_real_data.rmd
-    Untracked:  analysis/revision_internal_matched_fash_linear_real_data_cl.rmd
-    Untracked:  analysis/revision_internal_r1_normality_assumption.rmd
-    Untracked:  analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd
-    Untracked:  analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd
-    Untracked:  analysis/revision_internal_twenty_variant_per_gene_refit.rmd
-    Untracked:  apps/
-    Untracked:  code/02_dyn_lfsr.R
-    Untracked:  code/02_dyn_lfsr.sbatch
-    Untracked:  code/revision_simulations/appendix_b/
-    Untracked:  code/revision_simulations/internal/cl_pc_real_data_pages/
-    Untracked:  code/revision_simulations/internal/covariance_estimation/run_design_propagated_null_correlation.R
-    Untracked:  code/revision_simulations/internal/covariance_estimation/run_multigene_null_beta_covariance_exploration.R
-    Untracked:  code/revision_simulations/internal/early_window_sensitivity/
-    Untracked:  code/revision_simulations/internal/evaluation_grid_sensitivity/
-    Untracked:  code/revision_simulations/internal/fash_cl_manuscript_impact/
-    Untracked:  code/revision_simulations/internal/fash_discovery_variant_count/
-    Untracked:  code/revision_simulations/internal/fash_linear_real_data_ablation/
-    Untracked:  code/revision_simulations/internal/fash_strober_enhancer_comparison_cl/
-    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data/
-    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data_cl/
-    Untracked:  code/revision_simulations/internal/r0_linear_iwp_power_mechanism/
-    Untracked:  code/revision_simulations/internal/r0_linear_summary_statistic/
-    Untracked:  code/revision_simulations/internal/r1_known_truth_genotype_permutation/
-    Untracked:  code/revision_simulations/internal/r1_linear_truth_composition/
-    Untracked:  code/revision_simulations/internal/r1_normality_assumption/
-    Untracked:  code/revision_simulations/internal/residual_correlation_fash/
-    Untracked:  code/revision_simulations/internal/selected_signal_genotype_permutation/
-    Untracked:  code/revision_simulations/r5_one_variant_per_gene/
-    Untracked:  code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R
-    Untracked:  code/revision_simulations/shared/real_genotype_one_per_gene.R
-    Untracked:  code/revision_simulations/shared/test_linear_mixture_fash.R
-    Untracked:  code/revision_simulations/shared/test_real_genotype_one_per_gene.R
-    Untracked:  code/revision_simulations/shared/validate_r1_r2_linear_mixture_pairing.R
-    Untracked:  code/revision_simulations/shared/validate_r1_r2_real_genotype_pairing.R
-    Untracked:  figure/
+    Untracked:  analysis/revision_internal_fash_knockoff.rmd
+    Untracked:  analysis/revision_internal_fash_temporal_class_enhancer_enrichment.rmd
+    Untracked:  analysis/revision_internal_three_likelihood_comparison.rmd
+    Untracked:  code/03_nonlindyn_lfsr.R
+    Untracked:  code/03_nonlindyn_lfsr.sbatch
+    Untracked:  code/revision_simulations/internal/fash_knockoff/reporting.R
+    Untracked:  code/revision_simulations/internal/fash_knockoff/test_reporting.R
+    Untracked:  code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/
+    Untracked:  code/revision_simulations/r1_r2_fashr0143/source_snapshots/
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_core.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_fashr0143.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_fashr0143.sbatch
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/source_snapshots/r3_center_aligned_relative_location_paired_driver.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/source_snapshots/r3_center_aligned_relative_location_paired_simulation_functions.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/test_r3_center_aligned_relative_location_paired.R
+    Untracked:  code/revision_simulations/r4_correlated_errors/compute_full_model_residual_correlation.R
+    Untracked:  code/revision_simulations/r4_correlated_errors/compute_pc_residual_expression_correlation.R
 
 Unstaged changes:
     Modified:   analysis/dynamic_eQTL_real.rmd
-    Modified:   analysis/index.Rmd
+    Modified:   analysis/dynamic_eQTL_real_cl.rmd
+    Modified:   analysis/dynamic_eQTL_real_full.rmd
     Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real_cl.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real_full.rmd
     Modified:   analysis/revision_balanced_variant_thinning.rmd
     Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
+    Modified:   analysis/revision_correlated_error_simulation.rmd
     Modified:   analysis/revision_enhancer_enrichment.rmd
-    Modified:   analysis/revision_functional_testing_simulation.rmd
     Modified:   analysis/revision_genotype_level_simulation.rmd
+    Modified:   analysis/revision_internal_temporal_class_roadmap_enrichment.rmd
+    Deleted:    code/02_dyn.R
+    Modified:   code/02_dyn_lfsr.R
+    Modified:   code/02_dyn_lfsr.sbatch
+    Deleted:    code/03_nonlindyn.R
     Modified:   code/revision_simulations/README.md
-    Modified:   code/revision_simulations/internal/covariance_estimation/run_global_pca_factor_visualization.R
-    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R
+    Modified:   code/revision_simulations/internal/fash_knockoff/plot_lfdr_histograms.R
+    Modified:   code/revision_simulations/internal/fash_knockoff/plot_w_boxplot_by_discovery.R
     Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/reporting.R
-    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/run_fash_strober_enhancer_comparison.R
-    Modified:   code/revision_simulations/r1_random_bspline/reporting.R
-    Modified:   code/revision_simulations/r1_random_bspline/run_random_bspline_mc_replication.R
-    Modified:   code/revision_simulations/r2_spiky_transient/reporting.R
-    Modified:   code/revision_simulations/r2_spiky_transient/run_combined_spiky_genotype_simulation.R
-    Modified:   code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R
-    Modified:   code/revision_simulations/r3_functional_testing/reporting.R
-    Modified:   code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R
-    Modified:   code/revision_simulations/shared/simulation_functions.R
+    Modified:   code/revision_simulations/internal/temporal_class_roadmap_enrichment/reporting.R
+    Modified:   code/revision_simulations/internal/temporal_class_roadmap_enrichment/run_temporal_class_roadmap_enrichment.R
+    Modified:   code/revision_simulations/internal/temporal_class_roadmap_enrichment/temporal_class_roadmap_helpers.R
+    Modified:   code/revision_simulations/internal/temporal_class_roadmap_enrichment/test_temporal_class_roadmap_helpers.R
+    Modified:   code/revision_simulations/r1_r2_fashr0143/reporting_overlay.R
+    Modified:   code/revision_simulations/r4_correlated_errors/reporting.R
+    Modified:   code/revision_simulations/r4_correlated_errors/test_unit_specific_residual_permutation_helpers.R
+    Modified:   code/revision_simulations/r4_correlated_errors/unit_specific_residual_permutation_helpers.R
+
+Staged changes:
+    New:        analysis/revision_internal_temporal_class_roadmap_enrichment.rmd
+    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/reporting.R
+    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/run_temporal_class_roadmap_enrichment.R
+    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/temporal_class_roadmap_helpers.R
+    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/test_reporting.R
+    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/test_temporal_class_roadmap_helpers.R
 
 </code></pre>
 <p>
@@ -665,9 +1428,73 @@ have uncommitted changes.
 </div>
 <div id="versions" class="tab-pane fade">
 <p>
-There are no past versions. Publish this analysis with
-<code>wflow_publish()</code> to start tracking its development.
+These are the previous versions of the repository in which changes were
+made to the R Markdown
+(<code>analysis/nonlinear_dynamic_eQTL_real_cl.Rmd</code>) and HTML
+(<code>docs/nonlinear_dynamic_eQTL_real_cl.html</code>) files. If you’ve
+configured a remote Git repository (see <code>?wflow_git_remote</code>),
+click on the hyperlinks in the table below to view the files as they
+were in that past version.
 </p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/analysis/nonlinear_dynamic_eQTL_real_cl.Rmd" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+<td>
+Sync revision analyses and rendered pages
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/09f63bc8536029c4816632f041b3afd85ffc523c/docs/nonlinear_dynamic_eQTL_real_cl.html" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+<td>
+Sync revision analyses and rendered pages
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 <hr>
 </div>
 </div>
@@ -871,8 +1698,82 @@ length(genes_highlighted2_before)</code></pre>
 <pre><code>[1] 0.007387614</code></pre>
 <p>Visualize top-ranked pairs:</p>
 <p><img src="figure/nonlinear_dynamic_eQTL_real_cl.Rmd/nonlinear_dynamic_examples-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-nonlinear_dynamic_examples-1">
+Past versions of nonlinear_dynamic_examples-1.png
+</button>
+</p>
+<div id="fig-nonlinear_dynamic_examples-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/nonlinear_dynamic_eQTL_real_cl.Rmd/nonlinear_dynamic_examples-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Some examples of null pairs:</p>
 <p><img src="figure/nonlinear_dynamic_eQTL_real_cl.Rmd/nonlinear_null_examples-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-nonlinear_null_examples-1">
+Past versions of nonlinear_null_examples-1.png
+</button>
+</p>
+<div id="fig-nonlinear_null_examples-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/nonlinear_dynamic_eQTL_real_cl.Rmd/nonlinear_null_examples-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="comparing-with-strober-et.al" class="section level2">
 <h2>Comparing with Strober et.al</h2>
@@ -884,6 +1785,43 @@ FASH:</p>
 by Strober et.al. In this case, we will pick the most significant pair
 for each gene in FASH:</p>
 <p><img src="figure/nonlinear_dynamic_eQTL_real_cl.Rmd/miss_fash_most-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-miss_fash_most-1">
+Past versions of miss_fash_most-1.png
+</button>
+</p>
+<div id="fig-miss_fash_most-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/nonlinear_dynamic_eQTL_real_cl.Rmd/miss_fash_most-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="classifying-nonlinear-dynamic-eqtls" class="section level2">
 <h2>Classifying nonlinear dynamic eQTLs</h2>
@@ -891,28 +1829,32 @@ for each gene in FASH:</p>
 detected eQTLs into different categories:</p>
 <ul>
 <li><p><em>Early</em>: eQTLs with strongest effect during the first
-three days: <span class="math inline">\(\max_{t\leq3} |\beta(t)| -
-\max_{t&gt; 3} |\beta(t)| &gt; 0\)</span>.</p></li>
+three days: <span class="math inline">\(\sup_{t\leq3} |\beta(t)| -
+\sup_{t&gt; 3} |\beta(t)| &gt; 0\)</span>.</p></li>
 <li><p><em>Late</em>: eQTLs with strongest effect during the last four
-days: <span class="math inline">\(\max_{t\geq 12} |\beta(t)| -
-\max_{t&lt; 12} |\beta(t)| &gt; 0\)</span>.</p></li>
+days: <span class="math inline">\(\sup_{t\geq 12} |\beta(t)| -
+\sup_{t&lt; 12} |\beta(t)| &gt; 0\)</span>.</p></li>
 <li><p><em>Middle</em>: eQTLs with strongest effect in the open middle
-interval: <span class="math inline">\(\max_{3&lt;t&lt;12} |\beta(t)| -
-\max_{t\leq3\;\text{or}\;t\geq12} |\beta(t)| &gt; 0\)</span>.</p></li>
+interval: <span class="math inline">\(\sup_{3&lt;t&lt;12} |\beta(t)| -
+\sup_{t\leq3\;\text{or}\;t\geq12} |\beta(t)| &gt; 0\)</span>.</p></li>
 <li><p><em>Switch</em>: eQTLs with effect sign switch during the time
 course such that <span
-class="math inline">\(\min\{\max\beta(t)^+,\max\beta(t)^-\}-c&gt;0\)</span>
+class="math inline">\(\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}-c&gt;0\)</span>
 where <span class="math inline">\(c\)</span> is a threshold that we set
 to 0.25 (which means with two alleles, the maximal difference of effect
 size is at least <span class="math inline">\(\geq
-2\times\min\{\max\beta(t)^+,\max\beta(t)^-\}\times2 \geq  2 \times
+2\times\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}\times2 \geq  2 \times
 0.25  \times 2 = 1\)</span>).</p></li>
 </ul>
+<p>The displayed functionals are continuous-time definitions using
+suprema; the code below uses maxima on the <code>0.1</code>-day
+evaluation grid as their discrete approximation.</p>
 <p>The retained classification files were recomputed from
 <code>fash_fit2_update</code> using one shared set of 3,000 posterior
-draws per pair across the four functionals. We first take a look at the
-significant pairs detected by FASH (order 2), and classify them based on
-the false sign rate (lfsr):</p>
+draws per pair across the four functionals. The canonical regeneration
+entrypoint is <code>code/03_nonlindyn_lfsr.R</code>. We first take a
+look at the significant pairs detected by FASH (order 2), and classify
+them based on the false sign rate (lfsr):</p>
 <pre class="r"><code>smooth_var_refined = seq(0,15, by = 0.1)
 functional_early &lt;- function(x){
   max(abs(x[smooth_var_refined &lt;= 3])) - max(abs(x[smooth_var_refined &gt; 3]))
@@ -951,6 +1893,43 @@ length(middle_genes)</code></pre>
 <pre><code>[1] 3</code></pre>
 <p>Take a look at their results:</p>
 <p><img src="figure/nonlinear_dynamic_eQTL_real_cl.Rmd/middle_examples-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-middle_examples-1">
+Past versions of middle_examples-1.png
+</button>
+</p>
+<div id="fig-middle_examples-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/nonlinear_dynamic_eQTL_real_cl.Rmd/middle_examples-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>How many pairs are classified as late dynamic eQTLs?</p>
 <pre class="r"><code>functional_late &lt;- function(x){
   max(abs(x[smooth_var_refined &gt;= 12])) - max(abs(x[smooth_var_refined &lt; 12]))
@@ -970,6 +1949,43 @@ length(late_genes)</code></pre>
 <pre><code>[1] 3</code></pre>
 <p>Let’s take a look at the top-ranked late dynamic eQTLs:</p>
 <p><img src="figure/nonlinear_dynamic_eQTL_real_cl.Rmd/late_examples-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-late_examples-1">
+Past versions of late_examples-1.png
+</button>
+</p>
+<div id="fig-late_examples-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/nonlinear_dynamic_eQTL_real_cl.Rmd/late_examples-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>How many pairs and how many unique genes are classified as switch
 dynamic eQTLs?</p>
 <pre class="r"><code>switch_threshold &lt;- 0.25
@@ -997,6 +2013,43 @@ length(switch_genes)</code></pre>
 <pre><code>[1] 2</code></pre>
 <p>Let’s take a look at the top-ranked switch dynamic eQTLs:</p>
 <p><img src="figure/nonlinear_dynamic_eQTL_real_cl.Rmd/switch_examples-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-switch_examples-1">
+Past versions of switch_examples-1.png
+</button>
+</p>
+<div id="fig-switch_examples-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/nonlinear_dynamic_eQTL_real_cl.Rmd/switch_examples-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="gene-set-enrichment-analysis" class="section level2">
 <h2>Gene Set Enrichment Analysis</h2>
@@ -1166,47 +2219,49 @@ other attached packages:
 [13] stringr_1.6.0          purrr_1.2.0            readr_2.1.6           
 [16] tidyr_1.3.1            tidyverse_2.0.0        ggVennDiagram_1.5.4   
 [19] tibble_3.3.0           ggplot2_4.0.3          dplyr_1.1.4           
-[22] fashr_0.1.43          
+[22] biomaRt_2.64.0         fashr_0.1.43          
 
 loaded via a namespace (and not attached):
   [1] RColorBrewer_1.1-3      rstudioapi_0.17.1       jsonlite_2.0.0         
   [4] magrittr_2.0.5          ggtangle_0.0.9          farver_2.1.2           
   [7] rmarkdown_2.30          fs_1.6.6                ragg_1.5.0             
  [10] vctrs_0.7.3             memoise_2.0.1           ggtree_3.16.3          
- [13] mixsqp_0.3-54           htmltools_0.5.9         curl_7.0.0             
- [16] gridGraphics_0.5-1      sass_0.4.10             bslib_0.9.0            
- [19] plyr_1.8.9              cachem_1.1.0            TMB_1.9.23             
- [22] igraph_2.3.2            lifecycle_1.0.5         pkgconfig_2.0.3        
- [25] Matrix_1.7-4            R6_2.6.1                fastmap_1.2.0          
- [28] gson_0.1.0              GenomeInfoDbData_1.2.14 digest_0.6.39          
- [31] numDeriv_2016.8-1.1     aplot_0.2.9             enrichplot_1.28.4      
- [34] colorspace_2.1-2        patchwork_1.3.2         rprojroot_2.1.1        
- [37] irlba_2.3.7             textshaping_1.0.4       RSQLite_2.4.5          
- [40] labeling_0.4.3          timechange_0.3.0        httr_1.4.7             
- [43] compiler_4.5.1          bit64_4.6.0-1           withr_3.0.3            
- [46] S7_0.2.2                BiocParallel_1.42.2     DBI_1.2.3              
- [49] R.utils_2.13.0          rappdirs_0.3.3          tools_4.5.1            
- [52] otel_0.2.0              ape_5.8-1               httpuv_1.6.16          
- [55] R.oo_1.27.1             glue_1.8.1              nlme_3.1-168           
- [58] GOSemSim_2.34.0         promises_1.5.0          grid_4.5.1             
- [61] reshape2_1.4.5          fgsea_1.34.2            gtable_0.3.6           
- [64] tzdb_0.5.0              R.methodsS3_1.8.2       data.table_1.17.8      
- [67] hms_1.1.4               utf8_1.2.6              XVector_0.48.0         
- [70] ggrepel_0.9.6           pillar_1.11.1           babelgene_22.9         
- [73] yulab.utils_0.2.3       later_1.4.4             splines_4.5.1          
- [76] treeio_1.32.0           lattice_0.22-7          bit_4.6.0              
- [79] tidyselect_1.2.1        GO.db_3.21.0            Biostrings_2.76.0      
- [82] knitr_1.50              git2r_0.36.2            xfun_0.55              
- [85] LaplacesDemon_16.1.8    stringi_1.8.9           UCSC.utils_1.4.0       
- [88] workflowr_1.7.2         lazyeval_0.2.2          ggfun_0.2.0            
- [91] yaml_2.3.12             evaluate_1.0.5          codetools_0.2-20       
- [94] qvalue_2.40.0           ggplotify_0.1.3         cli_3.6.6              
- [97] systemfonts_1.3.1       jquerylib_0.1.4         dichromat_2.0-0.1      
-[100] Rcpp_1.1.1-1.1          GenomeInfoDb_1.44.3     png_0.1-8              
-[103] parallel_4.5.1          assertthat_0.2.1        blob_1.2.4             
-[106] DOSE_4.2.0              tidytree_0.4.6          scales_1.4.0           
-[109] crayon_1.5.3            rlang_1.2.0             fastmatch_1.1-6        
-[112] KEGGREST_1.48.1        </code></pre>
+ [13] mixsqp_0.3-54           htmltools_0.5.9         progress_1.2.3         
+ [16] curl_7.0.0              gridGraphics_0.5-1      sass_0.4.10            
+ [19] bslib_0.9.0             plyr_1.8.9              httr2_1.2.2            
+ [22] cachem_1.1.0            TMB_1.9.23              igraph_2.3.2           
+ [25] whisker_0.4.1           lifecycle_1.0.5         pkgconfig_2.0.3        
+ [28] gson_0.1.0              Matrix_1.7-4            R6_2.6.1               
+ [31] fastmap_1.2.0           GenomeInfoDbData_1.2.14 digest_0.6.39          
+ [34] numDeriv_2016.8-1.1     aplot_0.2.9             enrichplot_1.28.4      
+ [37] colorspace_2.1-2        patchwork_1.3.2         rprojroot_2.1.1        
+ [40] irlba_2.3.7             textshaping_1.0.4       RSQLite_2.4.5          
+ [43] filelock_1.0.3          labeling_0.4.3          timechange_0.3.0       
+ [46] httr_1.4.7              compiler_4.5.1          bit64_4.6.0-1          
+ [49] withr_3.0.3             S7_0.2.2                BiocParallel_1.42.2    
+ [52] DBI_1.2.3               R.utils_2.13.0          rappdirs_0.3.3         
+ [55] tools_4.5.1             otel_0.2.0              ape_5.8-1              
+ [58] httpuv_1.6.16           R.oo_1.27.1             glue_1.8.1             
+ [61] nlme_3.1-168            GOSemSim_2.34.0         promises_1.5.0         
+ [64] grid_4.5.1              reshape2_1.4.5          fgsea_1.34.2           
+ [67] gtable_0.3.6            tzdb_0.5.0              R.methodsS3_1.8.2      
+ [70] data.table_1.17.8       hms_1.1.4               utf8_1.2.6             
+ [73] xml2_1.5.1              XVector_0.48.0          ggrepel_0.9.6          
+ [76] pillar_1.11.1           babelgene_22.9          yulab.utils_0.2.3      
+ [79] later_1.4.4             splines_4.5.1           treeio_1.32.0          
+ [82] BiocFileCache_2.16.2    lattice_0.22-7          bit_4.6.0              
+ [85] tidyselect_1.2.1        GO.db_3.21.0            Biostrings_2.76.0      
+ [88] knitr_1.50              git2r_0.36.2            xfun_0.55              
+ [91] LaplacesDemon_16.1.8    stringi_1.8.9           UCSC.utils_1.4.0       
+ [94] lazyeval_0.2.2          workflowr_1.7.2         ggfun_0.2.0            
+ [97] yaml_2.3.12             evaluate_1.0.5          codetools_0.2-20       
+[100] qvalue_2.40.0           ggplotify_0.1.3         cli_3.6.6              
+[103] systemfonts_1.3.1       jquerylib_0.1.4         dichromat_2.0-0.1      
+[106] Rcpp_1.1.1-1.1          GenomeInfoDb_1.44.3     dbplyr_2.5.1           
+[109] png_0.1-8               parallel_4.5.1          assertthat_0.2.1       
+[112] blob_1.2.4              prettyunits_1.2.0       DOSE_4.2.0             
+[115] tidytree_0.4.6          scales_1.4.0            crayon_1.5.3           
+[118] rlang_1.2.0             fastmatch_1.1-6         KEGGREST_1.48.1        </code></pre>
 </div>
 </div>
 </div>

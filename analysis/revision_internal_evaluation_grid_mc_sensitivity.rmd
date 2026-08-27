@@ -1,7 +1,7 @@
 ---
-title: "Internal sensitivity analysis: all four functional categories"
+title: "Revision R4: evaluation-grid and Monte Carlo sensitivity"
 author: "Ziang Zhang"
-date: "2026-08-20"
+date: "2026-08-26"
 output:
   workflowr::wflow_html:
     code_folding: hide
@@ -24,126 +24,10 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-cache_dir <- file.path(
-  "output",
-  "revision_simulations",
-  "internal",
-  "evaluation_grid_mc_all_category_baseline_discoveries_open_middle"
-)
-
-configuration <- readRDS(file.path(cache_dir, "configuration.rds"))
-population <- read.csv(
-  file.path(cache_dir, "baseline_discovery_population.csv"),
-  stringsAsFactors = FALSE,
-  check.names = FALSE
-)
-population_summary <- read.csv(
-  file.path(cache_dir, "population_summary.csv"),
-  stringsAsFactors = FALSE,
-  check.names = FALSE
-)
-pair_lfsr <- read.csv(
-  file.path(cache_dir, "pair_lfsr_by_setting.csv"),
-  stringsAsFactors = FALSE,
-  check.names = FALSE
-)
-comparison_summary <- read.csv(
-  file.path(cache_dir, "comparison_summary.csv"),
-  stringsAsFactors = FALSE,
-  check.names = FALSE
-)
-runtime <- read.csv(
-  file.path(cache_dir, "runtime.csv"),
-  stringsAsFactors = FALSE,
-  check.names = FALSE
-)
-cache_validation <- read.csv(
-  file.path(cache_dir, "validation.csv"),
-  stringsAsFactors = FALSE,
-  check.names = FALSE
-)
-
-category_order <- c("early", "middle", "late", "switch")
-category_labels <- c(
-  early = "Early",
-  middle = "Middle",
-  late = "Late",
-  switch = "Switch"
-)
-expected_pair_counts <- c(
-  early = 124L,
-  middle = 60L,
-  late = 20L,
-  switch = 984L
-)
-expected_gene_counts <- c(
-  early = 8L,
-  middle = 15L,
-  late = 12L,
-  switch = 250L
-)
-expected_setting_ids <- c(
-  "grid_0p15_M3000",
-  "grid_0p10_M3000",
-  "grid_0p05_M3000",
-  "grid_0p10_M2000",
-  "grid_0p10_M5000"
-)
-expected_comparison_ids <- c(
-  "grid_0p10_vs_0p15_M3000",
-  "grid_0p10_vs_0p05_M3000",
-  "M2000_vs_M3000_grid_0p10",
-  "M3000_vs_M5000_grid_0p10"
-)
-
-if (
-  configuration$seed != 20260820L ||
-  configuration$num_cores != 4L ||
-  configuration$alpha != 0.05 ||
-  configuration$switch_threshold != 0.25 ||
-  configuration$category_pair_count != sum(expected_pair_counts) ||
-  configuration$unique_pair_count != 1178L ||
-  !identical(configuration$category_order, category_order) ||
-  !identical(
-    unname(configuration$expected_pair_counts),
-    unname(expected_pair_counts)
-  ) ||
-  !identical(
-    unname(configuration$expected_gene_counts),
-    unname(expected_gene_counts)
-  ) ||
-  !setequal(pair_lfsr$setting_id, expected_setting_ids) ||
-  !identical(
-    unique(comparison_summary$comparison_id),
-    expected_comparison_ids
-  ) ||
-  nrow(population) != sum(expected_pair_counts) ||
-  nrow(pair_lfsr) != sum(expected_pair_counts) *
-    length(expected_setting_ids) ||
-  nrow(comparison_summary) != length(category_order) *
-    length(expected_comparison_ids) ||
-  anyDuplicated(population[c("category", "pair_id")]) ||
-  anyDuplicated(pair_lfsr[c("category", "pair_id", "setting_id")]) ||
-  any(!is.finite(pair_lfsr$lfsr)) ||
-  any(pair_lfsr$lfsr < 0 | pair_lfsr$lfsr > 1) ||
-  !all(cache_validation$passed)
-) {
-  stop("The all-category numerical-sensitivity cache failed page validation.")
-}
-
-population_summary <- population_summary[
-  match(category_order, population_summary$category),
-  ,
-  drop = FALSE
-]
-comparison_summary <- comparison_summary[
-  order(
-    match(comparison_summary$comparison_id, expected_comparison_ids),
-    match(comparison_summary$category, category_order)
-  ),
-  ,
-  drop = FALSE
-]
+source(file.path(
+  "code", "revision_simulations", "internal",
+  "evaluation_grid_sensitivity", "reporting.R"
+))
 ```
 
 <style type="text/css">
@@ -178,11 +62,23 @@ table > caption {
 .table-scroll table {
   min-width: 1040px;
 }
+
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.main-container p code,
+.main-container li code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
 </style>
 
 # Question and conclusion
 
-This page asks whether the current numerical choices---evaluation-grid step
+This page asks whether the numerical choices---evaluation-grid step
 0.10 and 3,000 posterior draws---are sufficiently stable for the pairs already
 selected in the four illustrative functional categories: Early, Middle, Late,
 and Switch.
@@ -190,16 +86,16 @@ and Switch.
 <div class="sensitivity-key-result">
 The answer is <strong>yes for the conditional robustness of the reported
 pairs</strong>. Across categories, grid comparisons have mean absolute LFSR
-changes of 0.0003--0.0017. The 3,000-versus-5,000-draw comparison has mean
-absolute changes of 0.0014--0.0021, smaller in every category than the
-corresponding 2,000-versus-3,000 change. These results support retaining
+changes of 0.0003--0.0016. The 3,000-versus-5,000-draw comparison has mean
+absolute changes of 0.0017--0.0023, and more than 99.8% of pairs in every
+category differ by at most 0.01. These results support retaining
 <strong>grid step 0.10 and 3,000 posterior draws</strong> for the illustrative
 functional analysis.
 </div>
 
 This is a **reported-pair sensitivity analysis**: the baseline discovery
-population is held fixed. It does not rerank all 9,205 candidate pairs under
-each numerical setting and therefore does not claim identical full discovery
+population is held fixed. It does not rerank the full eligible pair universe
+under each numerical setting and therefore does not claim identical discovery
 sets. A full-universe server run would be the appropriate follow-up only if
 this targeted diagnostic showed material instability.
 
@@ -233,7 +129,8 @@ $$
 
 Early, Late, and Switch pairs are the saved manuscript discoveries with
 cumulative FSR at most 0.05. Middle uses the less boundary-ambiguous open
-window $3<t<12$ and its 60 baseline discoveries at grid 0.10 and $M=3{,}000$.
+window $3<t<12$ and its 58 saved baseline discoveries. The baseline category
+tables were generated with grid 0.10 and $M=3{,}000$.
 The same category-specific pairs are retained in every comparison.
 
 ```{r analysis-population-table}
@@ -273,12 +170,12 @@ produce a representative posterior prefix. For each fitted pair, we generate
 5,000 draws once, apply a fixed pair-specific random column permutation, and
 use the first 2,000, 3,000, and 5,000 permuted columns. This construction makes
 the Monte Carlo comparisons nested while holding the posterior sample stream
-fixed. Ten pairs occur in more than one category, so 1,188 category-pair rows
+fixed. Eight pairs occur in more than one category, so 1,186 category-pair rows
 require 1,178 unique posterior-sampling calls.
 
 ```{r numerical-design-code, eval=FALSE}
 # Reproducible construction used by the cache-building script for each pair.
-set.seed(20260820L + pair_index)
+set.seed(20260826L + pair_index)
 posterior_samples <- predict(
   fash_fit1_update,
   index = pair_index,
@@ -289,7 +186,7 @@ posterior_samples <- predict(
 
 # predict.fash groups columns by PSD component, so randomize column order
 # deterministically before taking nested Monte Carlo prefixes.
-set.seed(20260820L + 1000000L + pair_index)
+set.seed(20260826L + 1000000L + pair_index)
 posterior_samples <- posterior_samples[
   ,
   sample.int(ncol(posterior_samples)),
@@ -352,7 +249,7 @@ knitr::asis_output(paste0(
 ```
 
 The continuous metrics are more informative than isolated 0.05 crossings.
-For example, Late has only 20 pairs, several near 0.05, so one or two small
+For example, Late has only 21 pairs, several near 0.05, so one or two small
 changes can noticeably reduce the last-column percentage even when every LFSR
 change is below 0.01.
 
@@ -497,8 +394,7 @@ build_comparison_plot(
 ```
 
 The points remain close to equality: category-specific mean absolute changes
-range from 0.0005 to 0.0017. The largest change is 0.0110 for one Switch pair;
-99.9% of Switch pairs and all Early, Middle, and Late pairs are within 0.01.
+range from 0.0005 to 0.0016. Every pair is within 0.01.
 
 ```{r grid-0p10-vs-0p05, fig.cap="Figure 2. Grid-step sensitivity: 0.10 versus 0.05 at 3,000 posterior draws. Panels contain all baseline-discovery pairs for each category; the discovery population is held fixed."}
 build_comparison_plot(
@@ -509,7 +405,7 @@ build_comparison_plot(
 ```
 
 The finer-grid comparison is at least as stable. Mean absolute changes range
-from 0.0003 to 0.0017, and every pair is within 0.01. This supports treating
+from 0.0003 to 0.0016, and every pair is within 0.01. This supports treating
 grid step 0.10 as adequate for these reported pairs.
 
 ```{r M2000-vs-M3000, fig.cap="Figure 3. Posterior Monte Carlo sensitivity: 2,000 versus 3,000 nested draws at grid step 0.10. Panels contain all baseline-discovery pairs for each category; columns were deterministically permuted before taking prefixes."}
@@ -520,8 +416,8 @@ build_comparison_plot(
 )
 ```
 
-Mean absolute changes range from 0.0021 to 0.0027. Signed mean changes are all
-within 0.0003 of zero, consistent with Monte Carlo fluctuation rather than a
+Mean absolute changes range from 0.0020 to 0.0022. Signed mean changes are all
+within 0.0004 of zero, consistent with Monte Carlo fluctuation rather than a
 systematic shift.
 
 ```{r M3000-vs-M5000, fig.cap="Figure 4. Posterior Monte Carlo sensitivity: 3,000 versus 5,000 nested draws at grid step 0.10. Panels contain all baseline-discovery pairs for each category; columns were deterministically permuted before taking prefixes."}
@@ -532,9 +428,10 @@ build_comparison_plot(
 )
 ```
 
-Mean absolute changes decrease to 0.0014--0.0021, with at least 99.2% of pairs
-within 0.01 in every category. The smaller changes after 3,000 draws provide
-the direct saturation check requested here and support retaining $M=3{,}000$.
+Mean absolute changes are 0.0017--0.0023, with more than 99.8% of pairs within
+0.01 in every category. The signed mean changes are all within 0.0007 of zero.
+Together with the 2,000-versus-3,000 comparison, this supports retaining
+$M=3{,}000$ for the reported-pair analysis.
 
 # Final numerical choices
 
@@ -544,8 +441,24 @@ the direct saturation check requested here and support retaining $M=3{,}000$.
 - Posterior Monte Carlo size: 3,000 draws.
 - Sensitivity population: all baseline-discovery pairs within each category,
   held fixed across settings.
-- Randomization: pair-specific seed 20260820 plus fitted-pair index, followed
+- Randomization: pair-specific seed 20260826 plus fitted-pair index, followed
   by a pair-specific deterministic column permutation for nested prefixes.
-- Computation: one R job with four workers; the production posterior-sampling
+- Computation: one R job with two workers; the production posterior-sampling
   stage took `r sprintf("%.1f", runtime$elapsed_seconds[runtime$stage == "posterior_sampling_and_evaluation"])`
   seconds.
+
+# Reproducibility
+
+The page reads the versioned cache validated by
+`code/revision_simulations/internal/evaluation_grid_sensitivity/reporting.R`.
+The numerical cache can be regenerated from the current saved classifications
+and BF-adjusted fit with:
+
+```{bash, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/evaluation_grid_sensitivity/run_all_category_baseline_discovery_sensitivity.R \
+  --num-cores 2 \
+  --seed 20260826 \
+  --middle-definition open_3_12 \
+  --output-id evaluation_grid_mc_all_category_current_fashr0143_20260826
+```

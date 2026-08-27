@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-25" />
+
+<title>Internal analysis: enhancer enrichment by FASH temporal class</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Internal analysis: enhancer enrichment by
+FASH temporal class</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-25</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-26
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree55cacb9e763382afe44ca3f41f08c68b72ebfbabtargetblank55cacb9a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/55cacb9e763382afe44ca3f41f08c68b72ebfbab" target="_blank">55cacb9</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree55cacb9e763382afe44ca3f41f08c68b72ebfbabtargetblank55cacb9a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/AgueroZZ/fash-revision/tree/55cacb9e763382afe44ca3f41f08c68b72ebfbab" target="_blank">55cacb9</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Rplots.pdf
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    analysis/site_libs/
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/revision_simulations/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/playwright/
+    Ignored:    output/revision_simulations/
+    Ignored:    scripts/
+
+Untracked files:
+    Untracked:  analysis/revision_internal_fash_knockoff.rmd
+    Untracked:  analysis/revision_internal_fash_temporal_class_enhancer_enrichment.rmd
+    Untracked:  analysis/revision_internal_three_likelihood_comparison.rmd
+    Untracked:  code/03_nonlindyn_lfsr.R
+    Untracked:  code/03_nonlindyn_lfsr.sbatch
+    Untracked:  code/revision_simulations/internal/fash_knockoff/reporting.R
+    Untracked:  code/revision_simulations/internal/fash_knockoff/test_reporting.R
+    Untracked:  code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/
+    Untracked:  code/revision_simulations/r1_r2_fashr0143/source_snapshots/
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_core.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_fashr0143.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_fashr0143.sbatch
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/source_snapshots/r3_center_aligned_relative_location_paired_driver.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/source_snapshots/r3_center_aligned_relative_location_paired_simulation_functions.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/test_r3_center_aligned_relative_location_paired.R
+    Untracked:  code/revision_simulations/r4_correlated_errors/compute_full_model_residual_correlation.R
+    Untracked:  code/revision_simulations/r4_correlated_errors/compute_pc_residual_expression_correlation.R
+
+Unstaged changes:
+    Modified:   analysis/dynamic_eQTL_real_full.rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real_full.rmd
+    Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
+    Modified:   analysis/revision_correlated_error_simulation.rmd
+    Modified:   analysis/revision_enhancer_enrichment.rmd
+    Modified:   analysis/revision_genotype_level_simulation.rmd
+    Modified:   analysis/revision_internal_temporal_class_roadmap_enrichment.rmd
+    Deleted:    code/02_dyn.R
+    Modified:   code/02_dyn_lfsr.R
+    Modified:   code/02_dyn_lfsr.sbatch
+    Deleted:    code/03_nonlindyn.R
+    Modified:   code/revision_simulations/README.md
+    Modified:   code/revision_simulations/internal/fash_knockoff/plot_lfdr_histograms.R
+    Modified:   code/revision_simulations/internal/fash_knockoff/plot_w_boxplot_by_discovery.R
+    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/reporting.R
+    Modified:   code/revision_simulations/internal/temporal_class_roadmap_enrichment/reporting.R
+    Modified:   code/revision_simulations/internal/temporal_class_roadmap_enrichment/run_temporal_class_roadmap_enrichment.R
+    Modified:   code/revision_simulations/internal/temporal_class_roadmap_enrichment/temporal_class_roadmap_helpers.R
+    Modified:   code/revision_simulations/internal/temporal_class_roadmap_enrichment/test_temporal_class_roadmap_helpers.R
+    Modified:   code/revision_simulations/r1_r2_fashr0143/reporting_overlay.R
+    Modified:   code/revision_simulations/r4_correlated_errors/reporting.R
+    Modified:   code/revision_simulations/r4_correlated_errors/test_unit_specific_residual_permutation_helpers.R
+    Modified:   code/revision_simulations/r4_correlated_errors/unit_specific_residual_permutation_helpers.R
+
+Staged changes:
+    New:        analysis/revision_internal_temporal_class_roadmap_enrichment.rmd
+    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/reporting.R
+    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/run_temporal_class_roadmap_enrichment.R
+    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/temporal_class_roadmap_helpers.R
+    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/test_reporting.R
+    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/test_temporal_class_roadmap_helpers.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style>
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.temporal-class-internal-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.temporal-class-definition {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.temporal-class-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.temporal-class-table-scroll table {
+  margin-bottom: 1em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre,
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+<div class="temporal-class-internal-banner">
+<p><strong>Internal analysis page.</strong> This page is not linked from
+the workflowr homepage, manuscript, or response letter.</p>
+</div>
+<div id="question" class="section level2">
+<h2>Question</h2>
+<p>The R6 page shows that FASH’s dynamic-eQTL discoveries fall inside
+Roadmap enhancers of this differentiation more often than the tested
+variants do. This page splits those same discoveries by <em>when</em>
+the effect peaks — early, middle, late — and asks whether the enrichment
+concentrates in a specific enhancer category.</p>
+<p>The naive prediction is stage matching: early variants in E020 (iPSC)
+enhancers, middle in E013 (mesoderm), late in E095 (left ventricle). The
+answer below is that stage matching does <strong>not</strong> hold, but
+the temporal classes do differ sharply in which regulatory compartment
+they occupy.</p>
+<p>Everything here is descriptive and exploratory. Nothing is refit: the
+discovery set, the timing classification, and the enrichment machinery
+all come from existing caches and from <code>enrichment_api.R</code>
+unchanged.</p>
+</div>
+<div id="temporal-classes" class="section level2">
+<h2>Temporal classes</h2>
+<p>The manuscript classifies a discovered pair by where the peak of
+<span class="math inline">\(|\beta(t)|\)</span> falls in the 15-day time
+course, using the Strober-style functionals</p>
+<p><span class="math display">\[
+\text{early: } \sup_{t\le 3}|\beta(t)| - \sup_{t&gt;3}|\beta(t)| &gt;
+0,\qquad
+\text{middle: } \sup_{3&lt;t&lt;12}|\beta(t)| - \sup_{t\le 3 \text{ or }
+t\ge 12}|\beta(t)| &gt; 0,
+\]</span> <span class="math display">\[
+\text{late: } \sup_{t\ge 12}|\beta(t)| - \sup_{t&lt;12}|\beta(t)| &gt;
+0.
+\]</span></p>
+<p><code>testing_functional()</code> returns, for each functional, the
+posterior probability that it is not positive (<code>lfsr</code>), so
+<span class="math inline">\(1 - \texttt{lfsr}\)</span> is the posterior
+probability that the peak lies in that window. These are already cached
+for the FASH-IWP1 fit in
+<code>output/dynamic_eQTL_real/classify_dyn_eQTLs_*.RData</code>.</p>
+<div class="temporal-class-definition">
+<ul>
+<li>
+<strong>Discovery set:</strong> the R6 set — all 9,214 gene-variant
+pairs (9,148 unique variants) called by BF-adjusted FASH-IWP1 at
+cumulative-lfdr FDR 0.05.
+</li>
+<li>
+<strong>Class:</strong> each pair is assigned to the window with the
+largest posterior probability. Early <span
+class="math inline">\([0,3]\)</span>, Middle <span
+class="math inline">\((3,12)\)</span>, and Late <span
+class="math inline">\([12,15]\)</span> partition the evaluation grid.
+Their positive-window probabilities sum to the posterior non-null
+probability rather than one because an exact-null trajectory belongs to
+no timing class; the three cached classifications were sampled
+separately, so their empirical sum also contains Monte Carlo error
+(median row sum 0.96).
+</li>
+<li>
+<strong>All variants:</strong> every unique rsID in the class.
+</li>
+<li>
+<strong>One lead variant per gene:</strong> the lowest-lfdr pair of each
+gene <em>within</em> the class, so a gene whose variants split across
+classes contributes one lead to each.
+</li>
+</ul>
+</div>
+<pre class="r"><code>render_internal_table(
+  class_summary_display,
+  align = &quot;lrrrrrr&quot;,
+  minimum_width = &quot;980px&quot;
+)</code></pre>
+<div class="temporal-class-table-scroll">
+<table class="table table-striped table-hover" style="min-width:980px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Class
+</th>
+<th style="text-align:right;">
+Discovered pairs
+</th>
+<th style="text-align:right;">
+Unique variants
+</th>
+<th style="text-align:right;">
+Unique genes
+</th>
+<th style="text-align:right;">
+Median assignment probability
+</th>
+<th style="text-align:right;">
+Pairs with cfsr &lt;= 0.05
+</th>
+<th style="text-align:right;">
+Genes with cfsr &lt;= 0.05
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Early (peak on days 0-3)
+</td>
+<td style="text-align:right;">
+1,157
+</td>
+<td style="text-align:right;">
+1,157
+</td>
+<td style="text-align:right;">
+140
+</td>
+<td style="text-align:right;">
+0.66
+</td>
+<td style="text-align:right;">
+126
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Middle (peak at 3 &lt; t &lt; 12)
+</td>
+<td style="text-align:right;">
+1,943
+</td>
+<td style="text-align:right;">
+1,940
+</td>
+<td style="text-align:right;">
+346
+</td>
+<td style="text-align:right;">
+0.59
+</td>
+<td style="text-align:right;">
+58
+</td>
+<td style="text-align:right;">
+14
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Late (peak on days 12-15)
+</td>
+<td style="text-align:right;">
+6,114
+</td>
+<td style="text-align:right;">
+6,062
+</td>
+<td style="text-align:right;">
+936
+</td>
+<td style="text-align:right;">
+0.67
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The last two columns are why the assignment is by rank rather than by
+a significance threshold. Applying the manuscript’s own
+<code>cfsr</code> <span class="math inline">\(\le\)</span> 0.05 cutoff
+leaves only 126 early, 58 middle, and 21 late pairs, from 8, 14, and 11
+genes respectively. Those sets are at or below the 10-overlap floor an
+enrichment estimate needs, so a strict reading of the classification
+cannot answer this question at all. The ranked assignment uses every
+discovery and buys the power at the cost of calling many pairs whose
+timing is uncertain; the confident-subset sensitivity below reruns the
+analysis with a probability floor.</p>
+<p>The class sizes are very unequal: the late class holds 6,114 of the
+9,214 pairs. Read every comparison below with that in mind — the late
+class is close to the whole FASH discovery set, so its estimates
+reproduce the R6 numbers almost by construction, whereas the early class
+rests on 140 genes.</p>
+</div>
+<div id="enrichment-against-the-tested-background"
+class="section level2">
+<h2>Enrichment against the tested background</h2>
+<p>Same comparator, definition, and interval as the R6 page: fold
+enrichment is the overlap rate in the set divided by the overlap rate
+among all 745,867 tested autosomal variants, with the set excluded from
+its own comparator, and the bars are 22-block leave-one-autosome-out
+jackknife 95% intervals.</p>
+<pre class="r"><code>plot_background_enrichment()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_temporal_class_enhancer_enrichment.rmd/background-enrichment-1.png" alt="Figure 1. Enhancer enrichment of the early, middle, and late FASH discovery classes relative to all tested variants, using every variant in the class (left) and one lead variant per gene (right). Annotations are the Roadmap 15-state ChromHMM enhancer states of the three epigenomes bracketing the differentiation. The dashed line marks no enrichment; bars are leave-one-autosome-out jackknife 95% intervals. Cells whose overlap fell below the floor of 10 variants are not plotted." width="1710" />
+<p class="caption">
+Figure 1. Enhancer enrichment of the early, middle, and late FASH
+discovery classes relative to all tested variants, using every variant
+in the class (left) and one lead variant per gene (right). Annotations
+are the Roadmap 15-state ChromHMM enhancer states of the three
+epigenomes bracketing the differentiation. The dashed line marks no
+enrichment; bars are leave-one-autosome-out jackknife 95% intervals.
+Cells whose overlap fell below the floor of 10 variants are not plotted.
+</p>
+</div>
+<pre class="r"><code>render_internal_table(
+  enrichment_display_table(background_enrichment),
+  align = &quot;llrrr&quot;,
+  minimum_width = &quot;980px&quot;
+)</code></pre>
+<div class="temporal-class-table-scroll">
+<table class="table table-striped table-hover" style="min-width:980px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Class
+</th>
+<th style="text-align:left;">
+Selection
+</th>
+<th style="text-align:right;">
+E020 iPSC enhancer
+</th>
+<th style="text-align:right;">
+E013 mesoderm enhancer
+</th>
+<th style="text-align:right;">
+E095 left-ventricle enhancer
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Early (peak on days 0-3)
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+0.43 (0.25-0.74)
+</td>
+<td style="text-align:right;">
+0.44 (0.29-0.65)
+</td>
+<td style="text-align:right;">
+0.77 (0.56-1.05)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Early (peak on days 0-3)
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+not estimated
+</td>
+<td style="text-align:right;">
+not estimated
+</td>
+<td style="text-align:right;">
+1.11 (0.62-1.96)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Middle (peak at 3 &lt; t &lt; 12)
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+0.83 (0.63-1.09)
+</td>
+<td style="text-align:right;">
+0.96 (0.62-1.50)
+</td>
+<td style="text-align:right;">
+0.99 (0.80-1.22)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Middle (peak at 3 &lt; t &lt; 12)
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+1.03 (0.59-1.82)
+</td>
+<td style="text-align:right;">
+1.41 (0.87-2.29)
+</td>
+<td style="text-align:right;">
+1.15 (0.82-1.61)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Late (peak on days 12-15)
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+0.95 (0.71-1.28)
+</td>
+<td style="text-align:right;">
+1.29 (1.02-1.63)
+</td>
+<td style="text-align:right;">
+1.38 (1.12-1.68)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Late (peak on days 12-15)
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+1.09 (0.76-1.55)
+</td>
+<td style="text-align:right;">
+1.46 (1.12-1.91)
+</td>
+<td style="text-align:right;">
+1.30 (0.98-1.72)
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Stage matching fails at the first row. The early class is
+<strong>depleted</strong>, not enriched, at the iPSC enhancers it was
+supposed to match: 0.43-fold (95% CI 0.25-0.74) at E020, and equally
+depleted at E013, 0.44-fold (95% CI 0.29-0.65). Its lead set is too
+small to estimate at E020 and E013 — not estimated (2 overlapping
+variants, below the floor of 10).</p>
+<p>The late class carries the R6 signal: 1.29-fold (95% CI 1.02-1.63) at
+E013 and 1.38-fold (95% CI 1.12-1.68) at E095 using every variant, and
+1.46-fold (95% CI 1.12-1.91) and 1.30-fold (95% CI 0.98-1.72) under lead
+selection. These sit close to the R6 estimates for the whole FASH lead
+set (1.47 at E013, 1.26 at E095), which is expected given that the late
+class is two thirds of the discoveries.</p>
+<p>The middle class points at the mesoderm state under lead selection,
+1.41-fold (95% CI 0.87-2.29), which is the largest estimate in its row
+and the one place where the stage-matched prediction is directionally
+supported — but the interval covers 1 and this is one contrast among
+eighteen.</p>
+</div>
+<div id="is-any-of-it-specific-to-the-class" class="section level2">
+<h2>Is any of it specific to the class?</h2>
+<p>Figure 1 compares each class with the whole testing universe, so a
+class inherits whatever enrichment FASH discoveries have in general.
+Replacing the comparator with the other 9,148 FASH-discovered variants
+asks the sharper question: given that a variant was discovered, does its
+timing class predict which enhancers it hits?</p>
+<pre class="r"><code>plot_within_discovery_enrichment()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_temporal_class_enhancer_enrichment.rmd/within-discovery-enrichment-1.png" alt="Figure 2. The same three classes, now measured against the other FASH-discovered variants rather than against the full testing universe. A value above 1 means the class hits that enhancer state more often than the rest of FASH's discoveries do." width="1710" />
+<p class="caption">
+Figure 2. The same three classes, now measured against the other
+FASH-discovered variants rather than against the full testing universe.
+A value above 1 means the class hits that enhancer state more often than
+the rest of FASH’s discoveries do.
+</p>
+</div>
+<pre class="r"><code>render_internal_table(
+  enrichment_display_table(within_discovery_enrichment),
+  align = &quot;llrrr&quot;,
+  minimum_width = &quot;980px&quot;
+)</code></pre>
+<div class="temporal-class-table-scroll">
+<table class="table table-striped table-hover" style="min-width:980px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Class
+</th>
+<th style="text-align:left;">
+Selection
+</th>
+<th style="text-align:right;">
+E020 iPSC enhancer
+</th>
+<th style="text-align:right;">
+E013 mesoderm enhancer
+</th>
+<th style="text-align:right;">
+E095 left-ventricle enhancer
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Early (peak on days 0-3)
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+0.46 (0.25-0.86)
+</td>
+<td style="text-align:right;">
+0.36 (0.24-0.55)
+</td>
+<td style="text-align:right;">
+0.60 (0.45-0.80)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Early (peak on days 0-3)
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+not estimated
+</td>
+<td style="text-align:right;">
+not estimated
+</td>
+<td style="text-align:right;">
+0.91 (0.55-1.51)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Middle (peak at 3 &lt; t &lt; 12)
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+0.96 (0.66-1.40)
+</td>
+<td style="text-align:right;">
+0.84 (0.51-1.38)
+</td>
+<td style="text-align:right;">
+0.77 (0.57-1.05)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Middle (peak at 3 &lt; t &lt; 12)
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+1.21 (0.65-2.26)
+</td>
+<td style="text-align:right;">
+1.29 (0.81-2.03)
+</td>
+<td style="text-align:right;">
+0.94 (0.65-1.37)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Late (peak on days 12-15)
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+1.39 (0.96-2.03)
+</td>
+<td style="text-align:right;">
+1.67 (1.11-2.51)
+</td>
+<td style="text-align:right;">
+1.51 (1.19-1.91)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Late (peak on days 12-15)
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+1.30 (0.84-2.00)
+</td>
+<td style="text-align:right;">
+1.37 (1.04-1.80)
+</td>
+<td style="text-align:right;">
+1.08 (0.80-1.44)
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Timing does carry information, in one direction. Against its fellow
+discoveries the early class is depleted at all three states — 0.46-fold
+(95% CI 0.25-0.86) at E020, 0.36-fold (95% CI 0.24-0.55) at E013,
+0.60-fold (95% CI 0.45-0.80) at E095 — and the late class is enriched,
+1.67-fold (95% CI 1.11-2.51) at E013 and 1.51-fold (95% CI 1.19-1.91) at
+E095. The middle class is indistinguishable from the rest of the
+discoveries.</p>
+<p>So the answer to “is there a specific enhancer category” is: not a
+<em>stage-specific</em> one. What separates the classes is enhancers
+versus everything else, and the separation runs late-enriched,
+early-depleted, in all three epigenomes at once.</p>
+</div>
+<div id="where-the-early-class-sits-instead" class="section level2">
+<h2>Where the early class sits instead</h2>
+<p>An enhancer depletion is only interpretable next to the compartments
+the same variants do occupy. The panel below adds the cell-type-agnostic
+ENCODE cCRE enhancer-like annotation and the promoter/TSS annotations to
+the same all-variant comparison against the tested background.</p>
+<pre class="r"><code>plot_regulatory_context()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_temporal_class_enhancer_enrichment.rmd/regulatory-context-1.png" alt="Figure 3. Regulatory context for the three classes, all-variant view, against the tested background. Left: enhancer annotations. Right: promoter and active-TSS annotations. The early class is displaced from enhancers towards promoters and active TSS; the late class shows the opposite tilt." width="1710" />
+<p class="caption">
+Figure 3. Regulatory context for the three classes, all-variant view,
+against the tested background. Left: enhancer annotations. Right:
+promoter and active-TSS annotations. The early class is displaced from
+enhancers towards promoters and active TSS; the late class shows the
+opposite tilt.
+</p>
+</div>
+<pre class="r"><code>render_internal_table(
+  enrichment_display_table(context_enrichment, context_annotations),
+  align = &quot;llrrrrrrrrr&quot;,
+  minimum_width = &quot;1580px&quot;
+)</code></pre>
+<div class="temporal-class-table-scroll">
+<table class="table table-striped table-hover" style="min-width:1580px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Class
+</th>
+<th style="text-align:left;">
+Selection
+</th>
+<th style="text-align:right;">
+E020 enhancer
+</th>
+<th style="text-align:right;">
+E013 enhancer
+</th>
+<th style="text-align:right;">
+E095 enhancer
+</th>
+<th style="text-align:right;">
+cCRE enhancer-like
+</th>
+<th style="text-align:right;">
+E020 active TSS
+</th>
+<th style="text-align:right;">
+E013 active TSS
+</th>
+<th style="text-align:right;">
+E095 active TSS
+</th>
+<th style="text-align:right;">
+cCRE promoter-like
+</th>
+<th style="text-align:right;">
+GENCODE promoter
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Early (peak on days 0-3)
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+0.43 (0.25-0.74)
+</td>
+<td style="text-align:right;">
+0.44 (0.29-0.65)
+</td>
+<td style="text-align:right;">
+0.77 (0.56-1.05)
+</td>
+<td style="text-align:right;">
+0.78 (0.58-1.04)
+</td>
+<td style="text-align:right;">
+1.60 (1.12-2.27)
+</td>
+<td style="text-align:right;">
+1.70 (1.07-2.71)
+</td>
+<td style="text-align:right;">
+1.44 (0.90-2.32)
+</td>
+<td style="text-align:right;">
+1.29 (0.91-1.81)
+</td>
+<td style="text-align:right;">
+1.35 (0.94-1.93)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Middle (peak at 3 &lt; t &lt; 12)
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+0.83 (0.63-1.09)
+</td>
+<td style="text-align:right;">
+0.96 (0.62-1.50)
+</td>
+<td style="text-align:right;">
+0.99 (0.80-1.22)
+</td>
+<td style="text-align:right;">
+0.90 (0.77-1.05)
+</td>
+<td style="text-align:right;">
+0.99 (0.71-1.37)
+</td>
+<td style="text-align:right;">
+0.91 (0.64-1.30)
+</td>
+<td style="text-align:right;">
+1.08 (0.79-1.48)
+</td>
+<td style="text-align:right;">
+1.08 (0.88-1.33)
+</td>
+<td style="text-align:right;">
+0.98 (0.76-1.26)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Late (peak on days 12-15)
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+0.95 (0.71-1.28)
+</td>
+<td style="text-align:right;">
+1.29 (1.02-1.63)
+</td>
+<td style="text-align:right;">
+1.38 (1.12-1.68)
+</td>
+<td style="text-align:right;">
+1.04 (0.96-1.13)
+</td>
+<td style="text-align:right;">
+1.02 (0.85-1.22)
+</td>
+<td style="text-align:right;">
+1.23 (1.00-1.52)
+</td>
+<td style="text-align:right;">
+1.22 (0.92-1.62)
+</td>
+<td style="text-align:right;">
+1.30 (1.09-1.57)
+</td>
+<td style="text-align:right;">
+1.07 (0.96-1.21)
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The early class is promoter-shifted: 1.60-fold (95% CI 1.12-2.27) at
+the E020 active-TSS state, 1.70-fold (95% CI 1.07-2.71) at the E013
+active-TSS state, and 1.35-fold (95% CI 0.94-1.93) at GENCODE promoters,
+against 0.78-fold at cCRE enhancer-like elements. The late class shows
+the mirror pattern, with its enrichment on the enhancer side.</p>
+<p>That is a coherent reading of the depletion rather than a
+contradiction of it: variants whose effect is strongest in the first
+three days sit disproportionately at promoters and active TSS of the
+starting epigenome, and the variants that drive the enhancer enrichment
+R6 reports are the ones whose effect peaks late.</p>
+</div>
+<div id="sensitivities" class="section level2">
+<h2>Sensitivities</h2>
+<div id="matched-controls" class="section level3">
+<h3>Matched controls</h3>
+<p>The classes differ in allele frequency and TSS distance, and
+enhancers are themselves TSS-proximal, so the background comparison is
+confounded in principle. Repeating Figure 1 against matched controls —
+five comparable variants per selected variant on the MAF, TSS-distance,
+variant-density and tested-gene strata, pooled over 100 seeds, the
+sampler R6 retains but does not display — leaves the pattern intact.</p>
+<pre class="r"><code>plot_matched_enrichment()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_temporal_class_enhancer_enrichment.rmd/matched-enrichment-1.png" alt="Figure 4. Figure 1 recomputed against matched control variants instead of the raw tested background." width="1710" />
+<p class="caption">
+Figure 4. Figure 1 recomputed against matched control variants instead
+of the raw tested background.
+</p>
+</div>
+<pre class="r"><code>render_internal_table(
+  enrichment_display_table(matched_enrichment),
+  align = &quot;llrrr&quot;,
+  minimum_width = &quot;980px&quot;
+)</code></pre>
+<div class="temporal-class-table-scroll">
+<table class="table table-striped table-hover" style="min-width:980px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Class
+</th>
+<th style="text-align:left;">
+Selection
+</th>
+<th style="text-align:right;">
+E020 iPSC enhancer
+</th>
+<th style="text-align:right;">
+E013 mesoderm enhancer
+</th>
+<th style="text-align:right;">
+E095 left-ventricle enhancer
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Early (peak on days 0-3)
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+0.49 (0.27-0.89)
+</td>
+<td style="text-align:right;">
+0.44 (0.31-0.62)
+</td>
+<td style="text-align:right;">
+0.79 (0.56-1.11)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Early (peak on days 0-3)
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+not estimated
+</td>
+<td style="text-align:right;">
+not estimated
+</td>
+<td style="text-align:right;">
+0.86 (0.44-1.67)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Middle (peak at 3 &lt; t &lt; 12)
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+0.86 (0.64-1.17)
+</td>
+<td style="text-align:right;">
+1.05 (0.75-1.48)
+</td>
+<td style="text-align:right;">
+0.87 (0.57-1.33)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Middle (peak at 3 &lt; t &lt; 12)
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+1.10 (0.62-1.96)
+</td>
+<td style="text-align:right;">
+1.35 (0.89-2.04)
+</td>
+<td style="text-align:right;">
+1.13 (0.75-1.70)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Late (peak on days 12-15)
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+0.92 (0.65-1.32)
+</td>
+<td style="text-align:right;">
+1.06 (0.79-1.41)
+</td>
+<td style="text-align:right;">
+1.27 (1.03-1.57)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Late (peak on days 12-15)
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+1.16 (0.84-1.61)
+</td>
+<td style="text-align:right;">
+1.37 (1.04-1.81)
+</td>
+<td style="text-align:right;">
+1.18 (0.86-1.61)
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The early depletion survives matching: 0.44-fold (95% CI 0.31-0.62)
+at E013 and 0.49-fold (95% CI 0.27-0.89) at E020, against 0.44-fold and
+0.43-fold unmatched. It is not an artefact of the early class sitting
+closer to a TSS.</p>
+</div>
+<div id="confident-class-calls-only" class="section level3">
+<h3>Confident class calls only</h3>
+<p>Restricting to pairs whose winning window probability is at least 0.7
+keeps 523 early, 443 middle, and 2,451 late variants.</p>
+<pre class="r"><code>render_internal_table(
+  enrichment_display_table(confident_enrichment),
+  align = &quot;llrrr&quot;,
+  minimum_width = &quot;980px&quot;
+)</code></pre>
+<div class="temporal-class-table-scroll">
+<table class="table table-striped table-hover" style="min-width:980px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Class
+</th>
+<th style="text-align:left;">
+Selection
+</th>
+<th style="text-align:right;">
+E020 iPSC enhancer
+</th>
+<th style="text-align:right;">
+E013 mesoderm enhancer
+</th>
+<th style="text-align:right;">
+E095 left-ventricle enhancer
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Early (peak on days 0-3)
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+not estimated
+</td>
+<td style="text-align:right;">
+0.43 (0.24-0.77)
+</td>
+<td style="text-align:right;">
+0.86 (0.43-1.71)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Early (peak on days 0-3)
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+not estimated
+</td>
+<td style="text-align:right;">
+not estimated
+</td>
+<td style="text-align:right;">
+not estimated
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Middle (peak at 3 &lt; t &lt; 12)
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+not estimated
+</td>
+<td style="text-align:right;">
+1.77 (0.93-3.37)
+</td>
+<td style="text-align:right;">
+0.76 (0.46-1.27)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Middle (peak at 3 &lt; t &lt; 12)
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+not estimated
+</td>
+<td style="text-align:right;">
+2.24 (1.03-4.86)
+</td>
+<td style="text-align:right;">
+not estimated
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Late (peak on days 12-15)
+</td>
+<td style="text-align:left;">
+All variants
+</td>
+<td style="text-align:right;">
+0.86 (0.59-1.26)
+</td>
+<td style="text-align:right;">
+1.21 (0.88-1.65)
+</td>
+<td style="text-align:right;">
+1.39 (0.99-1.95)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Late (peak on days 12-15)
+</td>
+<td style="text-align:left;">
+One lead variant per gene
+</td>
+<td style="text-align:right;">
+1.13 (0.83-1.55)
+</td>
+<td style="text-align:right;">
+1.58 (1.14-2.19)
+</td>
+<td style="text-align:right;">
+1.69 (1.28-2.22)
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Most early cells fall below the overlap floor at this stringency, so
+the early depletion cannot be re-checked here. Among what survives, the
+stage-matched reading looks slightly better than it does in the full
+assignment: the middle lead set reaches 2.24-fold (95% CI 1.03-4.86) at
+the mesoderm state, and the late lead set 1.69-fold (95% CI 1.28-2.22)
+at the left-ventricle state. Both are single post-hoc contrasts on small
+sets with wide intervals and neither is corrected for the number of
+comparisons on this page; they are worth a follow-up, not a claim.</p>
+</div>
+</div>
+<div id="readout" class="section level2">
+<h2>Readout</h2>
+<ol style="list-style-type: decimal">
+<li><strong>No stage matching.</strong> Early variants are not enriched
+in iPSC enhancers; they are significantly depleted there, and their
+point estimate is below 1 at every enhancer annotation on this
+page.</li>
+<li><strong>The R6 enhancer enrichment is a late-class
+phenomenon.</strong> The late class is enriched at E013 and E095 both
+against the tested background and against the other FASH discoveries;
+the middle class is indistinguishable from the rest of the
+discoveries.</li>
+<li><strong>The classes differ by compartment, not by cell
+type.</strong> Early discoveries are promoter- and TSS-shifted, late
+discoveries enhancer-shifted, and this survives matched controls.</li>
+<li><strong>The strict classification is underpowered for this
+question.</strong> At <code>cfsr</code> <span
+class="math inline">\(\le\)</span> 0.05 the three classes hold 126, 58,
+and 21 pairs, which no annotation-overlap analysis can use.</li>
+</ol>
+</div>
+<div id="caveats" class="section level2">
+<h2>Caveats</h2>
+<ul>
+<li>The class assignment is a ranking of three posterior probabilities,
+not a significance call. Half the discoveries have a winning probability
+below 0.65.</li>
+<li>Class sizes are unequal by a factor of five, and the effective
+number of independent units is the gene count (140 / 346 / 936), not the
+variant count. The chromosome jackknife absorbs within-chromosome
+dependence only approximately.</li>
+<li>No multiplicity correction is applied anywhere on this page, and the
+annotation contrasts are correlated (the three epigenomes share much of
+their enhancer catalogue).</li>
+<li>Enrichment is orthogonal support for regulatory relevance. It does
+not validate individual discoveries or their assigned timing.</li>
+</ul>
+</div>
+<div id="reproduction" class="section level2">
+<h2>Reproduction</h2>
+<pre class="r"><code>Rscript --vanilla \
+  code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/test_temporal_class_helpers.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/test_reporting.R
+
+Rscript --vanilla -e \
+  &#39;workflowr::wflow_build(&quot;analysis/revision_internal_fash_temporal_class_enhancer_enrichment.rmd&quot;)&#39;</code></pre>
+<p>Page-specific source files:</p>
+<ul>
+<li><code>code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/temporal_class_helpers.R</code></li>
+<li><code>code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/test_temporal_class_helpers.R</code></li>
+<li><code>code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/reporting.R</code></li>
+<li><code>code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/test_reporting.R</code></li>
+</ul>
+<p>Cached inputs, neither of them produced here:</p>
+<ul>
+<li><code>output/revision_simulations/internal/fash_strober_enhancer_comparison_fashr0143/discovery_pair_tables.rds</code>
+(R6 discovery sets)</li>
+<li><code>output/dynamic_eQTL_real/classify_dyn_eQTLs_{early,middle,late}.RData</code>
+(<code>testing_functional()</code> results reproducible from
+<code>code/02_dyn_lfsr.R</code>)</li>
+<li><code>output/revision_simulations/internal/variant_annotation_enrichment/</code>
+(annotation matrix and matching covariates)</li>
+</ul>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+ [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.1.4        compiler_4.5.1    
+ [5] promises_1.5.0     tidyselect_1.2.1   Rcpp_1.1.1-1.1     stringr_1.6.0     
+ [9] git2r_0.36.2       dichromat_2.0-0.1  later_1.4.4        jquerylib_0.1.4   
+[13] scales_1.4.0       yaml_2.3.12        fastmap_1.2.0      ggplot2_4.0.3     
+[17] R6_2.6.1           labeling_0.4.3     generics_0.1.4     workflowr_1.7.2   
+[21] knitr_1.50         tibble_3.3.0       rprojroot_2.1.1    bslib_0.9.0       
+[25] pillar_1.11.1      RColorBrewer_1.1-3 rlang_1.2.0        cachem_1.1.0      
+[29] stringi_1.8.9      httpuv_1.6.16      xfun_0.55          S7_0.2.2          
+[33] fs_1.6.6           sass_0.4.10        otel_0.2.0         cli_3.6.6         
+[37] withr_3.0.3        magrittr_2.0.5     digest_0.6.39      grid_4.5.1        
+[41] rstudioapi_0.17.1  lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5    
+[45] glue_1.8.1         farver_2.1.2       rmarkdown_2.30     tools_4.5.1       
+[49] pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=fash-middle-lfsr
+#SBATCH --job-name=fash-dyn-lfsr
 #SBATCH --account=pi-mstephens
 #SBATCH --time=06:00:00
 #SBATCH --ntasks=1
@@ -16,7 +16,7 @@ set -euo pipefail
 # The optional second argument is a new output directory. Existing paths are
 # rejected to prevent accidental replacement of retained manuscript results.
 PROJECT_ROOT="${1:-${SLURM_SUBMIT_DIR}}"
-OUTPUT_DIRECTORY="${2:-results/lfsr_open_middle_3_12_seed20260820}"
+OUTPUT_DIRECTORY="${2:-results/dynamic_lfsr_open_middle_3_12_fashr0143_seed20260820}"
 
 module load R/4.4.1
 cd "${PROJECT_ROOT}"
@@ -26,11 +26,12 @@ echo "Output directory: ${OUTPUT_DIRECTORY}"
 echo "Slurm workers: ${SLURM_CPUS_PER_TASK}"
 
 Rscript code/02_dyn_lfsr.R \
+  --fit-file output/dynamic_eQTL_real/fash_fit1_update.RData \
   --output-dir "${OUTPUT_DIRECTORY}" \
-  --categories middle \
+  --categories all \
   --grid-step 0.10 \
   --posterior-draws 3000 \
   --num-cores "${SLURM_CPUS_PER_TASK}" \
   --seed 20260820 \
   --alpha 0.05 \
-  --expected-pairs 9205
+  --expected-pairs 9214

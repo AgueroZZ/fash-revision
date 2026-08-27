@@ -113,6 +113,22 @@ knitr::kable(
 )
 ```
 
+## Full-model residual variograms
+
+For a complementary residual-based calculation, we refit the original
+time-specific FASH analysis model for every gene and time,
+`Y ~ 1 + PC1 + ... + PC5 + G`, and retain its full-model cell-line residual
+$\widehat e(t)$. Thus both PC and fitted genotype components are removed.
+For each unit, we calculate `cor(e_hat, use = "pairwise.complete.obs")` across
+the 16 time columns and derive the same variogram. Because the observed
+missingness patterns differ by time, each correlation entry uses 13--19 shared
+donors. These are observed full-model residual correlations, not null z-score
+correlations and not a residual-permutation estimate.
+
+```{r full-model-residual-variograms, fig.width=10, fig.height=5.5, fig.cap="Figure 3. Variograms derived from correlations of the full-model cell-line residuals for the same six units. At each time, residuals are from Y ~ 1 + PC1 + ... + PC5 + G; each correlation uses pairwise-complete donors. The dashed line is the value under zero correlation."}
+plot_r4_full_model_residual_variograms(r4_residual_analysis$unit_results)
+```
+
 ## Interpretation and scope
 
 The heatmaps and variograms answer a narrow question: conditional on the
@@ -141,4 +157,7 @@ Rscript --vanilla \
   --selection-seed 20260824 \
   --permutation-seed 20260825 \
   --output-id r4_unit_specific_residual_permutation_z
+
+Rscript --vanilla \
+  code/revision_simulations/r4_correlated_errors/compute_full_model_residual_correlation.R
 ```

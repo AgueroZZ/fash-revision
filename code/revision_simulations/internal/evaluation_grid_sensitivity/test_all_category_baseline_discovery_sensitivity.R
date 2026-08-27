@@ -159,4 +159,46 @@ stopifnot(
   ))
 )
 
+current_category_specs <- data.frame(
+  category = c("early", "middle", "late", "switch"),
+  file_name = c(
+    "classify_dyn_eQTLs_early.RData",
+    "classify_dyn_eQTLs_middle.RData",
+    "classify_dyn_eQTLs_late.RData",
+    "classify_dyn_eQTLs_switch.RData"
+  ),
+  object_name = c(
+    "testing_early_dyn",
+    "testing_middle_dyn",
+    "testing_late_dyn",
+    "testing_switch_dyn"
+  ),
+  expected_pairs = c(126L, 58L, 21L, 981L),
+  expected_genes = c(8L, 14L, 11L, 250L),
+  stringsAsFactors = FALSE
+)
+for (i in seq_len(nrow(current_category_specs))) {
+  classification_environment <- new.env(parent = emptyenv())
+  load(
+    file.path(
+      workflowr_root,
+      "output", "dynamic_eQTL_real",
+      current_category_specs$file_name[i]
+    ),
+    envir = classification_environment
+  )
+  classification <- classification_environment[[
+    current_category_specs$object_name[i]
+  ]]
+  selected_pair_ids <- rownames(
+    classification[classification$cfsr <= 0.05, , drop = FALSE]
+  )
+  selected_gene_ids <- sub("_(rs[^_]+)$", "", selected_pair_ids)
+  stopifnot(
+    length(selected_pair_ids) == current_category_specs$expected_pairs[i],
+    length(unique(selected_gene_ids)) ==
+      current_category_specs$expected_genes[i]
+  )
+}
+
 message("All all-category baseline-discovery sensitivity helper tests passed.")

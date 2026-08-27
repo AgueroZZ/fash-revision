@@ -1,7 +1,7 @@
 ---
 title: "Revision Simulation R3: functional testing under broad and transient effects"
 author: "Ziang Zhang"
-date: "2026-08-23"
+date: "2026-08-26"
 output:
   workflowr::wflow_html:
     code_folding: hide
@@ -44,18 +44,13 @@ source("code/revision_simulations/r3_functional_testing/reporting.R")
 
 ## Overview
 
-This simulation evaluates FASH functional testing after global dynamic-eQTL
-discovery. It uses two non-IWP truth mechanisms matched on sample size,
+This simulation evaluates FASH functional testing directly over all `6,362`
+simulated units. It uses two non-IWP truth mechanisms matched on sample size,
 variant classes, genetic main effects, functional labels, and analysis.
 
-All numerical results on this page come from the completed, versioned Midway3
-cache generated with `fashr` 0.1.43 at Git SHA
-`bf223df75da6e41ae48607a56b4cd12d7c3b24e7`. Before formatting any result,
-the reporting layer requires the completion flag and manifest, validates the
-package, result identity, Middle definition, and genotype provenance, and
-checks that every seed uses the exact same gene-variant pairs and canonical
-genotype content as the formal R1 analysis. The separate local validator also
-checks every artifact and source SHA-256 before the page is rebuilt.
+Results are read from a completed five-seed Midway3 cache generated with
+`fashr` 0.1.43 at Git SHA
+`bf223df75da6e41ae48607a56b4cd12d7c3b24e7`.
 
 For donor $i$, variant $j$, and time $t$,
 
@@ -154,9 +149,9 @@ The deviation $h_j(t)$ contains one, two, or three compact raised-cosine peaks
 with half-width `1.5`. Primary peak centers are sampled from `1.5`--`2.5` for
 Early, `4.5`--`10.5` for Middle, and `12.5`--`13.5` for Late. Secondary peak
 centers use the same three aligned ranges, their amplitudes are random, and
-the deviation is scaled to centered RMS `0.9` before adding $\mu_j$. These
-ranges prevent a full raised-cosine peak from straddling a revised timing
-boundary solely because its center was sampled too close to that boundary.
+the deviation is scaled to centered RMS `0.9` before adding $\mu_j$. As in
+R3A, the final dense-grid trajectory must satisfy its assigned functional
+label and clearance margin.
 
 ### Truth definitions
 
@@ -166,7 +161,7 @@ $t\leq 3$, Middle $3<t<12$, and Late $t\geq 12$. On the dense evaluation grid
 `seq(0, 15, by = 0.1)`, the Middle functional therefore uses the 89 points
 from `3.1` through `11.9`; times `3` and `12` belong only to Early and Late,
 respectively. These are continuous-time definitions. The simulation evaluates
-their discrete maximum counterparts on the dense grid. Writing
+their dense-grid analogues. Writing
 $R_j=\sup_t\beta_j(t)-\inf_t\beta_j(t)$, the scale-adaptive location margin is
 
 $$
@@ -205,9 +200,12 @@ truth_mechanism <- "random_bspline" # Use "raised_cosine" for R3B.
 scenario <- paste0(
   if (truth_mechanism == "random_bspline") "r3a_" else "r3b_",
   "real_genotype_one_per_gene_matched_functional_",
-  "open_middle_3_12_",
   truth_mechanism,
-  "_relative_clearance_main_effect"
+  "_open_middle_3_12_center_aligned_equal_cells_",
+  paste0(
+    "relative_location_clearance_full_universe_",
+    "paired_posterior_main_effect"
+  )
 )
 time_grid <- 0:15
 evaluation_grid <- seq(0, 15, by = 0.1)
@@ -232,6 +230,11 @@ effect_sim <- simulate_matched_functional_effect_set(
   cosine_spike_counts = 1:3,
   cosine_relative_amplitude_range = c(0.35, 0.75),
   cosine_target_centered_rms = 0.9,
+  cosine_center_ranges = list(
+    early = c(1.5, 2.5),
+    middle = c(4.5, 10.5),
+    late = c(12.5, 13.5)
+  ),
   switch_threshold = 0.25,
   middle_window = c(3, 12),
   middle_boundary = "open",
@@ -240,6 +243,10 @@ effect_sim <- simulate_matched_functional_effect_set(
   switch_truth_margin = 0.10,
   non_switch_min_abs = 0.10,
   non_switch_min_range_fraction = 0.10,
+  temporal_category_probs = setNames(
+    rep(1 / 3, 3),
+    c("early", "middle", "late")
+  ),
   exact_class_counts = TRUE,
   seed = seed,
   class_seed = component_seeds[["classes"]],
@@ -301,16 +308,18 @@ plot_truth_examples(
 At each nominal level $\alpha$, the same procedure is applied to
 `FASH-IWP1-Raw` and `FASH-IWP1-BF`:
 
-1. Apply global dynamic-eQTL FDR control at level $\alpha$.
-2. For each dynamically selected variant, evaluate the early, middle, late,
-   and switch functionals using posterior samples.
-3. Rank functional lfsr values and call variants whose cumulative FSR is at
+1. Evaluate the early, middle, late, and switch functionals from posterior
+   samples for every simulated unit.
+2. Compute the functional lfsr for each unit and target.
+3. Rank the lfsr values and call variants whose cumulative FSR is at
    most $\alpha$.
 
 Power is the fraction of true positive functionals that are called. Empirical
 FSR is the fraction of functional calls whose known true functional is
-non-positive. The figures report five-seed Monte Carlo means and 95% t-based
-intervals across the full alpha grid.
+non-positive. Curves show five-replication Monte Carlo means over the complete
+saved alpha grid from `0.005` through `0.20`. Power panels show Raw and BF;
+empirical-FSR panels show BF only. BF ribbons are pointwise minima and maxima
+across five replications.
 
 ```{r r3-fit-and-test-functionals, eval=FALSE}
 out <- run_genotype_level_dynamic_eqtl_simulation(
@@ -348,6 +357,7 @@ raw_results <- evaluate_fash_functional_testing(
   middle_window = c(3, 12),
   middle_boundary = "open",
   true_dynamic = true_dynamic,
+  candidate_scope = "full_universe",
   num_cores = 4,
   seed = functional_posterior_seed
 )
@@ -361,6 +371,7 @@ bf_results <- evaluate_fash_functional_testing(
   middle_window = c(3, 12),
   middle_boundary = "open",
   true_dynamic = true_dynamic,
+  candidate_scope = "full_universe",
   num_cores = 4,
   seed = functional_posterior_seed
 )
@@ -391,21 +402,41 @@ knitr::kable(
 
 ### Power as a function of alpha
 
-```{r r3a-power, fig.height=9, fig.cap="Figure 3. Monte Carlo functional-testing power under broad random B-spline truth. Panels identify early, middle, late, and switch targets; curves identify raw and BF-updated FASH in the in-figure legend, with 95% intervals across five seeds."}
+```{r r3a-power, fig.height=9, fig.cap="Figure 3. Monte Carlo functional-testing power through nominal alpha 0.20 under broad random B-spline truth. The BF ribbon shows the pointwise minimum and maximum across five replications; Raw is shown without a ribbon."}
 plot_mc_functional_curve_grid(
   mc_curve = r3a_alpha,
   metric = "power",
-  title = "Functional-testing power: broad random B-spline truth"
+  target_order = c("early", "middle", "late", "switch"),
+  alpha_reference = 0.05,
+  title = "Functional-testing power: broad random B-spline truth",
+  x_limits = plot_alpha_limits,
+  interval_columns = c(
+    "power_replication_min",
+    "power_replication_max"
+  ),
+  interval_methods = "FASH-IWP1-BF"
 )
 ```
 
 ### Empirical FSR as a function of alpha
 
-```{r r3a-fsr, fig.height=9, fig.cap="Figure 4. Monte Carlo empirical false sign rate under broad random B-spline truth. Panels identify functional targets, curves identify raw and BF-updated FASH, and the diagonal reference denotes nominal alpha."}
+```{r r3a-fsr, fig.height=9, fig.cap="Figure 4. BF-adjusted Monte Carlo empirical false sign rate through nominal alpha 0.20 under broad random B-spline truth. The diagonal denotes nominal alpha, and the ribbon shows the pointwise minimum and maximum across five replications."}
 plot_mc_functional_curve_grid(
-  mc_curve = r3a_alpha,
+  mc_curve = r3a_alpha[
+    r3a_alpha$method == "FASH-IWP1-BF",
+    ,
+    drop = FALSE
+  ],
   metric = "empirical_fsr",
-  title = "Empirical FSR: broad random B-spline truth"
+  target_order = c("early", "middle", "late", "switch"),
+  alpha_reference = 0.05,
+  title = "Empirical FSR: broad random B-spline truth",
+  x_limits = plot_alpha_limits,
+  interval_columns = c(
+    "empirical_fsr_replication_min",
+    "empirical_fsr_replication_max"
+  ),
+  interval_methods = "FASH-IWP1-BF"
 )
 ```
 
@@ -430,25 +461,45 @@ knitr::kable(
 
 ### Power as a function of alpha
 
-```{r r3b-power, fig.height=9, fig.cap="Figure 5. Monte Carlo functional-testing power under compact raised-cosine truth. Panels identify early, middle, late, and switch targets; curves identify raw and BF-updated FASH in the in-figure legend, with 95% intervals across five seeds."}
+```{r r3b-power, fig.height=9, fig.cap="Figure 5. Monte Carlo functional-testing power through nominal alpha 0.20 under compact raised-cosine truth. The BF ribbon shows the pointwise minimum and maximum across five replications; Raw is shown without a ribbon."}
 plot_mc_functional_curve_grid(
   mc_curve = r3b_alpha,
   metric = "power",
-  title = "Functional-testing power: compact raised-cosine truth"
+  target_order = c("early", "middle", "late", "switch"),
+  alpha_reference = 0.05,
+  title = "Functional-testing power: compact raised-cosine truth",
+  x_limits = plot_alpha_limits,
+  interval_columns = c(
+    "power_replication_min",
+    "power_replication_max"
+  ),
+  interval_methods = "FASH-IWP1-BF"
 )
 ```
 
 ### Empirical FSR as a function of alpha
 
-```{r r3b-fsr, fig.height=9, fig.cap="Figure 6. Monte Carlo empirical false sign rate under compact raised-cosine truth. Panels identify functional targets, curves identify raw and BF-updated FASH, and the diagonal reference denotes nominal alpha."}
+```{r r3b-fsr, fig.height=9, fig.cap="Figure 6. BF-adjusted Monte Carlo empirical false sign rate through nominal alpha 0.20 under compact raised-cosine truth. The diagonal denotes nominal alpha, and the ribbon shows the pointwise minimum and maximum across five replications."}
 plot_mc_functional_curve_grid(
-  mc_curve = r3b_alpha,
+  mc_curve = r3b_alpha[
+    r3b_alpha$method == "FASH-IWP1-BF",
+    ,
+    drop = FALSE
+  ],
   metric = "empirical_fsr",
-  title = "Empirical FSR: compact raised-cosine truth"
+  target_order = c("early", "middle", "late", "switch"),
+  alpha_reference = 0.05,
+  title = "Empirical FSR: compact raised-cosine truth",
+  x_limits = plot_alpha_limits,
+  interval_columns = c(
+    "empirical_fsr_replication_min",
+    "empirical_fsr_replication_max"
+  ),
+  interval_methods = "FASH-IWP1-BF"
 )
 ```
 
-## Dynamic-null proportion
+## Non-dynamic proportion
 
 ```{r r3-dynamic-null-reference}
 formal_class_counts <- c(dynamic = 1272L, constant = 2545L, zero = 2545L)
@@ -456,7 +507,7 @@ formal_true_pi0 <- sum(formal_class_counts[c("constant", "zero")]) /
   sum(formal_class_counts)
 ```
 
-The exact first-stage dynamic-null proportion is
+The exact proportion of constant or zero-effect units is
 $\pi_0=5090/6362\approx$ `r format_decimal(formal_true_pi0, 4)`. The table
 reports the fitted constant-component weights for the raw and BF-adjusted IWP
 fits.
@@ -468,7 +519,7 @@ knitr::kable(
   pi0_table,
   align = "l",
   caption = paste(
-    "Table 5. Estimated first-stage dynamic-null proportions for raw and",
+    "Table 5. Estimated non-dynamic proportions for raw and",
     "BF-updated IWP FASH under both functional truth mechanisms."
   )
 )
@@ -476,87 +527,23 @@ knitr::kable(
 
 </div>
 
-## Interpretation
-
-For R3A, BF-updated FASH has mean empirical FSR
-`r format_decimal(max(r3a_alpha_005$mean_empirical_fsr[
-  r3a_alpha_005$method == "FASH-IWP1-BF"
-]), 3)` or lower for all four targets at $\alpha=0.05$. Its switch power is
-`r format_decimal(metric_at(
-  r3a_alpha_005, "switch", "FASH-IWP1-BF", "mean_power"
-), 3)`.
-
-For the more localized R3B trajectories, BF-updated FASH has low timing power:
-`r format_decimal(metric_at(
-  r3b_alpha_005, "early", "FASH-IWP1-BF", "mean_power"
-), 3)`,
-`r format_decimal(metric_at(
-  r3b_alpha_005, "middle", "FASH-IWP1-BF", "mean_power"
-), 3)`, and
-`r format_decimal(metric_at(
-  r3b_alpha_005, "late", "FASH-IWP1-BF", "mean_power"
-), 3)` for early, middle, and late, respectively. Early has no false timing
-calls; late and middle have mean empirical FSR
-`r format_decimal(metric_at(
-  r3b_alpha_005, "late", "FASH-IWP1-BF", "mean_empirical_fsr"
-), 3)` and
-`r format_decimal(metric_at(
-  r3b_alpha_005, "middle", "FASH-IWP1-BF", "mean_empirical_fsr"
-), 3)`, respectively. Its switch power is
-`r format_decimal(metric_at(
-  r3b_alpha_005, "switch", "FASH-IWP1-BF", "mean_power"
-), 3)`, but its mean switch FSR is
-`r format_decimal(metric_at(
-  r3b_alpha_005, "switch", "FASH-IWP1-BF", "mean_empirical_fsr"
-), 3)` at nominal $\alpha=0.05$. In this five-seed pilot, the scale-relative
-clearance condition separates switch and non-switch truths in both mechanisms
-without removing the compact transient behavior. Aligning the compact-peak
-proposal with the revised timing windows removes the suspected
-boundary-straddling construction, but it does not improve the R3B Middle
-result: the mean empirical FSR is still above the nominal level in this run.
-The proposal change is therefore a diagnostic clarification, not evidence that
-the Middle calibration issue has been repaired. These results support
-functional testing for the stated margin-separated designs; they do not imply
-that BF adjustment alone guarantees FSR control for every functional
-hypothesis or every truth geometry.
-
 ## Reproducibility
 
-The
-[R3 simulation driver](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R)
-uses the
-[shared simulation functions](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/shared/simulation_functions.R).
-Real-genotype selection, dosage extraction, validation, and MAF-balanced truth
-assignment use the
-[shared real-genotype helper](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/shared/real_genotype_one_per_gene.R)
-and
-[shared cache builder](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R).
-The page-specific cache validation and formatting are in
-[R3 reporting code](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r3_functional_testing/reporting.R).
-The formal
-[center-aligned fashr 0.1.43 entry point](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r3_r4_fashr0143/16_r3_center_aligned_fashr0143.R)
-pins the package commit, source hashes, five-seed genotype cache, design, and
-output ID. It resumes valid seed-level work in a partial directory and only
-promotes a cache after all ten mechanism-by-seed replicates pass its final
-contract. On the staged Midway3 workspace, the exact entry point is:
+The versioned cache was generated by
+`code/revision_simulations/r3_r4_fashr0143/22_r3_full_universe_functional_fashr0143.R`
+using the frozen driver and simulation functions under
+`code/revision_simulations/r3_r4_fashr0143/source_snapshots/`.
+Page-specific cache loading, validation, and formatting are in
+`code/revision_simulations/r3_functional_testing/reporting.R`.
+
+From the Midway3 workspace, rerun the simulation with:
 
 ```{bash regenerate-r3-cache-on-midway3, eval=FALSE}
-sbatch slurm/16_r3_center_aligned_fashr0143.sbatch
+sbatch slurm/22_r3_full_universe_functional_fashr0143.sbatch
 ```
 
-The downloaded cache and its exact R1 pairing can be rechecked locally with:
-
-```{bash validate-downloaded-r3-cache, eval=FALSE}
-Rscript --vanilla \
-  code/revision_simulations/r3_r4_fashr0143/validate_downloaded_r3_r4_fashr0143.R
-```
-
-These expensive commands are intentionally not evaluated during workflowr
-builds; all tables and figures above read the validated saved cache.
-
-Cached replicate metrics, call-level diagnostics, examples, summaries, and
-figures are stored under:
+Routine workflowr builds read the saved cache and do not rerun the simulation:
 
 ```text
-output/revision_simulations/mc/r3_real_genotype_one_per_gene_J6362_matched_functional_open_middle_3_12_center_aligned_relative_clearance_main_effect_fashr0143_pilot5/
+output/revision_simulations/mc/r3_real_genotype_one_per_gene_J6362_matched_functional_open_middle_3_12_center_aligned_equal_cells_relative_location_clearance_full_universe_paired_posterior_fashr0143_pilot5/
 ```

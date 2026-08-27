@@ -11,9 +11,9 @@
 
 <meta name="author" content="Ziang Zhang" />
 
-<meta name="date" content="2026-08-20" />
+<meta name="date" content="2026-08-26" />
 
-<title>Internal sensitivity analysis: all four functional categories</title>
+<title>Revision R4: evaluation-grid and Monte Carlo sensitivity</title>
 
 <script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -363,10 +363,10 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Internal sensitivity analysis: all four
-functional categories</h1>
+<h1 class="title toc-ignore">Revision R4: evaluation-grid and Monte
+Carlo sensitivity</h1>
 <h4 class="author">Ziang Zhang</h4>
-<h4 class="date">2026-08-20</h4>
+<h4 class="date">2026-08-26</h4>
 
 </div>
 
@@ -395,7 +395,7 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2026-08-24
+<strong>Last updated:</strong> 2026-08-26
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -433,10 +433,10 @@ changes </a>
 <div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R
-Markdown file created these results, you’ll want to first commit it to
-the Git repo. If you’re still working on the analysis, you can ignore
-this warning. When you’re finished, you can run
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
 <code>wflow_publish</code> to commit the R Markdown file and build the
 HTML.</p>
 </div>
@@ -529,15 +529,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreee77a71ed5147f886af21440eb666ea11c1f19a12targetblanke77a71ea">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/e77a71ed5147f886af21440eb666ea11c1f19a12" target="_blank">e77a71e</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreee77a71ed5147f886af21440eb666ea11c1f19a12targetblanke77a71ea"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -547,7 +547,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/e77a71ed5147f886af21440eb666ea11c1f19a12" target="_blank">e77a71e</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -568,7 +568,6 @@ Ignored files:
     Ignored:    Rplots.pdf
     Ignored:    analysis/.DS_Store
     Ignored:    analysis/.Rhistory
-    Ignored:    analysis/figure/
     Ignored:    code/.DS_Store
     Ignored:    code/.Rhistory
     Ignored:    code/revision_simulations/.DS_Store
@@ -583,90 +582,62 @@ Ignored files:
     Ignored:    scripts/
 
 Untracked files:
-    Untracked:  analysis/dynamic_eQTL_real_cl.rmd
-    Untracked:  analysis/nonlinear_dynamic_eQTL_real_cl.Rmd
-    Untracked:  analysis/revision_enhancer_enrichment_cl.rmd
-    Untracked:  analysis/revision_internal_correlated_permutation_discoveries.rmd
-    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd
-    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity_middle_4_11.rmd
-    Untracked:  analysis/revision_internal_fash_cl_manuscript_impact.rmd
-    Untracked:  analysis/revision_internal_fash_discovery_variant_count.rmd
-    Untracked:  analysis/revision_internal_fash_linear_real_data_ablation.rmd
-    Untracked:  analysis/revision_internal_fashr_correlated_observation_model.rmd
-    Untracked:  analysis/revision_internal_matched_fash_linear_real_data.rmd
-    Untracked:  analysis/revision_internal_matched_fash_linear_real_data_cl.rmd
-    Untracked:  analysis/revision_internal_r1_normality_assumption.rmd
-    Untracked:  analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd
-    Untracked:  analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd
-    Untracked:  analysis/revision_internal_twenty_variant_per_gene_refit.rmd
-    Untracked:  apps/
-    Untracked:  code/02_dyn_lfsr.R
-    Untracked:  code/02_dyn_lfsr.sbatch
-    Untracked:  code/revision_simulations/appendix_b/
-    Untracked:  code/revision_simulations/internal/cl_pc_real_data_pages/
-    Untracked:  code/revision_simulations/internal/correlated_permutation_discoveries/
-    Untracked:  code/revision_simulations/internal/covariance_estimation/run_design_propagated_null_correlation.R
-    Untracked:  code/revision_simulations/internal/covariance_estimation/run_multigene_null_beta_covariance_exploration.R
-    Untracked:  code/revision_simulations/internal/early_window_sensitivity/
-    Untracked:  code/revision_simulations/internal/evaluation_grid_sensitivity/
-    Untracked:  code/revision_simulations/internal/fash_cl_manuscript_impact/
-    Untracked:  code/revision_simulations/internal/fash_discovery_variant_count/
-    Untracked:  code/revision_simulations/internal/fash_knockoff/
-    Untracked:  code/revision_simulations/internal/fash_linear_real_data_ablation/
-    Untracked:  code/revision_simulations/internal/fash_strober_enhancer_comparison_cl/
-    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data/
-    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data_cl/
-    Untracked:  code/revision_simulations/internal/r0_linear_iwp_power_mechanism/
-    Untracked:  code/revision_simulations/internal/r0_linear_summary_statistic/
-    Untracked:  code/revision_simulations/internal/r1_known_truth_genotype_permutation/
-    Untracked:  code/revision_simulations/internal/r1_linear_truth_composition/
-    Untracked:  code/revision_simulations/internal/r1_normality_assumption/
-    Untracked:  code/revision_simulations/internal/r3_middle_calibration/
-    Untracked:  code/revision_simulations/internal/residual_correlation_fash/
-    Untracked:  code/revision_simulations/internal/selected_signal_genotype_permutation/
-    Untracked:  code/revision_simulations/r1_r2_fashr0143/
-    Untracked:  code/revision_simulations/r3_r4_fashr0143/
-    Untracked:  code/revision_simulations/r4_correlated_errors/real_genotype_r1_helpers.R
-    Untracked:  code/revision_simulations/r5_one_variant_per_gene/
-    Untracked:  code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R
-    Untracked:  code/revision_simulations/shared/real_genotype_one_per_gene.R
-    Untracked:  code/revision_simulations/shared/test_linear_mixture_fash.R
-    Untracked:  code/revision_simulations/shared/test_real_genotype_one_per_gene.R
-    Untracked:  code/revision_simulations/shared/test_relative_location_clearance.R
-    Untracked:  code/revision_simulations/shared/test_temporal_category_mixture.R
-    Untracked:  code/revision_simulations/shared/validate_r1_r2_linear_mixture_pairing.R
-    Untracked:  code/revision_simulations/shared/validate_r1_r2_real_genotype_pairing.R
-    Untracked:  figure/
+    Untracked:  analysis/revision_internal_fash_knockoff.rmd
+    Untracked:  analysis/revision_internal_fash_temporal_class_enhancer_enrichment.rmd
+    Untracked:  analysis/revision_internal_three_likelihood_comparison.rmd
+    Untracked:  code/03_nonlindyn_lfsr.R
+    Untracked:  code/03_nonlindyn_lfsr.sbatch
+    Untracked:  code/revision_simulations/internal/evaluation_grid_sensitivity/reporting.R
+    Untracked:  code/revision_simulations/internal/evaluation_grid_sensitivity/test_reporting.R
+    Untracked:  code/revision_simulations/internal/fash_knockoff/reporting.R
+    Untracked:  code/revision_simulations/internal/fash_knockoff/test_reporting.R
+    Untracked:  code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/
+    Untracked:  code/revision_simulations/r1_r2_fashr0143/source_snapshots/
+    Untracked:  code/revision_simulations/r3_functional_testing/test_rendered_pages.R
+    Untracked:  code/revision_simulations/r3_functional_testing/test_reporting.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_core.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_fashr0143.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_fashr0143.sbatch
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/22_r3_full_universe_functional_core.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/22_r3_full_universe_functional_fashr0143.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/22_r3_full_universe_functional_fashr0143.sbatch
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/source_snapshots/r3_center_aligned_relative_location_paired_driver.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/source_snapshots/r3_center_aligned_relative_location_paired_simulation_functions.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/source_snapshots/r3_full_universe_functional_driver.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/source_snapshots/r3_full_universe_functional_simulation_functions.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/test_r3_center_aligned_relative_location_paired.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/test_r3_full_universe_functional.R
+    Untracked:  code/revision_simulations/r4_correlated_errors/compute_full_model_residual_correlation.R
+    Untracked:  code/revision_simulations/r4_correlated_errors/compute_pc_residual_expression_correlation.R
 
 Unstaged changes:
-    Modified:   analysis/appendixB.rmd
     Modified:   analysis/dynamic_eQTL_real.rmd
+    Modified:   analysis/dynamic_eQTL_real_cl.rmd
     Modified:   analysis/dynamic_eQTL_real_full.rmd
     Modified:   analysis/index.Rmd
     Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real_cl.Rmd
     Modified:   analysis/nonlinear_dynamic_eQTL_real_full.rmd
-    Modified:   analysis/revision_balanced_variant_thinning.rmd
     Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
     Modified:   analysis/revision_correlated_error_simulation.rmd
-    Modified:   analysis/revision_enhancer_enrichment.rmd
     Modified:   analysis/revision_functional_testing_simulation.rmd
     Modified:   analysis/revision_genotype_level_simulation.rmd
+    Modified:   analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd
+    Deleted:    code/02_dyn.R
+    Modified:   code/02_dyn_lfsr.R
+    Modified:   code/02_dyn_lfsr.sbatch
+    Deleted:    code/03_nonlindyn.R
     Modified:   code/revision_simulations/README.md
-    Modified:   code/revision_simulations/internal/covariance_estimation/run_global_pca_factor_visualization.R
-    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R
-    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/reporting.R
-    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/run_fash_strober_enhancer_comparison.R
-    Modified:   code/revision_simulations/r1_random_bspline/reporting.R
-    Modified:   code/revision_simulations/r1_random_bspline/run_random_bspline_mc_replication.R
-    Modified:   code/revision_simulations/r2_spiky_transient/reporting.R
-    Modified:   code/revision_simulations/r2_spiky_transient/run_combined_spiky_genotype_simulation.R
-    Modified:   code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R
+    Modified:   code/revision_simulations/internal/evaluation_grid_sensitivity/run_all_category_baseline_discovery_sensitivity.R
+    Modified:   code/revision_simulations/internal/evaluation_grid_sensitivity/test_all_category_baseline_discovery_sensitivity.R
+    Modified:   code/revision_simulations/internal/fash_knockoff/plot_lfdr_histograms.R
+    Modified:   code/revision_simulations/internal/fash_knockoff/plot_w_boxplot_by_discovery.R
+    Modified:   code/revision_simulations/r1_r2_fashr0143/reporting_overlay.R
     Modified:   code/revision_simulations/r3_functional_testing/reporting.R
-    Modified:   code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R
-    Modified:   code/revision_simulations/r4_correlated_errors/estimate_real_data_error_correlations.R
     Modified:   code/revision_simulations/r4_correlated_errors/reporting.R
-    Modified:   code/revision_simulations/r4_correlated_errors/run_full_empirical_correlation_mc.R
-    Modified:   code/revision_simulations/r4_correlated_errors/run_lag1_correlation_sweep.R
+    Modified:   code/revision_simulations/r4_correlated_errors/test_unit_specific_residual_permutation_helpers.R
+    Modified:   code/revision_simulations/r4_correlated_errors/unit_specific_residual_permutation_helpers.R
     Modified:   code/revision_simulations/shared/simulation_functions.R
 
 </code></pre>
@@ -683,9 +654,74 @@ have uncommitted changes.
 </div>
 <div id="versions" class="tab-pane fade">
 <p>
-There are no past versions. Publish this analysis with
-<code>wflow_publish()</code> to start tracking its development.
+These are the previous versions of the repository in which changes were
+made to the R Markdown
+(<code>analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd</code>)
+and HTML
+(<code>docs/revision_internal_evaluation_grid_mc_sensitivity.html</code>)
+files. If you’ve configured a remote Git repository (see
+<code>?wflow_git_remote</code>), click on the hyperlinks in the table
+below to view the files as they were in that past version.
 </p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+<td>
+Sync revision analyses and rendered pages
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/09f63bc8536029c4816632f041b3afd85ffc523c/docs/revision_internal_evaluation_grid_mc_sensitivity.html" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+<td>
+Sync revision analyses and rendered pages
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 <hr>
 </div>
 </div>
@@ -722,28 +758,40 @@ table > caption {
 .table-scroll table {
   min-width: 1040px;
 }
+
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.main-container p code,
+.main-container li code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
 </style>
 <div id="question-and-conclusion" class="section level1">
 <h1>Question and conclusion</h1>
-<p>This page asks whether the current numerical choices—evaluation-grid
-step 0.10 and 3,000 posterior draws—are sufficiently stable for the
-pairs already selected in the four illustrative functional categories:
-Early, Middle, Late, and Switch.</p>
+<p>This page asks whether the numerical choices—evaluation-grid step
+0.10 and 3,000 posterior draws—are sufficiently stable for the pairs
+already selected in the four illustrative functional categories: Early,
+Middle, Late, and Switch.</p>
 <div class="sensitivity-key-result">
 <p>The answer is <strong>yes for the conditional robustness of the
 reported pairs</strong>. Across categories, grid comparisons have mean
-absolute LFSR changes of 0.0003–0.0017. The 3,000-versus-5,000-draw
-comparison has mean absolute changes of 0.0014–0.0021, smaller in every
-category than the corresponding 2,000-versus-3,000 change. These results
+absolute LFSR changes of 0.0003–0.0016. The 3,000-versus-5,000-draw
+comparison has mean absolute changes of 0.0017–0.0023, and more than
+99.8% of pairs in every category differ by at most 0.01. These results
 support retaining <strong>grid step 0.10 and 3,000 posterior
 draws</strong> for the illustrative functional analysis.</p>
 </div>
 <p>This is a <strong>reported-pair sensitivity analysis</strong>: the
-baseline discovery population is held fixed. It does not rerank all
-9,205 candidate pairs under each numerical setting and therefore does
-not claim identical full discovery sets. A full-universe server run
-would be the appropriate follow-up only if this targeted diagnostic
-showed material instability.</p>
+baseline discovery population is held fixed. It does not rerank the full
+eligible pair universe under each numerical setting and therefore does
+not claim identical discovery sets. A full-universe server run would be
+the appropriate follow-up only if this targeted diagnostic showed
+material instability.</p>
 </div>
 <div id="estimands-and-fixed-analysis-population"
 class="section level1">
@@ -775,10 +823,10 @@ estimated local false sign rate is</p>
 <p>Early, Late, and Switch pairs are the saved manuscript discoveries
 with cumulative FSR at most 0.05. Middle uses the less
 boundary-ambiguous open window <span
-class="math inline">\(3&lt;t&lt;12\)</span> and its 60 baseline
-discoveries at grid 0.10 and <span
-class="math inline">\(M=3{,}000\)</span>. The same category-specific
-pairs are retained in every comparison.</p>
+class="math inline">\(3&lt;t&lt;12\)</span> and its 58 saved baseline
+discoveries. The baseline category tables were generated with grid 0.10
+and <span class="math inline">\(M=3{,}000\)</span>. The same
+category-specific pairs are retained in every comparison.</p>
 <pre class="r"><code># Display the exact fixed population used in every sensitivity comparison.
 population_table &lt;- data.frame(
   Category = unname(category_labels[population_summary$category]),
@@ -822,25 +870,25 @@ four-category conditional sensitivity analysis.</caption>
 <tr class="odd">
 <td align="left">Early</td>
 <td align="left">Largest absolute effect at t &lt;= 3</td>
-<td align="right">124</td>
+<td align="right">126</td>
 <td align="right">8</td>
 </tr>
 <tr class="even">
 <td align="left">Middle</td>
 <td align="left">Largest absolute effect at 3 &lt; t &lt; 12</td>
-<td align="right">60</td>
-<td align="right">15</td>
+<td align="right">58</td>
+<td align="right">14</td>
 </tr>
 <tr class="odd">
 <td align="left">Late</td>
 <td align="left">Largest absolute effect at t &gt;= 12</td>
-<td align="right">20</td>
-<td align="right">12</td>
+<td align="right">21</td>
+<td align="right">11</td>
 </tr>
 <tr class="even">
 <td align="left">Switch</td>
 <td align="left">Positive and negative excursions both exceed 0.25</td>
-<td align="right">984</td>
+<td align="right">981</td>
 <td align="right">250</td>
 </tr>
 </tbody>
@@ -858,10 +906,10 @@ prefix. For each fitted pair, we generate 5,000 draws once, apply a
 fixed pair-specific random column permutation, and use the first 2,000,
 3,000, and 5,000 permuted columns. This construction makes the Monte
 Carlo comparisons nested while holding the posterior sample stream
-fixed. Ten pairs occur in more than one category, so 1,188 category-pair
-rows require 1,178 unique posterior-sampling calls.</p>
+fixed. Eight pairs occur in more than one category, so 1,186
+category-pair rows require 1,178 unique posterior-sampling calls.</p>
 <pre class="r"><code># Reproducible construction used by the cache-building script for each pair.
-set.seed(20260820L + pair_index)
+set.seed(20260826L + pair_index)
 posterior_samples &lt;- predict(
   fash_fit1_update,
   index = pair_index,
@@ -872,7 +920,7 @@ posterior_samples &lt;- predict(
 
 # predict.fash groups columns by PSD component, so randomize column order
 # deterministically before taking nested Monte Carlo prefixes.
-set.seed(20260820L + 1000000L + pair_index)
+set.seed(20260826L + 1000000L + pair_index)
 posterior_samples &lt;- posterior_samples[
   ,
   sample.int(ncol(posterior_samples)),
@@ -976,25 +1024,25 @@ Grid 0.10 vs 0.15 at M = 3,000
 Early
 </td>
 <td style="text-align:right;">
-124
+126
 </td>
 <td style="text-align:right;">
-0.0017
+0.0016
 </td>
 <td style="text-align:right;">
-0.0030
+0.0027
 </td>
 <td style="text-align:right;">
-0.0047
+0.0040
 </td>
 <td style="text-align:right;">
-0.990
+0.996
 </td>
 <td style="text-align:right;">
 100.0%
 </td>
 <td style="text-align:right;">
-96.0%
+92.1%
 </td>
 </tr>
 <tr>
@@ -1005,19 +1053,19 @@ Grid 0.10 vs 0.15 at M = 3,000
 Middle
 </td>
 <td style="text-align:right;">
-60
+58
 </td>
 <td style="text-align:right;">
 0.0005
 </td>
 <td style="text-align:right;">
-0.0013
+0.0011
 </td>
 <td style="text-align:right;">
-0.0020
+0.0023
 </td>
 <td style="text-align:right;">
-1.000
+0.998
 </td>
 <td style="text-align:right;">
 100.0%
@@ -1034,19 +1082,19 @@ Grid 0.10 vs 0.15 at M = 3,000
 Late
 </td>
 <td style="text-align:right;">
-20
+21
 </td>
 <td style="text-align:right;">
-0.0010
+0.0012
 </td>
 <td style="text-align:right;">
-0.0017
+0.0020
 </td>
 <td style="text-align:right;">
-0.0023
+0.0037
 </td>
 <td style="text-align:right;">
-0.989
+0.991
 </td>
 <td style="text-align:right;">
 100.0%
@@ -1063,7 +1111,7 @@ Grid 0.10 vs 0.15 at M = 3,000
 Switch
 </td>
 <td style="text-align:right;">
-984
+981
 </td>
 <td style="text-align:right;">
 0.0006
@@ -1072,16 +1120,16 @@ Switch
 0.0013
 </td>
 <td style="text-align:right;">
-0.0110
+0.0100
 </td>
 <td style="text-align:right;">
 1.000
 </td>
 <td style="text-align:right;">
-99.9%
+100.0%
 </td>
 <td style="text-align:right;">
-99.2%
+99.3%
 </td>
 </tr>
 <tr>
@@ -1092,16 +1140,74 @@ Grid 0.10 vs 0.05 at M = 3,000
 Early
 </td>
 <td style="text-align:right;">
-124
+126
+</td>
+<td style="text-align:right;">
+0.0016
+</td>
+<td style="text-align:right;">
+0.0027
+</td>
+<td style="text-align:right;">
+0.0040
+</td>
+<td style="text-align:right;">
+0.997
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+<td style="text-align:right;">
+92.1%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Grid 0.10 vs 0.05 at M = 3,000
+</td>
+<td style="text-align:left;">
+Middle
+</td>
+<td style="text-align:right;">
+58
+</td>
+<td style="text-align:right;">
+0.0003
+</td>
+<td style="text-align:right;">
+0.0007
+</td>
+<td style="text-align:right;">
+0.0010
+</td>
+<td style="text-align:right;">
+0.999
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Grid 0.10 vs 0.05 at M = 3,000
+</td>
+<td style="text-align:left;">
+Late
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+0.0012
 </td>
 <td style="text-align:right;">
 0.0017
 </td>
 <td style="text-align:right;">
 0.0027
-</td>
-<td style="text-align:right;">
-0.0037
 </td>
 <td style="text-align:right;">
 0.994
@@ -1118,74 +1224,16 @@ Early
 Grid 0.10 vs 0.05 at M = 3,000
 </td>
 <td style="text-align:left;">
-Middle
-</td>
-<td style="text-align:right;">
-60
-</td>
-<td style="text-align:right;">
-0.0003
-</td>
-<td style="text-align:right;">
-0.0007
-</td>
-<td style="text-align:right;">
-0.0017
-</td>
-<td style="text-align:right;">
-1.000
-</td>
-<td style="text-align:right;">
-100.0%
-</td>
-<td style="text-align:right;">
-100.0%
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Grid 0.10 vs 0.05 at M = 3,000
-</td>
-<td style="text-align:left;">
-Late
-</td>
-<td style="text-align:right;">
-20
-</td>
-<td style="text-align:right;">
-0.0014
-</td>
-<td style="text-align:right;">
-0.0024
-</td>
-<td style="text-align:right;">
-0.0027
-</td>
-<td style="text-align:right;">
-0.998
-</td>
-<td style="text-align:right;">
-100.0%
-</td>
-<td style="text-align:right;">
-90.0%
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Grid 0.10 vs 0.05 at M = 3,000
-</td>
-<td style="text-align:left;">
 Switch
 </td>
 <td style="text-align:right;">
-984
+981
 </td>
 <td style="text-align:right;">
-0.0004
+0.0005
 </td>
 <td style="text-align:right;">
-0.0010
+0.0013
 </td>
 <td style="text-align:right;">
 0.0047
@@ -1197,7 +1245,7 @@ Switch
 100.0%
 </td>
 <td style="text-align:right;">
-99.7%
+99.8%
 </td>
 </tr>
 <tr>
@@ -1208,7 +1256,123 @@ M = 2,000 vs 3,000 at grid 0.10
 Early
 </td>
 <td style="text-align:right;">
-124
+126
+</td>
+<td style="text-align:right;">
+0.0020
+</td>
+<td style="text-align:right;">
+0.0045
+</td>
+<td style="text-align:right;">
+0.0068
+</td>
+<td style="text-align:right;">
+0.968
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+<td style="text-align:right;">
+93.7%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+M = 2,000 vs 3,000 at grid 0.10
+</td>
+<td style="text-align:left;">
+Middle
+</td>
+<td style="text-align:right;">
+58
+</td>
+<td style="text-align:right;">
+0.0022
+</td>
+<td style="text-align:right;">
+0.0057
+</td>
+<td style="text-align:right;">
+0.0068
+</td>
+<td style="text-align:right;">
+0.991
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+M = 2,000 vs 3,000 at grid 0.10
+</td>
+<td style="text-align:left;">
+Late
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+0.0021
+</td>
+<td style="text-align:right;">
+0.0042
+</td>
+<td style="text-align:right;">
+0.0082
+</td>
+<td style="text-align:right;">
+0.905
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+M = 2,000 vs 3,000 at grid 0.10
+</td>
+<td style="text-align:left;">
+Switch
+</td>
+<td style="text-align:right;">
+981
+</td>
+<td style="text-align:right;">
+0.0021
+</td>
+<td style="text-align:right;">
+0.0045
+</td>
+<td style="text-align:right;">
+0.0100
+</td>
+<td style="text-align:right;">
+0.996
+</td>
+<td style="text-align:right;">
+100.0%
+</td>
+<td style="text-align:right;">
+97.1%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+M = 3,000 vs 5,000 at grid 0.10
+</td>
+<td style="text-align:left;">
+Early
+</td>
+<td style="text-align:right;">
+126
 </td>
 <td style="text-align:right;">
 0.0023
@@ -1217,7 +1381,7 @@ Early
 0.0046
 </td>
 <td style="text-align:right;">
-0.0078
+0.0091
 </td>
 <td style="text-align:right;">
 0.956
@@ -1226,123 +1390,7 @@ Early
 100.0%
 </td>
 <td style="text-align:right;">
-88.7%
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-M = 2,000 vs 3,000 at grid 0.10
-</td>
-<td style="text-align:left;">
-Middle
-</td>
-<td style="text-align:right;">
-60
-</td>
-<td style="text-align:right;">
-0.0025
-</td>
-<td style="text-align:right;">
-0.0054
-</td>
-<td style="text-align:right;">
-0.0122
-</td>
-<td style="text-align:right;">
-0.988
-</td>
-<td style="text-align:right;">
-98.3%
-</td>
-<td style="text-align:right;">
-98.3%
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-M = 2,000 vs 3,000 at grid 0.10
-</td>
-<td style="text-align:left;">
-Late
-</td>
-<td style="text-align:right;">
-20
-</td>
-<td style="text-align:right;">
-0.0027
-</td>
-<td style="text-align:right;">
-0.0045
-</td>
-<td style="text-align:right;">
-0.0085
-</td>
-<td style="text-align:right;">
-0.929
-</td>
-<td style="text-align:right;">
-100.0%
-</td>
-<td style="text-align:right;">
-85.0%
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-M = 2,000 vs 3,000 at grid 0.10
-</td>
-<td style="text-align:left;">
-Switch
-</td>
-<td style="text-align:right;">
-984
-</td>
-<td style="text-align:right;">
-0.0021
-</td>
-<td style="text-align:right;">
-0.0046
-</td>
-<td style="text-align:right;">
-0.0113
-</td>
-<td style="text-align:right;">
-0.996
-</td>
-<td style="text-align:right;">
-99.8%
-</td>
-<td style="text-align:right;">
-97.3%
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-M = 3,000 vs 5,000 at grid 0.10
-</td>
-<td style="text-align:left;">
-Early
-</td>
-<td style="text-align:right;">
-124
-</td>
-<td style="text-align:right;">
-0.0021
-</td>
-<td style="text-align:right;">
-0.0044
-</td>
-<td style="text-align:right;">
-0.0101
-</td>
-<td style="text-align:right;">
-0.957
-</td>
-<td style="text-align:right;">
-99.2%
-</td>
-<td style="text-align:right;">
-95.2%
+94.4%
 </td>
 </tr>
 <tr>
@@ -1353,16 +1401,16 @@ M = 3,000 vs 5,000 at grid 0.10
 Middle
 </td>
 <td style="text-align:right;">
-60
+58
 </td>
 <td style="text-align:right;">
-0.0019
+0.0017
 </td>
 <td style="text-align:right;">
-0.0040
+0.0039
 </td>
 <td style="text-align:right;">
-0.0099
+0.0073
 </td>
 <td style="text-align:right;">
 0.992
@@ -1371,7 +1419,7 @@ Middle
 100.0%
 </td>
 <td style="text-align:right;">
-98.3%
+100.0%
 </td>
 </tr>
 <tr>
@@ -1382,25 +1430,25 @@ M = 3,000 vs 5,000 at grid 0.10
 Late
 </td>
 <td style="text-align:right;">
-20
+21
 </td>
 <td style="text-align:right;">
-0.0014
-</td>
-<td style="text-align:right;">
-0.0029
+0.0022
 </td>
 <td style="text-align:right;">
 0.0048
 </td>
 <td style="text-align:right;">
-0.955
+0.0080
+</td>
+<td style="text-align:right;">
+0.924
 </td>
 <td style="text-align:right;">
 100.0%
 </td>
 <td style="text-align:right;">
-80.0%
+85.7%
 </td>
 </tr>
 <tr>
@@ -1411,32 +1459,32 @@ M = 3,000 vs 5,000 at grid 0.10
 Switch
 </td>
 <td style="text-align:right;">
-984
+981
 </td>
 <td style="text-align:right;">
-0.0018
+0.0019
 </td>
 <td style="text-align:right;">
-0.0039
+0.0041
 </td>
 <td style="text-align:right;">
-0.0099
+0.0121
 </td>
 <td style="text-align:right;">
-0.997
+0.996
 </td>
 <td style="text-align:right;">
-100.0%
+99.9%
 </td>
 <td style="text-align:right;">
-97.6%
+98.1%
 </td>
 </tr>
 </tbody>
 </table>
 </div>
 <p>The continuous metrics are more informative than isolated 0.05
-crossings. For example, Late has only 20 pairs, several near 0.05, so
+crossings. For example, Late has only 21 pairs, several near 0.05, so
 one or two small changes can noticeably reduce the last-column
 percentage even when every LFSR change is below 0.01.</p>
 </div>
@@ -1582,10 +1630,45 @@ draws. Panels contain all baseline-discovery pairs for each category;
 the discovery population is held fixed.
 </p>
 </div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-grid-0p10-vs-0p15-1">
+Past versions of grid-0p10-vs-0p15-1.png
+</button>
+</p>
+<div id="fig-grid-0p10-vs-0p15-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_internal_evaluation_grid_mc_sensitivity.rmd/grid-0p10-vs-0p15-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>The points remain close to equality: category-specific mean absolute
-changes range from 0.0005 to 0.0017. The largest change is 0.0110 for
-one Switch pair; 99.9% of Switch pairs and all Early, Middle, and Late
-pairs are within 0.01.</p>
+changes range from 0.0005 to 0.0016. Every pair is within 0.01.</p>
 <pre class="r"><code>build_comparison_plot(
   comparison_id = &quot;grid_0p10_vs_0p05_M3000&quot;,
   x_label = &quot;LFSR at grid step 0.10&quot;,
@@ -1599,8 +1682,45 @@ draws. Panels contain all baseline-discovery pairs for each category;
 the discovery population is held fixed.
 </p>
 </div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-grid-0p10-vs-0p05-1">
+Past versions of grid-0p10-vs-0p05-1.png
+</button>
+</p>
+<div id="fig-grid-0p10-vs-0p05-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_internal_evaluation_grid_mc_sensitivity.rmd/grid-0p10-vs-0p05-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>The finer-grid comparison is at least as stable. Mean absolute
-changes range from 0.0003 to 0.0017, and every pair is within 0.01. This
+changes range from 0.0003 to 0.0016, and every pair is within 0.01. This
 supports treating grid step 0.10 as adequate for these reported
 pairs.</p>
 <pre class="r"><code>build_comparison_plot(
@@ -1617,8 +1737,45 @@ each category; columns were deterministically permuted before taking
 prefixes.
 </p>
 </div>
-<p>Mean absolute changes range from 0.0021 to 0.0027. Signed mean
-changes are all within 0.0003 of zero, consistent with Monte Carlo
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-M2000-vs-M3000-1">
+Past versions of M2000-vs-M3000-1.png
+</button>
+</p>
+<div id="fig-M2000-vs-M3000-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_internal_evaluation_grid_mc_sensitivity.rmd/M2000-vs-M3000-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Mean absolute changes range from 0.0020 to 0.0022. Signed mean
+changes are all within 0.0004 of zero, consistent with Monte Carlo
 fluctuation rather than a systematic shift.</p>
 <pre class="r"><code>build_comparison_plot(
   comparison_id = &quot;M3000_vs_M5000_grid_0p10&quot;,
@@ -1634,10 +1791,48 @@ each category; columns were deterministically permuted before taking
 prefixes.
 </p>
 </div>
-<p>Mean absolute changes decrease to 0.0014–0.0021, with at least 99.2%
-of pairs within 0.01 in every category. The smaller changes after 3,000
-draws provide the direct saturation check requested here and support
-retaining <span class="math inline">\(M=3{,}000\)</span>.</p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-M3000-vs-M5000-1">
+Past versions of M3000-vs-M5000-1.png
+</button>
+</p>
+<div id="fig-M3000-vs-M5000-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_internal_evaluation_grid_mc_sensitivity.rmd/M3000-vs-M5000-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Mean absolute changes are 0.0017–0.0023, with more than 99.8% of
+pairs within 0.01 in every category. The signed mean changes are all
+within 0.0007 of zero. Together with the 2,000-versus-3,000 comparison,
+this supports retaining <span class="math inline">\(M=3{,}000\)</span>
+for the reported-pair analysis.</p>
 </div>
 <div id="final-numerical-choices" class="section level1">
 <h1>Final numerical choices</h1>
@@ -1650,12 +1845,25 @@ class="math inline">\(t\geq12\)</span>; Switch threshold 0.25.</li>
 <li>Posterior Monte Carlo size: 3,000 draws.</li>
 <li>Sensitivity population: all baseline-discovery pairs within each
 category, held fixed across settings.</li>
-<li>Randomization: pair-specific seed 20260820 plus fitted-pair index,
+<li>Randomization: pair-specific seed 20260826 plus fitted-pair index,
 followed by a pair-specific deterministic column permutation for nested
 prefixes.</li>
-<li>Computation: one R job with four workers; the production
-posterior-sampling stage took 193.1 seconds.</li>
+<li>Computation: one R job with two workers; the production
+posterior-sampling stage took 170.8 seconds.</li>
 </ul>
+</div>
+<div id="reproducibility" class="section level1">
+<h1>Reproducibility</h1>
+<p>The page reads the versioned cache validated by
+<code>code/revision_simulations/internal/evaluation_grid_sensitivity/reporting.R</code>.
+The numerical cache can be regenerated from the current saved
+classifications and BF-adjusted fit with:</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/internal/evaluation_grid_sensitivity/run_all_category_baseline_discovery_sensitivity.R \
+  --num-cores 2 \
+  --seed 20260826 \
+  --middle-definition open_3_12 \
+  --output-id evaluation_grid_mc_all_category_current_fashr0143_20260826</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">

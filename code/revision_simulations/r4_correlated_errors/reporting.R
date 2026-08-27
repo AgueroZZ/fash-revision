@@ -57,6 +57,60 @@ for (unit_result in r4_analysis$unit_results) {
   }
 }
 
+r4_residual_output_dir <- file.path(
+  "output", "revision_simulations", "real_data",
+  "r4_full_model_residual_expression_correlation"
+)
+r4_residual_result_path <- file.path(
+  r4_residual_output_dir, "full_model_residual_correlation.rds"
+)
+r4_residual_complete_flag_path <- file.path(r4_residual_output_dir, "complete.flag")
+if (!file.exists(r4_residual_result_path) ||
+    !file.exists(r4_residual_complete_flag_path)) {
+  stop("The R4 full-model residual correlation cache is missing.")
+}
+r4_residual_analysis <- readRDS(r4_residual_result_path)
+r4_residual_configuration <- r4_residual_analysis$configuration
+if (!identical(
+  r4_residual_configuration$schema_version,
+  "r4-full-model-residual-correlation-v1"
+) || !identical(r4_residual_configuration$n_units, 6L) ||
+    !identical(r4_residual_configuration$time_grid, 0:15) ||
+    !identical(
+      r4_residual_configuration$correlation_definition,
+      "stats::cor(..., use = 'pairwise.complete.obs')"
+    ) || !identical(
+      r4_residual_configuration$model,
+      "Y ~ 1 + PC1 + ... + PC5 + G"
+    ) || !identical(r4_residual_configuration$genotype_in_residualization, TRUE) ||
+    !identical(
+      r4_residual_analysis$selected_units$pair_key,
+      r4_analysis$selected_units$pair_key
+    )) {
+  stop("The R4 full-model residual cache has an unexpected design.")
+}
+residual_completion <- readLines(r4_residual_complete_flag_path, warn = FALSE)
+if (!all(c(
+  "result_id=r4_full_model_residual_expression_correlation",
+  "n_units=6",
+  "model=Y~1+PC1+...+PC5+G",
+  "genotype_in_residualization=true",
+  "correlation=pairwise_complete_donors",
+  "minimum_pairwise_donors=13"
+) %in% residual_completion)) {
+  stop("The R4 full-model residual complete.flag is invalid.")
+}
+if (length(r4_residual_analysis$unit_results) != 6L ||
+    any(vapply(r4_residual_analysis$unit_results, function(unit_result) {
+      !identical(dim(unit_result$correlation), c(16L, 16L)) ||
+      nrow(unit_result$variogram) != 15L ||
+      min(unit_result$pairwise_donor_count) < 13L ||
+        unit_result$maximum_observed_beta_difference > 1e-10 ||
+        any(!is.finite(unit_result$correlation))
+    }, logical(1)))) {
+  stop("An R4 full-model residual result failed validation.")
+}
+
 r4_selected_units <- r4_analysis$selected_units
 r4_selected_units$unit <- paste("Unit", r4_selected_units$selected_order)
 r4_selected_units$source_bf_lfdr <- round(r4_selected_units$source_bf_lfdr, 4)
@@ -157,6 +211,37 @@ plot_r4_unit_null_variograms <- function(unit_results) {
       color = "Randomly selected unit"
     ) +
     ggplot2::guides(fill = "none") +
+    ggplot2::theme_minimal(base_size = 11) +
+    ggplot2::theme(legend.position = "bottom")
+}
+
+plot_r4_full_model_residual_variograms <- function(residual_results) {
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("ggplot2 is required to plot R4 full-model residual variograms.")
+  }
+  variogram_data <- do.call(rbind, lapply(residual_results, function(unit_result) {
+    transform(
+      unit_result$variogram,
+    unit_label = r4_short_unit_label(unit_result)
+    )
+  }))
+  variogram_data$unit_label <- factor(
+    variogram_data$unit_label,
+    levels = paste("Unit", seq_along(residual_results))
+  )
+  ggplot2::ggplot(
+    variogram_data,
+    ggplot2::aes(x = lag, y = semivariogram, color = unit_label)
+  ) +
+    ggplot2::geom_hline(yintercept = 1, linetype = "dashed", color = "grey55") +
+    ggplot2::geom_line(linewidth = 0.75) +
+    ggplot2::geom_point(size = 1.5) +
+    ggplot2::scale_x_continuous(breaks = seq(1, 15, by = 2)) +
+    ggplot2::labs(
+      x = "Time lag",
+      y = "Full-model residual semivariogram",
+      color = "Randomly selected unit"
+    ) +
     ggplot2::theme_minimal(base_size = 11) +
     ggplot2::theme(legend.position = "bottom")
 }

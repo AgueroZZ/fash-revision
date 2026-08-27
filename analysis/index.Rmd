@@ -32,7 +32,7 @@ These pages collect simulations and analyses added during the revision process.
 
 + [Revision Simulation R3: functional testing under broad and transient effects](revision_functional_testing_simulation.html)
 
-+ [Revision Real-data Sensitivity R4: temporal correlation](revision_correlated_error_simulation.html)
++ [Revision Real-data Sensitivity R4: evaluation grid and posterior Monte Carlo size](revision_internal_evaluation_grid_mc_sensitivity.html)
 
 + [Revision Real-data Sensitivity R5: one random variant per gene](revision_balanced_variant_thinning.html)
 

@@ -10,7 +10,7 @@ simulations. Run all commands from the workflowr repository root.
 | R1: random B-spline effects | `analysis/revision_genotype_level_simulation.rmd` | `r1_random_bspline/run_random_bspline_mc_replication.R` |
 | R2: spiky transient effects | `analysis/revision_combined_spiky_genotype_simulation.rmd` | `r2_spiky_transient/run_spiky_transient_mc_replication.R` |
 | R3: functional testing | `analysis/revision_functional_testing_simulation.rmd` | `r3_functional_testing/run_matched_functional_testing_mc_replication.R` |
-| R4: unit-specific residual-permutation correlations | `analysis/revision_correlated_error_simulation.rmd` | `r4_correlated_errors/run_unit_specific_residual_permutation.R`; `r4_correlated_errors/unit_specific_residual_permutation_helpers.R` |
+| R4: unit-specific z-null and full-model residual correlations | `analysis/revision_correlated_error_simulation.rmd` | `r4_correlated_errors/run_unit_specific_residual_permutation.R`; `r4_correlated_errors/compute_full_model_residual_correlation.R`; `r4_correlated_errors/unit_specific_residual_permutation_helpers.R` |
 
 The R2 folder also contains the single-replicate driver used while developing
 the five-seed analysis.

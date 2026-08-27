@@ -1,23 +1,87 @@
 #!/usr/bin/env Rscript
 
-# Recompute functional local false sign rates for the real-data dynamic eQTLs.
+# Canonical functional local-false-sign-rate runner for real-data FASH results.
 #
-# The default production task recomputes only the Middle category using the
-# presentation-oriented open interval 3 < t < 12. Early, Late, and Switch are
-# available through --categories all, but their definitions are unchanged.
+# Direct execution handles order-1 dynamic eQTLs. The order-2 entrypoint
+# `03_nonlindyn_lfsr.R` selects the nonlinear specification and reuses this
+# implementation so the two production workflows cannot drift apart.
+
+analysis_order <- Sys.getenv("FASH_LFSR_ANALYSIS_ORDER", unset = "1")
+if (!analysis_order %in% c("1", "2")) {
+  stop("FASH_LFSR_ANALYSIS_ORDER must be 1 or 2.")
+}
+
+EXPECTED_FASHR_VERSION <- "0.1.43"
+EXPECTED_FASHR_REMOTE_SHA <- "bf223df75da6e41ae48607a56b4cd12d7c3b24e7"
+
+analysis_spec <- if (analysis_order == "1") {
+  list(
+    order = 1L,
+    label = "dynamic eQTL",
+    runner = "code/02_dyn_lfsr.R",
+    retained_object = "fash_fit1_update",
+    raw_object = "fash_fit1",
+    expected_pairs = 9214L,
+    fit_candidates = c(
+      file.path("output", "dynamic_eQTL_real", "fash_fit1_update.RData"),
+      file.path("results", "fash_fit1_update.RData"),
+      file.path("output", "dynamic_eQTL_real", "fash_fit1_all.RData"),
+      file.path("results", "fash_fit1_all.RData")
+    ),
+    object_names = c(
+      early = "testing_early_dyn",
+      middle = "testing_middle_dyn",
+      late = "testing_late_dyn",
+      switch = "testing_switch_dyn"
+    ),
+    file_names = c(
+      early = "classify_dyn_eQTLs_early.RData",
+      middle = "classify_dyn_eQTLs_middle.RData",
+      late = "classify_dyn_eQTLs_late.RData",
+      switch = "classify_dyn_eQTLs_switch.RData"
+    )
+  )
+} else {
+  list(
+    order = 2L,
+    label = "nonlinear dynamic eQTL",
+    runner = "code/03_nonlindyn_lfsr.R",
+    retained_object = "fash_fit2_update",
+    raw_object = "fash_fit2",
+    expected_pairs = 44L,
+    fit_candidates = c(
+      file.path("output", "dynamic_eQTL_real", "fash_fit2_update.RData"),
+      file.path("results", "fash_fit2_update.RData"),
+      file.path("output", "dynamic_eQTL_real", "fash_fit2_all.RData"),
+      file.path("results", "fash_fit2_all.RData")
+    ),
+    object_names = c(
+      early = "testing_early_nonlin_dyn",
+      middle = "testing_middle_nonlin_dyn",
+      late = "testing_late_nonlin_dyn",
+      switch = "testing_switch_nonlin_dyn"
+    ),
+    file_names = c(
+      early = "classify_nonlin_dyn_eQTLs_early.RData",
+      middle = "classify_nonlin_dyn_eQTLs_middle.RData",
+      late = "classify_nonlin_dyn_eQTLs_late.RData",
+      switch = "classify_nonlin_dyn_eQTLs_switch.RData"
+    )
+  )
+}
 
 parse_arguments <- function(args) {
   defaults <- list(
     fit_file = NA_character_,
     output_dir = NA_character_,
-    categories = "middle",
+    categories = "all",
     grid_step = 0.10,
     posterior_draws = 3000L,
     num_cores = as.integer(Sys.getenv("SLURM_CPUS_PER_TASK", unset = "4")),
     seed = 20260820L,
     alpha = 0.05,
     switch_threshold = 0.25,
-    expected_pairs = 9205L,
+    expected_pairs = analysis_spec$expected_pairs,
     allow_bf_update = FALSE,
     dry_run = FALSE,
     help = FALSE
@@ -65,16 +129,20 @@ parse_arguments <- function(args) {
 
 print_usage <- function() {
   cat(paste(
+    paste0("Canonical ", analysis_spec$label, " functional classification"),
+    "Middle: 3 < t < 12 versus t <= 3 or t >= 12",
+    "",
     "Usage:",
-    "  Rscript code/02_dyn_lfsr.R [options]",
+    paste0("  Rscript ", analysis_spec$runner, " [options]"),
     "",
     "Core options:",
     "  --fit-file PATH          BF-adjusted or raw FASH .RData file.",
     "                           If omitted, standard output/ and results/ paths",
-    "                           are searched, preferring fash_fit1_update.RData.",
+    paste0("                           are searched, preferring ",
+           analysis_spec$retained_object, ".RData."),
     "  --output-dir PATH        New directory for classification files.",
     "                           Required unless --dry-run is used.",
-    "  --categories VALUE       middle (default), all, or a comma-separated",
+    "  --categories VALUE       all (default), middle, or a comma-separated",
     "                           subset of early,middle,late,switch.",
     "  --grid-step VALUE        Evaluation-grid step; default 0.10.",
     "  --posterior-draws N      Posterior draws per pair; default 3000.",
@@ -83,15 +151,17 @@ print_usage <- function() {
     "  --seed N                 Base seed; default 20260820.",
     "  --alpha VALUE            Discovery and cumulative-FSR cutoff; default 0.05.",
     "  --switch-threshold VALUE Switch amplitude threshold; default 0.25.",
-    "  --expected-pairs N       Expected dynamic discovery count; default 9205.",
+    paste0("  --expected-pairs N       Expected discovery count; default ",
+           analysis_spec$expected_pairs, "."),
     "                           Use 0 to disable this provenance check.",
     "  --allow-bf-update        Explicitly permit BF_update() when only raw",
-    "                           fash_fit1 is available. This can change the",
+    paste0("                           ", analysis_spec$raw_object,
+           " is available. This can change the"),
     "                           retained discovery universe and is off by default.",
     "  --dry-run                Validate inputs and discoveries without sampling.",
     "  --help                    Print this message.",
     sep = "\n"
-  ))
+  ), "\n", sep = "")
 }
 
 normalize_existing_file <- function(path) {
@@ -100,12 +170,7 @@ normalize_existing_file <- function(path) {
 }
 
 find_default_fit <- function() {
-  candidates <- c(
-    file.path("output", "dynamic_eQTL_real", "fash_fit1_update.RData"),
-    file.path("results", "fash_fit1_update.RData"),
-    file.path("output", "dynamic_eQTL_real", "fash_fit1_all.RData"),
-    file.path("results", "fash_fit1_all.RData")
-  )
+  candidates <- analysis_spec$fit_candidates
   existing <- candidates[file.exists(candidates)]
   if (length(existing) == 0L) {
     stop(
@@ -119,27 +184,35 @@ load_analysis_fit <- function(fit_file, allow_bf_update) {
   fit_environment <- new.env(parent = emptyenv())
   loaded_names <- load(fit_file, envir = fit_environment)
 
-  if ("fash_fit1_update" %in% loaded_names) {
-    fit <- fit_environment$fash_fit1_update
-    fit_treatment <- "retained BF-adjusted fash_fit1_update"
-  } else if ("fash_fit1" %in% loaded_names) {
+  if (analysis_spec$retained_object %in% loaded_names) {
+    fit <- get(analysis_spec$retained_object, envir = fit_environment)
+    fit_treatment <- paste(
+      "retained BF-adjusted", analysis_spec$retained_object
+    )
+  } else if (analysis_spec$raw_object %in% loaded_names) {
     if (!allow_bf_update) {
       stop(
-        "The input contains raw fash_fit1 but not the retained ",
-        "fash_fit1_update. An exact classification-only rerun requires the ",
+        "The input contains raw ", analysis_spec$raw_object,
+        " but not the retained ", analysis_spec$retained_object,
+        ". An exact classification-only rerun requires the ",
         "retained BF-adjusted fit. Supply that file, or use ",
         "--allow-bf-update only if changing the discovery universe is acceptable."
       )
     }
     message(
-      "The input contains raw fash_fit1 but not fash_fit1_update; ",
+      "The input contains raw ", analysis_spec$raw_object, " but not ",
+      analysis_spec$retained_object, "; ",
       "applying fashr::BF_update() once."
     )
-    fit <- fashr::BF_update(fit_environment$fash_fit1, plot = FALSE)
-    fit_treatment <- "fash_fit1 followed by BF_update"
+    fit <- fashr::BF_update(
+      get(analysis_spec$raw_object, envir = fit_environment),
+      plot = FALSE
+    )
+    fit_treatment <- paste(analysis_spec$raw_object, "followed by BF_update")
   } else {
     stop(
-      "The fit file must contain fash_fit1_update or fash_fit1. Loaded: ",
+      "The fit file must contain ", analysis_spec$retained_object, " or ",
+      analysis_spec$raw_object, ". Loaded: ",
       paste(loaded_names, collapse = ", ")
     )
   }
@@ -250,7 +323,9 @@ make_testing_table <- function(indices, pair_names, lfsr) {
 write_atomic_outputs <- function(output_dir,
                                  category_tables,
                                  configuration,
-                                 summary_table) {
+                                 summary_table,
+                                 object_names,
+                                 file_names) {
   if (file.exists(output_dir) || dir.exists(output_dir)) {
     stop("Refusing to overwrite an existing output path: ", output_dir)
   }
@@ -268,19 +343,6 @@ write_atomic_outputs <- function(output_dir,
       unlink(staging_directory, recursive = TRUE, force = TRUE)
     }
   }, add = TRUE)
-
-  object_names <- c(
-    early = "testing_early_dyn",
-    middle = "testing_middle_dyn",
-    late = "testing_late_dyn",
-    switch = "testing_switch_dyn"
-  )
-  file_names <- c(
-    early = "classify_dyn_eQTLs_early.RData",
-    middle = "classify_dyn_eQTLs_middle.RData",
-    late = "classify_dyn_eQTLs_late.RData",
-    switch = "classify_dyn_eQTLs_switch.RData"
-  )
 
   for (category in names(category_tables)) {
     output_environment <- new.env(parent = emptyenv())
@@ -327,6 +389,19 @@ Sys.setenv(
   VECLIB_MAXIMUM_THREADS = "1"
 )
 suppressPackageStartupMessages(library(fashr))
+
+installed_fashr_version <- as.character(packageVersion("fashr"))
+installed_fashr_sha <- packageDescription("fashr")$RemoteSha
+if (!identical(installed_fashr_version, EXPECTED_FASHR_VERSION) ||
+    !identical(installed_fashr_sha, EXPECTED_FASHR_REMOTE_SHA)) {
+  stop(
+    "This classification requires fashr ", EXPECTED_FASHR_VERSION,
+    " at ", EXPECTED_FASHR_REMOTE_SHA, ". Installed version/SHA: ",
+    installed_fashr_version, "/",
+    if (is.null(installed_fashr_sha)) "<missing>" else installed_fashr_sha,
+    "."
+  )
+}
 
 if (is.na(arguments$num_cores) || arguments$num_cores < 1L ||
     is.na(arguments$posterior_draws) || arguments$posterior_draws < 100L ||
@@ -382,13 +457,14 @@ selected_indices <- as.integer(
   ]
 )
 if (length(selected_indices) == 0L || anyDuplicated(selected_indices)) {
-  stop("The dynamic-eQTL discovery universe is empty or duplicated.")
+  stop("The ", analysis_spec$label, " discovery universe is empty or duplicated.")
 }
 if (arguments$expected_pairs > 0L &&
     length(selected_indices) != arguments$expected_pairs) {
   stop(
     "Expected ", arguments$expected_pairs,
-    " dynamic pairs but reconstructed ", length(selected_indices), "."
+    " ", analysis_spec$label, " pairs but reconstructed ",
+    length(selected_indices), "."
   )
 }
 
@@ -400,7 +476,8 @@ if (is.null(all_pair_names) || anyNA(all_pair_names[selected_indices]) ||
 selected_pair_names <- all_pair_names[selected_indices]
 
 message("Fit treatment: ", fit_record$treatment)
-message("Dynamic discovery pairs: ", length(selected_indices))
+message("Analysis: order ", analysis_spec$order, " ", analysis_spec$label)
+message("Discovery pairs: ", length(selected_indices))
 message("Requested categories: ", paste(categories, collapse = ", "))
 message(
   "Numerical setting: grid step ", arguments$grid_step,
@@ -514,6 +591,11 @@ output_dir <- normalizePath(
 )
 configuration <- list(
   generated_at = format(Sys.time(), "%Y-%m-%d %H:%M:%S %Z"),
+  analysis_order = analysis_spec$order,
+  analysis_label = analysis_spec$label,
+  runner = analysis_spec$runner,
+  fashr_version = installed_fashr_version,
+  fashr_remote_sha = installed_fashr_sha,
   fit_file = fit_file,
   fit_treatment = fit_record$treatment,
   categories = categories,
@@ -527,7 +609,7 @@ configuration <- list(
   pair_seed_rule = "base seed plus fitted pair index",
   alpha = arguments$alpha,
   switch_threshold = arguments$switch_threshold,
-  dynamic_pair_count = length(selected_indices),
+  discovery_pair_count = length(selected_indices),
   fit_load_and_discovery_seconds = load_seconds,
   posterior_sampling_seconds = sampling_seconds
 )
@@ -536,7 +618,9 @@ write_atomic_outputs(
   output_dir = output_dir,
   category_tables = category_tables,
   configuration = configuration,
-  summary_table = summary_table
+  summary_table = summary_table,
+  object_names = analysis_spec$object_names,
+  file_names = analysis_spec$file_names
 )
 
 message(sprintf("Posterior sampling: %.1f seconds", sampling_seconds))

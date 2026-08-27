@@ -1,0 +1,37 @@
+#!/bin/bash
+
+#SBATCH --job-name=fash-nonlindyn-lfsr
+#SBATCH --account=pi-mstephens
+#SBATCH --time=01:00:00
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=16G
+#SBATCH --output=03_nonlindyn_lfsr_%j.out
+
+set -euo pipefail
+
+# Submit from the project root, or pass the project root as the first argument:
+#   sbatch code/03_nonlindyn_lfsr.sbatch /path/to/fash-project
+#
+# The optional second argument is a new output directory. Existing paths are
+# rejected to prevent accidental replacement of retained manuscript results.
+PROJECT_ROOT="${1:-${SLURM_SUBMIT_DIR}}"
+OUTPUT_DIRECTORY="${2:-results/nonlinear_dynamic_lfsr_open_middle_3_12_fashr0143_seed20260820}"
+
+module load R/4.4.1
+cd "${PROJECT_ROOT}"
+
+echo "Project root: ${PROJECT_ROOT}"
+echo "Output directory: ${OUTPUT_DIRECTORY}"
+echo "Slurm workers: ${SLURM_CPUS_PER_TASK}"
+
+Rscript code/03_nonlindyn_lfsr.R \
+  --fit-file output/dynamic_eQTL_real/fash_fit2_update.RData \
+  --output-dir "${OUTPUT_DIRECTORY}" \
+  --categories all \
+  --grid-step 0.10 \
+  --posterior-draws 3000 \
+  --num-cores "${SLURM_CPUS_PER_TASK}" \
+  --seed 20260820 \
+  --alpha 0.05 \
+  --expected-pairs 44

@@ -584,11 +584,13 @@ par(mfrow = c(1,1))
 
 Following the definition in Strober et.al, we will classify the detected eQTLs into different categories:
 
+The canonical regeneration entrypoint for these cached classifications is `code/03_nonlindyn_lfsr.R`.
+
 - *Early*: eQTLs with strongest effect during the first three days: $\sup_{t\leq3} |\beta(t)| - \sup_{t> 3} |\beta(t)| > 0$.
 
 - *Late*: eQTLs with strongest effect during the last four days: $\sup_{t\geq 12} |\beta(t)| - \sup_{t< 12} |\beta(t)| > 0$.
 
-- *Middle*: eQTLs with strongest effect during days 4-11: $\sup_{4\leq t\leq 11} |\beta(t)| - \sup_{t> 11 | t< 4} |\beta(t)| > 0$.
+- *Middle*: eQTLs with strongest effect in the open middle interval: $\sup_{3<t<12} |\beta(t)| - \sup_{t\leq3\;\text{or}\;t\geq12} |\beta(t)| > 0$.
 
 - *Switch*: eQTLs with effect sign switch during the time course: $\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}-c $ where $c$ is a threshold that we set to 0.25 (which means with two alleles, the maximal difference of effect size is at least $\geq 2\times\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}\times2 \geq  2 \times 0.25  \times 2 = 1$).
 
@@ -622,7 +624,8 @@ How many pairs are classified as middle dynamic eQTLs?
 
 ```{r eval=FALSE}
 functional_middle <- function(x){
-  max(abs(x[smooth_var_refined <= 11 & smooth_var_refined >= 4])) - max(abs(x[smooth_var_refined > 11]), abs(x[smooth_var_refined < 4]))
+  max(abs(x[smooth_var_refined > 3 & smooth_var_refined < 12])) -
+    max(abs(x[smooth_var_refined <= 3 | smooth_var_refined >= 12]))
 }
 testing_middle_nonlin_dyn <- testing_functional(functional_middle, 
                                                lfsr_cal = function(x){mean(x <= 0)},

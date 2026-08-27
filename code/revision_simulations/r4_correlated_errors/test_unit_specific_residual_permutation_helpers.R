@@ -30,6 +30,11 @@ if (!identical(dim(summary$correlation), c(16L, 16L)) ||
     any(!is.finite(summary$variogram$semivariogram))) {
   stop("The null correlation summary is malformed.")
 }
+identity_summary <- summarize_r4_correlation(diag(4L), time_grid = 0:3)
+if (!identical(identity_summary$variogram$lag, 1:3) ||
+    any(identity_summary$variogram$semivariogram != 1)) {
+  stop("The direct correlation summary is malformed.")
+}
 intervals <- bootstrap_r4_null_variogram_intervals(
   draws, n_bootstrap = 100L, seed = 20260826L
 )

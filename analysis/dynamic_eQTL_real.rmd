@@ -933,6 +933,8 @@ Following the definition in Strober et.al, we will classify the detected dynamic
 
 The displayed functionals are continuous-time definitions using suprema; the code below uses maxima on the `0.1`-day evaluation grid as their discrete approximation.
 
+The canonical regeneration entrypoint for these cached classifications is `code/02_dyn_lfsr.R`.
+
 We will take a look at the significant pairs detected by FASH (order 1), and classify them based on the false sign rate (lfsr).
 
 ### Early dynamic eQTLs
@@ -1291,5 +1293,4 @@ result_all <- rbind(
 
 save(result_all, file = file.path(result_dir, "gene_set_enrichment_results.RData"))
 ```
-
 

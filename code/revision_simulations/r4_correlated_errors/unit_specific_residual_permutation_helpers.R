@@ -78,6 +78,28 @@ make_r4_donor_map <- function(donor_ids, observation_patterns, seed) {
   donor_map
 }
 
+summarize_r4_correlation <- function(correlation, time_grid = 0:15) {
+  correlation <- as.matrix(correlation)
+  time_grid <- as.numeric(time_grid)
+  if (nrow(correlation) != ncol(correlation) ||
+      nrow(correlation) != length(time_grid) || any(!is.finite(correlation)) ||
+      anyDuplicated(time_grid) || max(abs(correlation - t(correlation))) > 1e-12 ||
+      max(abs(diag(correlation) - 1)) > 1e-12) {
+    stop("Invalid correlation matrix or time grid.")
+  }
+  lags <- seq_len(ncol(correlation) - 1L)
+  variogram <- data.frame(
+    lag = lags,
+    mean_correlation = vapply(lags, function(lag) {
+      mean(correlation[cbind(seq_len(ncol(correlation) - lag),
+                             seq.int(1L + lag, ncol(correlation)))])
+    }, numeric(1)),
+    stringsAsFactors = FALSE
+  )
+  variogram$semivariogram <- 1 - variogram$mean_correlation
+  list(correlation = correlation, variogram = variogram)
+}
+
 summarize_r4_null_draws <- function(beta_draws, time_grid = 0:15) {
   beta_draws <- as.matrix(beta_draws)
   time_grid <- as.numeric(time_grid)
@@ -85,21 +107,7 @@ summarize_r4_null_draws <- function(beta_draws, time_grid = 0:15) {
       any(!is.finite(beta_draws)) || anyDuplicated(time_grid)) {
     stop("Invalid null beta draws or time grid.")
   }
-  correlation <- stats::cor(beta_draws)
-  if (any(!is.finite(correlation)) || max(abs(diag(correlation) - 1)) > 1e-12) {
-    stop("The null-draw correlation matrix is invalid.")
-  }
-  lags <- seq_len(ncol(beta_draws) - 1L)
-  variogram <- data.frame(
-    lag = lags,
-    mean_correlation = vapply(lags, function(lag) {
-      mean(correlation[cbind(seq_len(ncol(beta_draws) - lag),
-                             seq.int(1L + lag, ncol(beta_draws)))])
-    }, numeric(1)),
-    stringsAsFactors = FALSE
-  )
-  variogram$semivariogram <- 1 - variogram$mean_correlation
-  list(correlation = correlation, variogram = variogram)
+  summarize_r4_correlation(stats::cor(beta_draws), time_grid)
 }
 
 bootstrap_r4_null_variogram_intervals <- function(beta_draws,

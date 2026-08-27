@@ -166,7 +166,9 @@ random amplitudes between `35%` and `75%` of the primary peak. Multi-peak
 curves include both same-sign and alternating-sign patterns. The deviation
 $h_j$ is not mean-centered; it is scaled to centered RMS `0.9`, and the
 independent genetic main effect $\mu_j$ remains as the background effect
-outside the compact supports.
+outside the compact supports. Here Early, Middle, and Late are descriptive
+labels for the primary peak's simulation window; unlike R3, they are not
+functional hypotheses evaluated from the complete effect curve.
 
 ```{r r2-simulate-effects-and-expression, eval=FALSE}
 class_probs <- c(
@@ -358,12 +360,14 @@ IWP1 uses the same numerical grid for its one-step predictive SD. This matches
 the one-step marginal scale while leaving the linear and IWP covariance shapes
 different.
 
-In the BF-adjusted object, `fashr::BF_update()` does not simply retain the raw
-penalized non-null weights. It re-fits an unpenalized full-grid mixture,
-normalizes the positive-grid weights to define the conditional alternative,
-collapses that alternative into a Bayes factor, and then updates the total null
-weight. The table below summarizes both the number of active positive-grid
-components and their conditional RMS pred-step SD across the five seeds.
+In `fashr` 0.1.43, `fashr::BF_update()` does not re-fit the alternative
+mixture. It retains the conditional weights across positive-grid components
+from the original penalized fit, uses that fixed conditional alternative to
+form the Bayes factors, and updates only the total null-versus-alternative
+weight. The table below therefore summarizes the retained conditional
+alternative geometry together with the updated total null weight across the
+five seeds. The exact implementation is recorded in the
+[fashr 0.1.43 source](https://github.com/stephenslab/fashr/blob/bf223df75da6e41ae48607a56b4cd12d7c3b24e7/R/06_BF.R#L113-L120).
 
 ### Estimated dynamic-null proportion
 
@@ -551,25 +555,33 @@ only their simulated effect geometries differ.
 ## Reproducibility
 
 The
-[R2 simulation driver](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R)
+[R2 simulation driver](https://github.com/AgueroZZ/fash-revision/blob/master/code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R)
 uses the
-[shared simulation functions](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/shared/simulation_functions.R).
+[shared simulation functions](https://github.com/AgueroZZ/fash-revision/blob/master/code/revision_simulations/shared/simulation_functions.R).
 Real-genotype selection, dosage extraction, validation, and MAF-balanced truth
 assignment are implemented in the
-[shared real-genotype helper](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/shared/real_genotype_one_per_gene.R),
+[shared real-genotype helper](https://github.com/AgueroZZ/fash-revision/blob/master/code/revision_simulations/shared/real_genotype_one_per_gene.R),
 and the versioned input cache is created by the
-[shared cache builder](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R).
+[shared cache builder](https://github.com/AgueroZZ/fash-revision/blob/master/code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R).
 The page-specific cache validation and formatting are in
-[R2 reporting code](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r2_spiky_transient/reporting.R).
+[R2 reporting code](https://github.com/AgueroZZ/fash-revision/blob/master/code/revision_simulations/r2_spiky_transient/reporting.R).
 The shared
-[0.1.43 reporting overlay](https://github.com/stephenslab/fashr-paper/blob/master/code/revision_simulations/r1_r2_fashr0143/reporting_overlay.R)
+[0.1.43 reporting overlay](https://github.com/AgueroZZ/fash-revision/blob/master/code/revision_simulations/r1_r2_fashr0143/reporting_overlay.R)
 validates the completed targeted cache and combines its FASH rows with only
-the direct rows from the historical cache. The following command regenerates
-the full historical-style five-seed cache, including direct tests. It is shown
-for reproducibility but is intentionally not evaluated during workflowr
-builds; the displayed FASH rows read the separate targeted 0.1.43 cache.
+the direct rows from the historical cache. The overlay also validates the
+[immutable simulation-source snapshot](https://github.com/AgueroZZ/fash-revision/blob/master/code/revision_simulations/r1_r2_fashr0143/source_snapshots/r1_r2_fashr0143_simulation_functions.R)
+used by the displayed 0.1.43 result. In a clean Midway3 workspace, that
+targeted result family is generated with:
 
-The full five-seed cache can be regenerated with:
+```{bash regenerate-targeted-r1-r2-cache, eval=FALSE}
+sbatch slurm/11_r1_r2_fashr0143.sbatch
+```
+
+The following older command regenerates the full historical-style five-seed
+cache, including the direct tests. It is retained as historical provenance but
+is not the command that produced the displayed 0.1.43 FASH rows.
+
+The historical full five-seed cache can be regenerated with:
 
 ```{bash regenerate-r2-cache, eval=FALSE}
 Rscript --vanilla \

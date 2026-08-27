@@ -92,6 +92,12 @@ if (is.na(num_cores) || num_cores < 1L || num_cores > 4L ||
     !nzchar(output_id)) {
   stop("Invalid sensitivity-analysis arguments.")
 }
+if (identical(middle_definition, "closed_4_11")) {
+  stop(
+    "The closed 4-to-11 design is retained as a historical cache only; ",
+    "current classification files use the open 3-to-12 definition."
+  )
+}
 
 Sys.setenv(
   OMP_NUM_THREADS = "1",
@@ -106,15 +112,15 @@ if (!requireNamespace("matrixStats", quietly = TRUE)) {
 
 category_order <- c("early", "middle", "late", "switch")
 expected_pair_counts <- c(
-  early = 124L,
-  middle = if (middle_definition == "open_3_12") 60L else 24L,
-  late = 20L,
-  switch = 984L
+  early = 126L,
+  middle = 58L,
+  late = 21L,
+  switch = 981L
 )
 expected_gene_counts <- c(
   early = 8L,
-  middle = if (middle_definition == "open_3_12") 15L else 5L,
-  late = 12L,
+  middle = 14L,
+  late = 11L,
   switch = 250L
 )
 
@@ -125,14 +131,16 @@ gene_map_path <- file.path(
   workflowr_root, "output", "dynamic_eQTL_real", "cache_gene_map.rds"
 )
 saved_category_specs <- data.frame(
-  category = c("early", "late", "switch"),
+  category = category_order,
   object_name = c(
     "testing_early_dyn",
+    "testing_middle_dyn",
     "testing_late_dyn",
     "testing_switch_dyn"
   ),
   file_name = c(
     "classify_dyn_eQTLs_early.RData",
+    "classify_dyn_eQTLs_middle.RData",
     "classify_dyn_eQTLs_late.RData",
     "classify_dyn_eQTLs_switch.RData"
   ),
@@ -144,17 +152,6 @@ saved_category_specs$path <- file.path(
   "dynamic_eQTL_real",
   saved_category_specs$file_name
 )
-open_middle_path <- file.path(
-  workflowr_root,
-  "output", "revision_simulations", "internal",
-  "middle_open_3_12_full_grid_mc_sensitivity",
-  "pair_lfsr_by_setting.csv"
-)
-saved_middle_path <- file.path(
-  workflowr_root,
-  "output", "dynamic_eQTL_real",
-  "classify_dyn_eQTLs_middle.RData"
-)
 output_dir <- file.path(
   workflowr_root,
   "output", "revision_simulations", "internal",
@@ -165,12 +162,7 @@ staging_dir <- paste0(output_dir, ".staging-", Sys.getpid())
 required_paths <- c(
   fit_path,
   gene_map_path,
-  saved_category_specs$path,
-  if (middle_definition == "open_3_12") {
-    open_middle_path
-  } else {
-    saved_middle_path
-  }
+  saved_category_specs$path
 )
 if (any(!file.exists(required_paths))) {
   stop("A required fitted-model or category-classification input is missing.")
@@ -180,7 +172,7 @@ if (dir.exists(output_dir) || dir.exists(staging_dir)) {
 }
 dir.create(staging_dir, recursive = TRUE, showWarnings = FALSE)
 
-saved_assignments <- do.call(rbind, lapply(
+assignments <- do.call(rbind, lapply(
   seq_len(nrow(saved_category_specs)),
   function(i) {
     load_saved_category_discoveries(
@@ -191,46 +183,6 @@ saved_assignments <- do.call(rbind, lapply(
     )
   }
 ))
-
-if (middle_definition == "open_3_12") {
-  open_middle_all <- read.csv(
-    open_middle_path,
-    stringsAsFactors = FALSE,
-    check.names = FALSE
-  )
-  required_middle_columns <- c(
-    "pair_id", "index", "lfsr", "cfsr", "setting_id", "selected"
-  )
-  if (!all(required_middle_columns %in% names(open_middle_all))) {
-    stop("The open-Middle full-universe cache is incomplete.")
-  }
-  open_middle <- open_middle_all[
-    open_middle_all$setting_id == "grid_0p10_M3000" &
-      open_middle_all$selected,
-    ,
-    drop = FALSE
-  ]
-  middle_assignments <- data.frame(
-    category = "middle",
-    pair_id = open_middle$pair_id,
-    index = as.integer(open_middle$index),
-    selection_lfsr = as.numeric(open_middle$lfsr),
-    selection_cfsr = as.numeric(open_middle$cfsr),
-    selection_source = "open_middle_grid_0p10_M3000",
-    stringsAsFactors = FALSE
-  )
-} else {
-  middle_assignments <- load_saved_category_discoveries(
-    path = saved_middle_path,
-    object_name = "testing_middle_dyn",
-    category = "middle",
-    alpha = alpha
-  )
-  middle_assignments$selection_source <-
-    "saved_middle_classification_4_11"
-}
-
-assignments <- rbind(saved_assignments, middle_assignments)
 assignments$gene_id <- sub("_(rs[^_]+)$", "", assignments$pair_id)
 assignments$variant_id <- sub("^.*_(rs[^_]+)$", "\\1", assignments$pair_id)
 gene_map <- readRDS(gene_map_path)
@@ -585,6 +537,11 @@ baseline_rows <- pair_lfsr[
   drop = FALSE
 ]
 middle_baseline <- baseline_rows[baseline_rows$category == "middle", , drop = FALSE]
+middle_assignments <- assignments[
+  assignments$category == "middle",
+  ,
+  drop = FALSE
+]
 middle_selection_vs_nested_baseline_maximum_difference <- max(abs(
   middle_baseline$lfsr - middle_baseline$selection_lfsr
 ))

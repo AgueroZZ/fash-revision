@@ -1,0 +1,2176 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-24" />
+
+<title>Revision internal: FASH target-decoy (fash-knockoff) permutation check</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Revision internal: FASH target-decoy
+(fash-knockoff) permutation check</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-24</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-25
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree09f63bc8536029c4816632f041b3afd85ffc523ctargetblank09f63bca">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/09f63bc8536029c4816632f041b3afd85ffc523c" target="_blank">09f63bc</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree09f63bc8536029c4816632f041b3afd85ffc523ctargetblank09f63bca"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/AgueroZZ/fash-revision/tree/09f63bc8536029c4816632f041b3afd85ffc523c" target="_blank">09f63bc</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Rplots.pdf
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/revision_simulations/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/playwright/
+    Ignored:    output/revision_simulations/
+    Ignored:    scripts/
+
+Untracked files:
+    Untracked:  analysis/revision_internal_fash_knockoff.rmd
+    Untracked:  code/revision_simulations/internal/fash_knockoff/reporting.R
+    Untracked:  code/revision_simulations/internal/fash_knockoff/test_reporting.R
+
+Unstaged changes:
+    Modified:   code/revision_simulations/internal/fash_knockoff/plot_lfdr_histograms.R
+    Modified:   code/revision_simulations/internal/fash_knockoff/plot_w_boxplot_by_discovery.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style>
+.fk-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.fk-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.fk-warn {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #b02418;
+  border-radius: 4px;
+  background: #fdeeec;
+  color: #5c1a13;
+}
+p.caption { color: #243447; font-weight: 650; text-align: left; }
+.main-container img { max-width: 100%; height: auto; }
+pre { max-width: 100%; overflow-x: auto; }
+</style>
+<div class="fk-banner">
+<p><strong>Internal exploratory page.</strong> This is an empirical
+calibration check, not a formal reviewer deliverable, and it is
+deliberately absent from <code>analysis/_site.yml</code> and
+<code>analysis/index.Rmd</code>. It does not claim finite-sample FDR
+control: exact target-decoy exchangeability is not established here, so
+the procedure is a knockoff-<em>inspired</em> permutation check rather
+than a knockoff procedure.</p>
+</div>
+<div id="what-the-procedure-does" class="section level2">
+<h2>What the procedure does</h2>
+<p>For each of the tested gene-variant pairs a <strong>matched permuted
+decoy</strong> is built, and target and decoy units are fitted
+<strong>jointly</strong>, so a single empirical-Bayes prior scores both
+sides of every pair.</p>
+<ol style="list-style-type: decimal">
+<li><strong>One global donor permutation.</strong> A single donor row
+map is applied to the entire genotype matrix, <code>G_pi = P G</code>,
+shared by all 745,867 variants and all 16 time points. Row permutation
+leaves every variant’s dosage multiset, and therefore its MAF, exactly
+unchanged, and leaves the full LD structure unchanged because
+<code>(PG)' (PG) = G' P' P G = G' G</code> identically.</li>
+<li><strong>The map is a derangement.</strong> A fixed point would leave
+one donor’s decoy genotype equal to its own, so that donor would keep
+feeding real signal into the decoy. The realised map is a 17-cycle plus
+a 2-cycle, with no fixed points.</li>
+<li><strong>Expression PCs are not permuted.</strong> PC1-PC5 are
+functions of the expression matrix; permuting them relative to the
+expression would make the decoy regression a different model from the
+target regression.</li>
+<li><strong>The original model is refit</strong> at each time point,
+<code>Y ~ 1 + G_permuted + PC1 + ... + PC5</code>, and the raw standard
+errors are converted to the same t-to-normal scale used by the primary
+analysis.</li>
+<li><strong>Target likelihood rows are reused, never
+recomputed</strong>, from the published fit. <code>BF_update()</code>
+does not modify <code>L_matrix</code>, so those rows are bit-identical
+whichever fit is supplied. Only the decoy units required new likelihood
+evaluations.</li>
+<li><strong>The statistic</strong> is
+<code>W_j = log BF_j - log BF_j,pi</code>, both Bayes factors scored by
+the merged prior. Selection uses knockoff+,
+<code>T_q = min{t &gt; 0 : (1 + #{W &lt;= -t}) / (#{W &gt;= t} v 1) &lt;= q}</code>.</li>
+</ol>
+<p>Because the two sides share one prior, swapping a pair leaves the
+<code>2J</code>-unit multiset unchanged, so the fitted prior is
+unchanged and only that pair’s <code>W</code> flips sign. This
+antisymmetry is asserted in <code>test_fash_knockoff_helpers.R</code>
+rather than assumed.</p>
+<p>The decoy is <strong>not</strong> a simulated diagonal-Gaussian null.
+It is built from the same longitudinal expression measurements, so it
+retains the gene-specific temporal dependence induced by repeated
+measurements on the same cell lines. That is the point of the design,
+and, as the results below show, also the reason it has limited
+power.</p>
+</div>
+<div id="headline-result-where-the-competition-statistic-sits"
+class="section level2">
+<h2>Headline result: where the competition statistic sits</h2>
+<pre class="r"><code>plot_w_by_discovery(statistics)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_knockoff.rmd/headline-1.png" alt="Competition statistic by published discovery status. Panel a draws the outlying points, because the tails on both sides are where knockoff+ actually operates." width="1728" />
+<p class="caption">
+Competition statistic by published discovery status. Panel a draws the
+outlying points, because the tails on both sides are where knockoff+
+actually operates.
+</p>
+</div>
+<pre class="r"><code>show_table(
+  fash_knockoff_group_summary(statistics),
+  &quot;Distribution of W by published discovery status.&quot;
+)</code></pre>
+<table style="width:100%;">
+<caption>Distribution of W by published discovery status.</caption>
+<colgroup>
+<col width="19%" />
+<col width="9%" />
+<col width="11%" />
+<col width="10%" />
+<col width="9%" />
+<col width="9%" />
+<col width="10%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">group</th>
+<th align="right">n</th>
+<th align="right">min</th>
+<th align="right">q25</th>
+<th align="right">median</th>
+<th align="right">q75</th>
+<th align="right">max</th>
+<th align="right">frac_positive</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">discovered</td>
+<td align="right">9214</td>
+<td align="right">-15.3919</td>
+<td align="right">4.9161</td>
+<td align="right">5.7014</td>
+<td align="right">7.4494</td>
+<td align="right">32.8712</td>
+<td align="right">0.9912</td>
+</tr>
+<tr class="even">
+<td align="left">not discovered</td>
+<td align="right">999922</td>
+<td align="right">-28.3716</td>
+<td align="right">-0.1926</td>
+<td align="right">0.0001</td>
+<td align="right">0.1993</td>
+<td align="right">6.7791</td>
+<td align="right">0.5006</td>
+</tr>
+</tbody>
+</table>
+<div class="fk-result">
+<p>Two things matter in this figure.</p>
+<p><strong>The non-discovered box is centred on zero.</strong> Median
+<code>W</code> is 0.00009 and <code>W &gt; 0</code> in 50.06% of the
+999,922 pairs the published rule did not call. This is the strongest
+available check on the whole construction: on pairs with no claimed
+signal, target and decoy are behaving exchangeably. For contrast,
+earlier residual-block decoy constructions sat at 0.582 on a near-null
+pair set, about 13 sd from 0.5.</p>
+<p><strong>But the non-discovered tail reaches further than the
+discovered one.</strong> The decoy beats the target by as much as 28.4
+log units among pairs that were never called. Those are pure artefact,
+because the decoy is null by construction, and they are what consumes
+the FDR budget.</p>
+</div>
+<div class="fk-warn">
+<p><strong>This figure does not validate the calls.</strong> The
+grouping conditions on the target: the published rule selects pairs with
+a high target Bayes factor, and a high target BF mechanically forces
+<code>W &gt; 0</code> unless the decoy is also high. A null pair that
+reached a high BF by chance would sit in the same box. The figure
+locates <code>W</code> by discovery status; it is descriptive, not
+confirmatory. The same caveat applies to any statistic computed after
+conditioning on the published calls.</p>
+</div>
+</div>
+<div id="the-lfdr-distributions-side-by-side" class="section level2">
+<h2>The lfdr distributions side by side</h2>
+<p>Both sets of lfdr values come from the same merged fit, so any
+difference between the arms is a difference in evidence, not in
+calibration.</p>
+<pre class="r"><code>plot_lfdr_bands(statistics)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_fash_knockoff.rmd/lfdr-bands-1.png" alt="Left tail of the lfdr distribution for both arms. Separation exists only below about 1e-9." width="1728" />
+<p class="caption">
+Left tail of the lfdr distribution for both arms. Separation exists only
+below about 1e-9.
+</p>
+</div>
+<pre class="r"><code>show_table(
+  fash_knockoff_lfdr_bands(statistics),
+  &quot;lfdr band counts and the decoy-to-target ratio.&quot;,
+  digits = 3
+)</code></pre>
+<table>
+<caption>lfdr band counts and the decoy-to-target ratio.</caption>
+<thead>
+<tr class="header">
+<th align="left">lfdr_band</th>
+<th align="right">target</th>
+<th align="right">decoy</th>
+<th align="right">decoy_over_target</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">&lt;1e-12</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0.000</td>
+</tr>
+<tr class="even">
+<td align="left">1e-12..1e-9</td>
+<td align="right">12</td>
+<td align="right">1</td>
+<td align="right">0.083</td>
+</tr>
+<tr class="odd">
+<td align="left">1e-9..1e-6</td>
+<td align="right">77</td>
+<td align="right">67</td>
+<td align="right">0.870</td>
+</tr>
+<tr class="even">
+<td align="left">1e-6..1e-4</td>
+<td align="right">300</td>
+<td align="right">303</td>
+<td align="right">1.010</td>
+</tr>
+<tr class="odd">
+<td align="left">1e-4..1e-3</td>
+<td align="right">541</td>
+<td align="right">509</td>
+<td align="right">0.941</td>
+</tr>
+<tr class="even">
+<td align="left">1e-3..0.01</td>
+<td align="right">1460</td>
+<td align="right">1276</td>
+<td align="right">0.874</td>
+</tr>
+<tr class="odd">
+<td align="left">0.01..0.05</td>
+<td align="right">2686</td>
+<td align="right">2322</td>
+<td align="right">0.864</td>
+</tr>
+<tr class="even">
+<td align="left">all &lt; 0.05</td>
+<td align="right">5077</td>
+<td align="right">4478</td>
+<td align="right">0.882</td>
+</tr>
+<tr class="odd">
+<td align="left">0.05..0.1</td>
+<td align="right">2119</td>
+<td align="right">1636</td>
+<td align="right">0.772</td>
+</tr>
+</tbody>
+</table>
+<div class="fk-result">
+<p>For every 100 target pairs below <code>lfdr = 0.05</code>, the
+permuted decoy produces about 88. The two arms separate only below
+roughly <code>1e-9</code>; between <code>1e-6</code> and
+<code>1e-4</code> the decoy is marginally ahead.</p>
+</div>
+</div>
+<div id="how-much-non-circular-evidence-is-there-for-real-signal"
+class="section level2">
+<h2>How much non-circular evidence is there for real signal?</h2>
+<p>The one quantity that conditions on nothing is the global excess of
+target wins. Treating genes as independent clusters, and assuming
+nothing about within-gene correlation:</p>
+<pre class="r"><code>show_table(
+  fash_knockoff_sign_evidence(statistics),
+  &quot;Sign-test evidence for a global excess of target wins.&quot;,
+  digits = 4
+)</code></pre>
+<table>
+<caption>Sign-test evidence for a global excess of target
+wins.</caption>
+<thead>
+<tr class="header">
+<th align="left">quantity</th>
+<th align="right">value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">pairs</td>
+<td align="right">1009136.0000</td>
+</tr>
+<tr class="even">
+<td align="left">genes</td>
+<td align="right">6362.0000</td>
+</tr>
+<tr class="odd">
+<td align="left">target-win excess</td>
+<td align="right">10346.0000</td>
+</tr>
+<tr class="even">
+<td align="left">naive sign-test z (independent pairs)</td>
+<td align="right">10.2991</td>
+</tr>
+<tr class="odd">
+<td align="left">cluster-robust z (genes as clusters)</td>
+<td align="right">2.0450</td>
+</tr>
+<tr class="even">
+<td align="left">design effect</td>
+<td align="right">25.3626</td>
+</tr>
+<tr class="odd">
+<td align="left">implied within-gene sign correlation</td>
+<td align="right">0.1546</td>
+</tr>
+</tbody>
+</table>
+<div class="fk-warn">
+<p>The naive <code>sqrt(n)</code> sign test badly overstates this. Pairs
+within a gene share one expression trajectory and are in LD, so they are
+not independent: the measured design effect is about 25, implying a
+within-gene sign correlation near 0.16. The cluster-robust value is the
+one to quote, and it agrees with the independent gene-level test.</p>
+</div>
+</div>
+<div id="knockoff-selection" class="section level2">
+<h2>knockoff+ selection</h2>
+<pre class="r"><code>show_table(
+  fash_knockoff_selection_table(statistics, q_grid),
+  &quot;knockoff+ selection at pair level and at gene level.&quot;,
+  digits = 4
+)</code></pre>
+<table>
+<caption>knockoff+ selection at pair level and at gene level.</caption>
+<colgroup>
+<col width="24%" />
+<col width="6%" />
+<col width="13%" />
+<col width="18%" />
+<col width="17%" />
+<col width="18%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">unit</th>
+<th align="right">q</th>
+<th align="right">threshold</th>
+<th align="right">n_discoveries</th>
+<th align="right">n_decoy_wins</th>
+<th align="right">estimated_fdr</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">gene-variant pair</td>
+<td align="right">0.01</td>
+<td align="right">NA</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">gene-variant pair</td>
+<td align="right">0.05</td>
+<td align="right">NA</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">gene-variant pair</td>
+<td align="right">0.10</td>
+<td align="right">NA</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">gene-variant pair</td>
+<td align="right">0.15</td>
+<td align="right">22.8179</td>
+<td align="right">17</td>
+<td align="right">1</td>
+<td align="right">0.1176</td>
+</tr>
+<tr class="odd">
+<td align="left">gene-variant pair</td>
+<td align="right">0.20</td>
+<td align="right">22.2859</td>
+<td align="right">19</td>
+<td align="right">2</td>
+<td align="right">0.1579</td>
+</tr>
+<tr class="even">
+<td align="left">gene-variant pair</td>
+<td align="right">0.30</td>
+<td align="right">21.4283</td>
+<td align="right">20</td>
+<td align="right">5</td>
+<td align="right">0.3000</td>
+</tr>
+<tr class="odd">
+<td align="left">gene-variant pair</td>
+<td align="right">0.50</td>
+<td align="right">17.0271</td>
+<td align="right">83</td>
+<td align="right">40</td>
+<td align="right">0.4940</td>
+</tr>
+<tr class="even">
+<td align="left">gene (max vs max)</td>
+<td align="right">0.01</td>
+<td align="right">NA</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">gene (max vs max)</td>
+<td align="right">0.05</td>
+<td align="right">NA</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">gene (max vs max)</td>
+<td align="right">0.10</td>
+<td align="right">NA</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">gene (max vs max)</td>
+<td align="right">0.15</td>
+<td align="right">NA</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">gene (max vs max)</td>
+<td align="right">0.20</td>
+<td align="right">NA</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">gene (max vs max)</td>
+<td align="right">0.30</td>
+<td align="right">NA</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">gene (max vs max)</td>
+<td align="right">0.50</td>
+<td align="right">NA</td>
+<td align="right">0</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+</tbody>
+</table>
+<p>Nothing survives <code>q = 0.05</code> at either level. The
+pair-level floor is reached at <code>q = 0.15</code>; note that it is
+bounded below by <code>1/R</code>, so a 17-pair selection cannot report
+a rate under about 0.06 whatever the data say.</p>
+<pre class="r"><code>show_table(
+  fash_knockoff_selected_pairs(statistics, 0.15),
+  &quot;The pairs selected at q = 0.15. Every one is a published call.&quot;,
+  digits = 4
+)</code></pre>
+<table style="width:100%;">
+<caption>The pairs selected at q = 0.15. Every one is a published
+call.</caption>
+<colgroup>
+<col width="20%" />
+<col width="13%" />
+<col width="18%" />
+<col width="20%" />
+<col width="18%" />
+<col width="7%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">gene_id</th>
+<th align="left">variant_id</th>
+<th align="right">published_lfdr</th>
+<th align="right">log10_target_BF</th>
+<th align="right">log10_decoy_BF</th>
+<th align="right">W</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">ENSG00000134369</td>
+<td align="left">rs12407966</td>
+<td align="right">0</td>
+<td align="right">15.07</td>
+<td align="right">0.80</td>
+<td align="right">32.87</td>
+</tr>
+<tr class="even">
+<td align="left">ENSG00000151388</td>
+<td align="left">rs35399</td>
+<td align="right">0</td>
+<td align="right">13.17</td>
+<td align="right">0.04</td>
+<td align="right">30.23</td>
+</tr>
+<tr class="odd">
+<td align="left">ENSG00000151388</td>
+<td align="left">rs35400</td>
+<td align="right">0</td>
+<td align="right">13.02</td>
+<td align="right">0.04</td>
+<td align="right">29.88</td>
+</tr>
+<tr class="even">
+<td align="left">ENSG00000186654</td>
+<td align="left">rs136889</td>
+<td align="right">0</td>
+<td align="right">12.70</td>
+<td align="right">-0.01</td>
+<td align="right">29.26</td>
+</tr>
+<tr class="odd">
+<td align="left">ENSG00000178878</td>
+<td align="left">rs1014707</td>
+<td align="right">0</td>
+<td align="right">12.03</td>
+<td align="right">0.08</td>
+<td align="right">27.50</td>
+</tr>
+<tr class="even">
+<td align="left">ENSG00000178878</td>
+<td align="left">rs1014708</td>
+<td align="right">0</td>
+<td align="right">12.03</td>
+<td align="right">0.08</td>
+<td align="right">27.50</td>
+</tr>
+<tr class="odd">
+<td align="left">ENSG00000178878</td>
+<td align="left">rs10845611</td>
+<td align="right">0</td>
+<td align="right">12.03</td>
+<td align="right">0.08</td>
+<td align="right">27.50</td>
+</tr>
+<tr class="even">
+<td align="left">ENSG00000178878</td>
+<td align="left">rs10845612</td>
+<td align="right">0</td>
+<td align="right">12.03</td>
+<td align="right">0.08</td>
+<td align="right">27.50</td>
+</tr>
+<tr class="odd">
+<td align="left">ENSG00000178878</td>
+<td align="left">rs2013760</td>
+<td align="right">0</td>
+<td align="right">12.03</td>
+<td align="right">0.08</td>
+<td align="right">27.50</td>
+</tr>
+<tr class="even">
+<td align="left">ENSG00000178878</td>
+<td align="left">rs7132848</td>
+<td align="right">0</td>
+<td align="right">12.03</td>
+<td align="right">0.08</td>
+<td align="right">27.50</td>
+</tr>
+<tr class="odd">
+<td align="left">ENSG00000178878</td>
+<td align="left">rs9804886</td>
+<td align="right">0</td>
+<td align="right">12.01</td>
+<td align="right">0.08</td>
+<td align="right">27.47</td>
+</tr>
+<tr class="even">
+<td align="left">ENSG00000178878</td>
+<td align="left">rs3759216</td>
+<td align="right">0</td>
+<td align="right">11.95</td>
+<td align="right">0.06</td>
+<td align="right">27.38</td>
+</tr>
+<tr class="odd">
+<td align="left">ENSG00000178878</td>
+<td align="left">rs36228499</td>
+<td align="right">0</td>
+<td align="right">11.88</td>
+<td align="right">0.04</td>
+<td align="right">27.26</td>
+</tr>
+<tr class="even">
+<td align="left">ENSG00000148180</td>
+<td align="left">rs1579095</td>
+<td align="right">0</td>
+<td align="right">10.01</td>
+<td align="right">-0.05</td>
+<td align="right">23.18</td>
+</tr>
+<tr class="odd">
+<td align="left">ENSG00000148180</td>
+<td align="left">rs58223619</td>
+<td align="right">0</td>
+<td align="right">10.01</td>
+<td align="right">-0.05</td>
+<td align="right">23.18</td>
+</tr>
+<tr class="even">
+<td align="left">ENSG00000100376</td>
+<td align="left">rs170507</td>
+<td align="right">0</td>
+<td align="right">9.95</td>
+<td align="right">-0.03</td>
+<td align="right">22.98</td>
+</tr>
+<tr class="odd">
+<td align="left">ENSG00000148180</td>
+<td align="left">rs55689715</td>
+<td align="right">0</td>
+<td align="right">9.85</td>
+<td align="right">-0.06</td>
+<td align="right">22.82</td>
+</tr>
+</tbody>
+</table>
+<div class="fk-result">
+<p>These are clean: target evidence of <code>10^10</code> to
+<code>10^15</code> against decoy Bayes factors of about 1. The
+permutation does not move them.</p>
+<p>They are also concentrated. The 17 pairs fall in only 6 genes, and
+one gene contributes nine of them.</p>
+</div>
+</div>
+<div id="why-the-estimated-fdr-does-not-fall-the-tails-are-ld-clustered"
+class="section level2">
+<h2>Why the estimated FDR does not fall: the tails are LD-clustered</h2>
+<pre class="r"><code>show_table(
+  fash_knockoff_tail_concentration(statistics, c(5, 10, 15, 20, 25)),
+  &quot;Tail counts as pairs and as distinct genes.&quot;,
+  digits = 3
+)</code></pre>
+<table>
+<caption>Tail counts as pairs and as distinct genes.</caption>
+<colgroup>
+<col width="12%" />
+<col width="15%" />
+<col width="15%" />
+<col width="14%" />
+<col width="14%" />
+<col width="13%" />
+<col width="13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">threshold</th>
+<th align="right">target_pairs</th>
+<th align="right">target_genes</th>
+<th align="right">decoy_pairs</th>
+<th align="right">decoy_genes</th>
+<th align="right">pair_ratio</th>
+<th align="right">gene_ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">6864</td>
+<td align="right">980</td>
+<td align="right">5910</td>
+<td align="right">931</td>
+<td align="right">0.861</td>
+<td align="right">0.951</td>
+</tr>
+<tr class="even">
+<td align="right">10</td>
+<td align="right">839</td>
+<td align="right">165</td>
+<td align="right">762</td>
+<td align="right">176</td>
+<td align="right">0.909</td>
+<td align="right">1.073</td>
+</tr>
+<tr class="odd">
+<td align="right">15</td>
+<td align="right">149</td>
+<td align="right">44</td>
+<td align="right">116</td>
+<td align="right">40</td>
+<td align="right">0.785</td>
+<td align="right">0.932</td>
+</tr>
+<tr class="even">
+<td align="right">20</td>
+<td align="right">41</td>
+<td align="right">12</td>
+<td align="right">21</td>
+<td align="right">9</td>
+<td align="right">0.537</td>
+<td align="right">0.833</td>
+</tr>
+<tr class="odd">
+<td align="right">25</td>
+<td align="right">13</td>
+<td align="right">4</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0.154</td>
+<td align="right">0.500</td>
+</tr>
+</tbody>
+</table>
+<div class="fk-warn">
+<p>Counting genes rather than pairs is the honest way to count
+independent events, and it removes most of the apparent pair-level
+advantage. At a threshold of 10 there are <strong>more</strong> decoy
+genes than target genes. The pair-level estimate at
+<code>q = 0.15</code> rests on a single decoy win, so its sampling
+variability is large; collapsed to genes the same threshold gives
+roughly 0.33 rather than 0.118.</p>
+</div>
+</div>
+<div id="does-a-different-gene-level-statistic-help"
+class="section level2">
+<h2>Does a different gene-level statistic help?</h2>
+<p>Any antisymmetric function of the two Bayes factors fixes the sign
+pattern, so only the ordering of <code>|W|</code> can change.
+Aggregating within a gene by a maximum is a difference of two
+extreme-value variables and is the noisiest choice.</p>
+<pre class="r"><code>show_table(
+  fash_knockoff_gene_statistic_comparison(statistics, c(0.05, 0.20)),
+  &quot;Five gene-level aggregations of the same pair-level evidence.&quot;,
+  digits = 3
+)</code></pre>
+<table>
+<caption>Five gene-level aggregations of the same pair-level
+evidence.</caption>
+<colgroup>
+<col width="18%" />
+<col width="18%" />
+<col width="16%" />
+<col width="24%" />
+<col width="21%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">statistic</th>
+<th align="right">frac_positive</th>
+<th align="right">t_statistic</th>
+<th align="right">min_estimated_fdr</th>
+<th align="right">discoveries_q20</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">max - max</td>
+<td align="right">0.513</td>
+<td align="right">2.171</td>
+<td align="right">0.579</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">sum - sum</td>
+<td align="right">0.517</td>
+<td align="right">3.471</td>
+<td align="right">0.200</td>
+<td align="right">5</td>
+</tr>
+<tr class="odd">
+<td align="left">mean - mean</td>
+<td align="right">0.517</td>
+<td align="right">4.179</td>
+<td align="right">0.400</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">top5 - top5</td>
+<td align="right">0.517</td>
+<td align="right">2.850</td>
+<td align="right">0.200</td>
+<td align="right">5</td>
+</tr>
+<tr class="odd">
+<td align="left">top20 - top20</td>
+<td align="right">0.517</td>
+<td align="right">3.437</td>
+<td align="right">0.500</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<p>Replacing the maximum with a mean roughly doubles the global
+<code>t</code> statistic, so the aggregation choice does matter for
+detecting that signal exists. It does not rescue selection: no
+aggregation reaches <code>q = 0.05</code>.</p>
+</div>
+<div id="diagnostics-that-had-to-pass-first" class="section level2">
+<h2>Diagnostics that had to pass first</h2>
+<pre class="r"><code>paths &lt;- fash_knockoff_paths(&quot;.&quot;)
+show_table(
+  read.csv(file.path(paths$summary, &quot;genotype_covariate_alignment.csv&quot;),
+           check.names = FALSE),
+  &quot;Genotype variance explained by PC1-PC5, both arms, all 16 time points.&quot;,
+  digits = 4
+)</code></pre>
+<table style="width:100%;">
+<caption>Genotype variance explained by PC1-PC5, both arms, all 16 time
+points.</caption>
+<colgroup>
+<col width="6%" />
+<col width="12%" />
+<col width="13%" />
+<col width="20%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">time</th>
+<th align="left">arm</th>
+<th align="right">n_variant</th>
+<th align="right">mean_r_squared</th>
+<th align="right">50%</th>
+<th align="right">75%</th>
+<th align="right">90%</th>
+<th align="right">95%</th>
+<th align="right">99%</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">0</td>
+<td align="left">original</td>
+<td align="right">745844</td>
+<td align="right">0.2790</td>
+<td align="right">0.2618</td>
+<td align="right">0.3711</td>
+<td align="right">0.4756</td>
+<td align="right">0.5386</td>
+<td align="right">0.6533</td>
+</tr>
+<tr class="even">
+<td align="right">0</td>
+<td align="left">permuted</td>
+<td align="right">745844</td>
+<td align="right">0.2775</td>
+<td align="right">0.2605</td>
+<td align="right">0.3680</td>
+<td align="right">0.4724</td>
+<td align="right">0.5369</td>
+<td align="right">0.6462</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="left">original</td>
+<td align="right">745844</td>
+<td align="right">0.2772</td>
+<td align="right">0.2592</td>
+<td align="right">0.3665</td>
+<td align="right">0.4739</td>
+<td align="right">0.5403</td>
+<td align="right">0.6583</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="left">permuted</td>
+<td align="right">745844</td>
+<td align="right">0.2780</td>
+<td align="right">0.2591</td>
+<td align="right">0.3680</td>
+<td align="right">0.4763</td>
+<td align="right">0.5414</td>
+<td align="right">0.6578</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="left">original</td>
+<td align="right">745844</td>
+<td align="right">0.3335</td>
+<td align="right">0.3176</td>
+<td align="right">0.4427</td>
+<td align="right">0.5580</td>
+<td align="right">0.6240</td>
+<td align="right">0.7336</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="left">permuted</td>
+<td align="right">745844</td>
+<td align="right">0.3339</td>
+<td align="right">0.3182</td>
+<td align="right">0.4427</td>
+<td align="right">0.5590</td>
+<td align="right">0.6275</td>
+<td align="right">0.7397</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="left">original</td>
+<td align="right">745844</td>
+<td align="right">0.2745</td>
+<td align="right">0.2579</td>
+<td align="right">0.3639</td>
+<td align="right">0.4665</td>
+<td align="right">0.5288</td>
+<td align="right">0.6478</td>
+</tr>
+<tr class="even">
+<td align="right">3</td>
+<td align="left">permuted</td>
+<td align="right">745844</td>
+<td align="right">0.2785</td>
+<td align="right">0.2612</td>
+<td align="right">0.3679</td>
+<td align="right">0.4735</td>
+<td align="right">0.5376</td>
+<td align="right">0.6508</td>
+</tr>
+<tr class="odd">
+<td align="right">4</td>
+<td align="left">original</td>
+<td align="right">745844</td>
+<td align="right">0.3312</td>
+<td align="right">0.3148</td>
+<td align="right">0.4400</td>
+<td align="right">0.5559</td>
+<td align="right">0.6221</td>
+<td align="right">0.7373</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="left">permuted</td>
+<td align="right">745844</td>
+<td align="right">0.3361</td>
+<td align="right">0.3195</td>
+<td align="right">0.4465</td>
+<td align="right">0.5632</td>
+<td align="right">0.6269</td>
+<td align="right">0.7465</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="left">original</td>
+<td align="right">745844</td>
+<td align="right">0.2757</td>
+<td align="right">0.2587</td>
+<td align="right">0.3677</td>
+<td align="right">0.4729</td>
+<td align="right">0.5373</td>
+<td align="right">0.6472</td>
+</tr>
+<tr class="even">
+<td align="right">5</td>
+<td align="left">permuted</td>
+<td align="right">745844</td>
+<td align="right">0.2791</td>
+<td align="right">0.2623</td>
+<td align="right">0.3724</td>
+<td align="right">0.4770</td>
+<td align="right">0.5394</td>
+<td align="right">0.6521</td>
+</tr>
+<tr class="odd">
+<td align="right">6</td>
+<td align="left">original</td>
+<td align="right">745844</td>
+<td align="right">0.2772</td>
+<td align="right">0.2594</td>
+<td align="right">0.3682</td>
+<td align="right">0.4740</td>
+<td align="right">0.5397</td>
+<td align="right">0.6608</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="left">permuted</td>
+<td align="right">745844</td>
+<td align="right">0.2759</td>
+<td align="right">0.2585</td>
+<td align="right">0.3654</td>
+<td align="right">0.4705</td>
+<td align="right">0.5335</td>
+<td align="right">0.6479</td>
+</tr>
+<tr class="odd">
+<td align="right">7</td>
+<td align="left">original</td>
+<td align="right">745844</td>
+<td align="right">0.2750</td>
+<td align="right">0.2575</td>
+<td align="right">0.3645</td>
+<td align="right">0.4699</td>
+<td align="right">0.5343</td>
+<td align="right">0.6507</td>
+</tr>
+<tr class="even">
+<td align="right">7</td>
+<td align="left">permuted</td>
+<td align="right">745844</td>
+<td align="right">0.2760</td>
+<td align="right">0.2598</td>
+<td align="right">0.3647</td>
+<td align="right">0.4673</td>
+<td align="right">0.5313</td>
+<td align="right">0.6464</td>
+</tr>
+<tr class="odd">
+<td align="right">8</td>
+<td align="left">original</td>
+<td align="right">745844</td>
+<td align="right">0.2753</td>
+<td align="right">0.2570</td>
+<td align="right">0.3642</td>
+<td align="right">0.4700</td>
+<td align="right">0.5355</td>
+<td align="right">0.6566</td>
+</tr>
+<tr class="even">
+<td align="right">8</td>
+<td align="left">permuted</td>
+<td align="right">745844</td>
+<td align="right">0.2779</td>
+<td align="right">0.2598</td>
+<td align="right">0.3675</td>
+<td align="right">0.4737</td>
+<td align="right">0.5399</td>
+<td align="right">0.6606</td>
+</tr>
+<tr class="odd">
+<td align="right">9</td>
+<td align="left">original</td>
+<td align="right">745844</td>
+<td align="right">0.2760</td>
+<td align="right">0.2577</td>
+<td align="right">0.3660</td>
+<td align="right">0.4736</td>
+<td align="right">0.5373</td>
+<td align="right">0.6505</td>
+</tr>
+<tr class="even">
+<td align="right">9</td>
+<td align="left">permuted</td>
+<td align="right">745844</td>
+<td align="right">0.2776</td>
+<td align="right">0.2594</td>
+<td align="right">0.3680</td>
+<td align="right">0.4737</td>
+<td align="right">0.5368</td>
+<td align="right">0.6516</td>
+</tr>
+<tr class="odd">
+<td align="right">10</td>
+<td align="left">original</td>
+<td align="right">745844</td>
+<td align="right">0.2778</td>
+<td align="right">0.2605</td>
+<td align="right">0.3683</td>
+<td align="right">0.4731</td>
+<td align="right">0.5378</td>
+<td align="right">0.6608</td>
+</tr>
+<tr class="even">
+<td align="right">10</td>
+<td align="left">permuted</td>
+<td align="right">745844</td>
+<td align="right">0.2786</td>
+<td align="right">0.2606</td>
+<td align="right">0.3702</td>
+<td align="right">0.4748</td>
+<td align="right">0.5378</td>
+<td align="right">0.6590</td>
+</tr>
+<tr class="odd">
+<td align="right">11</td>
+<td align="left">original</td>
+<td align="right">745844</td>
+<td align="right">0.2778</td>
+<td align="right">0.2594</td>
+<td align="right">0.3676</td>
+<td align="right">0.4752</td>
+<td align="right">0.5412</td>
+<td align="right">0.6584</td>
+</tr>
+<tr class="even">
+<td align="right">11</td>
+<td align="left">permuted</td>
+<td align="right">745844</td>
+<td align="right">0.2807</td>
+<td align="right">0.2635</td>
+<td align="right">0.3707</td>
+<td align="right">0.4773</td>
+<td align="right">0.5438</td>
+<td align="right">0.6605</td>
+</tr>
+<tr class="odd">
+<td align="right">12</td>
+<td align="left">original</td>
+<td align="right">745844</td>
+<td align="right">0.2759</td>
+<td align="right">0.2592</td>
+<td align="right">0.3662</td>
+<td align="right">0.4696</td>
+<td align="right">0.5324</td>
+<td align="right">0.6448</td>
+</tr>
+<tr class="even">
+<td align="right">12</td>
+<td align="left">permuted</td>
+<td align="right">745844</td>
+<td align="right">0.2795</td>
+<td align="right">0.2624</td>
+<td align="right">0.3709</td>
+<td align="right">0.4777</td>
+<td align="right">0.5399</td>
+<td align="right">0.6479</td>
+</tr>
+<tr class="odd">
+<td align="right">13</td>
+<td align="left">original</td>
+<td align="right">745844</td>
+<td align="right">0.2935</td>
+<td align="right">0.2757</td>
+<td align="right">0.3907</td>
+<td align="right">0.5013</td>
+<td align="right">0.5661</td>
+<td align="right">0.6830</td>
+</tr>
+<tr class="even">
+<td align="right">13</td>
+<td align="left">permuted</td>
+<td align="right">745844</td>
+<td align="right">0.2927</td>
+<td align="right">0.2759</td>
+<td align="right">0.3885</td>
+<td align="right">0.4974</td>
+<td align="right">0.5620</td>
+<td align="right">0.6788</td>
+</tr>
+<tr class="odd">
+<td align="right">14</td>
+<td align="left">original</td>
+<td align="right">745844</td>
+<td align="right">0.2769</td>
+<td align="right">0.2598</td>
+<td align="right">0.3672</td>
+<td align="right">0.4724</td>
+<td align="right">0.5370</td>
+<td align="right">0.6522</td>
+</tr>
+<tr class="even">
+<td align="right">14</td>
+<td align="left">permuted</td>
+<td align="right">745844</td>
+<td align="right">0.2789</td>
+<td align="right">0.2629</td>
+<td align="right">0.3696</td>
+<td align="right">0.4746</td>
+<td align="right">0.5375</td>
+<td align="right">0.6517</td>
+</tr>
+<tr class="odd">
+<td align="right">15</td>
+<td align="left">original</td>
+<td align="right">745844</td>
+<td align="right">0.2781</td>
+<td align="right">0.2607</td>
+<td align="right">0.3684</td>
+<td align="right">0.4744</td>
+<td align="right">0.5371</td>
+<td align="right">0.6506</td>
+</tr>
+<tr class="even">
+<td align="right">15</td>
+<td align="left">permuted</td>
+<td align="right">745844</td>
+<td align="right">0.2793</td>
+<td align="right">0.2622</td>
+<td align="right">0.3691</td>
+<td align="right">0.4762</td>
+<td align="right">0.5409</td>
+<td align="right">0.6555</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>show_table(
+  read.csv(file.path(paths$summary, &quot;uninformative_variant_screen.csv&quot;)),
+  &quot;Variants carrying no residual genotype information, by time point and arm.&quot;,
+  digits = 0
+)</code></pre>
+<table>
+<caption>Variants carrying no residual genotype information, by time
+point and arm.</caption>
+<colgroup>
+<col width="19%" />
+<col width="11%" />
+<col width="34%" />
+<col width="34%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="right">time_position</th>
+<th align="right">n_donor</th>
+<th align="right">n_uninformative_observed</th>
+<th align="right">n_uninformative_permuted</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">16</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">16</td>
+<td align="right">0</td>
+<td align="right">23</td>
+</tr>
+<tr class="even">
+<td align="right">6</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="right">7</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="right">8</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="right">9</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="right">10</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="right">11</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="right">12</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="right">13</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="right">14</td>
+<td align="right">18</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="right">15</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="right">16</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>The cached target likelihood rows reproduce exactly</strong>
+in the environment that computed the decoys: maximum absolute deviation
+<code>0</code> against a scale of 13.1, on a 50-unit slice. Target and
+decoy rows therefore sit on identical numerical footing.</li>
+<li><strong>The regression pipeline reproduces the published beta and
+SE</strong> from raw expression, PC and VCF inputs: maximum deviations
+<code>2.8e-13</code> and <code>1.6e-12</code> on a 2,000-pair slice. The
+decoy is built by the code path that reproduces the target.</li>
+<li><strong>The genotype-PC alignment gate is clean.</strong> Mean
+<code>R^2</code> is 0.2847 for the observed genotype and 0.2863 for the
+permuted genotype, against a chance expectation near
+<code>5/18 = 0.278</code>. Had the observed arm been systematically
+higher, decoy standard errors would have been deflated and the
+competition would have been anti-conservative in a way nothing
+downstream could reveal.</li>
+<li><strong>The informativeness screen dropped 23 variants and 37
+pairs</strong>, 0.0037% of the total, all on the permuted arm and all at
+day 4. The screen is applied symmetrically to both arms and depends only
+on the design, never on an outcome; filtering on the decoy alone would
+break exchangeability.</li>
+</ul>
+</div>
+<div id="limitations" class="section level2">
+<h2>Limitations</h2>
+<ul>
+<li><strong>No claim of finite-sample FDR control.</strong> LD and
+shared-gene dependence across units are real, and the gene-level maximum
+only removes the within-gene part. This is an empirical calibration
+check.</li>
+<li><strong>A single permutation.</strong> One realisation, not an
+average, so accidental alignment at 19 donors cannot cancel. This is why
+the alignment gate above matters. Repeating with further seeds is a
+stability check, not an average.</li>
+<li><strong>Cell-line missingness is not specially handled.</strong>
+Three time points are incomplete: day 2 and day 4 have 16 donors, day 13
+has 18. At those points the target uses the genotypes of the donors
+present while the decoy uses the genotypes of a <em>different</em>
+subset, so the two arms do not use the same dosage multiset. Measured,
+the decoy’s median residual genotype sum of squares is 0.9916 of the
+target’s at those three points against 0.9980 elsewhere: a roughly 1%
+asymmetry, in the conservative direction, at 3 of 16 time points. A
+permutation restricted to matching observation patterns would remove it,
+but the four patterns have sizes 13, 3, 2 and 1, so the singleton donor
+would be frozen and would leak real signal into the decoy for every
+variant. The current scheme is the lesser distortion, but it is an
+approximation.</li>
+<li><strong>Anything conditioned on the published calls is
+circular</strong> and is reported here only as description.</li>
+</ul>
+</div>
+<div id="reproduction" class="section level2">
+<h2>Reproduction</h2>
+<p>Code lives in
+<code>code/revision_simulations/internal/fash_knockoff/</code>. The
+analysis ran on Midway3 under R 4.4.1 and <code>fashr</code> 0.1.43
+(<code>bf223df75da6e41ae48607a56b4cd12d7c3b24e7</code>); the decoy
+likelihood took 4.34 hours on 32 cores.</p>
+<pre><code>sbatch slurm/18_fash_knockoff.sbatch</code></pre>
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] en_CA/en_CA/en_CA/C/en_CA/en_CA
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] ggplot2_4.0.3   workflowr_1.7.2
+
+loaded via a namespace (and not attached):
+ [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.1.4        compiler_4.5.1    
+ [5] promises_1.5.0     tidyselect_1.2.1   Rcpp_1.1.1-1.1     stringr_1.6.0     
+ [9] git2r_0.36.2       dichromat_2.0-0.1  callr_3.7.6        later_1.4.4       
+[13] jquerylib_0.1.4    scales_1.4.0       yaml_2.3.12        fastmap_1.2.0     
+[17] R6_2.6.1           labeling_0.4.3     patchwork_1.3.2    generics_0.1.4    
+[21] knitr_1.50         tibble_3.3.0       rprojroot_2.1.1    RColorBrewer_1.1-3
+[25] bslib_0.9.0        pillar_1.11.1      rlang_1.2.0        cachem_1.1.0      
+[29] stringi_1.8.9      httpuv_1.6.16      xfun_0.55          S7_0.2.2          
+[33] getPass_0.2-4      fs_1.6.6           sass_0.4.10        otel_0.2.0        
+[37] cli_3.6.6          withr_3.0.3        magrittr_2.0.5     ps_1.9.1          
+[41] grid_4.5.1         digest_0.6.39      processx_3.8.6     rstudioapi_0.17.1 
+[45] lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5     glue_1.8.1        
+[49] farver_2.1.2       whisker_0.4.1      rmarkdown_2.30     httr_1.4.7        
+[53] tools_4.5.1        pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] en_CA/en_CA/en_CA/C/en_CA/en_CA
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] ggplot2_4.0.3   workflowr_1.7.2
+
+loaded via a namespace (and not attached):
+ [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.1.4        compiler_4.5.1    
+ [5] promises_1.5.0     tidyselect_1.2.1   Rcpp_1.1.1-1.1     stringr_1.6.0     
+ [9] git2r_0.36.2       dichromat_2.0-0.1  callr_3.7.6        later_1.4.4       
+[13] jquerylib_0.1.4    scales_1.4.0       yaml_2.3.12        fastmap_1.2.0     
+[17] R6_2.6.1           labeling_0.4.3     patchwork_1.3.2    generics_0.1.4    
+[21] knitr_1.50         tibble_3.3.0       rprojroot_2.1.1    RColorBrewer_1.1-3
+[25] bslib_0.9.0        pillar_1.11.1      rlang_1.2.0        cachem_1.1.0      
+[29] stringi_1.8.9      httpuv_1.6.16      xfun_0.55          S7_0.2.2          
+[33] getPass_0.2-4      fs_1.6.6           sass_0.4.10        otel_0.2.0        
+[37] cli_3.6.6          withr_3.0.3        magrittr_2.0.5     ps_1.9.1          
+[41] grid_4.5.1         digest_0.6.39      processx_3.8.6     rstudioapi_0.17.1 
+[45] lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5     glue_1.8.1        
+[49] farver_2.1.2       whisker_0.4.1      rmarkdown_2.30     httr_1.4.7        
+[53] tools_4.5.1        pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

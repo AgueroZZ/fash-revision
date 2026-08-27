@@ -531,7 +531,7 @@ Following the definition in Strober et.al, we will classify the detected eQTLs i
 
 The displayed functionals are continuous-time definitions using suprema; the code below uses maxima on the `0.1`-day evaluation grid as their discrete approximation.
 
-The retained classification files were recomputed from `fash_fit2_update` using one shared set of 3,000 posterior draws per pair across the four functionals. We first take a look at the significant pairs detected by FASH (order 2), and classify them based on the false sign rate (lfsr):
+The retained classification files were recomputed from `fash_fit2_update` using one shared set of 3,000 posterior draws per pair across the four functionals. The canonical regeneration entrypoint is `code/03_nonlindyn_lfsr.R`. We first take a look at the significant pairs detected by FASH (order 2), and classify them based on the false sign rate (lfsr):
 
 ```{r eval=FALSE}
 smooth_var_refined = seq(0,15, by = 0.1)

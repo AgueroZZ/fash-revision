@@ -4,8 +4,11 @@ mc_output_id <-
   paste0(
     "r3_real_genotype_one_per_gene_J6362_",
     paste0(
-      "matched_functional_open_middle_3_12_",
-      "center_aligned_relative_clearance_main_effect_fashr0143_pilot5"
+      "matched_functional_open_middle_3_12_center_aligned_equal_cells_",
+      paste0(
+        "relative_location_clearance_full_universe_",
+        "paired_posterior_fashr0143_pilot5"
+      )
     )
   )
 mc_output_dir <- file.path(
@@ -15,8 +18,16 @@ mc_output_dir <- file.path(
   mc_output_id
 )
 summary_dir <- file.path(mc_output_dir, "summary")
+r3_replicate_alpha_path <- file.path(
+  summary_dir,
+  "all_replicate_functional_alpha_curves.csv"
+)
 r3_manifest_path <- file.path(mc_output_dir, "manifest.rds")
 r3_complete_flag_path <- file.path(mc_output_dir, "complete.flag")
+r3_scientific_validation_path <- file.path(
+  mc_output_dir,
+  "scientific_validation.csv"
+)
 r1_r2_output_dir <- file.path(
   "output",
   "revision_simulations",
@@ -34,8 +45,10 @@ shared_genotype_cache_path <- file.path(
 required_cache_paths <- c(
   r3_manifest_path,
   r3_complete_flag_path,
+  r3_scientific_validation_path,
   file.path(mc_output_dir, "configuration.rds"),
   file.path(mc_output_dir, "example_curves.rds"),
+  r3_replicate_alpha_path,
   file.path(summary_dir, "functional_testing_mc_alpha_curve.csv"),
   file.path(summary_dir, "functional_testing_mc_alpha005_summary.csv"),
   file.path(summary_dir, "functional_testing_mc_pi0_summary.csv"),
@@ -50,6 +63,10 @@ if (any(!file.exists(required_cache_paths))) {
 }
 r3_manifest <- readRDS(r3_manifest_path)
 r3_completion <- readLines(r3_complete_flag_path, warn = FALSE)
+scientific_validation <- read.csv(
+  r3_scientific_validation_path,
+  stringsAsFactors = FALSE
+)
 r1_r2_manifest <- readRDS(r1_r2_manifest_path)
 shared_genotype_cache <- readRDS(shared_genotype_cache_path)
 configuration <- readRDS(file.path(mc_output_dir, "configuration.rds"))
@@ -59,6 +76,10 @@ example_curves <- readRDS(file.path(
 ))
 mc_alpha <- read.csv(
   file.path(summary_dir, "functional_testing_mc_alpha_curve.csv"),
+  stringsAsFactors = FALSE
+)
+mc_alpha_replicates <- read.csv(
+  r3_replicate_alpha_path,
   stringsAsFactors = FALSE
 )
 mc_alpha_005 <- read.csv(
@@ -112,6 +133,18 @@ expected_genotype_content_md5 <- c(
 )
 expected_fashr_remote_sha <-
   "bf223df75da6e41ae48607a56b4cd12d7c3b24e7"
+expected_r3_source_sha256 <- c(
+  r3_driver =
+    "ca3f786ab11749b12f17e9799006a49c4264c623c3131dd18153f33daeb9da18",
+  simulation_functions =
+    "45267b0884168e5ae33cc4f14e3f05b711d961b65bf9c6fbd880e748de064a6e",
+  wrapper_core =
+    "24496feb87efd9895697752bd650d1128a150ec2f242360be247e10776a9cb4a"
+)
+expected_temporal_category_probs <- stats::setNames(
+  rep(1 / 3, 3),
+  c("early", "middle", "late")
+)
 expected_truth_group_counts <- setNames(
   rep(212L, 6L),
   c(
@@ -124,7 +157,10 @@ expected_truth_group_counts <- setNames(
   )
 )
 
-if (!identical(r3_manifest$schema_version, "r3-fashr0143-manifest-v3") ||
+if (!identical(
+      r3_manifest$schema_version,
+      "r3-fashr0143-manifest-v8-full-universe-functional"
+    ) ||
     !identical(r3_manifest$result_id, mc_output_id) ||
     !identical(r3_manifest$package_provenance$package, "fashr") ||
     !identical(r3_manifest$package_provenance$version, "0.1.43") ||
@@ -141,8 +177,24 @@ if (!identical(r3_manifest$schema_version, "r3-fashr0143-manifest-v3") ||
         "raised_cosine_center_ranges=",
         "early:1.5,2.5;middle:4.5,10.5;late:12.5,13.5"
       ),
+      "raised_cosine_half_width=1.5",
+      "location_truth_margin=0.1",
+      "location_truth_min_range_fraction=0.1",
+      "functional_posterior_pairing=common_random_seed_raw_bf",
+      "functional_candidate_scope=full_universe",
+      "functional_candidate_universe_size=6362",
+      "calibration_gate_passed=FALSE",
       "replicates=10"
     ) %in% r3_completion) ||
+    !identical(
+      unlist(
+        r3_manifest$source_provenance$sha256[
+          names(expected_r3_source_sha256)
+        ],
+        use.names = TRUE
+      ),
+      expected_r3_source_sha256
+    ) ||
     !identical(configuration$output_id, mc_output_id) ||
     !identical(configuration$package_provenance$version, "0.1.43") ||
     !identical(
@@ -179,6 +231,16 @@ if (!identical(r3_manifest$schema_version, "r3-fashr0143-manifest-v3") ||
       configuration$expected_truth_group_counts,
       expected_truth_group_counts
     ) ||
+    !identical(
+      configuration$temporal_category_design,
+      "equal temporal categories"
+    ) ||
+    !isTRUE(all.equal(
+      configuration$temporal_category_probs,
+      expected_temporal_category_probs,
+      tolerance = 1e-12,
+      check.attributes = TRUE
+    )) ||
     !identical(configuration$truth_mechanisms, mechanism_order) ||
     !isTRUE(all.equal(configuration$random_bspline$amplitude, 2)) ||
     !isTRUE(all.equal(configuration$random_bspline$df, 6)) ||
@@ -197,12 +259,22 @@ if (!identical(r3_manifest$schema_version, "r3-fashr0143-manifest-v3") ||
     )) ||
     !isTRUE(all.equal(configuration$switch_threshold, 0.25)) ||
     !isTRUE(all.equal(configuration$location_truth_margin, 0.10)) ||
+    !isTRUE(all.equal(
+      configuration$location_truth_min_range_fraction,
+      0.10
+    )) ||
     !isTRUE(all.equal(configuration$switch_truth_margin, 0.10)) ||
     !isTRUE(all.equal(configuration$non_switch_min_abs, 0.10)) ||
     !isTRUE(all.equal(
       configuration$non_switch_min_range_fraction,
       0.10
     )) ||
+    !identical(
+      configuration$functional_posterior_pairing,
+      "common_random_seed_raw_bf"
+    ) ||
+    !identical(configuration$functional_candidate_scope, "full_universe") ||
+    !identical(configuration$functional_candidate_universe_size, 6362L) ||
     !identical(configuration$genotype_source, "paper-derived YRI DS dosage") ||
     !identical(
       configuration$genotype_selection_rule,
@@ -215,11 +287,172 @@ if (!identical(r3_manifest$schema_version, "r3-fashr0143-manifest-v3") ||
     !identical(names(example_curves), mechanism_order)) {
   stop("The matched functional-testing cache has unexpected settings.")
 }
+required_validation_columns <- c(
+  "truth_mechanism",
+  "method",
+  "target",
+  "alpha_min",
+  "alpha_max",
+  "maximum_excess",
+  "prespecified_maximum_excess",
+  "passed"
+)
+validation_passed <- stats::setNames(
+  scientific_validation$passed,
+  scientific_validation$truth_mechanism
+)
+expected_validation_excess <- c(
+  raised_cosine = 0.030487276457298,
+  random_bspline = 0.094093954452096
+)
+expected_validation_alpha <- c(
+  raised_cosine = 0.12,
+  random_bspline = 0.20
+)
+if (!all(required_validation_columns %in% names(scientific_validation)) ||
+    nrow(scientific_validation) != 2L ||
+    !setequal(
+      scientific_validation$truth_mechanism,
+      mechanism_order
+    ) ||
+    any(scientific_validation$method != "FASH-IWP1-BF") ||
+    any(scientific_validation$target != "middle") ||
+    any(abs(scientific_validation$alpha_min - 0.05) > 1e-12) ||
+    any(abs(scientific_validation$alpha_max - 0.20) > 1e-12) ||
+    any(abs(
+      scientific_validation$prespecified_maximum_excess - 0.03
+    ) > 1e-12) ||
+    any(validation_passed) ||
+    !isTRUE(all.equal(
+      stats::setNames(
+        scientific_validation$maximum_excess,
+        scientific_validation$truth_mechanism
+      )[names(expected_validation_excess)],
+      expected_validation_excess,
+      tolerance = 1e-12,
+      check.attributes = TRUE
+    )) ||
+    !isTRUE(all.equal(
+      stats::setNames(
+        scientific_validation$alpha_at_maximum_excess,
+        scientific_validation$truth_mechanism
+      )[names(expected_validation_alpha)],
+      expected_validation_alpha,
+      tolerance = 1e-12,
+      check.attributes = TRUE
+    ))) {
+  stop("The R3 scientific-validation record is invalid.")
+}
 if (!all(method_order %in% mc_alpha$method) ||
     !all(target_order %in% mc_alpha$target) ||
     any(mc_alpha$n_replications != length(configuration$seed_list)) ||
+    any(mc_alpha$candidate_scope != "full_universe") ||
+    any(mc_alpha$mean_candidate_count != 6362) ||
+    any(mc_alpha$mean_first_stage_null_calls != 0) ||
     !all(mechanism_order %in% mc_pi0$truth_mechanism)) {
   stop("The matched functional-testing summaries are incomplete.")
+}
+
+replicate_curve_columns <- c(
+  "scenario",
+  "target",
+  "method",
+  "alpha",
+  "candidate_scope",
+  "candidate_count",
+  "first_stage_null_calls",
+  "power",
+  "empirical_fsr",
+  "seed",
+  "truth_mechanism"
+)
+replicate_curve_keys <- c("scenario", "target", "method", "alpha")
+expected_alpha_grid <- seq(0.005, 0.20, by = 0.005)
+expected_replicate_rows <-
+  length(mechanism_order) *
+  length(target_order) *
+  length(method_order) *
+  length(expected_alpha_grid) *
+  length(expected_seed_list)
+if (!all(replicate_curve_columns %in% names(mc_alpha_replicates)) ||
+    nrow(mc_alpha_replicates) != expected_replicate_rows ||
+    anyDuplicated(mc_alpha_replicates[c(replicate_curve_keys, "seed")]) ||
+    !setequal(mc_alpha_replicates$seed, expected_seed_list) ||
+    !setequal(mc_alpha_replicates$target, target_order) ||
+    !setequal(mc_alpha_replicates$method, method_order) ||
+    !setequal(mc_alpha_replicates$truth_mechanism, mechanism_order) ||
+    any(mc_alpha_replicates$candidate_scope != "full_universe") ||
+    any(mc_alpha_replicates$candidate_count != 6362L) ||
+    any(mc_alpha_replicates$first_stage_null_calls != 0L) ||
+    !isTRUE(all.equal(
+      sort(unique(mc_alpha_replicates$alpha)),
+      expected_alpha_grid
+    ))) {
+  stop("The replicate-level functional alpha curves are incomplete.")
+}
+
+functional_curve_key <- function(x) {
+  paste(
+    x$scenario,
+    x$target,
+    x$method,
+    sprintf("%.17g", x$alpha),
+    sep = "\r"
+  )
+}
+replicate_groups <- split(
+  seq_len(nrow(mc_alpha_replicates)),
+  functional_curve_key(mc_alpha_replicates)
+)
+mc_pointwise_ranges <- do.call(
+  rbind,
+  lapply(replicate_groups, function(row_index) {
+    group <- mc_alpha_replicates[row_index, , drop = FALSE]
+    data.frame(
+      scenario = group$scenario[1],
+      target = group$target[1],
+      method = group$method[1],
+      alpha = group$alpha[1],
+      n_replications = nrow(group),
+      mean_power_from_replicates = mean(group$power),
+      power_replication_min = min(group$power),
+      power_replication_max = max(group$power),
+      mean_empirical_fsr_from_replicates = mean(group$empirical_fsr),
+      empirical_fsr_replication_min = min(group$empirical_fsr),
+      empirical_fsr_replication_max = max(group$empirical_fsr),
+      stringsAsFactors = FALSE
+    )
+  })
+)
+rownames(mc_pointwise_ranges) <- NULL
+summary_range_index <- match(
+  functional_curve_key(mc_alpha),
+  functional_curve_key(mc_pointwise_ranges)
+)
+if (anyNA(summary_range_index) ||
+    any(mc_pointwise_ranges$n_replications != length(expected_seed_list)) ||
+    !isTRUE(all.equal(
+      mc_alpha$mean_power,
+      mc_pointwise_ranges$mean_power_from_replicates[summary_range_index],
+      tolerance = 1e-12
+    )) ||
+    !isTRUE(all.equal(
+      mc_alpha$mean_empirical_fsr,
+      mc_pointwise_ranges$mean_empirical_fsr_from_replicates[
+        summary_range_index
+      ],
+      tolerance = 1e-12
+    ))) {
+  stop("The replicate-level curves do not reproduce the saved summaries.")
+}
+pointwise_range_columns <- c(
+  "power_replication_min",
+  "power_replication_max",
+  "empirical_fsr_replication_min",
+  "empirical_fsr_replication_max"
+)
+for (column in pointwise_range_columns) {
+  mc_alpha[[column]] <- mc_pointwise_ranges[[column]][summary_range_index]
 }
 
 if (!identical(r1_r2_manifest$schema_version, "r1-r2-fashr0143-manifest-v1") ||
@@ -316,6 +549,13 @@ r3a_alpha_005 <- mc_alpha_005[
 r3b_alpha_005 <- mc_alpha_005[
   grepl("^r3b_", mc_alpha_005$scenario),
 ]
+plot_alpha_limits <- c(0, max(mc_alpha$alpha))
+if (!isTRUE(all.equal(min(mc_alpha$alpha), 0.005)) ||
+    !isTRUE(all.equal(plot_alpha_limits, c(0, 0.20))) ||
+    !isTRUE(all.equal(range(r3a_alpha$alpha), c(0.005, 0.20))) ||
+    !isTRUE(all.equal(range(r3b_alpha$alpha), c(0.005, 0.20)))) {
+  stop("The full R3 alpha ranges are invalid.")
+}
 
 format_decimal <- function(x, digits = 3) {
   formatC(x, format = "f", digits = digits)

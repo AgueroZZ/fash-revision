@@ -1,0 +1,394 @@
+---
+title: "Internal analysis: enhancer enrichment by FASH temporal class"
+author: "Ziang Zhang"
+date: "2026-08-25"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+    toc: true
+    toc_depth: 2
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 9.5,
+  fig.height = 4.1,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(file.path(
+  "code",
+  "revision_simulations",
+  "internal",
+  "fash_temporal_class_enhancer_enrichment",
+  "reporting.R"
+))
+```
+
+<style>
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.temporal-class-internal-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.temporal-class-definition {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.temporal-class-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.temporal-class-table-scroll table {
+  margin-bottom: 1em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+pre,
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+
+<div class="temporal-class-internal-banner">
+<strong>Internal analysis page.</strong> This page is not linked from the
+workflowr homepage, manuscript, or response letter.
+</div>
+
+## Question
+
+The R6 page shows that FASH's dynamic-eQTL discoveries fall inside Roadmap
+enhancers of this differentiation more often than the tested variants do. This
+page splits those same discoveries by *when* the effect peaks — early, middle,
+late — and asks whether the enrichment concentrates in a specific enhancer
+category.
+
+The naive prediction is stage matching: early variants in E020 (iPSC)
+enhancers, middle in E013 (mesoderm), late in E095 (left ventricle). The answer
+below is that stage matching does **not** hold, but the temporal classes do
+differ sharply in which regulatory compartment they occupy.
+
+Everything here is descriptive and exploratory. Nothing is refit: the discovery
+set, the timing classification, and the enrichment machinery all come from
+existing caches and from `enrichment_api.R` unchanged.
+
+## Temporal classes
+
+The manuscript classifies a discovered pair by where the peak of
+$|\beta(t)|$ falls in the 15-day time course, using the Strober-style
+functionals
+
+$$
+\text{early: } \sup_{t\le 3}|\beta(t)| - \sup_{t>3}|\beta(t)| > 0,\qquad
+\text{middle: } \sup_{3<t<12}|\beta(t)| - \sup_{t\le 3 \text{ or } t\ge 12}|\beta(t)| > 0,
+$$
+$$
+\text{late: } \sup_{t\ge 12}|\beta(t)| - \sup_{t<12}|\beta(t)| > 0.
+$$
+
+`testing_functional()` returns, for each functional, the posterior probability
+that it is not positive (`lfsr`), so $1 - \texttt{lfsr}$ is the posterior
+probability that the peak lies in that window. These are already cached for the
+FASH-IWP1 fit in `output/dynamic_eQTL_real/classify_dyn_eQTLs_*.RData`.
+
+<div class="temporal-class-definition">
+<ul>
+<li><strong>Discovery set:</strong> the R6 set — all
+`r format_integer(nrow(labelled_pairs))` gene-variant pairs
+(`r format_integer(length(discovered_variants))` unique variants) called by
+BF-adjusted FASH-IWP1 at cumulative-lfdr FDR
+`r format_decimal(analysis_alpha, 2L)`.</li>
+<li><strong>Class:</strong> each pair is assigned to the window with the
+largest posterior probability. Early $[0,3]$, Middle $(3,12)$, and Late
+$[12,15]$ partition the evaluation grid. Their positive-window probabilities
+sum to the posterior non-null probability rather than one because an exact-null
+trajectory belongs to no timing class; the three cached classifications were
+sampled separately, so their empirical sum also contains Monte Carlo error
+(median row sum `r format_decimal(median(probability_row_sums))`).</li>
+<li><strong>All variants:</strong> every unique rsID in the class.</li>
+<li><strong>One lead variant per gene:</strong> the lowest-lfdr pair of each
+gene <em>within</em> the class, so a gene whose variants split across classes
+contributes one lead to each.</li>
+</ul>
+</div>
+
+```{r class-summary-table, results='asis'}
+render_internal_table(
+  class_summary_display,
+  align = "lrrrrrr",
+  minimum_width = "980px"
+)
+```
+
+The last two columns are why the assignment is by rank rather than by a
+significance threshold. Applying the manuscript's own
+`cfsr` $\le$ `r format_decimal(analysis_alpha, 2L)` cutoff leaves only
+`r format_integer(confident_call_counts$pairs[1])` early,
+`r format_integer(confident_call_counts$pairs[2])` middle, and
+`r format_integer(confident_call_counts$pairs[3])` late pairs, from
+`r format_integer(confident_call_counts$genes[1])`,
+`r format_integer(confident_call_counts$genes[2])`, and
+`r format_integer(confident_call_counts$genes[3])` genes respectively. Those
+sets are at or below the `r MINIMUM_OVERLAP`-overlap floor an enrichment
+estimate needs, so a strict reading of the classification cannot answer this
+question at all. The
+ranked assignment uses every discovery and buys the power at the cost of
+calling many pairs whose timing is uncertain; the confident-subset sensitivity
+below reruns the analysis with a probability floor.
+
+The class sizes are very unequal: the late class holds
+`r class_count("late", "pairs")` of the `r format_integer(nrow(labelled_pairs))`
+pairs. Read every comparison below with that in mind — the late class is close
+to the whole FASH discovery set, so its estimates reproduce the R6 numbers
+almost by construction, whereas the early class rests on
+`r class_count("early", "genes")` genes.
+
+## Enrichment against the tested background
+
+Same comparator, definition, and interval as the R6 page: fold enrichment is
+the overlap rate in the set divided by the overlap rate among all
+`r format_integer(background_variant_count)` tested autosomal variants, with the
+set excluded from its own comparator, and the bars are 22-block
+leave-one-autosome-out jackknife 95% intervals.
+
+```{r background-enrichment, fig.cap="Figure 1. Enhancer enrichment of the early, middle, and late FASH discovery classes relative to all tested variants, using every variant in the class (left) and one lead variant per gene (right). Annotations are the Roadmap 15-state ChromHMM enhancer states of the three epigenomes bracketing the differentiation. The dashed line marks no enrichment; bars are leave-one-autosome-out jackknife 95% intervals. Cells whose overlap fell below the floor of 10 variants are not plotted."}
+plot_background_enrichment()
+```
+
+```{r background-enrichment-table, results='asis'}
+render_internal_table(
+  enrichment_display_table(background_enrichment),
+  align = "llrrr",
+  minimum_width = "980px"
+)
+```
+
+Stage matching fails at the first row. The early class is **depleted**, not
+enriched, at the iPSC enhancers it was supposed to match:
+`r describe_fold("early_all", e020)` at E020, and equally depleted at E013,
+`r describe_fold("early_all", e013)`. Its lead set is too small to estimate at
+E020 and E013 — `r describe_fold("early_lead", e020)`.
+
+The late class carries the R6 signal: `r describe_fold("late_all", e013)` at
+E013 and `r describe_fold("late_all", e095)` at E095 using every variant, and
+`r describe_fold("late_lead", e013)` and `r describe_fold("late_lead", e095)`
+under lead selection. These sit close to the R6 estimates for the whole FASH
+lead set (1.47 at E013, 1.26 at E095), which is expected given that
+the late class is two thirds of the discoveries.
+
+The middle class points at the mesoderm state under lead selection,
+`r describe_fold("middle_lead", e013)`, which is the largest estimate in its
+row and the one place where the stage-matched prediction is directionally
+supported — but the interval covers 1 and this is one contrast among eighteen.
+
+## Is any of it specific to the class?
+
+Figure 1 compares each class with the whole testing universe, so a class
+inherits whatever enrichment FASH discoveries have in general. Replacing the
+comparator with the other `r format_integer(length(discovered_variants))`
+FASH-discovered variants asks the sharper question: given that a variant was
+discovered, does its timing class predict which enhancers it hits?
+
+```{r within-discovery-enrichment, fig.cap="Figure 2. The same three classes, now measured against the other FASH-discovered variants rather than against the full testing universe. A value above 1 means the class hits that enhancer state more often than the rest of FASH's discoveries do."}
+plot_within_discovery_enrichment()
+```
+
+```{r within-discovery-table, results='asis'}
+render_internal_table(
+  enrichment_display_table(within_discovery_enrichment),
+  align = "llrrr",
+  minimum_width = "980px"
+)
+```
+
+Timing does carry information, in one direction. Against its fellow
+discoveries the early class is depleted at all three states —
+`r describe_fold("early_all", e020, within_discovery_enrichment)` at E020,
+`r describe_fold("early_all", e013, within_discovery_enrichment)` at E013,
+`r describe_fold("early_all", e095, within_discovery_enrichment)` at E095 —
+and the late class is enriched,
+`r describe_fold("late_all", e013, within_discovery_enrichment)` at E013 and
+`r describe_fold("late_all", e095, within_discovery_enrichment)` at E095. The
+middle class is indistinguishable from the rest of the discoveries.
+
+So the answer to "is there a specific enhancer category" is: not a
+*stage-specific* one. What separates the classes is enhancers versus
+everything else, and the separation runs late-enriched, early-depleted, in all
+three epigenomes at once.
+
+## Where the early class sits instead
+
+An enhancer depletion is only interpretable next to the compartments the same
+variants do occupy. The panel below adds the cell-type-agnostic ENCODE cCRE
+enhancer-like annotation and the promoter/TSS annotations to the same
+all-variant comparison against the tested background.
+
+```{r regulatory-context, fig.height=4.6, fig.cap="Figure 3. Regulatory context for the three classes, all-variant view, against the tested background. Left: enhancer annotations. Right: promoter and active-TSS annotations. The early class is displaced from enhancers towards promoters and active TSS; the late class shows the opposite tilt."}
+plot_regulatory_context()
+```
+
+```{r regulatory-context-table, results='asis'}
+render_internal_table(
+  enrichment_display_table(context_enrichment, context_annotations),
+  align = "llrrrrrrrrr",
+  minimum_width = "1580px"
+)
+```
+
+The early class is promoter-shifted: `r describe_fold("early_all", "Roadmap E020 iPS-20b: Active TSS", context_enrichment)`
+at the E020 active-TSS state, `r describe_fold("early_all", "Roadmap E013 hESC-derived CD56+ mesoderm: Active TSS", context_enrichment)`
+at the E013 active-TSS state, and
+`r describe_fold("early_all", "GENCODE promoter +/-2 kb", context_enrichment)`
+at GENCODE promoters, against
+`r fold_value("early_all", "ENCODE cCRE enhancer-like", context_enrichment)`-fold
+at cCRE enhancer-like elements. The late class shows the mirror pattern, with
+its enrichment on the enhancer side.
+
+That is a coherent reading of the depletion rather than a contradiction of it:
+variants whose effect is strongest in the first three days sit
+disproportionately at promoters and active TSS of the starting epigenome, and
+the variants that drive the enhancer enrichment R6 reports are the ones whose
+effect peaks late.
+
+## Sensitivities
+
+### Matched controls
+
+The classes differ in allele frequency and TSS distance, and enhancers are
+themselves TSS-proximal, so the background comparison is confounded in
+principle. Repeating Figure 1 against matched controls — five comparable
+variants per selected variant on the MAF, TSS-distance, variant-density and
+tested-gene strata, pooled over 100 seeds, the sampler R6 retains but does not
+display — leaves the pattern intact.
+
+```{r matched-enrichment, fig.cap="Figure 4. Figure 1 recomputed against matched control variants instead of the raw tested background."}
+plot_matched_enrichment()
+```
+
+```{r matched-table, results='asis'}
+render_internal_table(
+  enrichment_display_table(matched_enrichment),
+  align = "llrrr",
+  minimum_width = "980px"
+)
+```
+
+The early depletion survives matching:
+`r describe_fold("early_all", e013, matched_enrichment)` at E013 and
+`r describe_fold("early_all", e020, matched_enrichment)` at E020, against
+`r fold_value("early_all", e013)`-fold and `r fold_value("early_all", e020)`-fold
+unmatched. It is not an artefact of the early class sitting closer to a TSS.
+
+### Confident class calls only
+
+Restricting to pairs whose winning window probability is at least
+`r format_decimal(confident_probability_floor, 1L)` keeps
+`r format_integer(length(confident_variant_sets$early_all))` early,
+`r format_integer(length(confident_variant_sets$middle_all))` middle, and
+`r format_integer(length(confident_variant_sets$late_all))` late variants.
+
+```{r confident-table, results='asis'}
+render_internal_table(
+  enrichment_display_table(confident_enrichment),
+  align = "llrrr",
+  minimum_width = "980px"
+)
+```
+
+Most early cells fall below the overlap floor at this stringency, so the early
+depletion cannot be re-checked here. Among what survives, the stage-matched
+reading looks slightly better than it does in the full assignment: the middle
+lead set reaches `r describe_fold("middle_lead", e013, confident_enrichment)`
+at the mesoderm state, and the late lead set
+`r describe_fold("late_lead", e095, confident_enrichment)` at the
+left-ventricle state. Both are single post-hoc contrasts on small sets with
+wide intervals and neither is corrected for the number of comparisons on this
+page; they are worth a follow-up, not a claim.
+
+## Readout
+
+1. **No stage matching.** Early variants are not enriched in iPSC enhancers;
+   they are significantly depleted there, and their point estimate is below 1
+   at every enhancer annotation on this page.
+2. **The R6 enhancer enrichment is a late-class phenomenon.** The late class is
+   enriched at E013 and E095 both against the tested background and against the
+   other FASH discoveries; the middle class is indistinguishable from the rest
+   of the discoveries.
+3. **The classes differ by compartment, not by cell type.** Early discoveries
+   are promoter- and TSS-shifted, late discoveries enhancer-shifted, and this
+   survives matched controls.
+4. **The strict classification is underpowered for this question.** At
+   `cfsr` $\le$ `r format_decimal(analysis_alpha, 2L)` the three classes hold
+   `r format_integer(confident_call_counts$pairs[1])`,
+   `r format_integer(confident_call_counts$pairs[2])`, and
+   `r format_integer(confident_call_counts$pairs[3])` pairs, which no
+   annotation-overlap analysis can use.
+
+## Caveats
+
+- The class assignment is a ranking of three posterior probabilities, not a
+  significance call. Half the discoveries have a winning probability below
+  `r format_decimal(stats::median(labelled_pairs$probability))`.
+- Class sizes are unequal by a factor of five, and the effective number of
+  independent units is the gene count
+  (`r class_count("early", "genes")` / `r class_count("middle", "genes")` /
+  `r class_count("late", "genes")`), not the variant count. The chromosome
+  jackknife absorbs within-chromosome dependence only approximately.
+- No multiplicity correction is applied anywhere on this page, and the
+  annotation contrasts are correlated (the three epigenomes share much of their
+  enhancer catalogue).
+- Enrichment is orthogonal support for regulatory relevance. It does not
+  validate individual discoveries or their assigned timing.
+
+## Reproduction
+
+```{r reproduction-commands, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/test_temporal_class_helpers.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/test_reporting.R
+
+Rscript --vanilla -e \
+  'workflowr::wflow_build("analysis/revision_internal_fash_temporal_class_enhancer_enrichment.rmd")'
+```
+
+Page-specific source files:
+
+- `code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/temporal_class_helpers.R`
+- `code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/test_temporal_class_helpers.R`
+- `code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/reporting.R`
+- `code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/test_reporting.R`
+
+Cached inputs, neither of them produced here:
+
+- `output/revision_simulations/internal/fash_strober_enhancer_comparison_fashr0143/discovery_pair_tables.rds`
+  (R6 discovery sets)
+- `output/dynamic_eQTL_real/classify_dyn_eQTLs_{early,middle,late}.RData`
+  (`testing_functional()` results reproducible from `code/02_dyn_lfsr.R`)
+- `output/revision_simulations/internal/variant_annotation_enrichment/`
+  (annotation matrix and matching covariates)

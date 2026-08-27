@@ -202,7 +202,8 @@ r1_r2_fashr0143_validate_manifest <- function(cache_dir) {
 
   local_sources <- c(
     simulation_functions = file.path(
-      "code", "revision_simulations", "shared", "simulation_functions.R"
+      "code", "revision_simulations", "r1_r2_fashr0143",
+      "source_snapshots", "r1_r2_fashr0143_simulation_functions.R"
     ),
     real_genotype_helper = file.path(
       "code", "revision_simulations", "shared", "real_genotype_one_per_gene.R"

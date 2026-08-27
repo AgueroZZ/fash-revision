@@ -1,0 +1,352 @@
+---
+title: "Revision internal: FASH target-decoy (fash-knockoff) permutation check"
+author: "Ziang Zhang"
+date: "2026-08-24"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+    toc: true
+    toc_depth: 2
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 9.6,
+  fig.height = 6.0,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+
+source(file.path(
+  "code", "revision_simulations", "internal", "fash_knockoff",
+  "fash_knockoff_helpers.R"
+))
+source(file.path(
+  "code", "revision_simulations", "internal", "fash_knockoff", "reporting.R"
+))
+library(ggplot2)
+
+statistics <- load_fash_knockoff_statistics(".")
+q_grid <- c(0.01, 0.05, 0.10, 0.15, 0.20, 0.30, 0.50)
+show_table <- function(x, caption, digits = 4) {
+  knitr::kable(x, caption = caption, digits = digits, row.names = FALSE)
+}
+```
+
+<style>
+.fk-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.fk-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.fk-warn {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #b02418;
+  border-radius: 4px;
+  background: #fdeeec;
+  color: #5c1a13;
+}
+p.caption { color: #243447; font-weight: 650; text-align: left; }
+.main-container img { max-width: 100%; height: auto; }
+pre { max-width: 100%; overflow-x: auto; }
+</style>
+
+<div class="fk-banner">
+**Internal exploratory page.** This is an empirical calibration check, not a
+formal reviewer deliverable, and it is deliberately absent from
+`analysis/_site.yml` and `analysis/index.Rmd`. It does not claim
+finite-sample FDR control: exact target-decoy exchangeability is not
+established here, so the procedure is a knockoff-*inspired* permutation
+check rather than a knockoff procedure.
+</div>
+
+## What the procedure does
+
+For each of the tested gene-variant pairs a **matched permuted decoy** is
+built, and target and decoy units are fitted **jointly**, so a single
+empirical-Bayes prior scores both sides of every pair.
+
+1. **One global donor permutation.** A single donor row map is applied to the
+   entire genotype matrix, `G_pi = P G`, shared by all 745,867 variants and all
+   16 time points. Row permutation leaves every variant's dosage multiset, and
+   therefore its MAF, exactly unchanged, and leaves the full LD structure
+   unchanged because `(PG)' (PG) = G' P' P G = G' G` identically.
+2. **The map is a derangement.** A fixed point would leave one donor's decoy
+   genotype equal to its own, so that donor would keep feeding real signal into
+   the decoy. The realised map is a 17-cycle plus a 2-cycle, with no fixed
+   points.
+3. **Expression PCs are not permuted.** PC1-PC5 are functions of the expression
+   matrix; permuting them relative to the expression would make the decoy
+   regression a different model from the target regression.
+4. **The original model is refit** at each time point,
+   `Y ~ 1 + G_permuted + PC1 + ... + PC5`, and the raw standard errors are
+   converted to the same t-to-normal scale used by the primary analysis.
+5. **Target likelihood rows are reused, never recomputed**, from the published
+   fit. `BF_update()` does not modify `L_matrix`, so those rows are
+   bit-identical whichever fit is supplied. Only the decoy units required new
+   likelihood evaluations.
+6. **The statistic** is `W_j = log BF_j - log BF_j,pi`, both Bayes factors
+   scored by the merged prior. Selection uses knockoff+,
+   `T_q = min{t > 0 : (1 + #{W <= -t}) / (#{W >= t} v 1) <= q}`.
+
+Because the two sides share one prior, swapping a pair leaves the
+`2J`-unit multiset unchanged, so the fitted prior is unchanged and only that
+pair's `W` flips sign. This antisymmetry is asserted in
+`test_fash_knockoff_helpers.R` rather than assumed.
+
+The decoy is **not** a simulated diagonal-Gaussian null. It is built from the
+same longitudinal expression measurements, so it retains the gene-specific
+temporal dependence induced by repeated measurements on the same cell lines.
+That is the point of the design, and, as the results below show, also the
+reason it has limited power.
+
+## Headline result: where the competition statistic sits
+
+```{r headline, fig.height = 5.8, fig.cap = "Competition statistic by published discovery status. Panel a draws the outlying points, because the tails on both sides are where knockoff+ actually operates."}
+plot_w_by_discovery(statistics)
+```
+
+```{r headline-table}
+show_table(
+  fash_knockoff_group_summary(statistics),
+  "Distribution of W by published discovery status."
+)
+```
+
+<div class="fk-result">
+Two things matter in this figure.
+
+**The non-discovered box is centred on zero.** Median `W` is
+`r sprintf("%.5f", median(statistics$W_updated_weights[!statistics$discovered]))`
+and `W > 0` in
+`r sprintf("%.2f%%", 100 * mean(statistics$W_updated_weights[!statistics$discovered] > 0))`
+of the
+`r format(sum(!statistics$discovered), big.mark = ",")`
+pairs the published rule did not call. This is the strongest available check on
+the whole construction: on pairs with no claimed signal, target and decoy are
+behaving exchangeably. For contrast, earlier residual-block decoy constructions
+sat at 0.582 on a near-null pair set, about 13 sd from 0.5.
+
+**But the non-discovered tail reaches further than the discovered one.** The
+decoy beats the target by as much as
+`r sprintf("%.1f", -min(statistics$W_updated_weights[!statistics$discovered]))`
+log units among pairs that were never called. Those are pure artefact, because
+the decoy is null by construction, and they are what consumes the FDR budget.
+</div>
+
+<div class="fk-warn">
+**This figure does not validate the calls.** The grouping conditions on the
+target: the published rule selects pairs with a high target Bayes factor, and a
+high target BF mechanically forces `W > 0` unless the decoy is also high. A null
+pair that reached a high BF by chance would sit in the same box. The figure
+locates `W` by discovery status; it is descriptive, not confirmatory. The same
+caveat applies to any statistic computed after conditioning on the published
+calls.
+</div>
+
+## The lfdr distributions side by side
+
+Both sets of lfdr values come from the same merged fit, so any difference
+between the arms is a difference in evidence, not in calibration.
+
+```{r lfdr-bands, fig.height = 5.0, fig.cap = "Left tail of the lfdr distribution for both arms. Separation exists only below about 1e-9."}
+plot_lfdr_bands(statistics)
+```
+
+```{r lfdr-band-table}
+show_table(
+  fash_knockoff_lfdr_bands(statistics),
+  "lfdr band counts and the decoy-to-target ratio.",
+  digits = 3
+)
+```
+
+<div class="fk-result">
+For every 100 target pairs below `lfdr = 0.05`, the permuted decoy produces
+about
+`r sprintf("%.0f", 100 * sum(statistics$decoy_lfdr < 0.05) / sum(statistics$target_lfdr < 0.05))`.
+The two arms separate only below roughly `1e-9`; between `1e-6` and `1e-4` the
+decoy is marginally ahead.
+</div>
+
+## How much non-circular evidence is there for real signal?
+
+The one quantity that conditions on nothing is the global excess of target
+wins. Treating genes as independent clusters, and assuming nothing about
+within-gene correlation:
+
+```{r sign-evidence}
+show_table(
+  fash_knockoff_sign_evidence(statistics),
+  "Sign-test evidence for a global excess of target wins.",
+  digits = 4
+)
+```
+
+<div class="fk-warn">
+The naive `sqrt(n)` sign test badly overstates this. Pairs within a gene share
+one expression trajectory and are in LD, so they are not independent: the
+measured design effect is about 25, implying a within-gene sign correlation near
+0.16. The cluster-robust value is the one to quote, and it agrees with the
+independent gene-level test.
+</div>
+
+## knockoff+ selection
+
+```{r selection}
+show_table(
+  fash_knockoff_selection_table(statistics, q_grid),
+  "knockoff+ selection at pair level and at gene level.",
+  digits = 4
+)
+```
+
+Nothing survives `q = 0.05` at either level. The pair-level floor is reached at
+`q = 0.15`; note that it is bounded below by `1/R`, so a 17-pair selection
+cannot report a rate under about 0.06 whatever the data say.
+
+```{r selected-pairs}
+show_table(
+  fash_knockoff_selected_pairs(statistics, 0.15),
+  "The pairs selected at q = 0.15. Every one is a published call.",
+  digits = 4
+)
+```
+
+<div class="fk-result">
+These are clean: target evidence of `10^10` to `10^15` against decoy Bayes
+factors of about 1. The permutation does not move them.
+
+They are also concentrated. The
+`r nrow(fash_knockoff_selected_pairs(statistics, 0.15))`
+pairs fall in only
+`r length(unique(fash_knockoff_selected_pairs(statistics, 0.15)$gene_id))`
+genes, and one gene contributes nine of them.
+</div>
+
+## Why the estimated FDR does not fall: the tails are LD-clustered
+
+```{r tails}
+show_table(
+  fash_knockoff_tail_concentration(statistics, c(5, 10, 15, 20, 25)),
+  "Tail counts as pairs and as distinct genes.",
+  digits = 3
+)
+```
+
+<div class="fk-warn">
+Counting genes rather than pairs is the honest way to count independent events,
+and it removes most of the apparent pair-level advantage. At a threshold of 10
+there are **more** decoy genes than target genes. The pair-level estimate at
+`q = 0.15` rests on a single decoy win, so its sampling variability is large;
+collapsed to genes the same threshold gives roughly 0.33 rather than 0.118.
+</div>
+
+## Does a different gene-level statistic help?
+
+Any antisymmetric function of the two Bayes factors fixes the sign pattern, so
+only the ordering of `|W|` can change. Aggregating within a gene by a maximum
+is a difference of two extreme-value variables and is the noisiest choice.
+
+```{r gene-statistics}
+show_table(
+  fash_knockoff_gene_statistic_comparison(statistics, c(0.05, 0.20)),
+  "Five gene-level aggregations of the same pair-level evidence.",
+  digits = 3
+)
+```
+
+Replacing the maximum with a mean roughly doubles the global `t` statistic, so
+the aggregation choice does matter for detecting that signal exists. It does not
+rescue selection: no aggregation reaches `q = 0.05`.
+
+## Diagnostics that had to pass first
+
+```{r gates}
+paths <- fash_knockoff_paths(".")
+show_table(
+  read.csv(file.path(paths$summary, "genotype_covariate_alignment.csv"),
+           check.names = FALSE),
+  "Genotype variance explained by PC1-PC5, both arms, all 16 time points.",
+  digits = 4
+)
+show_table(
+  read.csv(file.path(paths$summary, "uninformative_variant_screen.csv")),
+  "Variants carrying no residual genotype information, by time point and arm.",
+  digits = 0
+)
+```
+
+- **The cached target likelihood rows reproduce exactly** in the environment
+  that computed the decoys: maximum absolute deviation `0` against a scale of
+  13.1, on a 50-unit slice. Target and decoy rows therefore sit on identical
+  numerical footing.
+- **The regression pipeline reproduces the published beta and SE** from raw
+  expression, PC and VCF inputs: maximum deviations `2.8e-13` and `1.6e-12` on
+  a 2,000-pair slice. The decoy is built by the code path that reproduces the
+  target.
+- **The genotype-PC alignment gate is clean.** Mean `R^2` is 0.2847 for the
+  observed genotype and 0.2863 for the permuted genotype, against a chance
+  expectation near `5/18 = 0.278`. Had the observed arm been systematically
+  higher, decoy standard errors would have been deflated and the competition
+  would have been anti-conservative in a way nothing downstream could reveal.
+- **The informativeness screen dropped 23 variants and 37 pairs**, 0.0037% of
+  the total, all on the permuted arm and all at day 4. The screen is applied
+  symmetrically to both arms and depends only on the design, never on an
+  outcome; filtering on the decoy alone would break exchangeability.
+
+## Limitations
+
+- **No claim of finite-sample FDR control.** LD and shared-gene dependence
+  across units are real, and the gene-level maximum only removes the
+  within-gene part. This is an empirical calibration check.
+- **A single permutation.** One realisation, not an average, so accidental
+  alignment at 19 donors cannot cancel. This is why the alignment gate above
+  matters. Repeating with further seeds is a stability check, not an average.
+- **Cell-line missingness is not specially handled.** Three time points are
+  incomplete: day 2 and day 4 have 16 donors, day 13 has 18. At those points
+  the target uses the genotypes of the donors present while the decoy uses the
+  genotypes of a *different* subset, so the two arms do not use the same dosage
+  multiset. Measured, the decoy's median residual genotype sum of squares is
+  0.9916 of the target's at those three points against 0.9980 elsewhere: a
+  roughly 1% asymmetry, in the conservative direction, at 3 of 16 time points.
+  A permutation restricted to matching observation patterns would remove it,
+  but the four patterns have sizes 13, 3, 2 and 1, so the singleton donor would
+  be frozen and would leak real signal into the decoy for every variant. The
+  current scheme is the lesser distortion, but it is an approximation.
+- **Anything conditioned on the published calls is circular** and is reported
+  here only as description.
+
+## Reproduction
+
+Code lives in `code/revision_simulations/internal/fash_knockoff/`. The analysis
+ran on Midway3 under R 4.4.1 and `fashr` 0.1.43
+(`bf223df75da6e41ae48607a56b4cd12d7c3b24e7`); the decoy likelihood took 4.34
+hours on 32 cores.
+
+```
+sbatch slurm/18_fash_knockoff.sbatch
+```
+
+```{r session}
+sessionInfo()
+```

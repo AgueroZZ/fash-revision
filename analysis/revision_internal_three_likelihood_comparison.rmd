@@ -1,0 +1,291 @@
+---
+title: "Internal: diagonal, common-C and per-unit likelihoods on one panel"
+author: "Ziang Zhang"
+date: "2026-08-23"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, fig.width = 10, fig.height = 5.6, dpi = 180,
+  fig.retina = 2, fig.align = "center", message = FALSE, warning = FALSE
+)
+suppressPackageStartupMessages({library(dplyr); library(ggplot2); library(knitr)})
+cache <- "output/revision_simulations/internal/correlated_permutation_discoveries"
+u <- read.csv(file.path(cache, "three_likelihood_units.csv"), stringsAsFactors = FALSE)
+fits <- readRDS(file.path(cache, "three_likelihood_fits.rds"))
+alpha <- 0.05
+call_set <- function(l, k) { o <- order(l, method = "radix")
+  k[o[cumsum(l[o]) / seq_along(o) <= alpha]] }
+sets <- list(diagonal = call_set(u$diagonal_bf_lfdr, u$pair_key),
+             common   = call_set(u$common_bf_lfdr,   u$pair_key),
+             per_unit = call_set(u$per_unit_bf_lfdr,  u$pair_key))
+u$cond <- vapply(fits$per_unit_C, function(C) {
+  e <- eigen(C, symmetric = TRUE, only.values = TRUE)$values; max(e)/min(e) }, numeric(1))
+```
+
+<style>
+.tl-banner { margin: 1.2em 0 1.5em; padding: 1em 1.15em; border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441; border-radius: 4px; background: #fff8e8; color: #4a3b1c; }
+.tl-result { margin: 1.2em 0 1.5em; padding: 1em 1.15em; border-left: 6px solid #0072b2;
+  border-radius: 4px; background: #eef7fc; color: #173f54; }
+.tl-caution { margin: 1.2em 0 1.5em; padding: 1em 1.15em; border-left: 6px solid #d55e00;
+  border-radius: 4px; background: #fff4ec; color: #59331e; }
+</style>
+
+<div class="tl-banner">
+**Internal, unlinked.** Three observation models fitted to one fixed panel of
+1,169 gene-variant pairs, with everything else held identical. The focus is
+whether the corrected fits merely shift lfdr or **reorder** it.
+</div>
+
+## The panel, and why one row of the table is near-tautological
+
+Built from the diagonal full-data BF fit:
+
+1. take its 9,214 calls at cumulative-lfdr `r alpha` — these span 1,176 genes;
+2. keep, in each gene, the variant with the smallest lfdr (verified: all 1,169 are
+   exactly their gene's minimum);
+3. drop 7 genes whose top variant was also another gene's top variant, keeping
+   the smaller-lfdr gene.
+
+Result: **1,169 units, 1,169 genes, 1,169 distinct variants**, one variant per gene.
+
+All three fits use the same units, the same $\hat\beta$, the same t-adjusted
+standard errors, and identical FASH settings (`order = 1`, `penalty = 10`,
+`num_basis = 20`, `betaprec = 0`, `pred_step = 1`, the 52-point PSD grid). Only
+$\Omega$ differs:
+
+- **diagonal** — $S = \mathrm{diag}(se_j)$, the manuscript's likelihood;
+- **common C** — $\Omega_j = D_j^{-1} \bar{C}^{-1} D_j^{-1}$, one shared matrix;
+- **per-unit** — $\Omega_j = D_j^{-1} C_j^{-1} D_j^{-1}$, each unit's own matrix
+  from its own 400 donor-residual-block permutation draws.
+
+<div class="tl-caution">
+**The panel is selected on the outcome, twice over:** on having been discovered,
+and on being the most significant variant within its gene. So the diagonal row
+below, 1,169 of 1,169, is **near-tautological** — these units were chosen because
+the diagonal fit found them significant, so refitting the mixture on only them
+drives $\pi_0$ to 0.003 and calls everything. It is not evidence that the
+diagonal likelihood is well behaved. The only interpretable contrast is
+**per-unit against common**.
+</div>
+
+```{r summary}
+read.csv(file.path(cache, "three_likelihood_summary.csv"), stringsAsFactors = FALSE) %>%
+  filter(stage == "bf") %>%
+  transmute(model, pi0, mean_lfdr, calls,
+            share_called = sprintf("%.1f%%", 100 * calls / nrow(u))) %>%
+  kable(digits = 5, caption = "BF-updated stage. Cumulative-lfdr alpha 0.05 on 1,169 units.")
+```
+
+## lfdr consistency
+
+The diagonal lfdr on this panel is uniformly tiny (median `r sprintf("%.1e", median(u$diagonal_bf_lfdr))`,
+maximum `r sprintf("%.4f", max(u$diagonal_bf_lfdr))`), so both axes are shown on
+$\log_{10}$. Points are coloured by each unit's own lag-1 error autocorrelation,
+the quantity shown previously to drive the reranking.
+
+```{r scatter-main, fig.height = 5.4}
+long <- bind_rows(
+  u %>% transmute(pair_key, diagonal = diagonal_bf_lfdr, corrected = common_bf_lfdr,
+                  lag1 = per_unit_lag1, model = "common C"),
+  u %>% transmute(pair_key, diagonal = diagonal_bf_lfdr, corrected = per_unit_bf_lfdr,
+                  lag1 = per_unit_lag1, model = "per-unit Omega")
+)
+ggplot(long, aes(diagonal, corrected, colour = lag1)) +
+  geom_abline(slope = 1, intercept = 0, colour = "grey55", linetype = "dashed") +
+  geom_point(size = 1.5, alpha = 0.75) +
+  scale_x_log10(labels = scales::label_log()) +
+  scale_y_log10(labels = scales::label_log()) +
+  scale_colour_viridis_c(name = "unit lag-1\nerror autocorr.", option = "C") +
+  facet_wrap(~model) +
+  labs(title = "Corrected lfdr against diagonal lfdr, same 1,169 units",
+       subtitle = "Dashed line is equality. A pure conservatism shift would sit parallel to it; instead both panels are nearly flat,\nmeaning the corrected lfdr carries almost no information about the diagonal lfdr.",
+       x = "diagonal BF lfdr", y = "corrected BF lfdr") +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold"), legend.position = "right")
+```
+
+```{r consistency-table}
+cons <- function(a, b, la, lb) data.frame(
+  comparison = paste(la, "vs", lb),
+  spearman = cor(a, b, method = "spearman"),
+  pearson_log10 = cor(log10(a), log10(b)),
+  mean_abs_difference = mean(abs(a - b)))
+bind_rows(
+  cons(u$per_unit_bf_lfdr, u$diagonal_bf_lfdr, "per-unit", "diagonal"),
+  cons(u$common_bf_lfdr,   u$diagonal_bf_lfdr, "common",   "diagonal"),
+  cons(u$per_unit_bf_lfdr, u$common_bf_lfdr,   "per-unit", "common")
+) %>% kable(digits = 3, caption = "Agreement of the BF-updated lfdr across models.")
+```
+
+<div class="tl-result">
+The corrected fits do **not** simply shift lfdr upward. Against the diagonal
+lfdr, the per-unit lfdr has Spearman `r round(cor(u$per_unit_bf_lfdr, u$diagonal_bf_lfdr, method="spearman"),3)`
+and a $\log_{10}$ Pearson correlation of only
+`r round(cor(log10(u$per_unit_bf_lfdr), log10(u$diagonal_bf_lfdr)),3)` — that is
+**essentially no relationship at all**. The common-C fit is only slightly better
+at `r round(cor(u$common_bf_lfdr, u$diagonal_bf_lfdr, method="spearman"),3)`.
+Even the two corrected fits agree with each other only at
+`r round(cor(u$per_unit_bf_lfdr, u$common_bf_lfdr, method="spearman"),3)`.
+
+Whatever these likelihoods are ranking on, it is largely orthogonal to what the
+diagonal likelihood ranks on, and to each other.
+</div>
+
+## Rank-rank view, and the two corrected fits against each other
+
+```{r scatter-rank, fig.height = 5.4}
+u <- u %>% mutate(across(ends_with("_bf_lfdr"), ~rank(.x), .names = "rank_{.col}"))
+bind_rows(
+  u %>% transmute(x = rank_diagonal_bf_lfdr, y = rank_per_unit_bf_lfdr,
+                  lag1 = per_unit_lag1, panel = "per-unit rank vs diagonal rank"),
+  u %>% transmute(x = rank_common_bf_lfdr, y = rank_per_unit_bf_lfdr,
+                  lag1 = per_unit_lag1, panel = "per-unit rank vs common rank")
+) %>%
+  ggplot(aes(x, y, colour = lag1)) +
+  geom_abline(slope = 1, intercept = 0, colour = "grey55", linetype = "dashed") +
+  geom_point(size = 1.4, alpha = 0.7) +
+  scale_colour_viridis_c(name = "unit lag-1", option = "C") +
+  facet_wrap(~panel) +
+  labs(title = "Scale-free view: rank of lfdr, 1 = most significant",
+       subtitle = "Near-total diffusion. Colour shows each unit's error autocorrelation; note that no gradient is visible, which is itself the point below.",
+       x = "rank under the reference model", y = "rank under the per-unit model") +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+```{r overlap}
+j <- function(a, b) length(intersect(a, b)) / length(union(a, b))
+data.frame(
+  pair = c("per-unit & diagonal", "common & diagonal", "per-unit & common"),
+  n_a = c(length(sets$per_unit), length(sets$common), length(sets$per_unit)),
+  n_b = c(length(sets$diagonal), length(sets$diagonal), length(sets$common)),
+  intersection = c(length(intersect(sets$per_unit, sets$diagonal)),
+                   length(intersect(sets$common, sets$diagonal)),
+                   length(intersect(sets$per_unit, sets$common))),
+  jaccard = c(j(sets$per_unit, sets$diagonal), j(sets$common, sets$diagonal),
+              j(sets$per_unit, sets$common)),
+  a_nested_in_b = c(all(sets$per_unit %in% sets$diagonal),
+                    all(sets$common %in% sets$diagonal),
+                    all(sets$per_unit %in% sets$common))
+) %>% kable(digits = 3, caption = "Call-set overlap at cumulative-lfdr 0.05.")
+```
+
+`common` is nested in `diagonal`, and `per_unit` is nested in `diagonal`, but
+**`per_unit` is not nested in `common`**: `r sum(!(sets$per_unit %in% sets$common))`
+of its `r length(sets$per_unit)` calls are not common calls. The per-unit
+likelihood is reordering relative to the common one, not just tightening it.
+
+## What drives the reranking
+
+```{r lag1-vs-lfdr, fig.height = 4.6}
+bind_rows(
+  u %>% transmute(lag1 = per_unit_lag1, lfdr = diagonal_bf_lfdr, model = "diagonal"),
+  u %>% transmute(lag1 = per_unit_lag1, lfdr = common_bf_lfdr,   model = "common C"),
+  u %>% transmute(lag1 = per_unit_lag1, lfdr = per_unit_bf_lfdr, model = "per-unit Omega")
+) %>% mutate(model = factor(model, c("diagonal", "common C", "per-unit Omega"))) %>%
+  ggplot(aes(lag1, lfdr)) +
+  geom_point(size = 1.2, alpha = 0.5, colour = "#0072B2") +
+  geom_smooth(method = "loess", se = FALSE, colour = "#B2182B", linewidth = 0.9) +
+  scale_y_log10() + facet_wrap(~model, scales = "free_y") +
+  labs(title = "lfdr against the unit's own error autocorrelation",
+       subtitle = "The diagonal fit finds high-correlation units MORE significant; the corrections push against that, and overshoot.",
+       x = "unit lag-1 error autocorrelation", y = "BF lfdr") +
+  theme_minimal(base_size = 11) + theme(plot.title = element_text(face = "bold"))
+```
+
+```{r lag1-table}
+u$min_eig <- vapply(fits$per_unit_C, function(C)
+  min(eigen(C, symmetric = TRUE, only.values = TRUE)$values), numeric(1))
+u$logdet <- vapply(fits$per_unit_C, function(C)
+  determinant(C, logarithm = TRUE)$modulus, numeric(1))
+predictors <- c("per_unit_lag1", "cond", "min_eig", "logdet", "diagonal_full_lfdr")
+do.call(rbind, lapply(predictors, function(v) data.frame(
+  predictor = v,
+  diagonal = cor(u$diagonal_bf_lfdr, u[[v]], method = "spearman"),
+  common_C = cor(u$common_bf_lfdr,   u[[v]], method = "spearman"),
+  per_unit = cor(u$per_unit_bf_lfdr, u[[v]], method = "spearman")
+))) %>% kable(digits = 3,
+  caption = "Spearman correlation of each model's lfdr with candidate explanators. For the error autocorrelation, negative means a more correlated unit looks more significant.")
+```
+
+The diagonal fit is **negatively** associated with a unit's error correlation
+(`r round(cor(u$diagonal_bf_lfdr, u$per_unit_lag1, method="spearman"),3)`): the
+more correlated a unit's errors, the more significant it looks. That is the
+expected direction if correlated errors inflate apparent smooth signal, and it is
+independent evidence that the diagonal likelihood is affected. It is also
+associated with the conditioning of that unit's matrix.
+
+The **common-C** fit flips every one of those signs, which is what a correction
+should do: it pushes back against exactly the units the diagonal fit was most
+liable to over-call.
+
+<div class="tl-caution">
+The **per-unit** fit does neither. Its lfdr is essentially uncorrelated with all
+five candidates — error autocorrelation
+`r sprintf("%+.3f", cor(u$per_unit_bf_lfdr, u$per_unit_lag1, method="spearman"))`,
+condition number `r sprintf("%+.3f", cor(u$per_unit_bf_lfdr, u$cond, method="spearman"))`,
+minimum eigenvalue `r sprintf("%+.3f", cor(u$per_unit_bf_lfdr, u$min_eig, method="spearman"))`,
+log-determinant `r sprintf("%+.3f", cor(u$per_unit_bf_lfdr, u$logdet, method="spearman"))`,
+and the full-data diagonal lfdr
+`r sprintf("%+.3f", cor(u$per_unit_bf_lfdr, u$diagonal_full_lfdr, method="spearman"))`.
+
+So the per-unit ordering is not explained by the strength of the unit's error
+correlation, nor by how badly conditioned its matrix is, nor by how strong its
+signal looked originally. **We cannot presently attribute it to anything**, and
+an ordering with no identifiable driver is not one to trust. This is a stronger
+reason for caution than the conservatism itself.
+</div>
+
+## Why the per-unit fit is so conservative
+
+```{r conditioning}
+data.frame(
+  quantity = c("common C condition number",
+               "per-unit condition number, median",
+               "per-unit condition number, 90th percentile",
+               "condition number expected from sampling noise alone",
+               "free residual dimensions per day (19 or 16 donors minus rank-6 covariates)"),
+  value = c(sprintf("%.1f", {e <- eigen(fits$common_C, symmetric = TRUE, only.values = TRUE)$values; max(e)/min(e)}),
+            sprintf("%.1f", median(u$cond)), sprintf("%.1f", quantile(u$cond, 0.9)),
+            "18.9 (90% range 16.1-22.2)", "10 to 13")
+) %>% kable(caption = "The per-unit matrices are genuinely, reproducibly ill-conditioned.")
+```
+
+<div class="tl-caution">
+The per-unit matrices are **not** noisy — split-half reproducibility of their
+minimum eigenvalue is 0.93 and of their lag-1 is 0.98. They are genuinely
+near-singular, because after projecting out the intercept and five PCs each day
+leaves only 10 to 13 free donor dimensions to support 16 time points. Inverting
+such a matrix puts enormous precision on directions the data barely constrain,
+and the common matrix escapes this only because averaging over hundreds of units
+acts as regularisation.
+
+So the 118-call result should not yet be read as sharper inference. The
+diagnostic that would separate "genuine per-unit structure" from "near-singular
+directions" is a **regularised** per-unit fit, shrinking each $C_j$ until its
+condition number matches the common matrix. That has not been run.
+</div>
+
+## Boundaries
+
+<div class="tl-banner">
+- The panel is outcome-selected. No $\pi_0$ or call count here is an FDR
+  statement, and the diagonal row is near-tautological by construction.
+- Two orthogonal checks run separately — Hallmark gene sets and Strober
+  corroboration — were flat across all three sets, so there is no external
+  evidence that any of these orderings is the better one.
+- The near-singularity of the per-unit matrices is unresolved, so the per-unit
+  column is a diagnostic, not a proposed analysis.
+- Nothing here is a manuscript claim.
+</div>
+
+```{r session}
+sessionInfo()
+```
