@@ -36,9 +36,9 @@ These pages collect simulations and analyses added during the revision process.
 
 + [Revision Real-data Sensitivity R5: one random variant per gene](revision_balanced_variant_thinning.html)
 
-+ [Revision Real-data Analysis R6: enhancer enrichment of FASH dynamic eQTLs](revision_enhancer_enrichment.html) ([CL version](revision_enhancer_enrichment_cl.html))
++ [Revision Real-data Analysis R6: enhancer enrichment of FASH dynamic eQTLs](revision_enhancer_enrichment.html)
 
-+ [Revision Real-data Analysis R7: matched FASH-linear comparison](revision_internal_matched_fash_linear_real_data.html) ([CL version](revision_internal_matched_fash_linear_real_data_cl.html))
++ [Revision Real-data Analysis R7: matched FASH-linear comparison](revision_internal_matched_fash_linear_real_data.html)
 
 **Revision apps:**
 
