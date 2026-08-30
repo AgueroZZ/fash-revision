@@ -11,7 +11,7 @@
 
 <meta name="author" content="Ziang Zhang" />
 
-<meta name="date" content="2026-08-21" />
+<meta name="date" content="2026-08-29" />
 
 <title>Revision Real-data Analysis R7: matched FASH-linear comparison</title>
 
@@ -366,7 +366,7 @@ div.tocify {
 <h1 class="title toc-ignore">Revision Real-data Analysis R7: matched
 FASH-linear comparison</h1>
 <h4 class="author">Ziang Zhang</h4>
-<h4 class="date">2026-08-21</h4>
+<h4 class="date">2026-08-29</h4>
 
 </div>
 
@@ -395,13 +395,13 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2026-08-21
+<strong>Last updated:</strong> 2026-08-29
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 5
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 2
+aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>coderepo-local/</code> <span
@@ -433,10 +433,10 @@ changes </a>
 <div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown is untracked by Git. To know which version of the R
-Markdown file created these results, you’ll want to first commit it to
-the Git repo. If you’re still working on the analysis, you can ignore
-this warning. When you’re finished, you can run
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
 <code>wflow_publish</code> to commit the R Markdown file and build the
 HTML.</p>
 </div>
@@ -445,616 +445,17 @@ HTML.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongobjectspresent">
-<span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> <strong>Environment:</strong> objects present
-</a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
 </p>
 </div>
-<div id="strongEnvironmentstrongobjectspresent"
-class="panel-collapse collapse">
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
 <div class="panel-body">
-<p>
-The global environment had objects present when the code in the R
-Markdown file was run. These objects can affect the analysis in your R
-Markdown file in unknown ways. For reproduciblity it’s best to always
-run the code in an empty environment. Use <code>wflow_publish</code> or
-<code>wflow_build</code> to ensure that the code is always run in an
-empty environment.
-</p>
-<p>
-The following objects were defined in the global environment when these
-results were created:
-</p>
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th style="text-align:left;">
-Name
-</th>
-<th style="text-align:left;">
-Class
-</th>
-<th style="text-align:left;">
-Size
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-analysis_id
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-152 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-cache
-</td>
-<td style="text-align:left;">
-list
-</td>
-<td style="text-align:left;">
-5.9 Mb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-cache_path
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-264 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-configuration
-</td>
-<td style="text-align:left;">
-list
-</td>
-<td style="text-align:left;">
-3.9 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-current_fit_md5
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-256 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-current_input_md5
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-1 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-current_overlap_input_md5
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-672 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-discovery_counts
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-1.9 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-discovery_counts_display
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-1.7 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-expected_cache_fields
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-1 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-expected_discovery_rows
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-1.6 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-expected_fit_md5
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-256 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-expected_grid
-</td>
-<td style="text-align:left;">
-numeric
-</td>
-<td style="text-align:left;">
-464 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-expected_iwp1_linear
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-1.6 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-expected_iwp2_linear
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-1.6 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-expected_methods
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-352 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-expected_overlap_fields
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-496 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-expected_units
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-280 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-extracted
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-232 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-find_workflowr_root_reporting
-</td>
-<td style="text-align:left;">
-function
-</td>
-<td style="text-align:left;">
-22.4 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-fit_paths
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-784 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-format_decimal_matched
-</td>
-<td style="text-align:left;">
-function
-</td>
-<td style="text-align:left;">
-1.1 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-format_directional_overlap_matched
-</td>
-<td style="text-align:left;">
-function
-</td>
-<td style="text-align:left;">
-32.9 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-format_integer_matched
-</td>
-<td style="text-align:left;">
-function
-</td>
-<td style="text-align:left;">
-1.3 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-iwp_bf_counts
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-1.6 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-iwp_linear_overlap
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-1.6 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-iwp1_linear_proportion_display
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-1.6 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-iwp2_linear_proportion_display
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-1.6 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-linear_bf_counts
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-1.6 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-linear_bf_path
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-264 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-linear_raw_path
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-264 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-matched_settings_table
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-4.4 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-observed_discovery_rows
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-1.6 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-output_directory
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-248 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-overlap_cache
-</td>
-<td style="text-align:left;">
-list
-</td>
-<td style="text-align:left;">
-9.2 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-overlap_cache_path
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-272 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-package_display
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-1.6 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-package_provenance
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-1.9 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-page
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-168 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-pages
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-256 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-pairwise_overlap
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-3.2 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-prior_weights
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-13.3 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-render_scrollable_table_matched
-</td>
-<td style="text-align:left;">
-function
-</td>
-<td style="text-align:left;">
-8.7 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-require_reporting_package_matched
-</td>
-<td style="text-align:left;">
-function
-</td>
-<td style="text-align:left;">
-9.2 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-required_paths
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-1.1 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-run_status
-</td>
-<td style="text-align:left;">
-list
-</td>
-<td style="text-align:left;">
-1.9 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-run_status_path
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-264 bytes
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-runtime_summary
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-1 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-validation
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-2.1 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-venn_region_counts
-</td>
-<td style="text-align:left;">
-data.frame
-</td>
-<td style="text-align:left;">
-3.7 Kb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-venn_sets
-</td>
-<td style="text-align:left;">
-list
-</td>
-<td style="text-align:left;">
-5.8 Mb
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-workflowr_root
-</td>
-<td style="text-align:left;">
-character
-</td>
-<td style="text-align:left;">
-168 bytes
-</td>
-</tr>
-</tbody>
-</table>
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
 </div>
 </div>
 </div>
@@ -1128,15 +529,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree6061f3f75ba9103b86843a28c99e8b14158f8c85targetblank6061f3fa">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/6061f3f75ba9103b86843a28c99e8b14158f8c85" target="_blank">6061f3f</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreec87957a3ad804114d9ad640ec7751d9261758ffbtargetblankc87957aa"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree6061f3f75ba9103b86843a28c99e8b14158f8c85targetblank6061f3fa"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -1146,7 +547,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/AgueroZZ/fash-revision/tree/c87957a3ad804114d9ad640ec7751d9261758ffb" target="_blank">c87957a</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/6061f3f75ba9103b86843a28c99e8b14158f8c85" target="_blank">6061f3f</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -1178,68 +579,27 @@ Ignored files:
     Ignored:    output/pdf/
     Ignored:    output/playwright/
     Ignored:    output/revision_simulations/
+    Ignored:    scripts/
 
 Untracked files:
-    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd
-    Untracked:  analysis/revision_internal_evaluation_grid_mc_sensitivity_middle_4_11.rmd
-    Untracked:  analysis/revision_internal_fash_cl_manuscript_impact.rmd
-    Untracked:  analysis/revision_internal_fash_discovery_variant_count.rmd
-    Untracked:  analysis/revision_internal_fash_linear_real_data_ablation.rmd
-    Untracked:  analysis/revision_internal_fashr_correlated_observation_model.rmd
-    Untracked:  analysis/revision_internal_matched_fash_linear_real_data.rmd
-    Untracked:  analysis/revision_internal_r1_normality_assumption.rmd
-    Untracked:  analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd
-    Untracked:  analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd
-    Untracked:  analysis/revision_internal_twenty_variant_per_gene_refit.rmd
-    Untracked:  apps/
-    Untracked:  code/02_dyn_lfsr.R
-    Untracked:  code/02_dyn_lfsr.sbatch
-    Untracked:  code/revision_simulations/internal/covariance_estimation/run_design_propagated_null_correlation.R
-    Untracked:  code/revision_simulations/internal/covariance_estimation/run_multigene_null_beta_covariance_exploration.R
-    Untracked:  code/revision_simulations/internal/early_window_sensitivity/
-    Untracked:  code/revision_simulations/internal/evaluation_grid_sensitivity/
-    Untracked:  code/revision_simulations/internal/fash_cl_manuscript_impact/
-    Untracked:  code/revision_simulations/internal/fash_discovery_variant_count/
-    Untracked:  code/revision_simulations/internal/fash_linear_real_data_ablation/
-    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data/
-    Untracked:  code/revision_simulations/internal/r0_linear_iwp_power_mechanism/
-    Untracked:  code/revision_simulations/internal/r0_linear_summary_statistic/
-    Untracked:  code/revision_simulations/internal/r1_known_truth_genotype_permutation/
-    Untracked:  code/revision_simulations/internal/r1_linear_truth_composition/
-    Untracked:  code/revision_simulations/internal/r1_normality_assumption/
-    Untracked:  code/revision_simulations/internal/residual_correlation_fash/
-    Untracked:  code/revision_simulations/internal/selected_signal_genotype_permutation/
-    Untracked:  code/revision_simulations/r5_one_variant_per_gene/
-    Untracked:  code/revision_simulations/shared/build_real_genotype_one_per_gene_cache.R
-    Untracked:  code/revision_simulations/shared/real_genotype_one_per_gene.R
-    Untracked:  code/revision_simulations/shared/test_linear_mixture_fash.R
-    Untracked:  code/revision_simulations/shared/test_real_genotype_one_per_gene.R
-    Untracked:  code/revision_simulations/shared/validate_r1_r2_linear_mixture_pairing.R
-    Untracked:  code/revision_simulations/shared/validate_r1_r2_real_genotype_pairing.R
-    Untracked:  figure/
+    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data/scoped_shared_provenance.R
+    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data/test_scoped_shared_provenance.R
+    Untracked:  code/revision_simulations/internal/per_unit_enhancer_enrichment/
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/diagnose_discordant_calls.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/diagnose_smooth_mismatch.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/extract_perunit_lfdr.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_call_venns.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_class_variograms.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_day0_day1_distribution.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_mechanism_summary.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_perunit_variogram.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_strober_concordance.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_three_models.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/prepare_reference_sets.R
 
 Unstaged changes:
-    Modified:   analysis/dynamic_eQTL_real.rmd
-    Modified:   analysis/index.Rmd
-    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
-    Modified:   analysis/revision_balanced_variant_thinning.rmd
-    Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
-    Modified:   analysis/revision_enhancer_enrichment.rmd
-    Modified:   analysis/revision_functional_testing_simulation.rmd
-    Modified:   analysis/revision_genotype_level_simulation.rmd
-    Modified:   code/revision_simulations/README.md
-    Modified:   code/revision_simulations/internal/covariance_estimation/run_global_pca_factor_visualization.R
-    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/enrichment_api.R
-    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/reporting.R
-    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/run_fash_strober_enhancer_comparison.R
-    Modified:   code/revision_simulations/r1_random_bspline/reporting.R
-    Modified:   code/revision_simulations/r1_random_bspline/run_random_bspline_mc_replication.R
-    Modified:   code/revision_simulations/r2_spiky_transient/reporting.R
-    Modified:   code/revision_simulations/r2_spiky_transient/run_combined_spiky_genotype_simulation.R
-    Modified:   code/revision_simulations/r2_spiky_transient/run_spiky_transient_mc_replication.R
-    Modified:   code/revision_simulations/r3_functional_testing/reporting.R
-    Modified:   code/revision_simulations/r3_functional_testing/run_matched_functional_testing_mc_replication.R
-    Modified:   code/revision_simulations/shared/simulation_functions.R
+    Modified:   analysis/revision_internal_matched_fash_linear_real_data.rmd
+    Modified:   code/revision_simulations/internal/matched_fash_linear_real_data/reporting.R
 
 </code></pre>
 <p>
@@ -1255,9 +615,74 @@ have uncommitted changes.
 </div>
 <div id="versions" class="tab-pane fade">
 <p>
-There are no past versions. Publish this analysis with
-<code>wflow_publish()</code> to start tracking its development.
+These are the previous versions of the repository in which changes were
+made to the R Markdown
+(<code>analysis/revision_internal_matched_fash_linear_real_data.rmd</code>)
+and HTML
+(<code>docs/revision_internal_matched_fash_linear_real_data.html</code>)
+files. If you’ve configured a remote Git repository (see
+<code>?wflow_git_remote</code>), click on the hyperlinks in the table
+below to view the files as they were in that past version.
 </p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/analysis/revision_internal_matched_fash_linear_real_data.rmd" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+<td>
+Sync revision analyses and rendered pages
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/09f63bc8536029c4816632f041b3afd85ffc523c/docs/revision_internal_matched_fash_linear_real_data.html" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+<td>
+Sync revision analyses and rendered pages
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 <hr>
 </div>
 </div>
@@ -1920,6 +1345,43 @@ linear, BF-adjusted FASH-IWP1, and BF-adjusted FASH-linear. FASH sets
 use cumulative-lfdr FDR 0.05; Strober sets use eFDR 0.05.
 </p>
 </div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-venn-pairs-1">
+Past versions of venn-pairs-1.png
+</button>
+</p>
+<div id="fig-venn-pairs-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_internal_matched_fash_linear_real_data.rmd/venn-pairs-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>gene_sets &lt;- list(
   `Strober quad.` = venn_sets$Genes$`Strober quadratic`,
   `Strober linear` = venn_sets$Genes$`Strober linear`,
@@ -1947,6 +1409,43 @@ Figure 2. Gene-level overlap among Strober quadratic, Strober linear,
 BF-adjusted FASH-IWP1, and BF-adjusted FASH-linear. A gene enters a set
 when at least one of its tested variants is discovered by that method.
 </p>
+</div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-venn-genes-1">
+Past versions of venn-genes-1.png
+</button>
+</p>
+<div id="fig-venn-genes-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_internal_matched_fash_linear_real_data.rmd/venn-genes-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <pre class="r"><code>variant_sets &lt;- list(
   `Strober quad.` = venn_sets$Variants$`Strober quadratic`,
@@ -1976,6 +1475,43 @@ linear, BF-adjusted FASH-IWP1, and BF-adjusted FASH-linear. Each rsID is
 counted once per method, regardless of the number of associated genes.
 </p>
 </div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-venn-variants-1">
+Past versions of venn-variants-1.png
+</button>
+</p>
+<div id="fig-venn-variants-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_internal_matched_fash_linear_real_data.rmd/venn-variants-1.png" target="_blank">09f63bc</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>The BF-adjusted IWP1–linear intersections are 8,530 pairs, 1,112
 genes, and 8,468 unique variants. These are real-data set comparisons,
 not known-truth power comparisons.</p>
@@ -1983,7 +1519,10 @@ not known-truth power comparisons.</p>
 <div id="reproducibility-and-validation" class="section level2">
 <h2>Reproducibility and validation</h2>
 <p>The page reads the versioned cache and does not refit the
-million-pair model.</p>
+million-pair model. The reporting gate retains byte-level checks for
+every R7-specific input and compares the complete shared-function
+dependency closure used by R7 against the frozen source snapshot whose
+MD5 is recorded in the cache.</p>
 <pre class="bash"><code>OMP_NUM_THREADS=1 \
 OPENBLAS_NUM_THREADS=1 \
 MKL_NUM_THREADS=1 \
@@ -2175,6 +1714,14 @@ single_process_single_thread_configuration
 TRUE
 </td>
 </tr>
+<tr>
+<td style="text-align:left;">
+current_scoped_shared_function_provenance
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -2245,25 +1792,29 @@ tzcode source: internal
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
+other attached packages:
+[1] workflowr_1.7.2
+
 loaded via a namespace (and not attached):
- [1] jsonlite_2.0.0      gtable_0.3.6        dplyr_1.1.4        
- [4] compiler_4.5.1      promises_1.5.0      tidyselect_1.2.1   
- [7] Rcpp_1.1.1-1.1      git2r_0.36.2        stringr_1.6.0      
-[10] dichromat_2.0-0.1   jquerylib_0.1.4     later_1.4.4        
-[13] scales_1.4.0        yaml_2.3.12         fastmap_1.2.0      
-[16] ggVennDiagram_1.5.4 ggplot2_4.0.3       R6_2.6.1           
-[19] labeling_0.4.3      generics_0.1.4      workflowr_1.7.2    
-[22] knitr_1.50          tibble_3.3.0        rprojroot_2.1.1    
-[25] bslib_0.9.0         pillar_1.11.1       RColorBrewer_1.1-3 
-[28] rlang_1.2.0         cachem_1.1.0        stringi_1.8.9      
-[31] httpuv_1.6.16       xfun_0.55           sass_0.4.10        
-[34] fs_1.6.6            S7_0.2.2            otel_0.2.0         
-[37] cli_3.6.6           withr_3.0.3         magrittr_2.0.5     
-[40] digest_0.6.39       grid_4.5.1          rstudioapi_0.17.1  
-[43] lifecycle_1.0.5     vctrs_0.7.3         evaluate_1.0.5     
-[46] glue_1.8.1          whisker_0.4.1       farver_2.1.2       
-[49] rmarkdown_2.30      tools_4.5.1         pkgconfig_2.0.3    
-[52] htmltools_0.5.9    </code></pre>
+ [1] sass_0.4.10         generics_0.1.4      stringi_1.8.9      
+ [4] digest_0.6.39       magrittr_2.0.5      evaluate_1.0.5     
+ [7] grid_4.5.1          RColorBrewer_1.1-3  fastmap_1.2.0      
+[10] rprojroot_2.1.1     jsonlite_2.0.0      processx_3.8.6     
+[13] whisker_0.4.1       ps_1.9.1            promises_1.5.0     
+[16] httr_1.4.7          scales_1.4.0        codetools_0.2-20   
+[19] jquerylib_0.1.4     cli_3.6.6           rlang_1.2.0        
+[22] withr_3.0.3         cachem_1.1.0        yaml_2.3.12        
+[25] otel_0.2.0          tools_4.5.1         dplyr_1.1.4        
+[28] ggplot2_4.0.3       httpuv_1.6.16       vctrs_0.7.3        
+[31] R6_2.6.1            lifecycle_1.0.5     git2r_0.36.2       
+[34] stringr_1.6.0       fs_1.6.6            pkgconfig_2.0.3    
+[37] callr_3.7.6         pillar_1.11.1       bslib_0.9.0        
+[40] later_1.4.4         gtable_0.3.6        glue_1.8.1         
+[43] Rcpp_1.1.1-1.1      xfun_0.55           tibble_3.3.0       
+[46] tidyselect_1.2.1    rstudioapi_0.17.1   knitr_1.50         
+[49] dichromat_2.0-0.1   farver_2.1.2        htmltools_0.5.9    
+[52] rmarkdown_2.30      labeling_0.4.3      ggVennDiagram_1.5.4
+[55] compiler_4.5.1      getPass_0.2-4       S7_0.2.2           </code></pre>
 </div>
 </div>
 </div>

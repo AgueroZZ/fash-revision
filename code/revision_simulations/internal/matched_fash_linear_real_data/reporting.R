@@ -27,6 +27,16 @@ invisible(lapply(
 ))
 
 workflowr_root <- find_workflowr_root_reporting()
+scoped_provenance_helper_path <- file.path(
+  workflowr_root,
+  "code", "revision_simulations", "internal",
+  "matched_fash_linear_real_data", "scoped_shared_provenance.R"
+)
+if (!file.exists(scoped_provenance_helper_path)) {
+  stop("The R7 scoped shared-provenance helper is missing.")
+}
+source(scoped_provenance_helper_path)
+
 analysis_id <- "matched_fash_linear_real_data_fashr_0_1_43"
 output_directory <- file.path(
   workflowr_root,
@@ -110,11 +120,39 @@ if (anyNA(expected_fit_md5) || !identical(current_fit_md5, expected_fit_md5)) {
   stop("A retained FASH-linear fit changed after the cache was created.")
 }
 
-current_input_md5 <- unname(tools::md5sum(cache$input_provenance$path))
-if (anyNA(current_input_md5) ||
-    !identical(current_input_md5, cache$input_provenance$md5)) {
+shared_input_index <- match(
+  "shared_functions",
+  cache$input_provenance$label
+)
+if (is.na(shared_input_index) ||
+    anyDuplicated(cache$input_provenance$label)) {
+  stop("The matched FASH-linear input provenance labels are invalid.")
+}
+strict_input_indices <- setdiff(
+  seq_len(nrow(cache$input_provenance)),
+  shared_input_index
+)
+current_strict_input_md5 <- unname(tools::md5sum(
+  cache$input_provenance$path[strict_input_indices]
+))
+if (anyNA(current_strict_input_md5) ||
+    !identical(
+      current_strict_input_md5,
+      cache$input_provenance$md5[strict_input_indices]
+    )) {
   stop("A matched FASH-linear input changed after the rerun.")
 }
+
+historical_shared_snapshot_path <- file.path(
+  workflowr_root,
+  "code", "revision_simulations", "r3_r4_fashr0143", "source_snapshots",
+  "r4_simulation_functions.R"
+)
+scoped_shared_provenance <- validate_matched_r7_scoped_shared_provenance(
+  historical_path = historical_shared_snapshot_path,
+  current_path = cache$input_provenance$path[[shared_input_index]],
+  recorded_md5 = cache$input_provenance$md5[[shared_input_index]]
+)
 
 validation <- cache$validation
 if (!is.data.frame(validation) ||
@@ -123,6 +161,15 @@ if (!is.data.frame(validation) ||
     any(!validation$passed)) {
   stop("The retained matched FASH-linear validation did not pass.")
 }
+validation <- rbind(
+  validation,
+  data.frame(
+    check = "current_scoped_shared_function_provenance",
+    passed = isTRUE(scoped_shared_provenance$passed),
+    stringsAsFactors = FALSE
+  )
+)
+rownames(validation) <- NULL
 
 package_provenance <- cache$package_provenance
 matched_settings_table <- cache$matched_settings_table

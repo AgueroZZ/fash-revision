@@ -1,7 +1,7 @@
 ---
 title: "Revision Real-data Analysis R7: matched FASH-linear comparison"
 author: "Ziang Zhang"
-date: "2026-08-21"
+date: "2026-08-29"
 output:
   workflowr::wflow_html:
     code_folding: hide
@@ -292,6 +292,9 @@ comparisons.
 ## Reproducibility and validation
 
 The page reads the versioned cache and does not refit the million-pair model.
+The reporting gate retains byte-level checks for every R7-specific input and
+compares the complete shared-function dependency closure used by R7 against the
+frozen source snapshot whose MD5 is recorded in the cache.
 
 ```{bash reproduction-command, eval=FALSE}
 OMP_NUM_THREADS=1 \
