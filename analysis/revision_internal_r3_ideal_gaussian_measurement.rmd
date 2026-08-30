@@ -1,0 +1,330 @@
+---
+title: "Internal R3 diagnostic: ideal-Gaussian effect estimates with fixed adjusted SE"
+author: "Ziang Zhang"
+date: "2026-08-27"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 10,
+  fig.height = 8,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE
+)
+project_root <- if (file.exists(
+  "code/revision_simulations/shared/simulation_functions.R"
+)) {
+  "."
+} else if (file.exists(
+  "../code/revision_simulations/shared/simulation_functions.R"
+)) {
+  ".."
+} else {
+  stop("Could not locate the workflowr project root.")
+}
+source(file.path(
+  project_root,
+  "code", "revision_simulations", "shared", "simulation_functions.R"
+))
+source(file.path(
+  project_root,
+  "code", "revision_simulations", "shared", "real_genotype_one_per_gene.R"
+))
+source(file.path(
+  project_root,
+  "code", "revision_simulations", "internal",
+  "r3_ideal_gaussian_measurement", "reporting.R"
+))
+```
+
+This is an internal analysis record and is not linked from the workflowr index.
+
+## Question
+
+The broad random B-spline simulation in R3 shows increasing Middle empirical
+false sign rate (FSR) above the nominal level after approximately
+$\alpha=0.05$. The current R3 observation pipeline simulates individual-level
+expression, fits a separate genotype regression at each time point, and maps
+the resulting t-based standard errors onto a normal scale. Does the same
+pattern remain when the summary statistics follow the Gaussian likelihood used
+by FASH exactly?
+
+## Fixed comparison
+
+The comparison changes one layer only:
+
+1. Regenerate the current R3 genotype sample, covariates, true effect curves,
+   individual-level expression, regressions, and final t-adjusted standard
+   errors from the same frozen component seeds.
+2. Treat the regenerated final adjusted standard-error matrix as fixed and
+   known.
+3. Draw a new effect estimate directly from the ideal Gaussian observation
+   model below, using a separate deterministic seed and iid errors across units
+   and time points.
+4. Apply the same IWP1 Raw and BF-adjusted fits, common posterior samples,
+   full-universe functional testing, and alpha grid used by the current R3 page.
+
+Both truth mechanisms use five seeds and 6,362 units per seed. Broad random
+B-spline truth is the primary diagnostic; compact raised-cosine truth is the
+same-design control. The truth definitions, class counts, relative clearance
+margins, open Middle interval $3<t<12$, and all FASH settings are unchanged.
+Early/Middle/Late probabilities are `0.29/0.42/0.29`, giving exact location
+counts `369/534/369`; the six location-by-switch cells contain
+`185/184/267/267/185/184` dynamic units.
+
+```{r fixed-design-table}
+fixed_design <- data.frame(
+  Feature = c(
+    "Units per seed",
+    "Seeds",
+    "Truth mechanisms",
+    "Early/Middle/Late counts",
+    "Middle definition",
+    "Candidate universe",
+    "FASH version",
+    "Adjusted-SE role"
+  ),
+  Value = c(
+    format(ideal_configuration$J, big.mark = ","),
+    paste(ideal_configuration$seed_list, collapse = ", "),
+    "Broad random B-spline; compact raised cosine",
+    "369 / 534 / 369",
+    ideal_configuration$middle_expression,
+    "All simulated units",
+    paste0(
+      ideal_manifest$package_provenance$version,
+      " at ",
+      substr(ideal_manifest$package_provenance$remote_sha, 1, 12)
+    ),
+    "Regenerated from current R3, then treated as fixed"
+  ),
+  stringsAsFactors = FALSE
+)
+knitr::kable(
+  fixed_design,
+  align = "ll",
+  caption = "Table 1. Inputs held fixed in the observation-model isolation experiment."
+)
+```
+
+## Observation models
+
+For the current R3 pipeline, let
+$\widehat\beta^{\mathrm{reg}}_{jt}$ and $s^{\mathrm{adj}}_{jt}$ denote the
+per-time regression estimate and its final t-adjusted standard error. Its
+standardized estimation error is
+
+$$
+Z^{\mathrm{reg}}_{jt}
+=
+\frac{\widehat\beta^{\mathrm{reg}}_{jt}-\beta^{\mathrm{true}}_{jt}}
+     {s^{\mathrm{adj}}_{jt}}.
+$$
+
+The ideal experiment conditions on the same regenerated
+$s^{\mathrm{adj}}_{jt}$ and draws
+
+$$
+\widehat\beta^{\mathrm{ideal}}_{jt}
+=
+\beta^{\mathrm{true}}_{jt}
++s^{\mathrm{adj}}_{jt}Z^{\mathrm{ideal}}_{jt},
+\qquad
+Z^{\mathrm{ideal}}_{jt}\overset{\mathrm{iid}}{\sim}N(0,1).
+$$
+
+No second t-based correction is applied to
+$\widehat\beta^{\mathrm{ideal}}$. This is therefore an oracle experiment
+conditional on the realized adjusted-SE matrix. It isolates the summary-level
+observation likelihood; it does not remove the mismatch between broad
+B-spline truth and the IWP1 working prior, and it does not validate the
+estimated-SE procedure itself.
+
+## Standardized-error diagnostics
+
+```{r standardized-error-summary}
+diagnostic_display <- standardized_error_summary
+diagnostic_display$truth_mechanism <- NULL
+for (column in c(
+  "mean", "sd", "skewness", "excess_kurtosis", "tail_abs_1_96",
+  "tail_abs_3"
+)) {
+  diagnostic_display[[column]] <- formatC(
+    diagnostic_display[[column]], format = "f", digits = 4
+  )
+}
+names(diagnostic_display) <- c(
+  "Truth mechanism",
+  "Observation model",
+  "Mean",
+  "SD",
+  "Skewness",
+  "Excess kurtosis",
+  "Pr(|Z| > 1.96)",
+  "Pr(|Z| > 3)"
+)
+knitr::kable(
+  diagnostic_display,
+  align = "llrrrrrr",
+  caption = paste(
+    "Table 2. Standardized estimation-error summaries.",
+    "Each entry is the mean of the corresponding seed-level statistic."
+  )
+)
+```
+
+```{r standardized-error-histogram, fig.height=7, fig.cap="Figure 1. Pooled standardized estimation-error distributions under the regression-derived and ideal-Gaussian observation models. Columns identify observation models, rows identify truth mechanisms, and the orange curve is the standard-normal density."}
+plot_standardized_error_histogram()
+```
+
+```{r standardized-error-lag-correlation, fig.height=7, fig.cap="Figure 2. Lag-specific correlations of standardized estimation errors. Curves are means over five seeds and over all time-point pairs at each lag."}
+plot_standardized_error_lag_correlation()
+```
+
+These diagnostics verify what the intervention changes. The ideal arm has
+standard-normal marginal errors and no imposed time correlation by
+construction; the regenerated regression arm records the corresponding errors
+after the full current R3 regression and t-adjustment pipeline.
+
+## Functional FSR comparison
+
+The primary statistic is the maximum, over
+$\alpha\in\{0.05,0.055,\ldots,0.20\}$, of the five-seed mean BF-adjusted
+Middle empirical FSR minus nominal alpha. The comparison was fixed before the
+ideal-Gaussian results were observed; no post hoc pass/fail threshold is used.
+
+```{r primary-middle-summary}
+primary_display <- primary_comparison[c(
+  "truth_mechanism_label",
+  "maximum_mean_fsr_excess_current",
+  "alpha_at_maximum_current",
+  "maximum_mean_fsr_excess_ideal",
+  "alpha_at_maximum_ideal",
+  "current_minus_ideal_excess"
+)]
+for (column in setdiff(names(primary_display), "truth_mechanism_label")) {
+  primary_display[[column]] <- formatC(
+    primary_display[[column]], format = "f", digits = 4
+  )
+}
+names(primary_display) <- c(
+  "Truth mechanism",
+  "Current maximum excess",
+  "Current alpha",
+  "Ideal maximum excess",
+  "Ideal alpha",
+  "Current minus ideal excess"
+)
+knitr::kable(
+  primary_display,
+  align = "lrrrrr",
+  caption = paste(
+    "Table 3. Primary BF-adjusted Middle calibration comparison.",
+    "Positive current-minus-ideal excess indicates attenuation under the",
+    "ideal observation model."
+  )
+)
+```
+
+### Broad random B-spline truth
+
+```{r bspline-fsr-comparison, fig.height=8, fig.cap="Figure 3. BF-adjusted functional empirical FSR under broad random B-spline truth. Curves compare five-seed means from the current regression-derived and ideal-Gaussian observation models; the dotted diagonal is nominal alpha."}
+plot_fsr_comparison("random_bspline")
+```
+
+### Compact raised-cosine truth
+
+```{r raised-cosine-fsr-comparison, fig.height=8, fig.cap="Figure 4. BF-adjusted functional empirical FSR under compact raised-cosine truth. Curves compare five-seed means from the current regression-derived and ideal-Gaussian observation models; the dotted diagonal is nominal alpha."}
+plot_fsr_comparison("raised_cosine")
+```
+
+In this five-seed run, idealizing the observation model does not attenuate the
+broad random B-spline Middle deviation: its maximum mean FSR excess is `0.0638`
+under ideal-Gaussian measurements and `0.0582` under the current regression
+pipeline. For compact raised-cosine truth, the corresponding values are
+`0.0021` and `-0.0101`. The regression and t-adjustment pipeline is therefore
+not a sufficient explanation for the broad random B-spline pattern.
+
+```{r selected-alpha-middle-table}
+middle_display <- middle_selected_summary
+middle_display$truth_mechanism <- NULL
+for (column in c(
+  "alpha", "mean_empirical_fsr", "minimum_seed_fsr", "maximum_seed_fsr",
+  "mean_power"
+)) {
+  middle_display[[column]] <- formatC(
+    middle_display[[column]], format = "f", digits = 3
+  )
+}
+for (column in c("mean_calls", "mean_false_calls")) {
+  middle_display[[column]] <- formatC(
+    middle_display[[column]], format = "f", digits = 1
+  )
+}
+names(middle_display) <- c(
+  "Truth mechanism",
+  "Observation model",
+  "Alpha",
+  "Mean FSR",
+  "Minimum seed FSR",
+  "Maximum seed FSR",
+  "Mean power",
+  "Mean calls",
+  "Mean false calls"
+)
+knitr::kable(
+  middle_display,
+  align = "llrrrrrrr",
+  caption = paste(
+    "Table 4. BF-adjusted Middle results at selected nominal levels.",
+    "Seed minima and maxima describe the five Monte Carlo replications."
+  )
+)
+```
+
+## Power comparison
+
+### Broad random B-spline truth
+
+```{r bspline-power-comparison, fig.width=12, fig.height=6, fig.cap="Figure 5. Functional-testing power under broad random B-spline truth. Rows identify Raw and BF-adjusted FASH, columns identify functional targets, and curves compare the two observation models."}
+plot_power_comparison("random_bspline")
+```
+
+### Compact raised-cosine truth
+
+```{r raised-cosine-power-comparison, fig.width=12, fig.height=6, fig.cap="Figure 6. Functional-testing power under compact raised-cosine truth. Rows identify Raw and BF-adjusted FASH, columns identify functional targets, and curves compare the two observation models."}
+plot_power_comparison("raised_cosine")
+```
+
+## Reproducibility
+
+The production experiment code is contained in
+`code/revision_simulations/internal/r3_ideal_gaussian_measurement/`. The runner
+pins the frozen R3 simulation functions, real-genotype helper, genotype cache,
+temporal-mixture contract, fashr version and git SHA, genotype-content digests,
+and the dedicated ideal measurement seed rule. Each mechanism-by-seed result
+is saved atomically and validated before reuse. The production summary applies
+a tolerance of $10^{-12}$ at the nominal-alpha boundaries. The final directory
+is promoted only after all ten replicates, summaries, manifest, and completion
+flag pass their contracts.
+
+The Midway3 job is submitted manually from the workspace:
+
+```bash
+cd /project/mstephens/ziangzhang/fash/workspace
+sbatch slurm/25_r3_ideal_gaussian_measurement_iwp1_mixture.sbatch
+```
+
+The immutable server output directory is
+`workspace/results/revision_simulations/r3_ideal_gaussian_known_t_adjusted_se_matched_truth_open_middle_3_12_center_aligned_iwp1_geometry_mixture_full_universe_fashr0143_pilot5/`.
+The page reads the identical validated local cache under
+`output/revision_simulations/internal/` with the same result ID.

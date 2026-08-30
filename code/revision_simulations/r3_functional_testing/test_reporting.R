@@ -5,30 +5,51 @@ source("code/revision_simulations/r3_functional_testing/reporting.R")
 
 expected_result_id <- paste0(
   "r3_real_genotype_one_per_gene_J6362_",
-  "matched_functional_open_middle_3_12_center_aligned_equal_cells_",
+  paste0(
+    "matched_functional_open_middle_3_12_center_aligned_",
+    "iwp1_geometry_mixture_"
+  ),
   paste0(
     "relative_location_clearance_full_universe_",
     "paired_posterior_fashr0143_pilot5"
   )
 )
 expected_temporal_probs <- stats::setNames(
-  rep(1 / 3, 3),
+  c(0.29, 0.42, 0.29),
   c("early", "middle", "late")
+)
+expected_truth_counts <- stats::setNames(
+  c(185L, 184L, 267L, 267L, 185L, 184L),
+  c(
+    "early / switch",
+    "early / non-switch",
+    "middle / switch",
+    "middle / non-switch",
+    "late / switch",
+    "late / non-switch"
+  )
 )
 
 stopifnot(
   identical(mc_output_id, expected_result_id),
   identical(
     r3_manifest$schema_version,
-    "r3-fashr0143-manifest-v8-full-universe-functional"
+    paste0(
+      "r3-fashr0143-manifest-v9-full-universe-functional-",
+      "iwp1-temporal-mixture"
+    )
   ),
-  identical(configuration$temporal_category_design, "equal temporal categories"),
+  identical(
+    configuration$temporal_category_design,
+    "user-specified temporal-category probabilities"
+  ),
   isTRUE(all.equal(
     configuration$temporal_category_probs,
     expected_temporal_probs,
     tolerance = 1e-12,
     check.attributes = TRUE
   )),
+  identical(configuration$expected_truth_group_counts, expected_truth_counts),
   identical(
     configuration$functional_posterior_pairing,
     "common_random_seed_raw_bf"
@@ -127,7 +148,7 @@ validation_passed <- stats::setNames(
   scientific_validation$truth_mechanism
 )
 stopifnot(
-  identical(validation_passed[["raised_cosine"]], FALSE),
+  identical(validation_passed[["raised_cosine"]], TRUE),
   identical(validation_passed[["random_bspline"]], FALSE)
 )
 
@@ -141,7 +162,7 @@ stopifnot(
   nrow(r3a_middle_alpha005) == 1L,
   isTRUE(all.equal(
     r3a_middle_alpha005$mean_empirical_fsr,
-    0.0491699733960806,
+    0.0353398479772499,
     tolerance = 1e-12
   ))
 )

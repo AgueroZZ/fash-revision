@@ -4,7 +4,10 @@ mc_output_id <-
   paste0(
     "r3_real_genotype_one_per_gene_J6362_",
     paste0(
-      "matched_functional_open_middle_3_12_center_aligned_equal_cells_",
+      paste0(
+        "matched_functional_open_middle_3_12_center_aligned_",
+        "iwp1_geometry_mixture_"
+      ),
       paste0(
         "relative_location_clearance_full_universe_",
         "paired_posterior_fashr0143_pilot5"
@@ -138,15 +141,23 @@ expected_r3_source_sha256 <- c(
     "ca3f786ab11749b12f17e9799006a49c4264c623c3131dd18153f33daeb9da18",
   simulation_functions =
     "45267b0884168e5ae33cc4f14e3f05b711d961b65bf9c6fbd880e748de064a6e",
+  real_genotype_helper =
+    "c03c01a188503336a77793c96f4e2d3ac7e0cbd56f4028b552da4b2f88e6b9d7",
+  genotype_cache =
+    "81bbef5f323a0bab2ca993c782d8a9b7c63518b83c2cdb46ef7ed1d46f65af24",
+  temporal_mixture_contract =
+    "8e2b4c527b6c17fd2645b9d46e47a7b99410d2e9be1db1a38d541380d91ad723",
   wrapper_core =
-    "24496feb87efd9895697752bd650d1128a150ec2f242360be247e10776a9cb4a"
+    "2442bb89842c9078972210b0764f77ac9fdfb0d1e5155ce958ce503ae9f73b7a",
+  runner =
+    "2b6a64770d4039e92ff7cb9ce84c73148c81e6b00ace525e70234ea9e42a3d18"
 )
 expected_temporal_category_probs <- stats::setNames(
-  rep(1 / 3, 3),
+  c(0.29, 0.42, 0.29),
   c("early", "middle", "late")
 )
 expected_truth_group_counts <- setNames(
-  rep(212L, 6L),
+  c(185L, 184L, 267L, 267L, 185L, 184L),
   c(
     "early / switch",
     "early / non-switch",
@@ -159,7 +170,10 @@ expected_truth_group_counts <- setNames(
 
 if (!identical(
       r3_manifest$schema_version,
-      "r3-fashr0143-manifest-v8-full-universe-functional"
+      paste0(
+        "r3-fashr0143-manifest-v9-full-universe-functional-",
+        "iwp1-temporal-mixture"
+      )
     ) ||
     !identical(r3_manifest$result_id, mc_output_id) ||
     !identical(r3_manifest$package_provenance$package, "fashr") ||
@@ -173,6 +187,17 @@ if (!identical(
       "fashr_version=0.1.43",
       paste0("fashr_remote_sha=", expected_fashr_remote_sha),
       "middle_definition=3 < t < 12",
+      "temporal_category_probs=early:0.29;middle:0.42;late:0.29",
+      paste0(
+        "truth_group_counts=early / switch:185;",
+        "early / non-switch:184;middle / switch:267;",
+        "middle / non-switch:267;late / switch:185;",
+        "late / non-switch:184"
+      ),
+      paste0(
+        "temporal_mixture_contract_sha256=",
+        expected_r3_source_sha256[["temporal_mixture_contract"]]
+      ),
       paste0(
         "raised_cosine_center_ranges=",
         "early:1.5,2.5;middle:4.5,10.5;late:12.5,13.5"
@@ -233,7 +258,7 @@ if (!identical(
     ) ||
     !identical(
       configuration$temporal_category_design,
-      "equal temporal categories"
+      "user-specified temporal-category probabilities"
     ) ||
     !isTRUE(all.equal(
       configuration$temporal_category_probs,
@@ -302,12 +327,16 @@ validation_passed <- stats::setNames(
   scientific_validation$truth_mechanism
 )
 expected_validation_excess <- c(
-  raised_cosine = 0.030487276457298,
-  random_bspline = 0.094093954452096
+  raised_cosine = -0.0100538301311181,
+  random_bspline = 0.058188878457505
 )
 expected_validation_alpha <- c(
-  raised_cosine = 0.12,
+  raised_cosine = 0.07,
   random_bspline = 0.20
+)
+expected_validation_passed <- c(
+  raised_cosine = TRUE,
+  random_bspline = FALSE
 )
 if (!all(required_validation_columns %in% names(scientific_validation)) ||
     nrow(scientific_validation) != 2L ||
@@ -322,7 +351,10 @@ if (!all(required_validation_columns %in% names(scientific_validation)) ||
     any(abs(
       scientific_validation$prespecified_maximum_excess - 0.03
     ) > 1e-12) ||
-    any(validation_passed) ||
+    !identical(
+      validation_passed[names(expected_validation_passed)],
+      expected_validation_passed
+    ) ||
     !isTRUE(all.equal(
       stats::setNames(
         scientific_validation$maximum_excess,
@@ -490,7 +522,11 @@ if (nrow(genotype_selection_summary) !=
     ) ||
     nrow(truth_group_counts) !=
       length(expected_seed_list) * length(mechanism_order) * 6L ||
-    any(truth_group_counts$n_dynamic != 212L)) {
+    anyNA(expected_truth_group_counts[truth_group_counts$truth_group]) ||
+    any(
+      truth_group_counts$n_dynamic !=
+        expected_truth_group_counts[truth_group_counts$truth_group]
+    )) {
   stop("The R3 real-genotype sampling, MAF, or truth-count diagnostics are invalid.")
 }
 

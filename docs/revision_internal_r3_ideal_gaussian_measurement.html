@@ -1,0 +1,3950 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-27" />
+
+<title>Internal R3 diagnostic: ideal-Gaussian effect estimates with fixed adjusted SE</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Internal R3 diagnostic: ideal-Gaussian
+effect estimates with fixed adjusted SE</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-27</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-27
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 5
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 2
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongobjectspresent">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>Environment:</strong> objects present
+</a>
+</p>
+</div>
+<div id="strongEnvironmentstrongobjectspresent"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+The global environment had objects present when the code in the R
+Markdown file was run. These objects can affect the analysis in your R
+Markdown file in unknown ways. For reproduciblity it’s best to always
+run the code in an empty environment. Use <code>wflow_publish</code> or
+<code>wflow_build</code> to ensure that the code is always run in an
+empty environment.
+</p>
+<p>
+The following objects were defined in the global environment when these
+results were created:
+</p>
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th style="text-align:left;">
+Name
+</th>
+<th style="text-align:left;">
+Class
+</th>
+<th style="text-align:left;">
+Size
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+add_direct_interaction_efdr_results_to_genotype_output
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+46.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+add_direct_interaction_results_to_genotype_output
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+21 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+artifact_fingerprint
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+7.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+assemble_one_per_gene_genotype_sample
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+37.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+assess_matched_functional_truth
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+34.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+bf_control_from_bf
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+11 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BF_update_linear_mixture_fash
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+3.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BF_update_simplified_fash
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+14.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+column
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+136 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+compact_linear_mixture_fash
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+7.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+compute_alpha_curve
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+29.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+compute_direct_interaction_permutation_null
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+44.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+compute_dynamic_subgroup_alpha_curve
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+23.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+compute_functional_lfsr
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+20.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+compute_linear_mixture_log_likelihood
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+30.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+configuration
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+23.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+constant_component_prior_weight
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+9.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+correct_se_from_t
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+16.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+count_effective_sign_transitions
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+8.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+default_revision_grid
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+1.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+direct_interaction_degree_label
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+3.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+direct_interaction_lrt_pvalues
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+40.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+direct_interaction_method_name
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+6.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+draw_correlated_noise
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+5.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+dynamic_null_proportion
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+1.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+effect_function
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+19.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+empirical_fdr_qvalues
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+31.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+estimate_eqtl_summaries_from_genotypes
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+44 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+evaluate_direct_interaction_efdr
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+19.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+evaluate_direct_interaction_lrt
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+14.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+evaluate_fash_fits
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+5.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+evaluate_fash_functional_testing
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+62.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+evaluate_lfdr_method
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+11.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+evaluate_parametric_method
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+9.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+evaluate_simplified_fash_fit
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+2.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+evaluate_temporal_functionals
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+10.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+exact_balanced_counts
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+exact_proportional_counts
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+14.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+exact_temporal_truth_group_counts
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+16.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+example_curves
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+450.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expand_grid_prior_weights
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+14.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_alpha_grid
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+368 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_class_counts
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+440 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_class_probs
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+456 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_fashr_remote_sha
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+152 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_genotype_content_md5
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_r3_source_sha256
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_replicate_rows
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_seed_list
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+80 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_temporal_category_probs
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+440 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_truth_group_counts
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+720 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_validation_alpha
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+368 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_validation_excess
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+368 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_validation_passed
+</td>
+<td style="text-align:left;">
+logical
+</td>
+<td style="text-align:left;">
+360 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+extract_linear_mixture_prior_table
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+8.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+extract_target_vcf_dosages
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+46.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fit_fash_for_revision
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+12.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fit_linear_mixture_fash
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+2.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fit_linear_mixture_fash_from_log_likelihood
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+34.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fit_simplified_fash
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+37.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fit_two_component_pi
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+10.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+formal_class_counts
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+432 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+formal_true_pi0
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+format_decimal
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+5.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+format_functional_table
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+54.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+format_integer
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+4.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+format_mc_interval
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+14.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+format_pi0_table
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+43.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+functional_cfsr_table
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+11.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+functional_curve_key
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+11.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genotype_bspline_eqtl_output_stem
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+4.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genotype_content_md5
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+27 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genotype_cosine_multipeak_output_stem
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+9.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genotype_dynamic_eqtl_output_stem
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+4.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genotype_sampling_display
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+2.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genotype_sampling_table
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+2.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genotype_selection_summary
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+3.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+genotype_spiky_transient_output_stem
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+9.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+get_fash_fdr_table
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+5.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+get_fash_lfdr
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+4.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+get_observed_direct_interaction_lrt
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+5.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+interpolate_true_curve
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+6.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+is_null_class
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+4.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+linear_model_residual_summary
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+3.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+local_cubic_bspline_lobe
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+14.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log_marginal_common_intercept
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+19.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+log_sum_exp_pair
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+2.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+make_ar1_correlation
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+make_direct_interaction_base_design
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+14.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+make_exchangeable_correlation
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+make_fash_datasets_from_eqtl_summary
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+17.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+make_lag1_correlation
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+10.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+make_maf_balanced_class_targets
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+30 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+make_temporal_functionals
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+47.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+make_time_grid
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+1.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mc_alpha
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+173.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mc_alpha_005
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+9.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mc_alpha_replicates
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+379.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mc_output_dir
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+320 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mc_output_id
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+296 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mc_pi0
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+2.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mc_pointwise_ranges
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+55.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mechanism_labels
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+528 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mechanism_order
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+192 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+method_order
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+192 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+metric_at
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+5.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+numeric_vector_label
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+1.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+object_md5
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+4.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+parse_tested_pair_ids
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+11.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pi0_table
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_alpha_limits
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+64 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_constant_dynamic_examples
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+36 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_constant_iwp2_examples
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+36 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_cosine_peak_cell_examples
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+65.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_empirical_fdr_alpha_curve_grid
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+34.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_empirical_fdr_alpha_curves
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+31.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_genotype_eqtl_examples
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+40.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_mc_alpha_curves
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+53.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_mc_functional_curve_grid
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+399.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_mc_shape_power_grid
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+42.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_power_alpha_curve_grid
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+29.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_power_alpha_curves
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+26.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_truth_examples
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+187 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pointwise_range_columns
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+400 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r1_r2_manifest
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+28.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r1_r2_manifest_path
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+168 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r1_r2_output_dir
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+152 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r1_reference
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+44.1 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3_complete_flag_path
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+336 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3_completion
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+2.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3_manifest
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+39 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3_manifest_path
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+336 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3_replicate_alpha_path
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+376 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3_replicates
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+2.1 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3_scientific_validation_path
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+352 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3a_alpha
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+89.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3a_alpha_005
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+7.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3a_table
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+3.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3b_alpha
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+91 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3b_alpha_005
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+7.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3b_table
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+3.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+raised_cosine_peak
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+10.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+random_bspline_truth_curve
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+32.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rank_revision_methods
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+2.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+read_vcf_sample_ids
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+12.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+reassign_effect_simulation_by_maf
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+38.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+replicate_curve_columns
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+856 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+replicate_curve_keys
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+312 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+replicate_groups
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+227 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+required_cache_paths
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+required_validation_columns
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+616 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+revision_component_seeds
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+8.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+revision_final_summary_methods
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+1.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+revision_method_order
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+9.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+revision_method_styles
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+92.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+revision_output_dirs
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+3.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+run_constant_iwp2_simplified_comparison
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+37.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+run_genotype_level_bspline_eqtl_simulation
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+92.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+run_genotype_level_dynamic_eqtl_simulation
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+92.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+run_revision_simulation
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+22.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+run_revision_smoke_test
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+4.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sample_constrained_broad_bspline_truth
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+47.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sample_effect_classes
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+9.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sample_labeled_random_bspline_truth
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+28.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sample_multispike_local_bspline_truth
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+117.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sample_one_tested_variant_per_gene
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+13.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sample_spiky_local_bspline_truth
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+61.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sample_targeted_local_bspline_lobe
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+6.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sample_targeted_local_bspline_truth
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+86.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+scaled_time_polynomial
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+5.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+scientific_validation
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+2.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+seed
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+seed_maf
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+2.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+seed_name
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+112 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+seed_sampling
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+2.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+shared_genotype_cache
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+25.5 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+shared_genotype_cache_path
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+232 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_bspline_effect
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+8.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_bspline_effect_on_grids
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+24.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_covariate_matrix
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+7.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_eqtl_expression_from_genotypes
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+44.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_genotype_matrix
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+18.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_iwp_dataset
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+12.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_labeled_random_bspline_effect_set
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+59 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_local_bspline_transient_effect
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+32.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_matched_functional_effect_set
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+208.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_multi_smooth_abrupt_effect
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+12.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_paired_local_bspline_effect_sets
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+45.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_raised_cosine_multipeak_effect_set
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+237.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_revision_datasets
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+23.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_shape_dataset
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+12.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_smooth_abrupt_effect
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+5.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_targeted_local_bspline_effect_set
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+151.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulate_variant_effect_curves
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+31.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+solve_from_chol
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+1.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+summarize_dynamic_effect_geometry
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+15.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+summarize_linear_mixture_prior_fit
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+9.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+summarize_mc_alpha_curves
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+35.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+summarize_mc_functional_alpha_curves
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+61.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+summarize_mc_pi0
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+16.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+summarize_mc_values
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+12.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+summarize_method_results
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+20.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+summarize_se_correction
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+6.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+summarize_targeted_truth_curve
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+20.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+summarize_truth_maf_balance
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+20.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+summary_dir
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+328 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+summary_range_index
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+2.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+target_order
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+304 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+targeted_local_bspline_parameter_ranges
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+13.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+targeted_time_window
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+6.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+temporal_middle_membership
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+14 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+truth_group_counts
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+truth_maf_balance
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+4.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+truth_maf_balance_table
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+truth_maf_display
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+3.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+validate_compact_linear_mixture_fash
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+61 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+validate_covariate_matrix
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+9.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+validate_genotype_matrix
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+10.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+validate_integer_scalar
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+4.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+validate_linear_mixture_fash
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+71.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+validate_linear_mixture_grid
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+6.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+validate_real_genotype_sample
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+31.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+validate_simplified_sigma_profile
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+33.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+validate_time_correlation
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+16.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+validation_passed
+</td>
+<td style="text-align:left;">
+logical
+</td>
+<td style="text-align:left;">
+360 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+weighted_lm_pvalue
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+11.6 Kb
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreecc95532ce7d6694447db8f89387dedf8f4acca75targetblankcc95532a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/cc95532ce7d6694447db8f89387dedf8f4acca75" target="_blank">cc95532</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreecc95532ce7d6694447db8f89387dedf8f4acca75targetblankcc95532a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/AgueroZZ/fash-revision/tree/cc95532ce7d6694447db8f89387dedf8f4acca75" target="_blank">cc95532</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Rplots.pdf
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/revision_simulations/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/playwright/
+    Ignored:    output/revision_simulations/
+    Ignored:    scripts/
+
+Untracked files:
+    Untracked:  analysis/revision_internal_r3_ideal_gaussian_measurement.rmd
+    Untracked:  code/revision_simulations/internal/r3_ideal_gaussian_measurement/
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/24_r3_full_universe_iwp1_mixture_core.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/24_r3_full_universe_iwp1_mixture_fashr0143.R
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/24_r3_full_universe_iwp1_mixture_fashr0143.sbatch
+    Untracked:  code/revision_simulations/r3_r4_fashr0143/test_r3_iwp1_temporal_mixture_production.R
+    Untracked:  code/revision_simulations/shared/r3_iwp1_temporal_mixture_contract.R
+
+Unstaged changes:
+    Modified:   analysis/revision_functional_testing_simulation.rmd
+    Modified:   code/revision_simulations/r3_functional_testing/reporting.R
+    Modified:   code/revision_simulations/r3_functional_testing/test_reporting.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<p>This is an internal analysis record and is not linked from the
+workflowr index.</p>
+<div id="question" class="section level2">
+<h2>Question</h2>
+<p>The broad random B-spline simulation in R3 shows increasing Middle
+empirical false sign rate (FSR) above the nominal level after
+approximately <span class="math inline">\(\alpha=0.05\)</span>. The
+current R3 observation pipeline simulates individual-level expression,
+fits a separate genotype regression at each time point, and maps the
+resulting t-based standard errors onto a normal scale. Does the same
+pattern remain when the summary statistics follow the Gaussian
+likelihood used by FASH exactly?</p>
+</div>
+<div id="fixed-comparison" class="section level2">
+<h2>Fixed comparison</h2>
+<p>The comparison changes one layer only:</p>
+<ol style="list-style-type: decimal">
+<li>Regenerate the current R3 genotype sample, covariates, true effect
+curves, individual-level expression, regressions, and final t-adjusted
+standard errors from the same frozen component seeds.</li>
+<li>Treat the regenerated final adjusted standard-error matrix as fixed
+and known.</li>
+<li>Draw a new effect estimate directly from the ideal Gaussian
+observation model below, using a separate deterministic seed and iid
+errors across units and time points.</li>
+<li>Apply the same IWP1 Raw and BF-adjusted fits, common posterior
+samples, full-universe functional testing, and alpha grid used by the
+current R3 page.</li>
+</ol>
+<p>Both truth mechanisms use five seeds and 6,362 units per seed. Broad
+random B-spline truth is the primary diagnostic; compact raised-cosine
+truth is the same-design control. The truth definitions, class counts,
+relative clearance margins, open Middle interval <span
+class="math inline">\(3&lt;t&lt;12\)</span>, and all FASH settings are
+unchanged. Early/Middle/Late probabilities are
+<code>0.29/0.42/0.29</code>, giving exact location counts
+<code>369/534/369</code>; the six location-by-switch cells contain
+<code>185/184/267/267/185/184</code> dynamic units.</p>
+<pre class="r"><code>fixed_design &lt;- data.frame(
+  Feature = c(
+    &quot;Units per seed&quot;,
+    &quot;Seeds&quot;,
+    &quot;Truth mechanisms&quot;,
+    &quot;Early/Middle/Late counts&quot;,
+    &quot;Middle definition&quot;,
+    &quot;Candidate universe&quot;,
+    &quot;FASH version&quot;,
+    &quot;Adjusted-SE role&quot;
+  ),
+  Value = c(
+    format(ideal_configuration$J, big.mark = &quot;,&quot;),
+    paste(ideal_configuration$seed_list, collapse = &quot;, &quot;),
+    &quot;Broad random B-spline; compact raised cosine&quot;,
+    &quot;369 / 534 / 369&quot;,
+    ideal_configuration$middle_expression,
+    &quot;All simulated units&quot;,
+    paste0(
+      ideal_manifest$package_provenance$version,
+      &quot; at &quot;,
+      substr(ideal_manifest$package_provenance$remote_sha, 1, 12)
+    ),
+    &quot;Regenerated from current R3, then treated as fixed&quot;
+  ),
+  stringsAsFactors = FALSE
+)
+knitr::kable(
+  fixed_design,
+  align = &quot;ll&quot;,
+  caption = &quot;Table 1. Inputs held fixed in the observation-model isolation experiment.&quot;
+)</code></pre>
+<table>
+<caption>Table 1. Inputs held fixed in the observation-model isolation
+experiment.</caption>
+<colgroup>
+<col width="32%" />
+<col width="67%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Feature</th>
+<th align="left">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Units per seed</td>
+<td align="left">6,362</td>
+</tr>
+<tr class="even">
+<td align="left">Seeds</td>
+<td align="left">12345, 22345, 32345, 42345, 52345</td>
+</tr>
+<tr class="odd">
+<td align="left">Truth mechanisms</td>
+<td align="left">Broad random B-spline; compact raised cosine</td>
+</tr>
+<tr class="even">
+<td align="left">Early/Middle/Late counts</td>
+<td align="left">369 / 534 / 369</td>
+</tr>
+<tr class="odd">
+<td align="left">Middle definition</td>
+<td align="left">3 &lt; t &lt; 12</td>
+</tr>
+<tr class="even">
+<td align="left">Candidate universe</td>
+<td align="left">All simulated units</td>
+</tr>
+<tr class="odd">
+<td align="left">FASH version</td>
+<td align="left">0.1.43 at bf223df75da6</td>
+</tr>
+<tr class="even">
+<td align="left">Adjusted-SE role</td>
+<td align="left">Regenerated from current R3, then treated as fixed</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="observation-models" class="section level2">
+<h2>Observation models</h2>
+<p>For the current R3 pipeline, let <span
+class="math inline">\(\widehat\beta^{\mathrm{reg}}_{jt}\)</span> and
+<span class="math inline">\(s^{\mathrm{adj}}_{jt}\)</span> denote the
+per-time regression estimate and its final t-adjusted standard error.
+Its standardized estimation error is</p>
+<p><span class="math display">\[
+Z^{\mathrm{reg}}_{jt}
+=
+\frac{\widehat\beta^{\mathrm{reg}}_{jt}-\beta^{\mathrm{true}}_{jt}}
+     {s^{\mathrm{adj}}_{jt}}.
+\]</span></p>
+<p>The ideal experiment conditions on the same regenerated <span
+class="math inline">\(s^{\mathrm{adj}}_{jt}\)</span> and draws</p>
+<p><span class="math display">\[
+\widehat\beta^{\mathrm{ideal}}_{jt}
+=
+\beta^{\mathrm{true}}_{jt}
++s^{\mathrm{adj}}_{jt}Z^{\mathrm{ideal}}_{jt},
+\qquad
+Z^{\mathrm{ideal}}_{jt}\overset{\mathrm{iid}}{\sim}N(0,1).
+\]</span></p>
+<p>No second t-based correction is applied to <span
+class="math inline">\(\widehat\beta^{\mathrm{ideal}}\)</span>. This is
+therefore an oracle experiment conditional on the realized adjusted-SE
+matrix. It isolates the summary-level observation likelihood; it does
+not remove the mismatch between broad B-spline truth and the IWP1
+working prior, and it does not validate the estimated-SE procedure
+itself.</p>
+</div>
+<div id="standardized-error-diagnostics" class="section level2">
+<h2>Standardized-error diagnostics</h2>
+<pre class="r"><code>diagnostic_display &lt;- standardized_error_summary
+diagnostic_display$truth_mechanism &lt;- NULL
+for (column in c(
+  &quot;mean&quot;, &quot;sd&quot;, &quot;skewness&quot;, &quot;excess_kurtosis&quot;, &quot;tail_abs_1_96&quot;,
+  &quot;tail_abs_3&quot;
+)) {
+  diagnostic_display[[column]] &lt;- formatC(
+    diagnostic_display[[column]], format = &quot;f&quot;, digits = 4
+  )
+}
+names(diagnostic_display) &lt;- c(
+  &quot;Truth mechanism&quot;,
+  &quot;Observation model&quot;,
+  &quot;Mean&quot;,
+  &quot;SD&quot;,
+  &quot;Skewness&quot;,
+  &quot;Excess kurtosis&quot;,
+  &quot;Pr(|Z| &gt; 1.96)&quot;,
+  &quot;Pr(|Z| &gt; 3)&quot;
+)
+knitr::kable(
+  diagnostic_display,
+  align = &quot;llrrrrrr&quot;,
+  caption = paste(
+    &quot;Table 2. Standardized estimation-error summaries.&quot;,
+    &quot;Each entry is the mean of the corresponding seed-level statistic.&quot;
+  )
+)</code></pre>
+<table>
+<caption>Table 2. Standardized estimation-error summaries. Each entry is
+the mean of the corresponding seed-level statistic.</caption>
+<colgroup>
+<col width="18%" />
+<col width="22%" />
+<col width="5%" />
+<col width="4%" />
+<col width="6%" />
+<col width="10%" />
+<col width="16%" />
+<col width="14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Truth mechanism</th>
+<th align="left">Observation model</th>
+<th align="right">Mean</th>
+<th align="right">SD</th>
+<th align="right">Skewness</th>
+<th align="right">Excess kurtosis</th>
+<th align="right">Pr(|Z| &gt; 1.96)</th>
+<th align="right">Pr(|Z| &gt; 3)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">R3A: broad random B-spline</td>
+<td align="left">Regression + t-adjusted SE</td>
+<td align="right">0.0007</td>
+<td align="right">0.9590</td>
+<td align="right">0.0009</td>
+<td align="right">0.2882</td>
+<td align="right">0.0434</td>
+<td align="right">0.0032</td>
+</tr>
+<tr class="even">
+<td align="left">R3A: broad random B-spline</td>
+<td align="left">Ideal Gaussian, fixed adjusted SE</td>
+<td align="right">-0.0011</td>
+<td align="right">1.0007</td>
+<td align="right">0.0011</td>
+<td align="right">0.0094</td>
+<td align="right">0.0502</td>
+<td align="right">0.0028</td>
+</tr>
+<tr class="odd">
+<td align="left">R3B: compact raised cosine</td>
+<td align="left">Regression + t-adjusted SE</td>
+<td align="right">0.0007</td>
+<td align="right">0.9669</td>
+<td align="right">0.0001</td>
+<td align="right">0.2646</td>
+<td align="right">0.0446</td>
+<td align="right">0.0034</td>
+</tr>
+<tr class="even">
+<td align="left">R3B: compact raised cosine</td>
+<td align="left">Ideal Gaussian, fixed adjusted SE</td>
+<td align="right">-0.0011</td>
+<td align="right">1.0007</td>
+<td align="right">0.0011</td>
+<td align="right">0.0094</td>
+<td align="right">0.0502</td>
+<td align="right">0.0028</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>plot_standardized_error_histogram()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_r3_ideal_gaussian_measurement.rmd/standardized-error-histogram-1.png" alt="Figure 1. Pooled standardized estimation-error distributions under the regression-derived and ideal-Gaussian observation models. Columns identify observation models, rows identify truth mechanisms, and the orange curve is the standard-normal density." width="1800" />
+<p class="caption">
+Figure 1. Pooled standardized estimation-error distributions under the
+regression-derived and ideal-Gaussian observation models. Columns
+identify observation models, rows identify truth mechanisms, and the
+orange curve is the standard-normal density.
+</p>
+</div>
+<pre class="r"><code>plot_standardized_error_lag_correlation()</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_r3_ideal_gaussian_measurement.rmd/standardized-error-lag-correlation-1.png" alt="Figure 2. Lag-specific correlations of standardized estimation errors. Curves are means over five seeds and over all time-point pairs at each lag." width="1800" />
+<p class="caption">
+Figure 2. Lag-specific correlations of standardized estimation errors.
+Curves are means over five seeds and over all time-point pairs at each
+lag.
+</p>
+</div>
+<p>These diagnostics verify what the intervention changes. The ideal arm
+has standard-normal marginal errors and no imposed time correlation by
+construction; the regenerated regression arm records the corresponding
+errors after the full current R3 regression and t-adjustment
+pipeline.</p>
+</div>
+<div id="functional-fsr-comparison" class="section level2">
+<h2>Functional FSR comparison</h2>
+<p>The primary statistic is the maximum, over <span
+class="math inline">\(\alpha\in\{0.05,0.055,\ldots,0.20\}\)</span>, of
+the five-seed mean BF-adjusted Middle empirical FSR minus nominal alpha.
+The comparison was fixed before the ideal-Gaussian results were
+observed; no post hoc pass/fail threshold is used.</p>
+<pre class="r"><code>primary_display &lt;- primary_comparison[c(
+  &quot;truth_mechanism_label&quot;,
+  &quot;maximum_mean_fsr_excess_current&quot;,
+  &quot;alpha_at_maximum_current&quot;,
+  &quot;maximum_mean_fsr_excess_ideal&quot;,
+  &quot;alpha_at_maximum_ideal&quot;,
+  &quot;current_minus_ideal_excess&quot;
+)]
+for (column in setdiff(names(primary_display), &quot;truth_mechanism_label&quot;)) {
+  primary_display[[column]] &lt;- formatC(
+    primary_display[[column]], format = &quot;f&quot;, digits = 4
+  )
+}
+names(primary_display) &lt;- c(
+  &quot;Truth mechanism&quot;,
+  &quot;Current maximum excess&quot;,
+  &quot;Current alpha&quot;,
+  &quot;Ideal maximum excess&quot;,
+  &quot;Ideal alpha&quot;,
+  &quot;Current minus ideal excess&quot;
+)
+knitr::kable(
+  primary_display,
+  align = &quot;lrrrrr&quot;,
+  caption = paste(
+    &quot;Table 3. Primary BF-adjusted Middle calibration comparison.&quot;,
+    &quot;Positive current-minus-ideal excess indicates attenuation under the&quot;,
+    &quot;ideal observation model.&quot;
+  )
+)</code></pre>
+<table>
+<caption>Table 3. Primary BF-adjusted Middle calibration comparison.
+Positive current-minus-ideal excess indicates attenuation under the
+ideal observation model.</caption>
+<colgroup>
+<col width="21%" />
+<col width="18%" />
+<col width="11%" />
+<col width="16%" />
+<col width="9%" />
+<col width="21%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Truth mechanism</th>
+<th align="right">Current maximum excess</th>
+<th align="right">Current alpha</th>
+<th align="right">Ideal maximum excess</th>
+<th align="right">Ideal alpha</th>
+<th align="right">Current minus ideal excess</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">R3A: broad random B-spline</td>
+<td align="right">0.0582</td>
+<td align="right">0.2000</td>
+<td align="right">0.0638</td>
+<td align="right">0.2000</td>
+<td align="right">-0.0056</td>
+</tr>
+<tr class="even">
+<td align="left">R3B: compact raised cosine</td>
+<td align="right">-0.0101</td>
+<td align="right">0.0700</td>
+<td align="right">0.0021</td>
+<td align="right">0.0800</td>
+<td align="right">-0.0121</td>
+</tr>
+</tbody>
+</table>
+<div id="broad-random-b-spline-truth" class="section level3">
+<h3>Broad random B-spline truth</h3>
+<pre class="r"><code>plot_fsr_comparison(&quot;random_bspline&quot;)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_r3_ideal_gaussian_measurement.rmd/bspline-fsr-comparison-1.png" alt="Figure 3. BF-adjusted functional empirical FSR under broad random B-spline truth. Curves compare five-seed means from the current regression-derived and ideal-Gaussian observation models; the dotted diagonal is nominal alpha." width="1800" />
+<p class="caption">
+Figure 3. BF-adjusted functional empirical FSR under broad random
+B-spline truth. Curves compare five-seed means from the current
+regression-derived and ideal-Gaussian observation models; the dotted
+diagonal is nominal alpha.
+</p>
+</div>
+</div>
+<div id="compact-raised-cosine-truth" class="section level3">
+<h3>Compact raised-cosine truth</h3>
+<pre class="r"><code>plot_fsr_comparison(&quot;raised_cosine&quot;)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_r3_ideal_gaussian_measurement.rmd/raised-cosine-fsr-comparison-1.png" alt="Figure 4. BF-adjusted functional empirical FSR under compact raised-cosine truth. Curves compare five-seed means from the current regression-derived and ideal-Gaussian observation models; the dotted diagonal is nominal alpha." width="1800" />
+<p class="caption">
+Figure 4. BF-adjusted functional empirical FSR under compact
+raised-cosine truth. Curves compare five-seed means from the current
+regression-derived and ideal-Gaussian observation models; the dotted
+diagonal is nominal alpha.
+</p>
+</div>
+<p>In this five-seed run, idealizing the observation model does not
+attenuate the broad random B-spline Middle deviation: its maximum mean
+FSR excess is <code>0.0638</code> under ideal-Gaussian measurements and
+<code>0.0582</code> under the current regression pipeline. For compact
+raised-cosine truth, the corresponding values are <code>0.0021</code>
+and <code>-0.0101</code>. The regression and t-adjustment pipeline is
+therefore not a sufficient explanation for the broad random B-spline
+pattern.</p>
+<pre class="r"><code>middle_display &lt;- middle_selected_summary
+middle_display$truth_mechanism &lt;- NULL
+for (column in c(
+  &quot;alpha&quot;, &quot;mean_empirical_fsr&quot;, &quot;minimum_seed_fsr&quot;, &quot;maximum_seed_fsr&quot;,
+  &quot;mean_power&quot;
+)) {
+  middle_display[[column]] &lt;- formatC(
+    middle_display[[column]], format = &quot;f&quot;, digits = 3
+  )
+}
+for (column in c(&quot;mean_calls&quot;, &quot;mean_false_calls&quot;)) {
+  middle_display[[column]] &lt;- formatC(
+    middle_display[[column]], format = &quot;f&quot;, digits = 1
+  )
+}
+names(middle_display) &lt;- c(
+  &quot;Truth mechanism&quot;,
+  &quot;Observation model&quot;,
+  &quot;Alpha&quot;,
+  &quot;Mean FSR&quot;,
+  &quot;Minimum seed FSR&quot;,
+  &quot;Maximum seed FSR&quot;,
+  &quot;Mean power&quot;,
+  &quot;Mean calls&quot;,
+  &quot;Mean false calls&quot;
+)
+knitr::kable(
+  middle_display,
+  align = &quot;llrrrrrrr&quot;,
+  caption = paste(
+    &quot;Table 4. BF-adjusted Middle results at selected nominal levels.&quot;,
+    &quot;Seed minima and maxima describe the five Monte Carlo replications.&quot;
+  )
+)</code></pre>
+<table style="width:100%;">
+<caption>Table 4. BF-adjusted Middle results at selected nominal levels.
+Seed minima and maxima describe the five Monte Carlo
+replications.</caption>
+<colgroup>
+<col width="18%" />
+<col width="22%" />
+<col width="4%" />
+<col width="6%" />
+<col width="11%" />
+<col width="11%" />
+<col width="7%" />
+<col width="7%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Truth mechanism</th>
+<th align="left">Observation model</th>
+<th align="right">Alpha</th>
+<th align="right">Mean FSR</th>
+<th align="right">Minimum seed FSR</th>
+<th align="right">Maximum seed FSR</th>
+<th align="right">Mean power</th>
+<th align="right">Mean calls</th>
+<th align="right">Mean false calls</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">R3A: broad random B-spline</td>
+<td align="left">Regression + t-adjusted SE</td>
+<td align="right">0.050</td>
+<td align="right">0.035</td>
+<td align="right">0.027</td>
+<td align="right">0.044</td>
+<td align="right">0.878</td>
+<td align="right">485.8</td>
+<td align="right">17.2</td>
+</tr>
+<tr class="even">
+<td align="left">R3A: broad random B-spline</td>
+<td align="left">Regression + t-adjusted SE</td>
+<td align="right">0.100</td>
+<td align="right">0.118</td>
+<td align="right">0.102</td>
+<td align="right">0.129</td>
+<td align="right">0.952</td>
+<td align="right">576.4</td>
+<td align="right">68.0</td>
+</tr>
+<tr class="odd">
+<td align="left">R3A: broad random B-spline</td>
+<td align="left">Regression + t-adjusted SE</td>
+<td align="right">0.150</td>
+<td align="right">0.191</td>
+<td align="right">0.181</td>
+<td align="right">0.207</td>
+<td align="right">0.972</td>
+<td align="right">642.0</td>
+<td align="right">122.8</td>
+</tr>
+<tr class="even">
+<td align="left">R3A: broad random B-spline</td>
+<td align="left">Regression + t-adjusted SE</td>
+<td align="right">0.200</td>
+<td align="right">0.258</td>
+<td align="right">0.249</td>
+<td align="right">0.273</td>
+<td align="right">0.979</td>
+<td align="right">704.6</td>
+<td align="right">182.0</td>
+</tr>
+<tr class="odd">
+<td align="left">R3A: broad random B-spline</td>
+<td align="left">Ideal Gaussian, fixed adjusted SE</td>
+<td align="right">0.050</td>
+<td align="right">0.043</td>
+<td align="right">0.035</td>
+<td align="right">0.051</td>
+<td align="right">0.880</td>
+<td align="right">491.2</td>
+<td align="right">21.2</td>
+</tr>
+<tr class="even">
+<td align="left">R3A: broad random B-spline</td>
+<td align="left">Ideal Gaussian, fixed adjusted SE</td>
+<td align="right">0.100</td>
+<td align="right">0.125</td>
+<td align="right">0.117</td>
+<td align="right">0.133</td>
+<td align="right">0.952</td>
+<td align="right">581.0</td>
+<td align="right">72.8</td>
+</tr>
+<tr class="odd">
+<td align="left">R3A: broad random B-spline</td>
+<td align="left">Ideal Gaussian, fixed adjusted SE</td>
+<td align="right">0.150</td>
+<td align="right">0.198</td>
+<td align="right">0.191</td>
+<td align="right">0.206</td>
+<td align="right">0.972</td>
+<td align="right">647.0</td>
+<td align="right">127.8</td>
+</tr>
+<tr class="even">
+<td align="left">R3A: broad random B-spline</td>
+<td align="left">Ideal Gaussian, fixed adjusted SE</td>
+<td align="right">0.200</td>
+<td align="right">0.264</td>
+<td align="right">0.257</td>
+<td align="right">0.269</td>
+<td align="right">0.978</td>
+<td align="right">709.6</td>
+<td align="right">187.2</td>
+</tr>
+<tr class="odd">
+<td align="left">R3B: compact raised cosine</td>
+<td align="left">Regression + t-adjusted SE</td>
+<td align="right">0.050</td>
+<td align="right">0.035</td>
+<td align="right">0.000</td>
+<td align="right">0.070</td>
+<td align="right">0.078</td>
+<td align="right">43.4</td>
+<td align="right">1.6</td>
+</tr>
+<tr class="even">
+<td align="left">R3B: compact raised cosine</td>
+<td align="left">Regression + t-adjusted SE</td>
+<td align="right">0.100</td>
+<td align="right">0.070</td>
+<td align="right">0.035</td>
+<td align="right">0.090</td>
+<td align="right">0.148</td>
+<td align="right">85.0</td>
+<td align="right">6.0</td>
+</tr>
+<tr class="odd">
+<td align="left">R3B: compact raised cosine</td>
+<td align="left">Regression + t-adjusted SE</td>
+<td align="right">0.150</td>
+<td align="right">0.121</td>
+<td align="right">0.087</td>
+<td align="right">0.147</td>
+<td align="right">0.207</td>
+<td align="right">125.6</td>
+<td align="right">15.2</td>
+</tr>
+<tr class="even">
+<td align="left">R3B: compact raised cosine</td>
+<td align="left">Regression + t-adjusted SE</td>
+<td align="right">0.200</td>
+<td align="right">0.151</td>
+<td align="right">0.116</td>
+<td align="right">0.168</td>
+<td align="right">0.270</td>
+<td align="right">170.0</td>
+<td align="right">25.6</td>
+</tr>
+<tr class="odd">
+<td align="left">R3B: compact raised cosine</td>
+<td align="left">Ideal Gaussian, fixed adjusted SE</td>
+<td align="right">0.050</td>
+<td align="right">0.039</td>
+<td align="right">0.011</td>
+<td align="right">0.060</td>
+<td align="right">0.155</td>
+<td align="right">86.4</td>
+<td align="right">3.4</td>
+</tr>
+<tr class="even">
+<td align="left">R3B: compact raised cosine</td>
+<td align="left">Ideal Gaussian, fixed adjusted SE</td>
+<td align="right">0.100</td>
+<td align="right">0.102</td>
+<td align="right">0.075</td>
+<td align="right">0.121</td>
+<td align="right">0.242</td>
+<td align="right">143.8</td>
+<td align="right">14.6</td>
+</tr>
+<tr class="odd">
+<td align="left">R3B: compact raised cosine</td>
+<td align="left">Ideal Gaussian, fixed adjusted SE</td>
+<td align="right">0.150</td>
+<td align="right">0.131</td>
+<td align="right">0.114</td>
+<td align="right">0.145</td>
+<td align="right">0.317</td>
+<td align="right">194.6</td>
+<td align="right">25.4</td>
+</tr>
+<tr class="even">
+<td align="left">R3B: compact raised cosine</td>
+<td align="left">Ideal Gaussian, fixed adjusted SE</td>
+<td align="right">0.200</td>
+<td align="right">0.176</td>
+<td align="right">0.153</td>
+<td align="right">0.193</td>
+<td align="right">0.379</td>
+<td align="right">245.2</td>
+<td align="right">43.0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="power-comparison" class="section level2">
+<h2>Power comparison</h2>
+<div id="broad-random-b-spline-truth-1" class="section level3">
+<h3>Broad random B-spline truth</h3>
+<pre class="r"><code>plot_power_comparison(&quot;random_bspline&quot;)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_r3_ideal_gaussian_measurement.rmd/bspline-power-comparison-1.png" alt="Figure 5. Functional-testing power under broad random B-spline truth. Rows identify Raw and BF-adjusted FASH, columns identify functional targets, and curves compare the two observation models." width="2160" />
+<p class="caption">
+Figure 5. Functional-testing power under broad random B-spline truth.
+Rows identify Raw and BF-adjusted FASH, columns identify functional
+targets, and curves compare the two observation models.
+</p>
+</div>
+</div>
+<div id="compact-raised-cosine-truth-1" class="section level3">
+<h3>Compact raised-cosine truth</h3>
+<pre class="r"><code>plot_power_comparison(&quot;raised_cosine&quot;)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_internal_r3_ideal_gaussian_measurement.rmd/raised-cosine-power-comparison-1.png" alt="Figure 6. Functional-testing power under compact raised-cosine truth. Rows identify Raw and BF-adjusted FASH, columns identify functional targets, and curves compare the two observation models." width="2160" />
+<p class="caption">
+Figure 6. Functional-testing power under compact raised-cosine truth.
+Rows identify Raw and BF-adjusted FASH, columns identify functional
+targets, and curves compare the two observation models.
+</p>
+</div>
+</div>
+</div>
+<div id="reproducibility" class="section level2">
+<h2>Reproducibility</h2>
+<p>The production experiment code is contained in
+<code>code/revision_simulations/internal/r3_ideal_gaussian_measurement/</code>.
+The runner pins the frozen R3 simulation functions, real-genotype
+helper, genotype cache, temporal-mixture contract, fashr version and git
+SHA, genotype-content digests, and the dedicated ideal measurement seed
+rule. Each mechanism-by-seed result is saved atomically and validated
+before reuse. The production summary applies a tolerance of <span
+class="math inline">\(10^{-12}\)</span> at the nominal-alpha boundaries.
+The final directory is promoted only after all ten replicates,
+summaries, manifest, and completion flag pass their contracts.</p>
+<p>The Midway3 job is submitted manually from the workspace:</p>
+<pre class="bash"><code>cd /project/mstephens/ziangzhang/fash/workspace
+sbatch slurm/25_r3_ideal_gaussian_measurement_iwp1_mixture.sbatch</code></pre>
+<p>The immutable server output directory is
+<code>workspace/results/revision_simulations/r3_ideal_gaussian_known_t_adjusted_se_matched_truth_open_middle_3_12_center_aligned_iwp1_geometry_mixture_full_universe_fashr0143_pilot5/</code>.
+The page reads the identical validated local cache under
+<code>output/revision_simulations/internal/</code> with the same result
+ID.</p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+ [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.1.4        compiler_4.5.1    
+ [5] promises_1.5.0     tidyselect_1.2.1   Rcpp_1.1.1-1.1     stringr_1.6.0     
+ [9] git2r_0.36.2       dichromat_2.0-0.1  later_1.4.4        jquerylib_0.1.4   
+[13] scales_1.4.0       yaml_2.3.12        fastmap_1.2.0      ggplot2_4.0.3     
+[17] R6_2.6.1           labeling_0.4.3     generics_0.1.4     workflowr_1.7.2   
+[21] knitr_1.50         tibble_3.3.0       rprojroot_2.1.1    bslib_0.9.0       
+[25] pillar_1.11.1      RColorBrewer_1.1-3 rlang_1.2.0        cachem_1.1.0      
+[29] stringi_1.8.9      httpuv_1.6.16      xfun_0.55          S7_0.2.2          
+[33] fs_1.6.6           sass_0.4.10        otel_0.2.0         cli_3.6.6         
+[37] withr_3.0.3        magrittr_2.0.5     digest_0.6.39      grid_4.5.1        
+[41] rstudioapi_0.17.1  lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5    
+[45] glue_1.8.1         farver_2.1.2       whisker_0.4.1      rmarkdown_2.30    
+[49] tools_4.5.1        pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
