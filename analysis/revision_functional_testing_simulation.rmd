@@ -137,55 +137,73 @@ Switch uses threshold 0.25. The two mechanisms retain the same truth contract:
 
 ### Examples of true effect curves
 
-Figure 1 shows three stored true $\beta_j(t)$ curves per category from seed
-`12345`, including the genetic main effect. Examples are selected in unit
-order within the retained illustration pool, without filtering on discoveries.
-Early, Middle, and Late refer to the location of the largest absolute effect;
-Switch requires both positive and negative effects beyond $\pm0.25$ and can
-overlap any of the three temporal categories.
+Figure 1 shows six examples from seed `12345`: broad B-spline effects
+classified as Early, Middle, or Late (A-C), and transient raised-cosine effects
+with one, two, or three generating peaks (D-F). Each panel uses the first
+eligible unit in the retained illustration pool, ordered by original unit
+index, without filtering on discoveries. The missing two-peak illustration
+is recovered with the original seed and frozen input generator, with truth,
+estimates, and standard errors checked against the retained examples.
+Black points are estimated effects,
+gray bars span $\pm 2$ reported standard errors, and orange curves show the
+true $\beta_j(t)$, including the genetic main effect.
 
-```{r truth-examples, fig.width=11, fig.height=5.8, fig.cap="Figure 1. Examples of true effect curves under broad random B-spline (top) and compact raised-cosine (bottom) truth. Each panel contains three examples with positive values of its defining functional. Shading marks the Early, Middle, or Late time window; dotted horizontal lines in Switch panels mark +/-0.25. All panels share the same effect scale. Curves may appear in both a temporal panel and the Switch panel."}
-# Select true category members from the validated seed-12345 illustration pool.
-example_members <- unique(truth_example_pool[
-  truth_example_pool$true_functional > 0,
-  c("truth_mechanism", "target", "unit_index", "pair_key")
-])
+```{r truth-examples, fig.width=10, fig.height=6.2, fig.cap="Figure 1. Six representative simulated trajectories. A-C: broad B-spline effects with Early, Middle, and Late truth, respectively. D-F: transient raised-cosine effects with one, two, and three generating peaks, respectively. Each panel shows one unit: black points are estimated effects, gray bars span +/-2 reported standard errors, and the orange curve is the true effect. Panels use separate effect scales."}
+# Select one stored example per category, without using method scores or calls.
+example_members <- unique(truth_example_pool[, c("truth_mechanism", "target",
+  "unit_index", "pair_key", "true_functional", "peak_count")])
 example_members <- example_members[order(example_members$unit_index), ]
-selected_examples <- do.call(rbind, lapply(
-  split(example_members, interaction(example_members$truth_mechanism,
-                                     example_members$target, drop = TRUE)),
-  function(members) head(members, 3L)
-))
-stopifnot(nrow(selected_examples) == 24L)
-example_curves <- merge(truth_example_pool, selected_examples,
-  by = c("truth_mechanism", "target", "unit_index", "pair_key"), sort = FALSE)
-example_curves$category <- factor(example_curves$target,
-  levels = c("early", "middle", "late", "switch"),
-  labels = c("Early", "Middle", "Late", "Switch"))
-example_curves$mechanism <- factor(example_curves$truth_mechanism,
-  levels = c("random_bspline", "raised_cosine"),
-  labels = c("Broad B-spline", "Compact raised cosine"))
-stopifnot(!anyNA(example_curves$category), !anyNA(example_curves$mechanism),
-          nrow(example_curves) == 24L * 151L)
-windows <- data.frame(category = factor(c("Early", "Middle", "Late"),
-  levels = levels(example_curves$category)), start = c(0, 3, 12), end = c(3, 12, 15))
-switch_reference <- data.frame(category = factor("Switch",
-  levels = levels(example_curves$category)), threshold = c(-0.25, 0.25))
+panel_labels <- c("A. Broad: Early", "B. Broad: Middle", "C. Broad: Late",
+                  "D. Transient: one peak", "E. Transient: two peaks",
+                  "F. Transient: three peaks")
+selected_examples <- do.call(rbind, lapply(seq_along(panel_labels), function(i) {
+  eligible <- if (i <= 3L) {
+    example_members$truth_mechanism == "random_bspline" &
+      example_members$target == c("early", "middle", "late")[[i]] &
+      example_members$true_functional > 0
+  } else {
+    example_members$truth_mechanism == "raised_cosine" &
+      !is.na(example_members$peak_count) & example_members$peak_count == i - 3L
+  }
+  member <- head(example_members[eligible, c("truth_mechanism", "unit_index",
+    "pair_key", "peak_count")], 1L)
+  stopifnot(nrow(member) == 1L)
+  member$panel <- panel_labels[[i]]
+  member
+}))
+# Check stored peak counts against the validated original generating labels.
+peak_labels <- readRDS(file.path(project_root,
+  "output/revision_simulations/internal/r3_peak_stratified_power_20260918",
+  "peak_labels.rds"))$records[["12345"]]$units
+transient_examples <- selected_examples[4:6, ]
+stopifnot(identical(transient_examples$peak_count, 1:3),
+  identical(transient_examples$peak_count,
+    peak_labels$peak_count[match(transient_examples$pair_key, peak_labels$pair_key)]))
+example_curves <- merge(unique(truth_example_pool[, c("truth_mechanism",
+  "unit_index", "pair_key", "time", "true_effect")]), selected_examples,
+  by = c("truth_mechanism", "unit_index", "pair_key"), sort = FALSE)
+example_observed <- merge(attr(truth_example_pool, "observed"), selected_examples,
+  by = c("truth_mechanism", "unit_index", "pair_key"), sort = FALSE)
+example_curves$panel <- factor(example_curves$panel, levels = panel_labels)
+example_observed$panel <- factor(example_observed$panel, levels = panel_labels)
+stopifnot(!anyNA(example_curves$panel), !anyNA(example_observed$panel),
+  all(table(example_curves$panel) == 151L),
+  all(table(example_observed$panel) == 16L))
 
-# Plot the saved dense true beta(t), with a common y scale across all panels.
-ggplot2::ggplot(example_curves, ggplot2::aes(time, true_effect, group = pair_key)) +
-  ggplot2::geom_rect(data = windows, ggplot2::aes(xmin = start, xmax = end,
-    ymin = -Inf, ymax = Inf), inherit.aes = FALSE, fill = "#F5E6BF", alpha = 0.45) +
-  ggplot2::geom_hline(yintercept = 0, color = "grey65", linewidth = 0.3) +
-  ggplot2::geom_hline(data = switch_reference, ggplot2::aes(yintercept = threshold),
-    linetype = "dotted", color = "grey45", linewidth = 0.4) +
-  ggplot2::geom_line(color = "#0072B2", alpha = 0.8, linewidth = 0.65) +
-  ggplot2::facet_grid(mechanism ~ category) +
-  ggplot2::scale_x_continuous(breaks = c(0, 3, 12, 15)) +
-  ggplot2::labs(x = "Time (days)", y = expression("True effect " * beta[j](t))) +
-  ggplot2::theme_bw(base_size = 12) +
+# Use the appendixB convention: estimated effects with +/-2 SE and orange truth.
+ggplot2::ggplot(example_observed, ggplot2::aes(time, estimate)) +
+  ggplot2::geom_errorbar(ggplot2::aes(ymin = estimate - 2 * se,
+    ymax = estimate + 2 * se), width = 0, color = "grey55", linewidth = 0.35) +
+  ggplot2::geom_point(size = 1.15, color = "black") +
+  ggplot2::geom_line(data = example_curves, ggplot2::aes(time, true_effect),
+    color = "#D55E00", linewidth = 0.8) +
+  ggplot2::facet_wrap(~ panel, ncol = 3, scales = "free_y") +
+  ggplot2::scale_x_continuous(breaks = c(0, 5, 10, 15)) +
+  ggplot2::labs(x = "Time (days)", y = "Effect") +
+  ggplot2::theme_bw(base_size = 11) +
   ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
-    strip.background = ggplot2::element_rect(fill = "grey95"))
+    strip.text = ggplot2::element_text(size = 10),
+    axis.text = ggplot2::element_text(size = 9))
 ```
 
 ## Stage 1: dynamic discovery across alpha

@@ -101,6 +101,23 @@ checks for figures, captions, code folding, and rendered mathematics.
 See the paired workspace plan/log dated 2026-09-17 for validation evidence,
 actual method comparisons, and the browser-console limitation.
 
+## Six representative trajectories
+
+Figure 1 shows one broad example for each temporal category and one transient
+example for each generating peak count. Points and plus/minus two reported
+standard-error bars accompany the orange dense true curve. Examples are ordered
+by unit index without selecting on discoveries.
+
+The original seed-12345 illustration pool lacks two-peak units. Run
+`Rscript --vanilla code/revision_simulations/internal/r3_stage1_method_comparison/prepare_two_peak_example.R`
+once with one CPU thread to recover the first two-peak unit using the frozen
+input generator. No FASH fitting, direct testing, or permutations are repeated.
+All unit-level true functionals and all 12 stored compact-example curves,
+estimates, and standard errors must agree within 1e-12. The cache preserves both
+original and reconstructed input digests because numerical agreement across
+Mac/Linux does not imply byte-identical floating-point matrices. The reporting
+gate validates this separate cache before plotting.
+
 ## Peak-stratified compact-truth power
 
 Figure 3 reuses the global adjusted scores and separates true dynamic units

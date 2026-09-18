@@ -72,6 +72,7 @@ r3c_load_truth_examples <- function(root, report) {
   sys.source(source_path, envir = definitions)
   config <- base$config$formal_configuration
   result <- list()
+  observed <- list()
   for (mechanism in report$contract$mechanisms) {
     reference <- base$records[[paste(mechanism, 12345L, sep = ":")]]
     original <- readRDS(file.path(directory, "replicates", paste0(mechanism, "_seed_12345.rds")))
@@ -81,12 +82,52 @@ r3c_load_truth_examples <- function(root, report) {
     pool <- unlist(examples[[mechanism]], recursive = FALSE, use.names = FALSE)
     ids <- vapply(pool, function(x) x$variant_id, character(1))
     r3c_assert(length(pool) == 12L && !anyDuplicated(ids), "Incomplete or duplicated truth examples.")
+    if (mechanism == "raised_cosine") {
+      recovered_directory <- file.path(root,
+        "output/revision_simulations/internal/r3_six_examples_20260918")
+      recovered_path <- file.path(recovered_directory, "two_peak_example.rds")
+      r3c_assert(identical(r3c_sha(recovered_path),
+        readLines(file.path(recovered_directory, "two_peak_example.sha256"))),
+        "Recovered two-peak illustration checksum changed.")
+      recovered <- readRDS(recovered_path)
+      expected_sources <- c(base$config$contract$base_source_sha[
+        c("simulation", "genotype_helper", "digest_helper", "base_reconstruction")],
+        comparator = report$contract$comparator_sha256)
+      r3c_assert(identical(recovered$schema, "r3-two-peak-illustration-v1") &&
+        identical(recovered$seed, 12345L) &&
+        identical(recovered$baseline_manifest_sha256, report$contract$base_manifest_sha256) &&
+        identical(recovered$scientific_source_sha256, expected_sources) &&
+        identical(recovered$genotype_sha256, base$config$genotype_cache_sha256) &&
+        identical(recovered$original_input_digests, reference$input_digests) &&
+        identical(recovered$producer_sha256, r3c_sha(file.path(root,
+          "code/revision_simulations/internal/r3_stage1_method_comparison/prepare_two_peak_example.R"))) &&
+        is.finite(recovered$max_functional_error) && recovered$max_functional_error <= 1e-12 &&
+        identical(dim(recovered$example_validation_errors), c(3L, 12L)) &&
+        all(is.finite(recovered$example_validation_errors)) &&
+        max(recovered$example_validation_errors) <= 1e-12 &&
+        identical(recovered$example$spike_count, 2L),
+        "Recovered two-peak illustration failed its provenance or numerical checks.")
+      pool <- c(pool, list(recovered$example))
+      r3c_assert(!anyDuplicated(vapply(pool, function(x) x$variant_id, character(1))),
+        "The recovered illustration duplicates a stored example.")
+    }
     for (example in pool) {
       index <- match(example$variant_id, reference$selected_pair_keys)
       curve <- example$true_curve
+      measurements <- example$observed
       r3c_assert(!is.na(index) && isTRUE(reference$inference$true_dynamic[index]) &&
                    identical(curve$time, config$evaluation_grid) &&
                    all(is.finite(curve$true_effect)), "Invalid example unit or dense curve.")
+      r3c_assert(nrow(measurements) == 16L &&
+                   identical(measurements$time, as.numeric(0:15)) &&
+                   all(is.finite(measurements$estimate)) &&
+                   all(is.finite(measurements$se) & measurements$se > 0) &&
+                   (mechanism != "raised_cosine" || example$spike_count %in% 1:3),
+                 "Invalid stored effect estimates, standard errors, or generating peak count.")
+      observed[[length(observed) + 1L]] <- data.frame(
+        truth_mechanism = mechanism, seed = 12345L, unit_index = index,
+        pair_key = example$variant_id, measurements
+      )
       truth <- definitions$evaluate_temporal_functionals(
         matrix(curve$true_effect, nrow = 1L), smooth_var = curve$time,
         switch_threshold = config$switch_threshold, middle_window = config$middle_window,
@@ -102,12 +143,15 @@ r3c_load_truth_examples <- function(root, report) {
         result[[length(result) + 1L]] <- data.frame(
           truth_mechanism = mechanism, seed = 12345L, unit_index = index,
           pair_key = example$variant_id, target = target, true_functional = truth[[target]],
+          peak_count = example$spike_count,
           time = curve$time, true_effect = curve$true_effect
         )
       }
     }
   }
-  do.call(rbind, result)
+  result <- do.call(rbind, result)
+  attr(result, "observed") <- do.call(rbind, observed)
+  result
 }
 
 r3c_peak_power <- function(root, report) {
