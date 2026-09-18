@@ -1,5 +1,5 @@
 ---
-title: "Revision Real-data Analysis R7: matched FASH-linear comparison"
+title: "Matched FASH-linear comparison"
 author: "Ziang Zhang"
 date: "2026-08-29"
 output:
@@ -73,7 +73,7 @@ pre {
 </style>
 
 <div class="matched-banner">
-<strong>Revision analysis R7.</strong> This page reports a fresh full-data
+<strong>Matched FASH-linear comparison.</strong> This page reports a fresh full-data
 matched FASH-linear rerun with `fashr` 0.1.43.
 </div>
 
@@ -292,8 +292,8 @@ comparisons.
 ## Reproducibility and validation
 
 The page reads the versioned cache and does not refit the million-pair model.
-The reporting gate retains byte-level checks for every R7-specific input and
-compares the complete shared-function dependency closure used by R7 against the
+The reporting gate retains byte-level checks for every analysis-specific input and
+compares the complete shared-function dependency closure used by this analysis against the
 frozen source snapshot whose MD5 is recorded in the cache.
 
 ```{bash reproduction-command, eval=FALSE}

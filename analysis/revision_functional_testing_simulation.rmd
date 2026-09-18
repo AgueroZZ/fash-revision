@@ -1,5 +1,5 @@
 ---
-title: "Revision Simulation R3: two-stage dynamic discovery and functional testing"
+title: "Two-stage dynamic discovery and functional testing"
 author: "Ziang Zhang"
 date: "2026-09-18"
 output:
@@ -517,7 +517,7 @@ rates describe performance under the two retained truth mechanisms.
 
 The additional comparison is implemented in
 `code/revision_simulations/internal/r3_stage1_method_comparison/` and reuses
-the completed ten-seed R3 inputs and IWP1 results. Its input-pairing checks
+the completed ten-seed simulation inputs and IWP1 results. Its input-pairing checks
 validate genotype, truth, regression summaries, individual-level expression,
 and covariates before fitting the additional methods. The original two-stage
 runner remains in

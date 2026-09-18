@@ -1,5 +1,5 @@
 ---
-title: "Revision R4: evaluation-grid and Monte Carlo sensitivity"
+title: "Evaluation-grid and posterior Monte Carlo sensitivity"
 author: "Ziang Zhang"
 date: "2026-08-26"
 output:

@@ -1,5 +1,5 @@
 ---
-title: "Revision Real-data Analysis R6: enhancer enrichment of FASH dynamic eQTLs"
+title: "Enhancer enrichment of dynamic eQTLs"
 author: "Ziang Zhang"
 date: "2026-08-26"
 output:
