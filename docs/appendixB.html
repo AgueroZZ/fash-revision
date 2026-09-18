@@ -526,15 +526,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree6e7a5888aac91cfc31c8e8761bb01efcb5d9cd09targetblank6e7a588a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreeb8e443d543283803aa65f9929bf42d1695649fectargetblankb8e443da">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/AgueroZZ/fash-revision/tree/6e7a5888aac91cfc31c8e8761bb01efcb5d9cd09" target="_blank">6e7a588</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/b8e443d543283803aa65f9929bf42d1695649fec" target="_blank">b8e443d</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree6e7a5888aac91cfc31c8e8761bb01efcb5d9cd09targetblank6e7a588a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreeb8e443d543283803aa65f9929bf42d1695649fectargetblankb8e443da"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -544,7 +544,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/AgueroZZ/fash-revision/tree/6e7a5888aac91cfc31c8e8761bb01efcb5d9cd09" target="_blank">6e7a588</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/b8e443d543283803aa65f9929bf42d1695649fec" target="_blank">b8e443d</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -565,7 +565,6 @@ Ignored files:
     Ignored:    Rplots.pdf
     Ignored:    analysis/.DS_Store
     Ignored:    analysis/.Rhistory
-    Ignored:    analysis/figure/
     Ignored:    analysis/site_libs/
     Ignored:    code/.DS_Store
     Ignored:    code/.Rhistory
@@ -645,6 +644,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/b8e443d543283803aa65f9929bf42d1695649fec/analysis/appendixB.rmd" target="_blank">b8e443d</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+<td>
+Distinguish BF-updated curves with triangles and dashed lines
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/95b4dba57b884b82c1b539cc4ac1beaa29ca2a0f/docs/appendixB.html" target="_blank">95b4dba</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+<td>
+Publish mean point-and-line power and FDR figures
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1032,25 +1065,30 @@ ten-repetition means.</p>
 <pre class="r"><code>power_curves &lt;- alpha_summary[, c(&quot;order&quot;, &quot;stage&quot;, &quot;alpha&quot;, &quot;mean_power&quot;,
   &quot;power_min&quot;, &quot;power_max&quot;, &quot;n_replicates&quot;)]
 stopifnot(all(power_curves$n_replicates == 10L))
-power_curves$stage &lt;- factor(power_curves$stage, c(&quot;Raw EB&quot;, &quot;BF updated&quot;))
+power_curves$stage &lt;- factor(power_curves$stage, names(method_shapes))
+stopifnot(!anyNA(power_curves$stage))
 power_curves$panel &lt;- factor(power_curves$order, c(&quot;IWP1&quot;, &quot;IWP2&quot;),
   c(&quot;A  Dynamic effects&quot;, &quot;B  Nonlinear effects&quot;))
-ggplot(power_curves, aes(alpha, mean_power, color = stage)) +
+ggplot(power_curves, aes(alpha, mean_power, color = stage,
+  shape = stage, linetype = stage)) +
   geom_line(linewidth = 0.65) + geom_point(size = 1.4) +
   geom_vline(xintercept = 0.05, color = &quot;grey50&quot;, linetype = &quot;dashed&quot;, linewidth = 0.4) +
   facet_wrap(~panel, nrow = 1) +
   scale_color_manual(values = c(&quot;Raw EB&quot; = &quot;#0072B2&quot;, &quot;BF updated&quot; = &quot;#D55E00&quot;)) +
+  scale_shape_manual(values = method_shapes) +
+  scale_linetype_manual(values = method_linetypes) +
   scale_y_continuous(breaks = seq(0.75, 0.90, by = 0.05),
     expand = expansion(mult = 0)) +
   coord_cartesian(ylim = c(0.75, 0.90)) +
-  labs(x = &quot;Nominal FDR level&quot;, y = &quot;Mean power&quot;, color = NULL, fill = NULL) + c1_plot_theme()</code></pre>
+  labs(x = &quot;Nominal FDR level&quot;, y = &quot;Mean power&quot;, color = NULL, shape = NULL, linetype = NULL) + c1_plot_theme()</code></pre>
 <div class="figure" style="text-align: center">
-<img src="figure/appendixB.rmd/power-1.png" alt="Figure 3. Mean discovery power over ten repetitions (J = 1,200). Panels A and B show dynamic and nonlinear testing. Points connected by lines show ten-repetition mean power. The vertical line marks nominal FDR 0.05." width="1872" />
+<img src="figure/appendixB.rmd/power-1.png" alt="Figure 3. Mean discovery power over ten repetitions (J = 1,200). Panels A and B show dynamic and nonlinear testing. Points connected by lines show ten-repetition mean power. Raw EB uses circles and solid lines; BF updated uses triangles and dashed lines. The vertical line marks nominal FDR 0.05." width="1872" />
 <p class="caption">
 Figure 3. Mean discovery power over ten repetitions (J = 1,200). Panels
 A and B show dynamic and nonlinear testing. Points connected by lines
-show ten-repetition mean power. The vertical line marks nominal FDR
-0.05.
+show ten-repetition mean power. Raw EB uses circles and solid lines; BF
+updated uses triangles and dashed lines. The vertical line marks nominal
+FDR 0.05.
 </p>
 </div>
 <p>
@@ -1077,6 +1115,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/95b4dba57b884b82c1b539cc4ac1beaa29ca2a0f/docs/figure/appendixB.rmd/power-1.png" target="_blank">95b4dba</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/AgueroZZ/fash-revision/blob/dea1967ac33c8391d3d836a338f802a90237f7be/docs/figure/appendixB.rmd/power-1.png" target="_blank">dea1967</a>
 </td>
 <td>
@@ -1093,24 +1142,29 @@ Ziang Zhang
 <pre class="r"><code>fdr_curves &lt;- alpha_summary[, c(&quot;order&quot;, &quot;stage&quot;, &quot;alpha&quot;, &quot;mean_empirical_fdr&quot;,
   &quot;empirical_fdr_min&quot;, &quot;empirical_fdr_max&quot;, &quot;n_replicates&quot;)]
 stopifnot(all(fdr_curves$n_replicates == 10L))
-fdr_curves$stage &lt;- factor(fdr_curves$stage, c(&quot;Raw EB&quot;, &quot;BF updated&quot;))
+fdr_curves$stage &lt;- factor(fdr_curves$stage, names(method_shapes))
+stopifnot(!anyNA(fdr_curves$stage))
 fdr_curves$panel &lt;- factor(fdr_curves$order, c(&quot;IWP1&quot;, &quot;IWP2&quot;),
   c(&quot;A  Dynamic effects&quot;, &quot;B  Nonlinear effects&quot;))
-ggplot(fdr_curves, aes(alpha, mean_empirical_fdr, color = stage)) +
+ggplot(fdr_curves, aes(alpha, mean_empirical_fdr, color = stage,
+  shape = stage, linetype = stage)) +
   geom_line(linewidth = 0.65) + geom_point(size = 1.4) +
   geom_abline(slope = 1, intercept = 0, color = &quot;grey35&quot;, linetype = &quot;dotted&quot;, linewidth = 0.4) +
   geom_vline(xintercept = 0.05, color = &quot;grey50&quot;, linetype = &quot;dashed&quot;, linewidth = 0.4) +
   facet_wrap(~panel, nrow = 1) +
   scale_color_manual(values = c(&quot;Raw EB&quot; = &quot;#0072B2&quot;, &quot;BF updated&quot; = &quot;#D55E00&quot;)) +
+  scale_shape_manual(values = method_shapes) +
+  scale_linetype_manual(values = method_linetypes) +
   coord_cartesian(ylim = c(0, max(0.2, 1.05 * fdr_curves$empirical_fdr_max))) +
-  labs(x = &quot;Nominal FDR level&quot;, y = &quot;Empirical FDR&quot;, color = NULL, fill = NULL) + c1_plot_theme()</code></pre>
+  labs(x = &quot;Nominal FDR level&quot;, y = &quot;Empirical FDR&quot;, color = NULL, shape = NULL, linetype = NULL) + c1_plot_theme()</code></pre>
 <div class="figure" style="text-align: center">
-<img src="figure/appendixB.rmd/empirical-fdr-1.png" alt="Figure 4. Empirical FDR over the same ten repetitions. Panels A and B show dynamic and nonlinear testing. Points connected by lines show the mean of replicate false-discovery proportions. The diagonal marks nominal calibration and the vertical line nominal FDR 0.05." width="1872" />
+<img src="figure/appendixB.rmd/empirical-fdr-1.png" alt="Figure 4. Empirical FDR over the same ten repetitions. Panels A and B show dynamic and nonlinear testing. Points connected by lines show the mean of replicate false-discovery proportions. Raw EB uses circles and solid lines; BF updated uses triangles and dashed lines. The diagonal marks nominal calibration and the vertical line nominal FDR 0.05." width="1872" />
 <p class="caption">
 Figure 4. Empirical FDR over the same ten repetitions. Panels A and B
 show dynamic and nonlinear testing. Points connected by lines show the
-mean of replicate false-discovery proportions. The diagonal marks
-nominal calibration and the vertical line nominal FDR 0.05.
+mean of replicate false-discovery proportions. Raw EB uses circles and
+solid lines; BF updated uses triangles and dashed lines. The diagonal
+marks nominal calibration and the vertical line nominal FDR 0.05.
 </p>
 </div>
 <p>
@@ -1135,6 +1189,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/95b4dba57b884b82c1b539cc4ac1beaa29ca2a0f/docs/figure/appendixB.rmd/empirical-fdr-1.png" target="_blank">95b4dba</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/AgueroZZ/fash-revision/blob/dea1967ac33c8391d3d836a338f802a90237f7be/docs/figure/appendixB.rmd/empirical-fdr-1.png" target="_blank">dea1967</a>
