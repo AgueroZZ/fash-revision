@@ -1,0 +1,296 @@
+---
+title: "Revision Simulation R3: two-stage dynamic discovery and functional testing"
+author: "Ziang Zhang"
+date: "2026-09-05"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  fig.width = 9.4,
+  fig.height = 5.8,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = TRUE
+)
+project_root <- if (
+  file.exists("code/revision_simulations/shared/simulation_functions.R")
+) "." else ".."
+experiment <- file.path(
+  project_root,
+  "code/revision_simulations/internal/r3_two_stage_functional_testing_pilot10"
+)
+source(file.path(experiment, "pilot10_helpers.R"))
+source(file.path(experiment, "reporting.R"))
+report <- r3ts10_load_report(project_root)
+stage1_summary <- report$tables$stage1_mc_summary
+stage1_alpha005 <- report$tables$stage1_alpha005_summary
+stage2_summary <- report$tables$functional_mc_summary
+mechanism_labels <- report$contract$mechanism_labels
+
+stage1_value <- function(mechanism, field, digits = 3L) {
+  row <- stage1_alpha005[
+    stage1_alpha005$truth_mechanism == mechanism,
+    ,
+    drop = FALSE
+  ]
+  stopifnot(nrow(row) == 1L)
+  formatC(row[[field]], format = "f", digits = digits)
+}
+```
+
+<style>
+.r3-two-stage-table {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.r3-two-stage-table table {
+  width: 100%;
+  margin-bottom: 1em;
+}
+.r3-two-stage-table caption {
+  font-weight: 600;
+  color: #333;
+}
+.main-container p code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+</style>
+
+## Overview
+
+This simulation evaluates dynamic eQTL screening followed by temporal
+classification. It uses ten Monte Carlo seeds and two truth mechanisms: broad
+random B-spline trajectories and compact raised-cosine trajectories. The
+analysis proceeds in two stages:
+
+1. Fit BF-adjusted IWP1 to all `6,362` units and evaluate dynamic discovery
+   power and empirical FDR across nominal levels from `0.005` through `0.20`.
+2. At the fixed threshold $q_{\mathrm{dyn}}=0.05$, classify the retained
+   dynamic discoveries as Early, Middle, Late, or Switch, separately for each
+   functional, using $q_{\mathrm{func}}=0.05$.
+
+For donor $i$, unit $j$, and observed time $t$,
+
+$$
+Y_{ijt}=\alpha_{jt}+G_{ij}\beta_j(t)+X_i^T\gamma_{jt}+\epsilon_{ijt},
+\qquad \epsilon_{ijt}\sim N(0,1).
+$$
+
+For each seed, one tested cis variant is sampled uniformly for each of the
+`6,362` tested genes, and its YRI dosage vector is retained for the same `19`
+donors. Each replicate has `16` time points and five standardized covariates.
+The regression summaries use the same t-adjusted standard errors as R1 and R2.
+The dynamic, constant, and zero-effect counts are exactly
+`1,272/2,545/2,545`, with truth classes balanced across empirical-MAF deciles.
+
+The dynamic effects have Early/Middle/Late probabilities `0.29/0.42/0.29`.
+Switch status is balanced within each location, giving six exact cell counts
+`185/184/267/267/185/184`. The final trajectory, including its random genetic
+main effect, must satisfy the assigned location and Switch margins. Early is
+$t\leq3$, Middle is $3<t<12$, and Late is $t\geq12$ on the dense 0.1-day grid;
+Switch uses threshold 0.25. The two mechanisms retain the same truth contract:
+
+- Broad effects are cubic B-splines with six independent standard-normal
+  coefficients, centered over the observed times and scaled to maximum absolute
+  deviation 2.
+- Compact effects contain one, two, or three raised-cosine peaks with half-width
+  1.5 and are scaled to centered RMS 0.9.
+
+## Stage 1: dynamic discovery across alpha
+
+Let $D(\alpha)$ contain the BF-adjusted IWP1 discoveries whose cumulative mean
+lfdr is at most $\alpha$. For each replicate,
+
+$$
+\mathrm{Power}_{\mathrm{dyn}}(\alpha)=
+\frac{|D(\alpha)\cap H_1|}{|H_1|},
+\qquad
+\mathrm{FDR}_{\mathrm{emp}}(\alpha)=
+\frac{|D(\alpha)\cap H_0|}{\max\{|D(\alpha)|,1\}}.
+$$
+
+The curves average these replicate-specific rates across ten seeds. Shaded
+bands are pointwise minima and maxima across those seeds. The vertical line
+marks $\alpha=0.05$; the FDR panel also shows the nominal diagonal.
+
+```{r stage1-selection, eval=FALSE}
+fdr_table <- get_fash_fdr_table(fit_iwp1_bf)
+stage1_by_alpha <- lapply(
+  seq(0.005, 0.20, by = 0.005),
+  function(alpha) {
+    dynamic_calls <- r3ts_stage1(
+      fdr_table,
+      n_units = 6362L,
+      q = alpha
+    )
+    c(
+      power = sum(true_dynamic[dynamic_calls]) / sum(true_dynamic),
+      empirical_fdr = sum(!true_dynamic[dynamic_calls]) /
+        max(length(dynamic_calls), 1L)
+    )
+  }
+)
+```
+
+### Power as a function of alpha
+
+```{r stage1-power, fig.cap="Figure 1. BF-adjusted IWP1 dynamic discovery power across nominal Stage-1 FDR levels under broad random B-spline and compact raised-cosine truth. Curves are ten-seed Monte Carlo means, and ribbons are pointwise replicate minima and maxima."}
+# Plot replicate-mean power and the pointwise replicate range for each truth.
+power_curves <- stage1_summary[
+  order(stage1_summary$truth_mechanism, stage1_summary$alpha),
+  c("truth_mechanism", "alpha", "mean_power", "power_min", "power_max")
+]
+r3ts10_plot_stage1(power_curves, metric = "power", alpha_reference = 0.05)
+```
+
+### Empirical FDR as a function of alpha
+
+```{r stage1-fdr, fig.cap="Figure 2. BF-adjusted IWP1 empirical dynamic FDR across nominal Stage-1 FDR levels under broad random B-spline and compact raised-cosine truth. Curves are ten-seed Monte Carlo means, ribbons are pointwise replicate minima and maxima, and the diagonal marks nominal calibration."}
+# Plot replicate-mean empirical FDR and its range against nominal alpha.
+fdr_curves <- stage1_summary[
+  order(stage1_summary$truth_mechanism, stage1_summary$alpha),
+  c("truth_mechanism", "alpha", "mean_empirical_fdr",
+    "empirical_fdr_min", "empirical_fdr_max")
+]
+r3ts10_plot_stage1(fdr_curves, metric = "fdr", alpha_reference = 0.05)
+```
+
+At $\alpha=0.05$, mean dynamic power is
+`r stage1_value("random_bspline", "mean_power")` under broad truth and
+`r stage1_value("raised_cosine", "mean_power")` under compact truth; the
+corresponding mean empirical FDR values are
+`r stage1_value("random_bspline", "mean_empirical_fdr")` and
+`r stage1_value("raised_cosine", "mean_empirical_fdr")`.
+
+## Stage 2: conditional functional classification at 0.05
+
+For the remainder of the analysis, the candidate set is fixed at $D(0.05)$.
+The fitted prior remains the full-data prior. For each candidate and each
+functional, 3,000 posterior draws are evaluated on the dense time grid. The
+candidate lfsr values are then ranked separately for Early, Middle, Late, and
+Switch, and calls are made while their cumulative FSR is at most 0.05. The four
+classifications are evaluated separately and need not be mutually exclusive.
+
+For target $k$, let $S_k\subseteq D(0.05)$ be its final calls and let
+$T_k\{\beta_j\}>0$ denote true membership. We report
+
+$$
+\mathrm{FSR}_k=
+\frac{\sum_{j\in S_k}\mathbf{1}[T_k\{\beta_j\}\leq0]}
+{\max(|S_k|,1)},
+$$
+
+and conditional classification power
+
+$$
+\mathrm{Power}_{k\mid\mathrm{Stage\ 1}}=
+\frac{\sum_{j\in S_k}\mathbf{1}[T_k\{\beta_j\}>0]}
+{\sum_{j\in D(0.05)}\mathbf{1}[T_k\{\beta_j\}>0]}.
+$$
+
+The tables average each replicate-specific rate and call count across the ten
+seeds.
+
+```{r stage2-selection, eval=FALSE}
+dynamic_candidates <- r3ts_stage1(
+  fdr_table,
+  n_units = 6362L,
+  q = 0.05
+)
+lfsr_by_target <- compute_functional_lfsr(
+  fit = fit_iwp1_bf,
+  functionals = temporal_functionals,
+  indices = dynamic_candidates,
+  smooth_var = seq(0, 15, by = 0.1),
+  num_cores = num_cores,
+  seed = functional_posterior_seed
+)
+stage2_calls <- r3ts_stage2(
+  dynamic_candidates,
+  lfsr_by_target,
+  n_units = 6362L,
+  q = 0.05
+)
+```
+
+```{r stage2-broad-table, results='asis'}
+# Select the truth mechanism and retain only the three displayed estimands.
+broad_table <- stage2_summary[
+  stage2_summary$truth_mechanism == "random_bspline",
+  c("truth_mechanism", "target", "mean_empirical_fsr",
+    "mean_conditional_classification_power", "mean_calls")
+]
+broad_table <- broad_table[
+  match(c("early", "middle", "late", "switch"), broad_table$target),
+]
+r3ts10_show_table(
+  r3ts10_format_stage2_table(broad_table, "random_bspline"),
+  paste(
+    "Table 1. Ten-seed mean Stage-2 results under broad random B-spline truth.",
+    "Classification power is conditional on true target members retained by",
+    "Stage 1 at q = 0.05."
+  )
+)
+```
+
+```{r stage2-compact-table, results='asis'}
+# Select the truth mechanism and retain only the three displayed estimands.
+compact_table <- stage2_summary[
+  stage2_summary$truth_mechanism == "raised_cosine",
+  c("truth_mechanism", "target", "mean_empirical_fsr",
+    "mean_conditional_classification_power", "mean_calls")
+]
+compact_table <- compact_table[
+  match(c("early", "middle", "late", "switch"), compact_table$target),
+]
+r3ts10_show_table(
+  r3ts10_format_stage2_table(compact_table, "raised_cosine"),
+  paste(
+    "Table 2. Ten-seed mean Stage-2 results under compact raised-cosine truth.",
+    "Classification power is conditional on true target members retained by",
+    "Stage 1 at q = 0.05."
+  )
+)
+```
+
+Stage-1 screening and Stage-2 classification answer distinct questions. The
+curves quantify which true dynamic effects reach the candidate set; the tables
+then quantify functional classification among true target members in that set.
+The two nominal 0.05 thresholds are operating rules, and the ten-seed empirical
+rates describe performance under the two retained truth mechanisms.
+
+## Reproducibility
+
+The runner, validation gates, and reporting functions are in
+`code/revision_simulations/internal/r3_two_stage_functional_testing_pilot10/`.
+The completed cache reuses the ten previously validated mechanism-by-seed
+records for the original five seeds and computes ten new records for the five
+added seeds. All fits use the frozen `fashr` 0.1.43 build at Git SHA
+`bf223df75da6e41ae48607a56b4cd12d7c3b24e7`. Large input and fit checkpoints
+remain on Midway3; this page reads only completed, hash-validated result and
+genotype caches. To regenerate on Midway3 using the staged inputs and pinned
+environment:
+
+```bash
+sbatch /project/mstephens/ziangzhang/fash/workspace/slurm/run_r3_two_stage_pilot10.sbatch
+```
+
+```{r cache-identity, results='asis', echo=FALSE}
+cat("Result cache ID: `", report$contract$result_id, "`.\n", sep = "")
+```

@@ -1,7 +1,7 @@
 ---
 title: "Revision Simulation R3: two-stage dynamic discovery and functional testing"
 author: "Ziang Zhang"
-date: "2026-09-18"
+date: "2026-09-17"
 output:
   workflowr::wflow_html:
     code_folding: hide
@@ -38,17 +38,6 @@ report <- r3c_load_report(project_root)
 stage1_summary <- report$tables$stage1_mc_summary
 stage1_alpha005 <- report$tables$stage1_alpha005_summary
 stage2_summary <- report$tables$functional_mc_summary
-truth_example_pool <- r3c_load_truth_examples(project_root, report)
-peak_power <- r3c_peak_power(project_root, report)
-location_power <- r3c_location_power(report)
-peak_difference <- function(peaks) {
-  x <- peak_power$summary
-  x <- x[x$peak_count == peaks & abs(x$alpha - 0.05) < 1e-12, ]
-  delta <- x$mean_power[x$method == "Direct-quadratic-LRT-eFDR-true-pi0"] -
-    x$mean_power[x$method == "FASH-IWP1-BF"]
-  stopifnot(length(delta) == 1L)
-  sprintf("%+.1f", 100 * delta)
-}
 mechanism_labels <- report$baseline$config$contract$mechanism_labels
 
 stage1_value <- function(mechanism, field, digits = 3L, method = "FASH-IWP1-BF") {
@@ -135,59 +124,6 @@ Switch uses threshold 0.25. The two mechanisms retain the same truth contract:
 - Compact effects contain one, two, or three raised-cosine peaks with half-width
   1.5 and are scaled to centered RMS 0.9.
 
-### Examples of true effect curves
-
-Figure 1 shows three stored true $\beta_j(t)$ curves per category from seed
-`12345`, including the genetic main effect. Examples are selected in unit
-order within the retained illustration pool, without filtering on discoveries.
-Early, Middle, and Late refer to the location of the largest absolute effect;
-Switch requires both positive and negative effects beyond $\pm0.25$ and can
-overlap any of the three temporal categories.
-
-```{r truth-examples, fig.width=11, fig.height=5.8, fig.cap="Figure 1. Examples of true effect curves under broad random B-spline (top) and compact raised-cosine (bottom) truth. Each panel contains three examples with positive values of its defining functional. Shading marks the Early, Middle, or Late time window; dotted horizontal lines in Switch panels mark +/-0.25. All panels share the same effect scale. Curves may appear in both a temporal panel and the Switch panel."}
-# Select true category members from the validated seed-12345 illustration pool.
-example_members <- unique(truth_example_pool[
-  truth_example_pool$true_functional > 0,
-  c("truth_mechanism", "target", "unit_index", "pair_key")
-])
-example_members <- example_members[order(example_members$unit_index), ]
-selected_examples <- do.call(rbind, lapply(
-  split(example_members, interaction(example_members$truth_mechanism,
-                                     example_members$target, drop = TRUE)),
-  function(members) head(members, 3L)
-))
-stopifnot(nrow(selected_examples) == 24L)
-example_curves <- merge(truth_example_pool, selected_examples,
-  by = c("truth_mechanism", "target", "unit_index", "pair_key"), sort = FALSE)
-example_curves$category <- factor(example_curves$target,
-  levels = c("early", "middle", "late", "switch"),
-  labels = c("Early", "Middle", "Late", "Switch"))
-example_curves$mechanism <- factor(example_curves$truth_mechanism,
-  levels = c("random_bspline", "raised_cosine"),
-  labels = c("Broad B-spline", "Compact raised cosine"))
-stopifnot(!anyNA(example_curves$category), !anyNA(example_curves$mechanism),
-          nrow(example_curves) == 24L * 151L)
-windows <- data.frame(category = factor(c("Early", "Middle", "Late"),
-  levels = levels(example_curves$category)), start = c(0, 3, 12), end = c(3, 12, 15))
-switch_reference <- data.frame(category = factor("Switch",
-  levels = levels(example_curves$category)), threshold = c(-0.25, 0.25))
-
-# Plot the saved dense true beta(t), with a common y scale across all panels.
-ggplot2::ggplot(example_curves, ggplot2::aes(time, true_effect, group = pair_key)) +
-  ggplot2::geom_rect(data = windows, ggplot2::aes(xmin = start, xmax = end,
-    ymin = -Inf, ymax = Inf), inherit.aes = FALSE, fill = "#F5E6BF", alpha = 0.45) +
-  ggplot2::geom_hline(yintercept = 0, color = "grey65", linewidth = 0.3) +
-  ggplot2::geom_hline(data = switch_reference, ggplot2::aes(yintercept = threshold),
-    linetype = "dotted", color = "grey45", linewidth = 0.4) +
-  ggplot2::geom_line(color = "#0072B2", alpha = 0.8, linewidth = 0.65) +
-  ggplot2::facet_grid(mechanism ~ category) +
-  ggplot2::scale_x_continuous(breaks = c(0, 3, 12, 15)) +
-  ggplot2::labs(x = "Time (days)", y = expression("True effect " * beta[j](t))) +
-  ggplot2::theme_bw(base_size = 12) +
-  ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
-    strip.background = ggplot2::element_rect(fill = "grey95"))
-```
-
 ## Stage 1: dynamic discovery across alpha
 
 FASH-IWP1 and FASH-linear share the unrestricted constant null, the one-day
@@ -246,7 +182,7 @@ direct_calls <- which(direct_qvalues <= alpha)
 
 ### Power as a function of alpha
 
-```{r stage1-power, fig.width=10.4, fig.height=5.2, fig.cap="Figure 2. Dynamic discovery power for BF-adjusted FASH-IWP1, BF-adjusted FASH-linear, and direct linear and quadratic interaction tests. Panels show broad random B-spline and compact raised-cosine truth; curves are ten-seed means and ribbons are pointwise replicate minima and maxima. Direct-test eFDR uses the true null proportion and 100 donor permutations."}
+```{r stage1-power, fig.width=10.4, fig.height=5.2, fig.cap="Figure 1. Dynamic discovery power for BF-adjusted FASH-IWP1, BF-adjusted FASH-linear, and direct linear and quadratic interaction tests. Panels show broad random B-spline and compact raised-cosine truth; curves are ten-seed means and ribbons are pointwise replicate minima and maxima. Direct-test eFDR uses the true null proportion and 100 donor permutations."}
 # Select the four main-comparison methods; Raw FASH results remain in the cache.
 power_curves <- stage1_summary[
   stage1_summary$method %in% report$contract$display_methods,
@@ -260,119 +196,9 @@ power_curves <- power_curves[order(
 r3c_plot_stage1(power_curves, metric = "power")
 ```
 
-### Compact-truth power by number of peaks
-
-We split the compact-truth power comparison by the number of generating
-raised-cosine peaks. For each seed and group, power is the fraction of that
-group's true dynamic units selected using the original global method scores
-and thresholds. The three strata exhaust the dynamic units; curves average
-these within-group powers across the same ten seeds. Each replicate contains
-426, 424, and 422 true dynamic units with one, two, and three peaks, respectively.
-
-```{r stage1-power-by-peaks, fig.width=11, fig.height=4.8, fig.cap="Figure 3. Dynamic discovery power under compact raised-cosine truth, stratified by one, two, or three generating peaks. All four methods retain their original global discovery thresholds. Each curve is the ten-seed mean of within-group power; ribbons show pointwise replicate minima and maxima. The vertical line marks alpha = 0.05."}
-# Each stratum's denominator is all true dynamic units with that peak count.
-# The reporting gate verifies count-weighted powers reproduce Figure 2B per seed.
-peak_curves <- peak_power$summary[
-  peak_power$summary$method %in% report$contract$display_methods,
-  c("peak_count", "method", "alpha", "mean_power", "power_min", "power_max")
-]
-method_labels <- setNames(c("FASH-IWP1 (BF)", "FASH-linear (BF)",
-  "Direct linear", "Direct quadratic"), report$contract$display_methods)
-peak_curves$method_label <- factor(method_labels[peak_curves$method],
-  levels = unname(method_labels))
-peak_curves$peak_group <- factor(peak_curves$peak_count, levels = 1:3,
-  labels = c("1 peak\n426 units per seed", "2 peaks\n424 units per seed",
-             "3 peaks\n422 units per seed"))
-stopifnot(nrow(peak_curves) == 480L, !anyNA(peak_curves$method_label),
-          !anyNA(peak_curves$peak_group))
-method_colors <- setNames(c("#0072B2", "#D55E00", "#009E73", "#CC79A7"),
-  unname(method_labels))
-method_lines <- setNames(c("solid", "longdash", "dotted", "dotdash"),
-  unname(method_labels))
-ggplot2::ggplot(peak_curves, ggplot2::aes(alpha, mean_power,
-    color = method_label, fill = method_label, linetype = method_label)) +
-  ggplot2::geom_ribbon(ggplot2::aes(ymin = power_min, ymax = power_max),
-    alpha = 0.09, color = NA, show.legend = FALSE) +
-  ggplot2::geom_line(linewidth = 0.8) +
-  ggplot2::geom_vline(xintercept = 0.05, color = "grey50",
-    linetype = "dashed", linewidth = 0.4) +
-  ggplot2::facet_wrap(~peak_group, nrow = 1) +
-  ggplot2::scale_color_manual(values = method_colors, drop = FALSE) +
-  ggplot2::scale_fill_manual(values = method_colors, drop = FALSE) +
-  ggplot2::scale_linetype_manual(values = method_lines, drop = FALSE) +
-  ggplot2::scale_x_continuous(breaks = c(0.005, 0.05, 0.10, 0.15, 0.20)) +
-  ggplot2::coord_cartesian(ylim = c(0, 1)) +
-  ggplot2::labs(x = "Nominal Stage-1 FDR level", y = "Mean within-group dynamic power",
-    color = NULL, fill = NULL, linetype = NULL) +
-  ggplot2::theme_bw(base_size = 12) +
-  ggplot2::theme(legend.position = "bottom", panel.grid.minor = ggplot2::element_blank(),
-    strip.background = ggplot2::element_rect(fill = "grey95")) +
-  ggplot2::guides(color = ggplot2::guide_legend(nrow = 2, byrow = TRUE))
-```
-
-At $\alpha=0.05$, direct quadratic minus BF-adjusted FASH-IWP1 mean power is
-`r peak_difference(1L)`, `r peak_difference(2L)`, and `r peak_difference(3L)`
-percentage points for one, two, and three peaks, respectively. Figure 5 reports
-the corresponding overall empirical FDR comparison.
-
-### Power by temporal category under both truth mechanisms
-
-We split both the broad and compact truth comparisons by true Early, Middle,
-and Late category, with 369, 534, and 369 dynamic units per seed under each
-mechanism. Each group includes
-both Switch and non-Switch units. Power uses all true dynamic units in that
-category as its denominator and the original global discovery thresholds.
-This summarizes Stage-1 discovery within true temporal categories; Stage-2
-conditional classification is evaluated separately below.
-
-```{r stage1-power-by-location, fig.width=11, fig.height=7.4, fig.cap="Figure 4. Dynamic discovery power stratified by true Early, Middle, and Late category. Rows show broad random B-spline (top) and compact raised-cosine (bottom) truth. Each stratum includes both Switch and non-Switch units. Curves are ten-seed mean within-category powers using the original global discovery thresholds; ribbons show pointwise replicate minima and maxima. The vertical line marks alpha = 0.05."}
-# Each denominator is all true dynamic units with a positive temporal functional.
-# The reporting gate verifies count-weighted powers reproduce both panels of Figure 2 per seed.
-location_curves <- location_power$summary[
-  location_power$summary$method %in% report$contract$display_methods,
-  c("truth_mechanism", "target", "method", "alpha", "mean_power", "power_min", "power_max")
-]
-method_labels <- setNames(c("FASH-IWP1 (BF)", "FASH-linear (BF)",
-  "Direct linear", "Direct quadratic"), report$contract$display_methods)
-location_curves$method_label <- factor(method_labels[location_curves$method],
-  levels = unname(method_labels))
-location_curves$location_group <- factor(location_curves$target,
-  levels = c("early", "middle", "late"),
-  labels = c("Early\n369 units per seed", "Middle\n534 units per seed",
-             "Late\n369 units per seed"))
-location_curves$mechanism <- factor(location_curves$truth_mechanism,
-  levels = c("random_bspline", "raised_cosine"),
-  labels = c("Broad random B-spline", "Compact raised cosine"))
-stopifnot(nrow(location_curves) == 960L, !anyNA(location_curves$mechanism), !anyNA(location_curves$method_label),
-          !anyNA(location_curves$location_group))
-method_colors <- setNames(c("#0072B2", "#D55E00", "#009E73", "#CC79A7"),
-  unname(method_labels))
-method_lines <- setNames(c("solid", "longdash", "dotted", "dotdash"),
-  unname(method_labels))
-ggplot2::ggplot(location_curves, ggplot2::aes(alpha, mean_power,
-    color = method_label, fill = method_label, linetype = method_label)) +
-  ggplot2::geom_ribbon(ggplot2::aes(ymin = power_min, ymax = power_max),
-    alpha = 0.09, color = NA, show.legend = FALSE) +
-  ggplot2::geom_line(linewidth = 0.8) +
-  ggplot2::geom_vline(xintercept = 0.05, color = "grey50",
-    linetype = "dashed", linewidth = 0.4) +
-  ggplot2::facet_grid(mechanism ~ location_group) +
-  ggplot2::scale_color_manual(values = method_colors, drop = FALSE) +
-  ggplot2::scale_fill_manual(values = method_colors, drop = FALSE) +
-  ggplot2::scale_linetype_manual(values = method_lines, drop = FALSE) +
-  ggplot2::scale_x_continuous(breaks = c(0.005, 0.05, 0.10, 0.15, 0.20)) +
-  ggplot2::coord_cartesian(ylim = c(0, 1)) +
-  ggplot2::labs(x = "Nominal Stage-1 FDR level", y = "Mean within-group dynamic power",
-    color = NULL, fill = NULL, linetype = NULL) +
-  ggplot2::theme_bw(base_size = 12) +
-  ggplot2::theme(legend.position = "bottom", panel.grid.minor = ggplot2::element_blank(),
-    strip.background = ggplot2::element_rect(fill = "grey95")) +
-  ggplot2::guides(color = ggplot2::guide_legend(nrow = 2, byrow = TRUE))
-```
-
 ### Empirical FDR as a function of alpha
 
-```{r stage1-fdr, fig.width=10.4, fig.height=5.2, fig.cap="Figure 5. Empirical dynamic FDR for the same four methods and paired datasets. Curves average replicate-specific false-discovery proportions across ten seeds; ribbons are pointwise replicate minima and maxima. The diagonal marks nominal FDR, and the vertical line marks alpha = 0.05."}
+```{r stage1-fdr, fig.width=10.4, fig.height=5.2, fig.cap="Figure 2. Empirical dynamic FDR for the same four methods and paired datasets. Curves average replicate-specific false-discovery proportions across ten seeds; ribbons are pointwise replicate minima and maxima. The diagonal marks nominal FDR, and the vertical line marks alpha = 0.05."}
 # Use the same truth, method order, and alpha grid as the power comparison.
 fdr_curves <- stage1_summary[
   stage1_summary$method %in% report$contract$display_methods,

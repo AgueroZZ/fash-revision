@@ -26,11 +26,9 @@ Here are examples of how to apply FASH
 
 These pages collect simulations and analyses added during the revision process.
 
-+ [Revision Simulation R1: genotype-level eQTLs with random B-spline effects](revision_genotype_level_simulation.html)
 
-+ [Revision Simulation R2: genotype-level eQTLs with spiky transient effects](revision_combined_spiky_genotype_simulation.html)
 
-+ [Revision Simulation R3: functional testing under broad and transient effects](revision_functional_testing_simulation.html)
++ [Revision Simulation R3: two-stage dynamic discovery and functional testing](revision_functional_testing_simulation.html)
 
 + [Revision Real-data Sensitivity R4: evaluation grid and posterior Monte Carlo size](revision_internal_evaluation_grid_mc_sensitivity.html)
 
