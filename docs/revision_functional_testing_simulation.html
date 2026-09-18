@@ -11,9 +11,9 @@
 
 <meta name="author" content="Ziang Zhang" />
 
-<meta name="date" content="2026-08-26" />
+<meta name="date" content="2026-09-18" />
 
-<title>Revision Simulation R3: functional testing under broad and transient effects</title>
+<title>Revision Simulation R3: two-stage dynamic discovery and functional testing</title>
 
 <script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -363,10 +363,10 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Revision Simulation R3: functional testing
-under broad and transient effects</h1>
+<h1 class="title toc-ignore">Revision Simulation R3: two-stage dynamic
+discovery and functional testing</h1>
 <h4 class="author">Ziang Zhang</h4>
-<h4 class="date">2026-08-26</h4>
+<h4 class="date">2026-09-18</h4>
 
 </div>
 
@@ -374,7 +374,7 @@ under broad and transient effects</h1>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+workflowr <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -385,8 +385,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> </a>
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -395,13 +395,13 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2026-08-27
+<strong>Last updated:</strong> 2026-09-18
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 1
+aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>coderepo-local/</code> <span
@@ -424,21 +424,18 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
-<span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
-changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges"
+<div id="strongRMarkdownfilestronguptodate"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown file has unstaged changes. To know which version of
-the R Markdown file created these results, you’ll want to first commit
-it to the Git repo. If you’re still working on the analysis, you can
-ignore this warning. When you’re finished, you can run
-<code>wflow_publish</code> to commit the R Markdown file and build the
-HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
@@ -529,15 +526,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreecc95532ce7d6694447db8f89387dedf8f4acca75targetblankcc95532a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree98996f5a48db7f846f89ac2dffcbcdf755bee32etargetblank98996f5a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/AgueroZZ/fash-revision/tree/cc95532ce7d6694447db8f89387dedf8f4acca75" target="_blank">cc95532</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/98996f5a48db7f846f89ac2dffcbcdf755bee32e" target="_blank">98996f5</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreecc95532ce7d6694447db8f89387dedf8f4acca75targetblankcc95532a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree98996f5a48db7f846f89ac2dffcbcdf755bee32etargetblank98996f5a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -547,7 +544,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/AgueroZZ/fash-revision/tree/cc95532ce7d6694447db8f89387dedf8f4acca75" target="_blank">cc95532</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/98996f5a48db7f846f89ac2dffcbcdf755bee32e" target="_blank">98996f5</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -582,18 +579,26 @@ Ignored files:
     Ignored:    scripts/
 
 Untracked files:
-    Untracked:  analysis/revision_internal_r3_ideal_gaussian_measurement.rmd
-    Untracked:  code/revision_simulations/internal/r3_ideal_gaussian_measurement/
-    Untracked:  code/revision_simulations/r3_r4_fashr0143/24_r3_full_universe_iwp1_mixture_core.R
-    Untracked:  code/revision_simulations/r3_r4_fashr0143/24_r3_full_universe_iwp1_mixture_fashr0143.R
-    Untracked:  code/revision_simulations/r3_r4_fashr0143/24_r3_full_universe_iwp1_mixture_fashr0143.sbatch
-    Untracked:  code/revision_simulations/r3_r4_fashr0143/test_r3_iwp1_temporal_mixture_production.R
-    Untracked:  code/revision_simulations/shared/r3_iwp1_temporal_mixture_contract.R
-
-Unstaged changes:
-    Modified:   analysis/revision_functional_testing_simulation.rmd
-    Modified:   code/revision_simulations/r3_functional_testing/reporting.R
-    Modified:   code/revision_simulations/r3_functional_testing/test_reporting.R
+    Untracked:  analysis/revision_internal_r3_two_stage_functional_testing.rmd
+    Untracked:  code/revision_simulations/internal/per_unit_enhancer_enrichment/
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/compare_corshrink_versions.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/diagnose_discordant_calls.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/diagnose_smooth_mismatch.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/extract_perunit_lfdr.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_call_venns.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_class_variograms.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_corshrink_result.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_corshrink_versions.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_cs_vs_diagonal.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_day0_day1_distribution.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_mechanism_summary.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_perunit_variogram.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_strober_concordance.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_three_models.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/prepare_reference_sets.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/prototype_corshrink.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/recover_design_factor.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/test_corshrink_reimplementation.R
 
 </code></pre>
 <p>
@@ -639,6 +644,57 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/98996f5a48db7f846f89ac2dffcbcdf755bee32e/analysis/revision_functional_testing_simulation.rmd" target="_blank">98996f5</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+<td>
+Consolidate R1 and R2 into paired two-stage R3 analysis
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/dfc83f0c883723493fd43823bb154a1cca4e61af/analysis/revision_functional_testing_simulation.rmd" target="_blank">dfc83f0</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-29
+</td>
+<td>
+Promote canonical R3 temporal-mixture analysis
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/dfc83f0c883723493fd43823bb154a1cca4e61af/docs/revision_functional_testing_simulation.html" target="_blank">dfc83f0</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-29
+</td>
+<td>
+Promote canonical R3 temporal-mixture analysis
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -749,13 +805,27 @@ Add revision analyses: R1-R6 reviewer-facing pages and internal studies
 </div>
 </div>
 <style>
-.r3-table-scroll {
+p.caption {
+  font-weight: 600;
+  color: #333;
+}
+.r3-two-stage-table {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
-.r3-table-scroll table {
+.r3-two-stage-table table {
+  width: 100%;
   margin-bottom: 1em;
+}
+.r3-two-stage-table caption {
+  font-weight: 600;
+  color: #333;
+}
+.main-container p code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .MathJax_Display {
   max-width: 100%;
@@ -765,1176 +835,542 @@ Add revision analyses: R1-R6 reviewer-facing pages and internal studies
 </style>
 <div id="overview" class="section level2">
 <h2>Overview</h2>
-<p>This simulation evaluates FASH functional testing directly over all
-<code>6,362</code> simulated units. It uses two non-IWP truth mechanisms
-matched on sample size, variant classes, genetic main effects,
-functional labels, and analysis.</p>
-<p>Results are read from a completed five-seed Midway3 cache generated
-with <code>fashr</code> 0.1.43 at Git SHA
-<code>bf223df75da6e41ae48607a56b4cd12d7c3b24e7</code>.</p>
-<p>For donor <span class="math inline">\(i\)</span>, variant <span
-class="math inline">\(j\)</span>, and time <span
+<p>This simulation evaluates dynamic eQTL screening followed by temporal
+classification. It uses ten Monte Carlo seeds and two truth mechanisms:
+broad random B-spline trajectories and compact raised-cosine
+trajectories. The analysis proceeds in two stages:</p>
+<ol style="list-style-type: decimal">
+<li>Compare BF-adjusted FASH-IWP1, BF-adjusted FASH-linear, and direct
+linear and quadratic interaction tests for dynamic discovery across
+nominal FDR levels from <code>0.005</code> through <code>0.20</code>,
+using all <code>6,362</code> units.</li>
+<li>At the fixed threshold <span
+class="math inline">\(q_{\mathrm{dyn}}=0.05\)</span>, classify the
+FASH-IWP1 dynamic discoveries as Early, Middle, Late, or Switch,
+separately for each functional, using <span
+class="math inline">\(q_{\mathrm{func}}=0.05\)</span>.</li>
+</ol>
+<p>For donor <span class="math inline">\(i\)</span>, unit <span
+class="math inline">\(j\)</span>, and observed time <span
 class="math inline">\(t\)</span>,</p>
 <p><span class="math display">\[
-Y_{ijt} = \alpha_{jt} + G_{ij}\beta_j(t) +
-X_i^T\gamma_{jt} + \epsilon_{ijt},
+Y_{ijt}=\alpha_{jt}+G_{ij}\beta_j(t)+X_i^T\gamma_{jt}+\epsilon_{ijt},
 \qquad \epsilon_{ijt}\sim N(0,1).
 \]</span></p>
-<p>The genotype matrix is taken from the real YRI data used in the
-manuscript. For each simulation seed, one tested cis variant is sampled
-uniformly from each of the <code>6,362</code> tested genes, and its
-observed dosage vector is retained for the same <code>19</code> donors.
-A tested variant assigned to multiple genes may therefore appear more
-than once. R1, R2, R3A, and R3B use the exact same sampled gene-variant
-pairs and genotype matrix for a given seed.</p>
-<p>The five columns of <span class="math inline">\(X\)</span> remain
-simulated independently from <span class="math inline">\(N(0,1)\)</span>
-and are standardized across donors. Independently for each covariate,
-gene, and time, <span class="math inline">\(\gamma_{kjt}\sim
-N(0,0.5^2)\)</span>. The current simulation sets <span
-class="math inline">\(\alpha_{jt}=0\)</span>; each fitted regression
-still includes an intercept. Effect trajectories, covariates, covariate
-effects, and expression noise remain simulated.</p>
-<pre class="r"><code>seed &lt;- 12345
-component_seeds &lt;- revision_component_seeds(seed)
+<p>For each seed, one tested cis variant is sampled uniformly for each
+of the <code>6,362</code> tested genes, and its YRI dosage vector is
+retained for the same <code>19</code> donors. Each replicate has
+<code>16</code> time points and five standardized covariates. Per-time
+regressions include an intercept, genotype, and five covariates; their
+t-adjusted standard errors use 12 residual degrees of freedom. The
+dynamic, constant, and zero-effect counts are exactly
+<code>1,272/2,545/2,545</code>, with truth classes balanced across
+empirical-MAF deciles.</p>
+<p>The dynamic effects have Early/Middle/Late probabilities
+<code>0.29/0.42/0.29</code>. Switch status is balanced within each
+location, giving six exact cell counts
+<code>185/184/267/267/185/184</code>. The final trajectory, including
+its random genetic main effect, must satisfy the assigned location and
+Switch margins. Early is <span class="math inline">\(t\leq3\)</span>,
+Middle is <span class="math inline">\(3&lt;t&lt;12\)</span>, and Late is
+<span class="math inline">\(t\geq12\)</span> on the dense 0.1-day grid;
+Switch uses threshold 0.25. The two mechanisms retain the same truth
+contract:</p>
+<ul>
+<li>Broad effects are cubic B-splines with six independent
+standard-normal coefficients, centered over the observed times and
+scaled to maximum absolute deviation 2.</li>
+<li>Compact effects contain one, two, or three raised-cosine peaks with
+half-width 1.5 and are scaled to centered RMS 0.9.</li>
+</ul>
+<div id="examples-of-true-effect-curves" class="section level3">
+<h3>Examples of true effect curves</h3>
+<p>Figure 1 shows three stored true <span
+class="math inline">\(\beta_j(t)\)</span> curves per category from seed
+<code>12345</code>, including the genetic main effect. Examples are
+selected in unit order within the retained illustration pool, without
+filtering on discoveries. Early, Middle, and Late refer to the location
+of the largest absolute effect; Switch requires both positive and
+negative effects beyond <span class="math inline">\(\pm0.25\)</span> and
+can overlap any of the three temporal categories.</p>
+<pre class="r"><code># Select true category members from the validated seed-12345 illustration pool.
+example_members &lt;- unique(truth_example_pool[
+  truth_example_pool$true_functional &gt; 0,
+  c(&quot;truth_mechanism&quot;, &quot;target&quot;, &quot;unit_index&quot;, &quot;pair_key&quot;)
+])
+example_members &lt;- example_members[order(example_members$unit_index), ]
+selected_examples &lt;- do.call(rbind, lapply(
+  split(example_members, interaction(example_members$truth_mechanism,
+                                     example_members$target, drop = TRUE)),
+  function(members) head(members, 3L)
+))
+stopifnot(nrow(selected_examples) == 24L)
+example_curves &lt;- merge(truth_example_pool, selected_examples,
+  by = c(&quot;truth_mechanism&quot;, &quot;target&quot;, &quot;unit_index&quot;, &quot;pair_key&quot;), sort = FALSE)
+example_curves$category &lt;- factor(example_curves$target,
+  levels = c(&quot;early&quot;, &quot;middle&quot;, &quot;late&quot;, &quot;switch&quot;),
+  labels = c(&quot;Early&quot;, &quot;Middle&quot;, &quot;Late&quot;, &quot;Switch&quot;))
+example_curves$mechanism &lt;- factor(example_curves$truth_mechanism,
+  levels = c(&quot;random_bspline&quot;, &quot;raised_cosine&quot;),
+  labels = c(&quot;Broad B-spline&quot;, &quot;Compact raised cosine&quot;))
+stopifnot(!anyNA(example_curves$category), !anyNA(example_curves$mechanism),
+          nrow(example_curves) == 24L * 151L)
+windows &lt;- data.frame(category = factor(c(&quot;Early&quot;, &quot;Middle&quot;, &quot;Late&quot;),
+  levels = levels(example_curves$category)), start = c(0, 3, 12), end = c(3, 12, 15))
+switch_reference &lt;- data.frame(category = factor(&quot;Switch&quot;,
+  levels = levels(example_curves$category)), threshold = c(-0.25, 0.25))
 
-genotype_cache &lt;- readRDS(
-  &quot;output/revision_simulations/shared/real_genotype_one_per_gene_J6362_pilot5/genotype_samples.rds&quot;
-)
-genotype_sample &lt;- genotype_cache$samples[[as.character(seed)]]
-G &lt;- genotype_sample$G
-covariates &lt;- simulate_covariate_matrix(
-  n_donors = 19,
-  n_covariates = 5,
-  seed = component_seeds[[&quot;covariates&quot;]]
-)</code></pre>
-<div id="real-genotype-design" class="section level3">
-<h3>Real-genotype design</h3>
-<div class="r3-table-scroll">
-<pre class="r"><code>knitr::kable(
-  genotype_sampling_table,
-  align = &quot;l&quot;,
-  caption = paste(
-    &quot;Table 1. Per-seed genotype sampling summary. Repeated assignments&quot;,
-    &quot;refer to the same tested variant selected for more than one gene.&quot;
-  )
-)</code></pre>
-<table>
-<caption>Table 1. Per-seed genotype sampling summary. Repeated
-assignments refer to the same tested variant selected for more than one
-gene.</caption>
-<colgroup>
-<col width="7%" />
-<col width="7%" />
-<col width="16%" />
-<col width="40%" />
-<col width="15%" />
-<col width="13%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Seed</th>
-<th align="left">Genes</th>
-<th align="left">Unique rsIDs</th>
-<th align="left">Repeated cross-gene assignments</th>
-<th align="left">MAF range</th>
-<th align="left">Median MAF</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">12345</td>
-<td align="left">6,362</td>
-<td align="left">6,345</td>
-<td align="left">17</td>
-<td align="left">0.101-0.500</td>
-<td align="left">0.254</td>
-</tr>
-<tr class="even">
-<td align="left">22345</td>
-<td align="left">6,362</td>
-<td align="left">6,342</td>
-<td align="left">20</td>
-<td align="left">0.100-0.500</td>
-<td align="left">0.243</td>
-</tr>
-<tr class="odd">
-<td align="left">32345</td>
-<td align="left">6,362</td>
-<td align="left">6,338</td>
-<td align="left">24</td>
-<td align="left">0.100-0.500</td>
-<td align="left">0.251</td>
-</tr>
-<tr class="even">
-<td align="left">42345</td>
-<td align="left">6,362</td>
-<td align="left">6,333</td>
-<td align="left">29</td>
-<td align="left">0.100-0.500</td>
-<td align="left">0.239</td>
-</tr>
-<tr class="odd">
-<td align="left">52345</td>
-<td align="left">6,362</td>
-<td align="left">6,338</td>
-<td align="left">24</td>
-<td align="left">0.100-0.500</td>
-<td align="left">0.257</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>Each replicate contains <code>19</code> donors, <code>16</code> time
-points, five PC-like covariates, <code>1,272</code> dynamic eQTLs,
-<code>2,545</code> constant eQTLs, and <code>2,545</code> zero-effect
-units. Truth classes are assigned within empirical-MAF deciles so that
-the dynamic, constant, and zero-effect groups have closely matched MAF
-distributions.</p>
-<div class="r3-table-scroll">
-<pre class="r"><code>knitr::kable(
-  truth_maf_balance_table,
-  align = &quot;l&quot;,
-  caption = &quot;Table 2. Empirical MAF balance across truth classes over five simulation seeds.&quot;
-)</code></pre>
-<table>
-<caption>Table 2. Empirical MAF balance across truth classes over five
-simulation seeds.</caption>
-<colgroup>
-<col width="16%" />
-<col width="20%" />
-<col width="29%" />
-<col width="33%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Truth class</th>
-<th align="left">Units per seed</th>
-<th align="left">Mean MAF across seeds</th>
-<th align="left">Maximum absolute MAF SMD</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Dynamic</td>
-<td align="left">1,272</td>
-<td align="left">0.270</td>
-<td align="left">0.001</td>
-</tr>
-<tr class="even">
-<td align="left">Constant</td>
-<td align="left">2,545</td>
-<td align="left">0.270</td>
-<td align="left">0.003</td>
-</tr>
-<tr class="odd">
-<td align="left">Zero</td>
-<td align="left">2,545</td>
-<td align="left">0.270</td>
-<td align="left">0.003</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>For every dynamic candidate,</p>
-<p><span class="math display">\[
-\beta_j(t)=\mu_j+h_j(t),
-\qquad \mu_j\sim N(0,1).
-\]</span></p>
-<p>The <code>1,272</code> dynamic eQTLs use Early/Middle/Late
-probabilities <code>0.29/0.42/0.29</code>, giving exact location counts
-<code>369/534/369</code>. Switch status is balanced within each
-location, yielding six cell counts <code>185/184/267/267/185/184</code>
-in Early/Switch, Early/Non-switch, Middle/Switch, Middle/Non-switch,
-Late/Switch, Late/Non-switch order. Each candidate draws a new <span
-class="math inline">\(\mu_j\)</span> from <span
-class="math inline">\(N(0,1)\)</span>; rejection sampling retains it
-only when the final trajectory <span
-class="math inline">\(\mu_j+h_j(t)\)</span> satisfies its assigned
-cell.</p>
-</div>
-<div id="r3a-broad-random-b-spline-effects" class="section level3">
-<h3>R3A: broad random B-spline effects</h3>
-<p>The deviation <span class="math inline">\(h_j(t)\)</span> is a cubic
-B-spline with six iid <span class="math inline">\(N(0,1)\)</span>
-coefficients. It is centered over the 16 observed times and scaled to
-maximum absolute value <code>2</code> before adding <span
-class="math inline">\(\mu_j\)</span>.</p>
-</div>
-<div id="r3b-compact-raised-cosine-effects" class="section level3">
-<h3>R3B: compact raised-cosine effects</h3>
-<p>The deviation <span class="math inline">\(h_j(t)\)</span> contains
-one, two, or three compact raised-cosine peaks with half-width
-<code>1.5</code>. Primary peak centers are sampled from
-<code>1.5</code>–<code>2.5</code> for Early,
-<code>4.5</code>–<code>10.5</code> for Middle, and
-<code>12.5</code>–<code>13.5</code> for Late. Secondary peak centers use
-the same three aligned ranges, their amplitudes are random, and the
-deviation is scaled to centered RMS <code>0.9</code> before adding <span
-class="math inline">\(\mu_j\)</span>. As in R3A, the final dense-grid
-trajectory must satisfy its assigned functional label and clearance
-margin.</p>
-</div>
-<div id="truth-definitions" class="section level3">
-<h3>Truth definitions</h3>
-<p>Early, middle, and late use the same supremum-contrast functionals as
-the manuscript, with the revised temporal partition defined exactly as
-Early <span class="math inline">\(t\leq 3\)</span>, Middle <span
-class="math inline">\(3&lt;t&lt;12\)</span>, and Late <span
-class="math inline">\(t\geq 12\)</span>. On the dense evaluation grid
-<code>seq(0, 15, by = 0.1)</code>, the Middle functional therefore uses
-the 89 points from <code>3.1</code> through <code>11.9</code>; times
-<code>3</code> and <code>12</code> belong only to Early and Late,
-respectively. These are continuous-time definitions. The simulation
-evaluates their dense-grid analogues. Writing <span
-class="math inline">\(R_j=\sup_t\beta_j(t)-\inf_t\beta_j(t)\)</span>,
-the scale-adaptive location margin is</p>
-<p><span class="math display">\[
-m_j=\max(0.1,\,0.1R_j).
-\]</span></p>
-<p>The assigned Early, Middle, or Late contrast must be at least <span
-class="math inline">\(m_j\)</span>, and both competing location
-contrasts must be at most <span class="math inline">\(-m_j\)</span>.
-Thus the same relative clearance rule is applied symmetrically to all
-three location categories.</p>
-<p>For the switch threshold <span
-class="math inline">\(c=0.25\)</span>,</p>
-<p><span class="math display">\[
-T_{\mathrm{switch}}\{\beta\}
-=
-\min\left[
-\sup_t\{\beta(t):\beta(t)&gt;0\},
-\sup_t\{|\beta(t)|:\beta(t)&lt;0\}
-\right]-c.
-\]</span></p>
-<p>A switch truth must have <span
-class="math inline">\(T_{\mathrm{switch}}\geq 0.1\)</span>;
-equivalently, it has both a positive and a negative effect of magnitude
-at least <code>0.35</code>. A non-switch truth remains the same sign
-over the full dense grid. Its clearance from zero must satisfy</p>
-<p><span class="math display">\[
-\min_t|\beta_j(t)|\geq\max(0.1,\,0.1R_j).
-\]</span></p>
-<p>Thus, a larger-amplitude non-switch curve must remain proportionally
-farther from zero. These margins make the simulation labels
-unambiguous.</p>
-<pre class="r"><code>truth_mechanism &lt;- &quot;random_bspline&quot; # Use &quot;raised_cosine&quot; for R3B.
-scenario &lt;- paste0(
-  if (truth_mechanism == &quot;random_bspline&quot;) &quot;r3a_&quot; else &quot;r3b_&quot;,
-  &quot;real_genotype_one_per_gene_matched_functional_&quot;,
-  truth_mechanism,
-  &quot;_open_middle_3_12_center_aligned_iwp1_geometry_mixture_&quot;,
-  paste0(
-    &quot;relative_location_clearance_full_universe_&quot;,
-    &quot;paired_posterior_main_effect&quot;
-  )
-)
-time_grid &lt;- 0:15
-evaluation_grid &lt;- seq(0, 15, by = 0.1)
-class_probs &lt;- c(
-  dynamic_bspline = 0.20,
-  constant = 0.40,
-  zero = 0.40
-)
-
-effect_sim &lt;- simulate_matched_functional_effect_set(
-  n_variants = 6362,
-  truth_mechanism = truth_mechanism,
-  time_grid = time_grid,
-  evaluation_grid = evaluation_grid,
-  class_probs = class_probs,
-  dynamic_main_effect_sd = 1,
-  constant_sd = 1,
-  bspline_amplitude = 2,
-  bspline_df = 6,
-  bspline_coefficient_sd = 1,
-  cosine_width_half = 1.5,
-  cosine_spike_counts = 1:3,
-  cosine_relative_amplitude_range = c(0.35, 0.75),
-  cosine_target_centered_rms = 0.9,
-  cosine_center_ranges = list(
-    early = c(1.5, 2.5),
-    middle = c(4.5, 10.5),
-    late = c(12.5, 13.5)
-  ),
-  switch_threshold = 0.25,
-  middle_window = c(3, 12),
-  middle_boundary = &quot;open&quot;,
-  location_truth_margin = 0.10,
-  location_truth_min_range_fraction = 0.10,
-  switch_truth_margin = 0.10,
-  non_switch_min_abs = 0.10,
-  non_switch_min_range_fraction = 0.10,
-  temporal_category_probs = setNames(
-    c(0.29, 0.42, 0.29),
-    c(&quot;early&quot;, &quot;middle&quot;, &quot;late&quot;)
-  ),
-  exact_class_counts = TRUE,
-  seed = seed,
-  class_seed = component_seeds[[&quot;classes&quot;]],
-  constant_seed = component_seeds[[&quot;constant_effects&quot;]],
-  shape_seed = component_seeds[[&quot;functional_truth&quot;]],
-  scenario = scenario
-)
-effect_sim &lt;- reassign_effect_simulation_by_maf(
-  effect_sim = effect_sim,
-  maf = genotype_sample$variant_info$observed_maf,
-  class_probs = class_probs,
-  seed = component_seeds[[&quot;classes&quot;]],
-  n_strata = 10L
-)
-expression_sim &lt;- simulate_eqtl_expression_from_genotypes(
-  G = G,
-  beta_matrix = effect_sim$beta_matrix,
-  time_grid = time_grid,
-  covariates = covariates,
-  expression_noise_sd = 1,
-  covariate_effect_sd = 0.5,
-  intercept_sd = 0,
-  seed = component_seeds[[&quot;expression&quot;]]
-)</code></pre>
-<p>At each observed time, the genetic effect and standard error are
-estimated from <code>Y ~ G + PC1 + PC2 + PC3 + PC4 + PC5</code>. The
-t-statistic correction uses <code>df = 19 - 7 = 12</code>; FASH is fit
-to these estimates and corrected standard errors.</p>
-</div>
-</div>
-<div id="example-truth-curves" class="section level2">
-<h2>Example truth curves</h2>
-<p>Two examples are shown for each of the six functional truth cells.
-Points and bars are the per-time estimates and two corrected standard
-errors used by FASH; orange lines are the continuous truths. Shading
-marks the target timing window.</p>
-<div id="r3a-examples" class="section level3">
-<h3>R3A examples</h3>
-<pre class="r"><code>plot_truth_examples(
-  example_curves$random_bspline,
-  mechanism_labels[[&quot;random_bspline&quot;]]
-)</code></pre>
+# Plot the saved dense true beta(t), with a common y scale across all panels.
+ggplot2::ggplot(example_curves, ggplot2::aes(time, true_effect, group = pair_key)) +
+  ggplot2::geom_rect(data = windows, ggplot2::aes(xmin = start, xmax = end,
+    ymin = -Inf, ymax = Inf), inherit.aes = FALSE, fill = &quot;#F5E6BF&quot;, alpha = 0.45) +
+  ggplot2::geom_hline(yintercept = 0, color = &quot;grey65&quot;, linewidth = 0.3) +
+  ggplot2::geom_hline(data = switch_reference, ggplot2::aes(yintercept = threshold),
+    linetype = &quot;dotted&quot;, color = &quot;grey45&quot;, linewidth = 0.4) +
+  ggplot2::geom_line(color = &quot;#0072B2&quot;, alpha = 0.8, linewidth = 0.65) +
+  ggplot2::facet_grid(mechanism ~ category) +
+  ggplot2::scale_x_continuous(breaks = c(0, 3, 12, 15)) +
+  ggplot2::labs(x = &quot;Time (days)&quot;, y = expression(&quot;True effect &quot; * beta[j](t))) +
+  ggplot2::theme_bw(base_size = 12) +
+  ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
+    strip.background = ggplot2::element_rect(fill = &quot;grey95&quot;))</code></pre>
 <div class="figure" style="text-align: center">
-<img src="figure/revision_functional_testing_simulation.rmd/r3a-examples-1.png" alt="Figure 1. Representative broad random B-spline truth curves for each functional target and timing cell. Points and bars show estimated effects and two corrected standard errors, orange lines are continuous truths, and shading marks the target timing window." width="1980" />
+<img src="figure/revision_functional_testing_simulation.rmd/truth-examples-1.png" alt="Figure 1. Examples of true effect curves under broad random B-spline (top) and compact raised-cosine (bottom) truth. Each panel contains three examples with positive values of its defining functional. Shading marks the Early, Middle, or Late time window; dotted horizontal lines in Switch panels mark +/-0.25. All panels share the same effect scale. Curves may appear in both a temporal panel and the Switch panel." width="1980" />
 <p class="caption">
-Figure 1. Representative broad random B-spline truth curves for each
-functional target and timing cell. Points and bars show estimated
-effects and two corrected standard errors, orange lines are continuous
-truths, and shading marks the target timing window.
+Figure 1. Examples of true effect curves under broad random B-spline
+(top) and compact raised-cosine (bottom) truth. Each panel contains
+three examples with positive values of its defining functional. Shading
+marks the Early, Middle, or Late time window; dotted horizontal lines in
+Switch panels mark +/-0.25. All panels share the same effect scale.
+Curves may appear in both a temporal panel and the Switch panel.
 </p>
 </div>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-r3a-examples-1">
-Past versions of r3a-examples-1.png
-</button>
-</p>
-<div id="fig-r3a-examples-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/cc95532ce7d6694447db8f89387dedf8f4acca75/docs/figure/revision_functional_testing_simulation.rmd/r3a-examples-1.png" target="_blank">cc95532</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-27
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_functional_testing_simulation.rmd/r3a-examples-1.png" target="_blank">09f63bc</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-24
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/figure/revision_functional_testing_simulation.rmd/r3a-examples-1.png" target="_blank">c87957a</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-10
-</td>
-</tr>
-</tbody>
-</table>
 </div>
 </div>
-</div>
-<div id="r3b-examples" class="section level3">
-<h3>R3B examples</h3>
-<pre class="r"><code>plot_truth_examples(
-  example_curves$raised_cosine,
-  mechanism_labels[[&quot;raised_cosine&quot;]]
-)</code></pre>
-<div class="figure" style="text-align: center">
-<img src="figure/revision_functional_testing_simulation.rmd/r3b-examples-1.png" alt="Figure 2. Representative compact raised-cosine truth curves for each functional target and timing cell. Points and bars show estimated effects and two corrected standard errors, orange lines are continuous truths, and shading marks the target timing window." width="1980" />
-<p class="caption">
-Figure 2. Representative compact raised-cosine truth curves for each
-functional target and timing cell. Points and bars show estimated
-effects and two corrected standard errors, orange lines are continuous
-truths, and shading marks the target timing window.
-</p>
-</div>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-r3b-examples-1">
-Past versions of r3b-examples-1.png
-</button>
-</p>
-<div id="fig-r3b-examples-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/cc95532ce7d6694447db8f89387dedf8f4acca75/docs/figure/revision_functional_testing_simulation.rmd/r3b-examples-1.png" target="_blank">cc95532</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-27
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_functional_testing_simulation.rmd/r3b-examples-1.png" target="_blank">09f63bc</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-24
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/figure/revision_functional_testing_simulation.rmd/r3b-examples-1.png" target="_blank">c87957a</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-10
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-</div>
-<div id="inference-procedure" class="section level2">
-<h2>Inference procedure</h2>
-<p>At each nominal level <span class="math inline">\(\alpha\)</span>,
-the same procedure is applied to <code>FASH-IWP1-Raw</code> and
-<code>FASH-IWP1-BF</code>:</p>
-<ol style="list-style-type: decimal">
-<li>Evaluate the early, middle, late, and switch functionals from
-posterior samples for every simulated unit.</li>
-<li>Compute the functional lfsr for each unit and target.</li>
-<li>Rank the lfsr values and call variants whose cumulative FSR is at
-most <span class="math inline">\(\alpha\)</span>.</li>
-</ol>
-<p>Power is the fraction of true positive functionals that are called.
-Empirical FSR is the fraction of functional calls whose known true
-functional is non-positive. Curves show five-replication Monte Carlo
-means over the complete saved alpha grid from <code>0.005</code> through
-<code>0.20</code>. Power panels show Raw and BF; empirical-FSR panels
-show BF only. BF ribbons are pointwise minima and maxima across five
-replications.</p>
-<pre class="r"><code>out &lt;- run_genotype_level_dynamic_eqtl_simulation(
-  G = G,
-  time_grid = time_grid,
-  covariates = covariates,
-  class_probs = class_probs,
-  expression_noise_sd = 1,
-  covariate_effect_sd = 0.5,
-  intercept_sd = 0,
-  dynamic_main_effect_sd = 1,
-  alpha = 0.05,
-  seed = seed,
-  num_cores = 4,
-  num_basis = 20,
-  scenario = scenario,
-  save_outputs = FALSE,
-  effect_sim = effect_sim,
-  expression_sim = expression_sim
-)
+<div id="stage-1-dynamic-discovery-across-alpha" class="section level2">
+<h2>Stage 1: dynamic discovery across alpha</h2>
+<p>FASH-IWP1 and FASH-linear share the unrestricted constant null, the
+one-day predictive-SD grid (zero plus 51 positive values from <span
+class="math inline">\(\exp(-5)\)</span> to 1), and
+<code>penalty = 10</code>. FASH-linear uses a finite mixture of Gaussian
+linear slopes. Both fits use the pinned BF update, which retains the
+conditional alternative mixture and updates its total weight against the
+constant null.</p>
+<p>The direct linear LRT tests the genotype-by-time term; the quadratic
+LRT jointly tests the linear and quadratic interaction terms. Their eFDR
+uses 100 donor-level permutations, with expression trajectories and
+covariates permuted together relative to genotype. The direct tests are
+supplied with the true <span
+class="math inline">\(\pi_0=5090/6362\)</span>; FASH estimates its null
+weight. All methods use the same simulated data. FASH receives per-time
+regression summaries, while the direct tests receive individual-level
+data.</p>
+<p>Let <span class="math inline">\(D_m(\alpha)\)</span> be the
+discoveries for method <span class="math inline">\(m\)</span>. FASH uses
+cumulative mean lfdr, and direct tests use monotone permutation eFDR
+q-values. For each replicate,</p>
+<p><span class="math display">\[
+\mathrm{Power}_m(\alpha)=\frac{|D_m(\alpha)\cap H_1|}{|H_1|},
+\qquad
+\mathrm{FDP}_m(\alpha)=
+\frac{|D_m(\alpha)\cap H_0|}{\max\{|D_m(\alpha)|,1\}}.
+\]</span></p>
+<p>The curves show the ten-seed means of power and FDP (empirical FDR).
+Ribbons are pointwise replicate minima and maxima. Each panel is one
+truth mechanism; the vertical line marks <span
+class="math inline">\(\alpha=0.05\)</span>, and the FDR diagonal marks
+nominal calibration. Both FASH methods also retain Raw results in the
+cache for later Raw-versus-BF comparisons.</p>
+<pre class="r"><code># FASH: rank all-unit lfdr values and select by their cumulative mean.
+lfdr_order &lt;- order(lfdr, unit_index)
+fdr &lt;- cumsum(lfdr[lfdr_order]) / seq_along(lfdr_order)
+fash_calls &lt;- lfdr_order[fdr &lt;= alpha]
 
-true_functionals &lt;- effect_sim$true_functionals[
-  , c(&quot;early&quot;, &quot;middle&quot;, &quot;late&quot;, &quot;switch&quot;), drop = FALSE
-]
-true_dynamic &lt;- out$unit_info$effect_class == &quot;dynamic_bspline&quot;
-functional_posterior_seed &lt;- component_seeds[[&quot;functional_posterior&quot;]]
-
-raw_results &lt;- evaluate_fash_functional_testing(
-  fit = out$fash_fits$fash_iwp1_raw,
-  true_functionals = true_functionals,
-  evaluation_grid = evaluation_grid,
-  alpha_grid = seq(0.005, 0.20, by = 0.005),
-  method = &quot;FASH-IWP1-Raw&quot;,
-  switch_threshold = 0.25,
-  middle_window = c(3, 12),
-  middle_boundary = &quot;open&quot;,
-  true_dynamic = true_dynamic,
-  candidate_scope = &quot;full_universe&quot;,
-  num_cores = 4,
-  seed = functional_posterior_seed
+# Direct LRTs: apply the same donor permutations to both interaction degrees.
+permutation_null &lt;- compute_direct_interaction_permutation_null(
+  out = individual_level_data,
+  n_permutations = 100L,
+  interaction_degrees = c(1L, 2L),
+  seed = seed + 10000L,
+  permute_covariates_with_expression = TRUE,
+  num_cores = num_cores
 )
-bf_results &lt;- evaluate_fash_functional_testing(
-  fit = out$fash_fits$fash_iwp1_bf,
-  true_functionals = true_functionals,
-  evaluation_grid = evaluation_grid,
-  alpha_grid = seq(0.005, 0.20, by = 0.005),
-  method = &quot;FASH-IWP1-BF&quot;,
-  switch_threshold = 0.25,
-  middle_window = c(3, 12),
-  middle_boundary = &quot;open&quot;,
-  true_dynamic = true_dynamic,
-  candidate_scope = &quot;full_universe&quot;,
-  num_cores = 4,
-  seed = functional_posterior_seed
-)</code></pre>
-<p>Raw and BF therefore use common random numbers for posterior
-functional summaries; their comparison is not perturbed by an avoidable
-difference in Monte Carlo draws.</p>
-</div>
-<div id="r3a-broad-random-b-spline-results" class="section level2">
-<h2>R3A: broad random B-spline results</h2>
-<div id="results-at-alpha-0.05" class="section level3">
-<h3>Results at alpha 0.05</h3>
-<div class="r3-table-scroll">
-<pre class="r"><code>knitr::kable(
-  r3a_table,
-  align = &quot;l&quot;,
-  caption = paste(
-    &quot;Table 3. Functional-testing power and empirical false sign rate at&quot;,
-    &quot;alpha 0.05 under broad random B-spline truth.&quot;
-  )
-)</code></pre>
-<table style="width:100%;">
-<caption>Table 3. Functional-testing power and empirical false sign rate
-at alpha 0.05 under broad random B-spline truth.</caption>
-<colgroup>
-<col width="8%" />
-<col width="17%" />
-<col width="13%" />
-<col width="26%" />
-<col width="32%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Target</th>
-<th align="left">Method</th>
-<th align="left">Mean calls</th>
-<th align="left">Power (95% MC CI)</th>
-<th align="left">Empirical FSR (95% MC CI)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Early</td>
-<td align="left">FASH-IWP1-Raw</td>
-<td align="left">93.0</td>
-<td align="left">0.252 [0.238, 0.266]</td>
-<td align="left">0.000 [0.000, 0.000]</td>
-</tr>
-<tr class="even">
-<td align="left">Early</td>
-<td align="left">FASH-IWP1-BF</td>
-<td align="left">88.8</td>
-<td align="left">0.241 [0.222, 0.259]</td>
-<td align="left">0.000 [0.000, 0.000]</td>
-</tr>
-<tr class="odd">
-<td align="left">Middle</td>
-<td align="left">FASH-IWP1-Raw</td>
-<td align="left">492.4</td>
-<td align="left">0.887 [0.874, 0.900]</td>
-<td align="left">0.038 [0.031, 0.046]</td>
-</tr>
-<tr class="even">
-<td align="left">Middle</td>
-<td align="left">FASH-IWP1-BF</td>
-<td align="left">485.8</td>
-<td align="left">0.878 [0.864, 0.891]</td>
-<td align="left">0.035 [0.026, 0.045]</td>
-</tr>
-<tr class="odd">
-<td align="left">Late</td>
-<td align="left">FASH-IWP1-Raw</td>
-<td align="left">91.8</td>
-<td align="left">0.246 [0.194, 0.298]</td>
-<td align="left">0.010 [0.002, 0.018]</td>
-</tr>
-<tr class="even">
-<td align="left">Late</td>
-<td align="left">FASH-IWP1-BF</td>
-<td align="left">87.4</td>
-<td align="left">0.235 [0.184, 0.286]</td>
-<td align="left">0.008 [0.000, 0.019]</td>
-</tr>
-<tr class="odd">
-<td align="left">Switch</td>
-<td align="left">FASH-IWP1-Raw</td>
-<td align="left">594.0</td>
-<td align="left">0.888 [0.882, 0.894]</td>
-<td align="left">0.048 [0.038, 0.058]</td>
-</tr>
-<tr class="even">
-<td align="left">Switch</td>
-<td align="left">FASH-IWP1-BF</td>
-<td align="left">583.2</td>
-<td align="left">0.882 [0.877, 0.888]</td>
-<td align="left">0.036 [0.027, 0.045]</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+direct_qvalues &lt;- empirical_fdr_qvalues(
+  observed_pvalues = observed_lrt$pvalue,
+  null_pvalues = as.vector(permutation_null$null_pvalues[[degree_label]]),
+  pi0_method = &quot;fixed&quot;,
+  fixed_pi0 = 5090 / 6362
+)$qvalue
+direct_calls &lt;- which(direct_qvalues &lt;= alpha)</code></pre>
 <div id="power-as-a-function-of-alpha" class="section level3">
 <h3>Power as a function of alpha</h3>
-<pre class="r"><code>plot_mc_functional_curve_grid(
-  mc_curve = r3a_alpha,
-  metric = &quot;power&quot;,
-  target_order = c(&quot;early&quot;, &quot;middle&quot;, &quot;late&quot;, &quot;switch&quot;),
-  alpha_reference = 0.05,
-  title = &quot;Functional-testing power: broad random B-spline truth&quot;,
-  x_limits = plot_alpha_limits,
-  interval_columns = c(
-    &quot;power_replication_min&quot;,
-    &quot;power_replication_max&quot;
-  ),
-  interval_methods = &quot;FASH-IWP1-BF&quot;
-)</code></pre>
+<pre class="r"><code># Select the four main-comparison methods; Raw FASH results remain in the cache.
+power_curves &lt;- stage1_summary[
+  stage1_summary$method %in% report$contract$display_methods,
+  c(&quot;truth_mechanism&quot;, &quot;method&quot;, &quot;alpha&quot;, &quot;mean_power&quot;, &quot;power_min&quot;, &quot;power_max&quot;)
+]
+power_curves &lt;- power_curves[order(
+  power_curves$truth_mechanism,
+  match(power_curves$method, report$contract$display_methods),
+  power_curves$alpha
+), ]
+r3c_plot_stage1(power_curves, metric = &quot;power&quot;)</code></pre>
 <div class="figure" style="text-align: center">
-<img src="figure/revision_functional_testing_simulation.rmd/r3a-power-1.png" alt="Figure 3. Monte Carlo functional-testing power through nominal alpha 0.20 under broad random B-spline truth. The BF ribbon shows the pointwise minimum and maximum across five replications; Raw is shown without a ribbon." width="1800" />
+<img src="figure/revision_functional_testing_simulation.rmd/stage1-power-1.png" alt="Figure 2. Dynamic discovery power for BF-adjusted FASH-IWP1, BF-adjusted FASH-linear, and direct linear and quadratic interaction tests. Panels show broad random B-spline and compact raised-cosine truth; curves are ten-seed means and ribbons are pointwise replicate minima and maxima. Direct-test eFDR uses the true null proportion and 100 donor permutations." width="1872" />
 <p class="caption">
-Figure 3. Monte Carlo functional-testing power through nominal alpha
-0.20 under broad random B-spline truth. The BF ribbon shows the
-pointwise minimum and maximum across five replications; Raw is shown
-without a ribbon.
+Figure 2. Dynamic discovery power for BF-adjusted FASH-IWP1, BF-adjusted
+FASH-linear, and direct linear and quadratic interaction tests. Panels
+show broad random B-spline and compact raised-cosine truth; curves are
+ten-seed means and ribbons are pointwise replicate minima and maxima.
+Direct-test eFDR uses the true null proportion and 100 donor
+permutations.
 </p>
 </div>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-r3a-power-1">
-Past versions of r3a-power-1.png
-</button>
-</p>
-<div id="fig-r3a-power-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/cc95532ce7d6694447db8f89387dedf8f4acca75/docs/figure/revision_functional_testing_simulation.rmd/r3a-power-1.png" target="_blank">cc95532</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-27
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_functional_testing_simulation.rmd/r3a-power-1.png" target="_blank">09f63bc</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-24
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/figure/revision_functional_testing_simulation.rmd/r3a-power-1.png" target="_blank">c87957a</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-10
-</td>
-</tr>
-</tbody>
-</table>
 </div>
-</div>
-</div>
-<div id="empirical-fsr-as-a-function-of-alpha" class="section level3">
-<h3>Empirical FSR as a function of alpha</h3>
-<pre class="r"><code>plot_mc_functional_curve_grid(
-  mc_curve = r3a_alpha[
-    r3a_alpha$method == &quot;FASH-IWP1-BF&quot;,
-    ,
-    drop = FALSE
-  ],
-  metric = &quot;empirical_fsr&quot;,
-  target_order = c(&quot;early&quot;, &quot;middle&quot;, &quot;late&quot;, &quot;switch&quot;),
-  alpha_reference = 0.05,
-  title = &quot;Empirical FSR: broad random B-spline truth&quot;,
-  x_limits = plot_alpha_limits,
-  interval_columns = c(
-    &quot;empirical_fsr_replication_min&quot;,
-    &quot;empirical_fsr_replication_max&quot;
-  ),
-  interval_methods = &quot;FASH-IWP1-BF&quot;
-)</code></pre>
+<div id="compact-truth-power-by-number-of-peaks" class="section level3">
+<h3>Compact-truth power by number of peaks</h3>
+<p>We split the compact-truth power comparison by the number of
+generating raised-cosine peaks. For each seed and group, power is the
+fraction of that group’s true dynamic units selected using the original
+global method scores and thresholds. The three strata exhaust the
+dynamic units; curves average these within-group powers across the same
+ten seeds. Each replicate contains 426, 424, and 422 true dynamic units
+with one, two, and three peaks, respectively.</p>
+<pre class="r"><code># Each stratum&#39;s denominator is all true dynamic units with that peak count.
+# The reporting gate verifies count-weighted powers reproduce Figure 2B per seed.
+peak_curves &lt;- peak_power$summary[
+  peak_power$summary$method %in% report$contract$display_methods,
+  c(&quot;peak_count&quot;, &quot;method&quot;, &quot;alpha&quot;, &quot;mean_power&quot;, &quot;power_min&quot;, &quot;power_max&quot;)
+]
+method_labels &lt;- setNames(c(&quot;FASH-IWP1 (BF)&quot;, &quot;FASH-linear (BF)&quot;,
+  &quot;Direct linear&quot;, &quot;Direct quadratic&quot;), report$contract$display_methods)
+peak_curves$method_label &lt;- factor(method_labels[peak_curves$method],
+  levels = unname(method_labels))
+peak_curves$peak_group &lt;- factor(peak_curves$peak_count, levels = 1:3,
+  labels = c(&quot;1 peak\n426 units per seed&quot;, &quot;2 peaks\n424 units per seed&quot;,
+             &quot;3 peaks\n422 units per seed&quot;))
+stopifnot(nrow(peak_curves) == 480L, !anyNA(peak_curves$method_label),
+          !anyNA(peak_curves$peak_group))
+method_colors &lt;- setNames(c(&quot;#0072B2&quot;, &quot;#D55E00&quot;, &quot;#009E73&quot;, &quot;#CC79A7&quot;),
+  unname(method_labels))
+method_lines &lt;- setNames(c(&quot;solid&quot;, &quot;longdash&quot;, &quot;dotted&quot;, &quot;dotdash&quot;),
+  unname(method_labels))
+ggplot2::ggplot(peak_curves, ggplot2::aes(alpha, mean_power,
+    color = method_label, fill = method_label, linetype = method_label)) +
+  ggplot2::geom_ribbon(ggplot2::aes(ymin = power_min, ymax = power_max),
+    alpha = 0.09, color = NA, show.legend = FALSE) +
+  ggplot2::geom_line(linewidth = 0.8) +
+  ggplot2::geom_vline(xintercept = 0.05, color = &quot;grey50&quot;,
+    linetype = &quot;dashed&quot;, linewidth = 0.4) +
+  ggplot2::facet_wrap(~peak_group, nrow = 1) +
+  ggplot2::scale_color_manual(values = method_colors, drop = FALSE) +
+  ggplot2::scale_fill_manual(values = method_colors, drop = FALSE) +
+  ggplot2::scale_linetype_manual(values = method_lines, drop = FALSE) +
+  ggplot2::scale_x_continuous(breaks = c(0.005, 0.05, 0.10, 0.15, 0.20)) +
+  ggplot2::coord_cartesian(ylim = c(0, 1)) +
+  ggplot2::labs(x = &quot;Nominal Stage-1 FDR level&quot;, y = &quot;Mean within-group dynamic power&quot;,
+    color = NULL, fill = NULL, linetype = NULL) +
+  ggplot2::theme_bw(base_size = 12) +
+  ggplot2::theme(legend.position = &quot;bottom&quot;, panel.grid.minor = ggplot2::element_blank(),
+    strip.background = ggplot2::element_rect(fill = &quot;grey95&quot;)) +
+  ggplot2::guides(color = ggplot2::guide_legend(nrow = 2, byrow = TRUE))</code></pre>
 <div class="figure" style="text-align: center">
-<img src="figure/revision_functional_testing_simulation.rmd/r3a-fsr-1.png" alt="Figure 4. BF-adjusted Monte Carlo empirical false sign rate through nominal alpha 0.20 under broad random B-spline truth. The diagonal denotes nominal alpha, and the ribbon shows the pointwise minimum and maximum across five replications." width="1800" />
+<img src="figure/revision_functional_testing_simulation.rmd/stage1-power-by-peaks-1.png" alt="Figure 3. Dynamic discovery power under compact raised-cosine truth, stratified by one, two, or three generating peaks. All four methods retain their original global discovery thresholds. Each curve is the ten-seed mean of within-group power; ribbons show pointwise replicate minima and maxima. The vertical line marks alpha = 0.05." width="1980" />
 <p class="caption">
-Figure 4. BF-adjusted Monte Carlo empirical false sign rate through
-nominal alpha 0.20 under broad random B-spline truth. The diagonal
-denotes nominal alpha, and the ribbon shows the pointwise minimum and
-maximum across five replications.
+Figure 3. Dynamic discovery power under compact raised-cosine truth,
+stratified by one, two, or three generating peaks. All four methods
+retain their original global discovery thresholds. Each curve is the
+ten-seed mean of within-group power; ribbons show pointwise replicate
+minima and maxima. The vertical line marks alpha = 0.05.
 </p>
 </div>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-r3a-fsr-1">
-Past versions of r3a-fsr-1.png
-</button>
+<p>At <span class="math inline">\(\alpha=0.05\)</span>, direct quadratic
+minus BF-adjusted FASH-IWP1 mean power is +17.0, +6.3, and -13.6
+percentage points for one, two, and three peaks, respectively. Figure 5
+reports the corresponding overall empirical FDR comparison.</p>
+</div>
+<div id="power-by-temporal-category-under-both-truth-mechanisms"
+class="section level3">
+<h3>Power by temporal category under both truth mechanisms</h3>
+<p>We split both the broad and compact truth comparisons by true Early,
+Middle, and Late category, with 369, 534, and 369 dynamic units per seed
+under each mechanism. Each group includes both Switch and non-Switch
+units. Power uses all true dynamic units in that category as its
+denominator and the original global discovery thresholds. This
+summarizes Stage-1 discovery within true temporal categories; Stage-2
+conditional classification is evaluated separately below.</p>
+<pre class="r"><code># Each denominator is all true dynamic units with a positive temporal functional.
+# The reporting gate verifies count-weighted powers reproduce both panels of Figure 2 per seed.
+location_curves &lt;- location_power$summary[
+  location_power$summary$method %in% report$contract$display_methods,
+  c(&quot;truth_mechanism&quot;, &quot;target&quot;, &quot;method&quot;, &quot;alpha&quot;, &quot;mean_power&quot;, &quot;power_min&quot;, &quot;power_max&quot;)
+]
+method_labels &lt;- setNames(c(&quot;FASH-IWP1 (BF)&quot;, &quot;FASH-linear (BF)&quot;,
+  &quot;Direct linear&quot;, &quot;Direct quadratic&quot;), report$contract$display_methods)
+location_curves$method_label &lt;- factor(method_labels[location_curves$method],
+  levels = unname(method_labels))
+location_curves$location_group &lt;- factor(location_curves$target,
+  levels = c(&quot;early&quot;, &quot;middle&quot;, &quot;late&quot;),
+  labels = c(&quot;Early\n369 units per seed&quot;, &quot;Middle\n534 units per seed&quot;,
+             &quot;Late\n369 units per seed&quot;))
+location_curves$mechanism &lt;- factor(location_curves$truth_mechanism,
+  levels = c(&quot;random_bspline&quot;, &quot;raised_cosine&quot;),
+  labels = c(&quot;Broad random B-spline&quot;, &quot;Compact raised cosine&quot;))
+stopifnot(nrow(location_curves) == 960L, !anyNA(location_curves$mechanism), !anyNA(location_curves$method_label),
+          !anyNA(location_curves$location_group))
+method_colors &lt;- setNames(c(&quot;#0072B2&quot;, &quot;#D55E00&quot;, &quot;#009E73&quot;, &quot;#CC79A7&quot;),
+  unname(method_labels))
+method_lines &lt;- setNames(c(&quot;solid&quot;, &quot;longdash&quot;, &quot;dotted&quot;, &quot;dotdash&quot;),
+  unname(method_labels))
+ggplot2::ggplot(location_curves, ggplot2::aes(alpha, mean_power,
+    color = method_label, fill = method_label, linetype = method_label)) +
+  ggplot2::geom_ribbon(ggplot2::aes(ymin = power_min, ymax = power_max),
+    alpha = 0.09, color = NA, show.legend = FALSE) +
+  ggplot2::geom_line(linewidth = 0.8) +
+  ggplot2::geom_vline(xintercept = 0.05, color = &quot;grey50&quot;,
+    linetype = &quot;dashed&quot;, linewidth = 0.4) +
+  ggplot2::facet_grid(mechanism ~ location_group) +
+  ggplot2::scale_color_manual(values = method_colors, drop = FALSE) +
+  ggplot2::scale_fill_manual(values = method_colors, drop = FALSE) +
+  ggplot2::scale_linetype_manual(values = method_lines, drop = FALSE) +
+  ggplot2::scale_x_continuous(breaks = c(0.005, 0.05, 0.10, 0.15, 0.20)) +
+  ggplot2::coord_cartesian(ylim = c(0, 1)) +
+  ggplot2::labs(x = &quot;Nominal Stage-1 FDR level&quot;, y = &quot;Mean within-group dynamic power&quot;,
+    color = NULL, fill = NULL, linetype = NULL) +
+  ggplot2::theme_bw(base_size = 12) +
+  ggplot2::theme(legend.position = &quot;bottom&quot;, panel.grid.minor = ggplot2::element_blank(),
+    strip.background = ggplot2::element_rect(fill = &quot;grey95&quot;)) +
+  ggplot2::guides(color = ggplot2::guide_legend(nrow = 2, byrow = TRUE))</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_functional_testing_simulation.rmd/stage1-power-by-location-1.png" alt="Figure 4. Dynamic discovery power stratified by true Early, Middle, and Late category. Rows show broad random B-spline (top) and compact raised-cosine (bottom) truth. Each stratum includes both Switch and non-Switch units. Curves are ten-seed mean within-category powers using the original global discovery thresholds; ribbons show pointwise replicate minima and maxima. The vertical line marks alpha = 0.05." width="1980" />
+<p class="caption">
+Figure 4. Dynamic discovery power stratified by true Early, Middle, and
+Late category. Rows show broad random B-spline (top) and compact
+raised-cosine (bottom) truth. Each stratum includes both Switch and
+non-Switch units. Curves are ten-seed mean within-category powers using
+the original global discovery thresholds; ribbons show pointwise
+replicate minima and maxima. The vertical line marks alpha = 0.05.
 </p>
-<div id="fig-r3a-fsr-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/cc95532ce7d6694447db8f89387dedf8f4acca75/docs/figure/revision_functional_testing_simulation.rmd/r3a-fsr-1.png" target="_blank">cc95532</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-27
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_functional_testing_simulation.rmd/r3a-fsr-1.png" target="_blank">09f63bc</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-24
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/figure/revision_functional_testing_simulation.rmd/r3a-fsr-1.png" target="_blank">c87957a</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-10
-</td>
-</tr>
-</tbody>
-</table>
 </div>
 </div>
+<div id="empirical-fdr-as-a-function-of-alpha" class="section level3">
+<h3>Empirical FDR as a function of alpha</h3>
+<pre class="r"><code># Use the same truth, method order, and alpha grid as the power comparison.
+fdr_curves &lt;- stage1_summary[
+  stage1_summary$method %in% report$contract$display_methods,
+  c(&quot;truth_mechanism&quot;, &quot;method&quot;, &quot;alpha&quot;, &quot;mean_empirical_fdr&quot;,
+    &quot;empirical_fdr_min&quot;, &quot;empirical_fdr_max&quot;)
+]
+fdr_curves &lt;- fdr_curves[order(
+  fdr_curves$truth_mechanism,
+  match(fdr_curves$method, report$contract$display_methods),
+  fdr_curves$alpha
+), ]
+r3c_plot_stage1(fdr_curves, metric = &quot;fdr&quot;)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/revision_functional_testing_simulation.rmd/stage1-fdr-1.png" alt="Figure 5. Empirical dynamic FDR for the same four methods and paired datasets. Curves average replicate-specific false-discovery proportions across ten seeds; ribbons are pointwise replicate minima and maxima. The diagonal marks nominal FDR, and the vertical line marks alpha = 0.05." width="1872" />
+<p class="caption">
+Figure 5. Empirical dynamic FDR for the same four methods and paired
+datasets. Curves average replicate-specific false-discovery proportions
+across ten seeds; ribbons are pointwise replicate minima and maxima. The
+diagonal marks nominal FDR, and the vertical line marks alpha = 0.05.
+</p>
+</div>
+<p>At <span class="math inline">\(\alpha=0.05\)</span>, mean power for
+BF-adjusted FASH-IWP1 and direct quadratic is 0.887 and 0.850 under
+broad truth, and 0.401 and 0.434 under compact truth. Under compact
+truth, their mean empirical FDR values are 0.005 and 0.053,
+respectively; power should therefore be read together with empirical
+FDR.</p>
 </div>
 </div>
-<div id="r3b-compact-raised-cosine-results" class="section level2">
-<h2>R3B: compact raised-cosine results</h2>
-<div id="results-at-alpha-0.05-1" class="section level3">
-<h3>Results at alpha 0.05</h3>
-<div class="r3-table-scroll">
-<pre class="r"><code>knitr::kable(
-  r3b_table,
-  align = &quot;l&quot;,
-  caption = paste(
-    &quot;Table 4. Functional-testing power and empirical false sign rate at&quot;,
-    &quot;alpha 0.05 under compact raised-cosine truth.&quot;
+<div id="stage-2-conditional-functional-classification-at-0.05"
+class="section level2">
+<h2>Stage 2: conditional functional classification at 0.05</h2>
+<p>For the remainder of the analysis, <span
+class="math inline">\(D(0.05)\)</span> denotes the BF-adjusted FASH-IWP1
+discoveries at 0.05. This candidate set remains fixed for Stage 2. The
+fitted prior remains the full-data prior. For each candidate and each
+functional, 3,000 posterior draws are evaluated on the dense time grid.
+The candidate lfsr values are then ranked separately for Early, Middle,
+Late, and Switch, and calls are made while their cumulative FSR is at
+most 0.05. The four classifications are evaluated separately and need
+not be mutually exclusive.</p>
+<p>For target <span class="math inline">\(k\)</span>, let <span
+class="math inline">\(S_k\subseteq D(0.05)\)</span> be its final calls
+and let <span class="math inline">\(T_k\{\beta_j\}&gt;0\)</span> denote
+true membership. We report</p>
+<p><span class="math display">\[
+\mathrm{FSR}_k=
+\frac{\sum_{j\in S_k}\mathbf{1}[T_k\{\beta_j\}\leq0]}
+{\max(|S_k|,1)},
+\]</span></p>
+<p>and conditional classification power</p>
+<p><span class="math display">\[
+\mathrm{Power}_{k\mid\mathrm{Stage\ 1}}=
+\frac{\sum_{j\in S_k}\mathbf{1}[T_k\{\beta_j\}&gt;0]}
+{\sum_{j\in D(0.05)}\mathbf{1}[T_k\{\beta_j\}&gt;0]}.
+\]</span></p>
+<p>The tables average each replicate-specific rate and call count across
+the ten seeds.</p>
+<pre class="r"><code>dynamic_candidates &lt;- r3ts_stage1(
+  fdr_table,
+  n_units = 6362L,
+  q = 0.05
+)
+lfsr_by_target &lt;- compute_functional_lfsr(
+  fit = fit_iwp1_bf,
+  functionals = temporal_functionals,
+  indices = dynamic_candidates,
+  smooth_var = seq(0, 15, by = 0.1),
+  num_cores = num_cores,
+  seed = functional_posterior_seed
+)
+stage2_calls &lt;- r3ts_stage2(
+  dynamic_candidates,
+  lfsr_by_target,
+  n_units = 6362L,
+  q = 0.05
+)</code></pre>
+<pre class="r"><code># Select the truth mechanism and retain only the three displayed estimands.
+broad_table &lt;- stage2_summary[
+  stage2_summary$truth_mechanism == &quot;random_bspline&quot;,
+  c(&quot;truth_mechanism&quot;, &quot;target&quot;, &quot;mean_empirical_fsr&quot;,
+    &quot;mean_conditional_classification_power&quot;, &quot;mean_calls&quot;)
+]
+broad_table &lt;- broad_table[
+  match(c(&quot;early&quot;, &quot;middle&quot;, &quot;late&quot;, &quot;switch&quot;), broad_table$target),
+]
+r3ts10_show_table(
+  r3ts10_format_stage2_table(broad_table, &quot;random_bspline&quot;),
+  paste(
+    &quot;Table 1. Ten-seed mean Stage-2 results under broad random B-spline truth.&quot;,
+    &quot;Classification power is conditional on true target members retained by&quot;,
+    &quot;Stage 1 at q = 0.05.&quot;
   )
 )</code></pre>
-<table style="width:100%;">
-<caption>Table 4. Functional-testing power and empirical false sign rate
-at alpha 0.05 under compact raised-cosine truth.</caption>
-<colgroup>
-<col width="8%" />
-<col width="17%" />
-<col width="13%" />
-<col width="26%" />
-<col width="32%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Target</th>
-<th align="left">Method</th>
-<th align="left">Mean calls</th>
-<th align="left">Power (95% MC CI)</th>
-<th align="left">Empirical FSR (95% MC CI)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Early</td>
-<td align="left">FASH-IWP1-Raw</td>
-<td align="left">17.2</td>
-<td align="left">0.046 [0.043, 0.049]</td>
-<td align="left">0.011 [0.000, 0.042]</td>
-</tr>
-<tr class="even">
-<td align="left">Early</td>
-<td align="left">FASH-IWP1-BF</td>
-<td align="left">13.8</td>
-<td align="left">0.037 [0.031, 0.043]</td>
-<td align="left">0.000 [0.000, 0.000]</td>
-</tr>
-<tr class="odd">
-<td align="left">Middle</td>
-<td align="left">FASH-IWP1-Raw</td>
-<td align="left">59.4</td>
-<td align="left">0.107 [0.095, 0.119]</td>
-<td align="left">0.041 [0.015, 0.068]</td>
-</tr>
-<tr class="even">
-<td align="left">Middle</td>
-<td align="left">FASH-IWP1-BF</td>
-<td align="left">43.4</td>
-<td align="left">0.078 [0.063, 0.094]</td>
-<td align="left">0.035 [0.003, 0.067]</td>
-</tr>
-<tr class="odd">
-<td align="left">Late</td>
-<td align="left">FASH-IWP1-Raw</td>
-<td align="left">19.6</td>
-<td align="left">0.053 [0.036, 0.070]</td>
-<td align="left">0.000 [0.000, 0.000]</td>
-</tr>
-<tr class="even">
-<td align="left">Late</td>
-<td align="left">FASH-IWP1-BF</td>
-<td align="left">15.0</td>
-<td align="left">0.041 [0.031, 0.050]</td>
-<td align="left">0.000 [0.000, 0.000]</td>
-</tr>
-<tr class="odd">
-<td align="left">Switch</td>
-<td align="left">FASH-IWP1-Raw</td>
-<td align="left">393.8</td>
-<td align="left">0.591 [0.560, 0.623]</td>
-<td align="left">0.044 [0.033, 0.054]</td>
-</tr>
-<tr class="even">
-<td align="left">Switch</td>
-<td align="left">FASH-IWP1-BF</td>
-<td align="left">335.2</td>
-<td align="left">0.508 [0.478, 0.538]</td>
-<td align="left">0.035 [0.029, 0.041]</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div id="power-as-a-function-of-alpha-1" class="section level3">
-<h3>Power as a function of alpha</h3>
-<pre class="r"><code>plot_mc_functional_curve_grid(
-  mc_curve = r3b_alpha,
-  metric = &quot;power&quot;,
-  target_order = c(&quot;early&quot;, &quot;middle&quot;, &quot;late&quot;, &quot;switch&quot;),
-  alpha_reference = 0.05,
-  title = &quot;Functional-testing power: compact raised-cosine truth&quot;,
-  x_limits = plot_alpha_limits,
-  interval_columns = c(
-    &quot;power_replication_min&quot;,
-    &quot;power_replication_max&quot;
-  ),
-  interval_methods = &quot;FASH-IWP1-BF&quot;
-)</code></pre>
-<div class="figure" style="text-align: center">
-<img src="figure/revision_functional_testing_simulation.rmd/r3b-power-1.png" alt="Figure 5. Monte Carlo functional-testing power through nominal alpha 0.20 under compact raised-cosine truth. The BF ribbon shows the pointwise minimum and maximum across five replications; Raw is shown without a ribbon." width="1800" />
-<p class="caption">
-Figure 5. Monte Carlo functional-testing power through nominal alpha
-0.20 under compact raised-cosine truth. The BF ribbon shows the
-pointwise minimum and maximum across five replications; Raw is shown
-without a ribbon.
-</p>
-</div>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-r3b-power-1">
-Past versions of r3b-power-1.png
-</button>
-</p>
-<div id="fig-r3b-power-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/cc95532ce7d6694447db8f89387dedf8f4acca75/docs/figure/revision_functional_testing_simulation.rmd/r3b-power-1.png" target="_blank">cc95532</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-27
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_functional_testing_simulation.rmd/r3b-power-1.png" target="_blank">09f63bc</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-24
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/figure/revision_functional_testing_simulation.rmd/r3b-power-1.png" target="_blank">c87957a</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-10
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-<div id="empirical-fsr-as-a-function-of-alpha-1" class="section level3">
-<h3>Empirical FSR as a function of alpha</h3>
-<pre class="r"><code>plot_mc_functional_curve_grid(
-  mc_curve = r3b_alpha[
-    r3b_alpha$method == &quot;FASH-IWP1-BF&quot;,
-    ,
-    drop = FALSE
-  ],
-  metric = &quot;empirical_fsr&quot;,
-  target_order = c(&quot;early&quot;, &quot;middle&quot;, &quot;late&quot;, &quot;switch&quot;),
-  alpha_reference = 0.05,
-  title = &quot;Empirical FSR: compact raised-cosine truth&quot;,
-  x_limits = plot_alpha_limits,
-  interval_columns = c(
-    &quot;empirical_fsr_replication_min&quot;,
-    &quot;empirical_fsr_replication_max&quot;
-  ),
-  interval_methods = &quot;FASH-IWP1-BF&quot;
-)</code></pre>
-<div class="figure" style="text-align: center">
-<img src="figure/revision_functional_testing_simulation.rmd/r3b-fsr-1.png" alt="Figure 6. BF-adjusted Monte Carlo empirical false sign rate through nominal alpha 0.20 under compact raised-cosine truth. The diagonal denotes nominal alpha, and the ribbon shows the pointwise minimum and maximum across five replications." width="1800" />
-<p class="caption">
-Figure 6. BF-adjusted Monte Carlo empirical false sign rate through
-nominal alpha 0.20 under compact raised-cosine truth. The diagonal
-denotes nominal alpha, and the ribbon shows the pointwise minimum and
-maximum across five replications.
-</p>
-</div>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-r3b-fsr-1">
-Past versions of r3b-fsr-1.png
-</button>
-</p>
-<div id="fig-r3b-fsr-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/cc95532ce7d6694447db8f89387dedf8f4acca75/docs/figure/revision_functional_testing_simulation.rmd/r3b-fsr-1.png" target="_blank">cc95532</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-27
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/09f63bc8536029c4816632f041b3afd85ffc523c/docs/figure/revision_functional_testing_simulation.rmd/r3b-fsr-1.png" target="_blank">09f63bc</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-24
-</td>
-</tr>
-<tr>
-<td>
-<a href="https://github.com/AgueroZZ/fash-revision/blob/c87957a3ad804114d9ad640ec7751d9261758ffb/docs/figure/revision_functional_testing_simulation.rmd/r3b-fsr-1.png" target="_blank">c87957a</a>
-</td>
-<td>
-Ziang Zhang
-</td>
-<td>
-2026-08-10
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-</div>
-<div id="non-dynamic-proportion" class="section level2">
-<h2>Non-dynamic proportion</h2>
-<pre class="r"><code>formal_class_counts &lt;- c(dynamic = 1272L, constant = 2545L, zero = 2545L)
-formal_true_pi0 &lt;- sum(formal_class_counts[c(&quot;constant&quot;, &quot;zero&quot;)]) /
-  sum(formal_class_counts)</code></pre>
-<p>The exact proportion of constant or zero-effect units is <span
-class="math inline">\(\pi_0=5090/6362\approx\)</span> 0.8001. The table
-reports the fitted constant-component weights for the raw and
-BF-adjusted IWP fits.</p>
-<div class="r3-table-scroll">
-<pre class="r"><code>knitr::kable(
-  pi0_table,
-  align = &quot;l&quot;,
-  caption = paste(
-    &quot;Table 5. Estimated non-dynamic proportions for raw and&quot;,
-    &quot;BF-updated IWP FASH under both functional truth mechanisms.&quot;
-  )
-)</code></pre>
+<div class="r3-two-stage-table">
 <table>
-<caption>Table 5. Estimated non-dynamic proportions for raw and
-BF-updated IWP FASH under both functional truth mechanisms.</caption>
-<colgroup>
-<col width="38%" />
-<col width="18%" />
-<col width="43%" />
-</colgroup>
+<caption>Table 1. Ten-seed mean Stage-2 results under broad random
+B-spline truth. Classification power is conditional on true target
+members retained by Stage 1 at q = 0.05.</caption>
 <thead>
 <tr class="header">
-<th align="left">Mechanism</th>
-<th align="left">Fit</th>
-<th align="left">Mean estimated pi0 (95% MC CI)</th>
+<th align="left">Metric</th>
+<th align="left">Early</th>
+<th align="left">Middle</th>
+<th align="left">Late</th>
+<th align="left">Switch</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">R3A: broad random B-spline</td>
-<td align="left">Raw</td>
-<td align="left">0.756 [0.716, 0.797]</td>
+<td align="left">Empirical FSR</td>
+<td align="left">0.001</td>
+<td align="left">0.037</td>
+<td align="left">0.009</td>
+<td align="left">0.034</td>
 </tr>
 <tr class="even">
-<td align="left">R3A: broad random B-spline</td>
-<td align="left">BF-corrected</td>
-<td align="left">0.845 [0.842, 0.847]</td>
+<td align="left">Conditional classification power</td>
+<td align="left">0.285</td>
+<td align="left">0.914</td>
+<td align="left">0.294</td>
+<td align="left">0.919</td>
 </tr>
 <tr class="odd">
-<td align="left">R3B: compact raised cosine</td>
-<td align="left">Raw</td>
-<td align="left">0.730 [0.685, 0.776]</td>
-</tr>
-<tr class="even">
-<td align="left">R3B: compact raised cosine</td>
-<td align="left">BF-corrected</td>
-<td align="left">0.912 [0.910, 0.915]</td>
+<td align="left">Mean number of calls</td>
+<td align="left">86.6</td>
+<td align="left">492.6</td>
+<td align="left">90.5</td>
+<td align="left">575.4</td>
 </tr>
 </tbody>
 </table>
 </div>
+<pre class="r"><code># Select the truth mechanism and retain only the three displayed estimands.
+compact_table &lt;- stage2_summary[
+  stage2_summary$truth_mechanism == &quot;raised_cosine&quot;,
+  c(&quot;truth_mechanism&quot;, &quot;target&quot;, &quot;mean_empirical_fsr&quot;,
+    &quot;mean_conditional_classification_power&quot;, &quot;mean_calls&quot;)
+]
+compact_table &lt;- compact_table[
+  match(c(&quot;early&quot;, &quot;middle&quot;, &quot;late&quot;, &quot;switch&quot;), compact_table$target),
+]
+r3ts10_show_table(
+  r3ts10_format_stage2_table(compact_table, &quot;raised_cosine&quot;),
+  paste(
+    &quot;Table 2. Ten-seed mean Stage-2 results under compact raised-cosine truth.&quot;,
+    &quot;Classification power is conditional on true target members retained by&quot;,
+    &quot;Stage 1 at q = 0.05.&quot;
+  )
+)</code></pre>
+<div class="r3-two-stage-table">
+<table>
+<caption>Table 2. Ten-seed mean Stage-2 results under compact
+raised-cosine truth. Classification power is conditional on true target
+members retained by Stage 1 at q = 0.05.</caption>
+<thead>
+<tr class="header">
+<th align="left">Metric</th>
+<th align="left">Early</th>
+<th align="left">Middle</th>
+<th align="left">Late</th>
+<th align="left">Switch</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Empirical FSR</td>
+<td align="left">0.013</td>
+<td align="left">0.037</td>
+<td align="left">0.005</td>
+<td align="left">0.034</td>
+</tr>
+<tr class="even">
+<td align="left">Conditional classification power</td>
+<td align="left">0.083</td>
+<td align="left">0.198</td>
+<td align="left">0.085</td>
+<td align="left">0.824</td>
+</tr>
+<tr class="odd">
+<td align="left">Mean number of calls</td>
+<td align="left">12.4</td>
+<td align="left">43.5</td>
+<td align="left">12.8</td>
+<td align="left">332.9</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Stage-1 screening and Stage-2 classification answer distinct
+questions. The curves quantify which true dynamic effects reach the
+candidate set; the tables then quantify functional classification among
+true target members in that set. The two nominal 0.05 thresholds are
+operating rules, and the ten-seed empirical rates describe performance
+under the two retained truth mechanisms.</p>
 </div>
 <div id="reproducibility" class="section level2">
 <h2>Reproducibility</h2>
-<p>The versioned cache was generated by
-<code>code/revision_simulations/r3_r4_fashr0143/24_r3_full_universe_iwp1_mixture_fashr0143.R</code>
-using the frozen driver and simulation functions under
-<code>code/revision_simulations/r3_r4_fashr0143/source_snapshots/</code>.
-Page-specific cache loading, validation, and formatting are in
-<code>code/revision_simulations/r3_functional_testing/reporting.R</code>.</p>
-<p>From the Midway3 workspace, rerun the simulation with:</p>
-<pre class="bash"><code>sbatch slurm/24_r3_full_universe_iwp1_mixture_fashr0143.sbatch</code></pre>
-<p>Routine workflowr builds read the saved cache and do not rerun the
-simulation:</p>
-<pre class="text"><code>output/revision_simulations/mc/r3_real_genotype_one_per_gene_J6362_matched_functional_open_middle_3_12_center_aligned_iwp1_geometry_mixture_relative_location_clearance_full_universe_paired_posterior_fashr0143_pilot5/</code></pre>
+<p>The additional comparison is implemented in
+<code>code/revision_simulations/internal/r3_stage1_method_comparison/</code>
+and reuses the completed ten-seed R3 inputs and IWP1 results. Its
+input-pairing checks validate genotype, truth, regression summaries,
+individual-level expression, and covariates before fitting the
+additional methods. The original two-stage runner remains in
+<code>code/revision_simulations/internal/r3_two_stage_functional_testing_pilot10/</code>.
+All FASH fits use <code>fashr</code> 0.1.43 at Git SHA
+<code>bf223df75da6e41ae48607a56b4cd12d7c3b24e7</code>.</p>
+<p>The compact comparison cache retains all-unit scores, Raw/BF prior
+weights, per-seed curves, and direct-test diagnostics. Full Raw/BF fit
+objects and permutation null matrices remain in server checkpoints.
+Stage-2 tables are copied unchanged from the validated two-stage cache.
+This page reads only completed, hash-validated caches. To run the
+additional methods on Midway3:</p>
+<pre class="bash"><code>sbatch /project/mstephens/ziangzhang/fash/workspace/slurm/run_r3_stage1_method_comparison.sbatch</code></pre>
+<p>Comparison cache ID:
+<code>r3_stage1_iwp1_linear_direct_paired_raw_bf_fashr0143_pilot10</code>.</p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -1961,17 +1397,24 @@ tzcode source: internal
 attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
+other attached packages:
+[1] workflowr_1.7.2
+
 loaded via a namespace (and not attached):
- [1] vctrs_0.7.3       cli_3.6.6         knitr_1.50        rlang_1.2.0      
- [5] xfun_0.55         stringi_1.8.9     otel_0.2.0        promises_1.5.0   
- [9] jsonlite_2.0.0    workflowr_1.7.2   glue_1.8.1        git2r_0.36.2     
-[13] rprojroot_2.1.1   htmltools_0.5.9   httpuv_1.6.16     sass_0.4.10      
-[17] rmarkdown_2.30    jquerylib_0.1.4   evaluate_1.0.5    tibble_3.3.0     
-[21] fastmap_1.2.0     yaml_2.3.12       lifecycle_1.0.5   whisker_0.4.1    
-[25] stringr_1.6.0     compiler_4.5.1    fs_1.6.6          Rcpp_1.1.1-1.1   
-[29] pkgconfig_2.0.3   rstudioapi_0.17.1 later_1.4.4       digest_0.6.39    
-[33] R6_2.6.1          pillar_1.11.1     magrittr_2.0.5    bslib_0.9.0      
-[37] tools_4.5.1       cachem_1.1.0     </code></pre>
+ [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.1.4        compiler_4.5.1    
+ [5] promises_1.5.0     tidyselect_1.2.1   Rcpp_1.1.1-1.1     stringr_1.6.0     
+ [9] git2r_0.36.2       dichromat_2.0-0.1  callr_3.7.6        later_1.4.4       
+[13] jquerylib_0.1.4    scales_1.4.0       yaml_2.3.12        fastmap_1.2.0     
+[17] ggplot2_4.0.3      R6_2.6.1           labeling_0.4.3     generics_0.1.4    
+[21] knitr_1.50         tibble_3.3.0       rprojroot_2.1.1    RColorBrewer_1.1-3
+[25] bslib_0.9.0        pillar_1.11.1      rlang_1.2.0        cachem_1.1.0      
+[29] stringi_1.8.9      httpuv_1.6.16      xfun_0.55          S7_0.2.2          
+[33] getPass_0.2-4      fs_1.6.6           sass_0.4.10        otel_0.2.0        
+[37] cli_3.6.6          withr_3.0.3        magrittr_2.0.5     ps_1.9.1          
+[41] grid_4.5.1         digest_0.6.39      processx_3.8.6     rstudioapi_0.17.1 
+[45] lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5     glue_1.8.1        
+[49] farver_2.1.2       whisker_0.4.1      rmarkdown_2.30     httr_1.4.7        
+[53] tools_4.5.1        pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
 </div>
 </div>
 </div>
