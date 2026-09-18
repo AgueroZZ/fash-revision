@@ -1,5 +1,5 @@
 ---
-title: "Two-stage dynamic discovery and functional testing"
+title: "Simulation 2: Real-genotype simulation"
 author: "Ziang Zhang"
 date: "2026-09-18"
 output:

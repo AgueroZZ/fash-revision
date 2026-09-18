@@ -1,5 +1,5 @@
 ---
-title: "Simulation: prior misspecification and BF adjustment"
+title: "Simulation 1: Summary-statistic simulation"
 author: "Ziang Zhang"
 date: "2026-09-18"
 output:

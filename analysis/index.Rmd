@@ -12,8 +12,8 @@ Code and reproducible analyses for function adaptive shrinkage (FASH).
 
 ## Simulations
 
-- [Prior misspecification and BF adjustment](appendixB.html)
-- [Two-stage dynamic discovery and functional testing](revision_functional_testing_simulation.html)
+- [Simulation 1: Summary-statistic simulation](appendixB.html)
+- [Simulation 2: Real-genotype simulation](revision_functional_testing_simulation.html)
 
 ## Real Data Analysis
 
