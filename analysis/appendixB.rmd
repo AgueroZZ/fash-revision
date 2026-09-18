@@ -46,7 +46,8 @@ FDR when constant, linear, and nonlinear effect functions are fitted with FASH.
 2. Fit FASH-IWP1 and FASH-IWP2 before and after BF adjustment, pairing the
    simulated inputs across the original and denser shrinkage grids.
 3. Average null-weight estimates, power, and false-discovery proportions across
-   repetitions. Shaded ranges show pointwise replicate minima and maxima.
+   repetitions. Figure 2 shows pointwise replicate ranges; Figures 3 and 4
+   show means as points connected by lines.
 
 All fits use the pinned `fashr` 0.1.43 build. The ten seeds are
 `seq(12345L, by = 10000L, length.out = 10L)`.
@@ -153,42 +154,39 @@ $$
 $$
 
 Power is the mean of $|D_b(\alpha)\cap H_{1b}|/|H_{1b}|$ across the same
-ten repetitions. Both rates include every repetition. Ribbons show pointwise
-minimum and maximum replicate rates; they are not confidence intervals.
+ten repetitions. Both rates include every repetition. Points connected by
+lines show the ten-repetition means.
 
-```{r power, fig.cap="Figure 3. Mean discovery power over ten repetitions (J = 1,200). Panels A and B show dynamic and nonlinear testing. Ribbons show pointwise replicate minima and maxima. The vertical line marks nominal FDR 0.05."}
+```{r power, fig.cap="Figure 3. Mean discovery power over ten repetitions (J = 1,200). Panels A and B show dynamic and nonlinear testing. Points connected by lines show ten-repetition mean power. The vertical line marks nominal FDR 0.05."}
 power_curves <- alpha_summary[, c("order", "stage", "alpha", "mean_power",
   "power_min", "power_max", "n_replicates")]
 stopifnot(all(power_curves$n_replicates == 10L))
 power_curves$stage <- factor(power_curves$stage, c("Raw EB", "BF updated"))
 power_curves$panel <- factor(power_curves$order, c("IWP1", "IWP2"),
   c("A  Dynamic effects", "B  Nonlinear effects"))
-ggplot(power_curves, aes(alpha, mean_power, color = stage, fill = stage)) +
-  geom_ribbon(aes(ymin = power_min, ymax = power_max), alpha = 0.10,
-    color = NA, show.legend = FALSE) + geom_line(linewidth = 0.8) +
+ggplot(power_curves, aes(alpha, mean_power, color = stage)) +
+  geom_line(linewidth = 0.65) + geom_point(size = 1.4) +
   geom_vline(xintercept = 0.05, color = "grey50", linetype = "dashed", linewidth = 0.4) +
   facet_wrap(~panel, nrow = 1) +
   scale_color_manual(values = c("Raw EB" = "#0072B2", "BF updated" = "#D55E00")) +
-  scale_fill_manual(values = c("Raw EB" = "#0072B2", "BF updated" = "#D55E00")) +
-  coord_cartesian(ylim = c(0, 1)) +
+  scale_y_continuous(breaks = seq(0.75, 0.90, by = 0.05)) +
+  coord_cartesian(ylim = c(0.75, 0.90), expand = FALSE) +
   labs(x = "Nominal FDR level", y = "Mean power", color = NULL, fill = NULL) + c1_plot_theme()
 ```
 
-```{r empirical-fdr, fig.cap="Figure 4. Empirical FDR over the same ten repetitions. Panels A and B show dynamic and nonlinear testing. Curves average replicate false-discovery proportions; ribbons show pointwise replicate minima and maxima. The diagonal marks nominal calibration and the vertical line nominal FDR 0.05."}
+```{r empirical-fdr, fig.cap="Figure 4. Empirical FDR over the same ten repetitions. Panels A and B show dynamic and nonlinear testing. Points connected by lines show the mean of replicate false-discovery proportions. The diagonal marks nominal calibration and the vertical line nominal FDR 0.05."}
 fdr_curves <- alpha_summary[, c("order", "stage", "alpha", "mean_empirical_fdr",
   "empirical_fdr_min", "empirical_fdr_max", "n_replicates")]
 stopifnot(all(fdr_curves$n_replicates == 10L))
 fdr_curves$stage <- factor(fdr_curves$stage, c("Raw EB", "BF updated"))
 fdr_curves$panel <- factor(fdr_curves$order, c("IWP1", "IWP2"),
   c("A  Dynamic effects", "B  Nonlinear effects"))
-ggplot(fdr_curves, aes(alpha, mean_empirical_fdr, color = stage, fill = stage)) +
-  geom_ribbon(aes(ymin = empirical_fdr_min, ymax = empirical_fdr_max), alpha = 0.10,
-    color = NA, show.legend = FALSE) + geom_line(linewidth = 0.8) +
+ggplot(fdr_curves, aes(alpha, mean_empirical_fdr, color = stage)) +
+  geom_line(linewidth = 0.65) + geom_point(size = 1.4) +
   geom_abline(slope = 1, intercept = 0, color = "grey35", linetype = "dotted", linewidth = 0.4) +
   geom_vline(xintercept = 0.05, color = "grey50", linetype = "dashed", linewidth = 0.4) +
   facet_wrap(~panel, nrow = 1) +
   scale_color_manual(values = c("Raw EB" = "#0072B2", "BF updated" = "#D55E00")) +
-  scale_fill_manual(values = c("Raw EB" = "#0072B2", "BF updated" = "#D55E00")) +
   coord_cartesian(ylim = c(0, max(0.2, 1.05 * fdr_curves$empirical_fdr_max))) +
   labs(x = "Nominal FDR level", y = "Empirical FDR", color = NULL, fill = NULL) + c1_plot_theme()
 ```
