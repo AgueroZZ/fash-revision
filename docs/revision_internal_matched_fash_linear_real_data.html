@@ -13,7 +13,7 @@
 
 <meta name="date" content="2026-08-29" />
 
-<title>Revision Real-data Analysis R7: matched FASH-linear comparison</title>
+<title>Matched FASH-linear comparison</title>
 
 <script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -363,8 +363,7 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Revision Real-data Analysis R7: matched
-FASH-linear comparison</h1>
+<h1 class="title toc-ignore">Matched FASH-linear comparison</h1>
 <h4 class="author">Ziang Zhang</h4>
 <h4 class="date">2026-08-29</h4>
 
@@ -374,7 +373,7 @@ FASH-linear comparison</h1>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+workflowr <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -385,8 +384,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> </a>
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -395,13 +394,13 @@ aria-hidden="true"></span> </a>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2026-08-29
+<strong>Last updated:</strong> 2026-09-18
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 1
+aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>coderepo-local/</code> <span
@@ -424,21 +423,18 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
-<span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
-changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges"
+<div id="strongRMarkdownfilestronguptodate"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown file has unstaged changes. To know which version of
-the R Markdown file created these results, you’ll want to first commit
-it to the Git repo. If you’re still working on the analysis, you can
-ignore this warning. When you’re finished, you can run
-<code>wflow_publish</code> to commit the R Markdown file and build the
-HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
@@ -529,15 +525,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree6061f3f75ba9103b86843a28c99e8b14158f8c85targetblank6061f3fa">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree806648bc6684e28bc3bc8b4f81f3cee07fae5d5dtargetblank806648ba">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/AgueroZZ/fash-revision/tree/6061f3f75ba9103b86843a28c99e8b14158f8c85" target="_blank">6061f3f</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/806648bc6684e28bc3bc8b4f81f3cee07fae5d5d" target="_blank">806648b</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree6061f3f75ba9103b86843a28c99e8b14158f8c85targetblank6061f3fa"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree806648bc6684e28bc3bc8b4f81f3cee07fae5d5dtargetblank806648ba"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -547,7 +543,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/AgueroZZ/fash-revision/tree/6061f3f75ba9103b86843a28c99e8b14158f8c85" target="_blank">6061f3f</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/806648bc6684e28bc3bc8b4f81f3cee07fae5d5d" target="_blank">806648b</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -582,24 +578,26 @@ Ignored files:
     Ignored:    scripts/
 
 Untracked files:
-    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data/scoped_shared_provenance.R
-    Untracked:  code/revision_simulations/internal/matched_fash_linear_real_data/test_scoped_shared_provenance.R
+    Untracked:  analysis/revision_internal_r3_two_stage_functional_testing.rmd
     Untracked:  code/revision_simulations/internal/per_unit_enhancer_enrichment/
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/compare_corshrink_versions.R
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/diagnose_discordant_calls.R
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/diagnose_smooth_mismatch.R
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/extract_perunit_lfdr.R
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_call_venns.R
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_class_variograms.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_corshrink_result.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_corshrink_versions.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_cs_vs_diagonal.R
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_day0_day1_distribution.R
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_mechanism_summary.R
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_perunit_variogram.R
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_strober_concordance.R
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_three_models.R
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/prepare_reference_sets.R
-
-Unstaged changes:
-    Modified:   analysis/revision_internal_matched_fash_linear_real_data.rmd
-    Modified:   code/revision_simulations/internal/matched_fash_linear_real_data/reporting.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/prototype_corshrink.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/recover_design_factor.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/test_corshrink_reimplementation.R
 
 </code></pre>
 <p>
@@ -646,6 +644,57 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/806648bc6684e28bc3bc8b4f81f3cee07fae5d5d/analysis/revision_internal_matched_fash_linear_real_data.rmd" target="_blank">806648b</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+<td>
+Organize website into simulations and real data analysis
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/86ca0520d1b1c47dbd21ac65c179ee6fdd480297/analysis/revision_internal_matched_fash_linear_real_data.rmd" target="_blank">86ca052</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-29
+</td>
+<td>
+Repair R7 scoped provenance validation
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/86ca0520d1b1c47dbd21ac65c179ee6fdd480297/docs/revision_internal_matched_fash_linear_real_data.html" target="_blank">86ca052</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-08-29
+</td>
+<td>
+Repair R7 scoped provenance validation
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -729,8 +778,9 @@ pre {
 }
 </style>
 <div class="matched-banner">
-<p><strong>Revision analysis R7.</strong> This page reports a fresh
-full-data matched FASH-linear rerun with <code>fashr</code> 0.1.43.</p>
+<p><strong>Matched FASH-linear comparison.</strong> This page reports a
+fresh full-data matched FASH-linear rerun with <code>fashr</code>
+0.1.43.</p>
 </div>
 <div id="analysis-definition" class="section level2">
 <h2>Analysis definition</h2>
@@ -1520,9 +1570,9 @@ not known-truth power comparisons.</p>
 <h2>Reproducibility and validation</h2>
 <p>The page reads the versioned cache and does not refit the
 million-pair model. The reporting gate retains byte-level checks for
-every R7-specific input and compares the complete shared-function
-dependency closure used by R7 against the frozen source snapshot whose
-MD5 is recorded in the cache.</p>
+every analysis-specific input and compares the complete shared-function
+dependency closure used by this analysis against the frozen source
+snapshot whose MD5 is recorded in the cache.</p>
 <pre class="bash"><code>OMP_NUM_THREADS=1 \
 OPENBLAS_NUM_THREADS=1 \
 MKL_NUM_THREADS=1 \
