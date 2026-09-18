@@ -21,6 +21,7 @@ alpha_summary <- report$tables$alpha_summary
 at005 <- alpha_summary[abs(alpha_summary$alpha - 0.05) < 1e-12, ]
 method_shapes <- c("Raw EB" = 16L, "BF updated" = 17L)
 method_linetypes <- setNames(c("solid", "dashed"), names(method_shapes))
+method_linewidths <- setNames(c(0.65, 0.45), names(method_shapes))
 value005 <- function(order, stage, metric) {
   row <- at005[at005$order == order & at005$stage == stage, ]
   stopifnot(nrow(row) == 1L)
@@ -169,12 +170,13 @@ power_curves$panel <- factor(power_curves$order, c("IWP1", "IWP2"),
   c("A  Dynamic effects", "B  Nonlinear effects"))
 ggplot(power_curves, aes(alpha, mean_power, color = stage,
   shape = stage, linetype = stage)) +
-  geom_line(linewidth = 0.65) + geom_point(size = 1.4) +
+  geom_line(aes(linewidth = stage)) + geom_point(size = 1.4) +
   geom_vline(xintercept = 0.05, color = "grey50", linetype = "dashed", linewidth = 0.4) +
   facet_wrap(~panel, nrow = 1) +
   scale_color_manual(values = c("Raw EB" = "#0072B2", "BF updated" = "#D55E00")) +
   scale_shape_manual(values = method_shapes) +
   scale_linetype_manual(values = method_linetypes) +
+  scale_linewidth_manual(values = method_linewidths, name = NULL) +
   scale_y_continuous(breaks = seq(0.75, 0.90, by = 0.05),
     expand = expansion(mult = 0)) +
   coord_cartesian(ylim = c(0.75, 0.90)) +
@@ -191,13 +193,14 @@ fdr_curves$panel <- factor(fdr_curves$order, c("IWP1", "IWP2"),
   c("A  Dynamic effects", "B  Nonlinear effects"))
 ggplot(fdr_curves, aes(alpha, mean_empirical_fdr, color = stage,
   shape = stage, linetype = stage)) +
-  geom_line(linewidth = 0.65) + geom_point(size = 1.4) +
+  geom_line(aes(linewidth = stage)) + geom_point(size = 1.4) +
   geom_abline(slope = 1, intercept = 0, color = "grey35", linetype = "dotted", linewidth = 0.4) +
   geom_vline(xintercept = 0.05, color = "grey50", linetype = "dashed", linewidth = 0.4) +
   facet_wrap(~panel, nrow = 1) +
   scale_color_manual(values = c("Raw EB" = "#0072B2", "BF updated" = "#D55E00")) +
   scale_shape_manual(values = method_shapes) +
   scale_linetype_manual(values = method_linetypes) +
+  scale_linewidth_manual(values = method_linewidths, name = NULL) +
   coord_cartesian(ylim = c(0, max(0.2, 1.05 * fdr_curves$empirical_fdr_max))) +
   labs(x = "Nominal FDR level", y = "Empirical FDR", color = NULL, shape = NULL, linetype = NULL) + c1_plot_theme()
 ```
