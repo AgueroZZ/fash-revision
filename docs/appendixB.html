@@ -526,15 +526,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreeb8e443d543283803aa65f9929bf42d1695649fectargetblankb8e443da">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree6e408f8aacf8c8cfef38b0ab76a496f0a41143c5targetblank6e408f8a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/AgueroZZ/fash-revision/tree/b8e443d543283803aa65f9929bf42d1695649fec" target="_blank">b8e443d</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/6e408f8aacf8c8cfef38b0ab76a496f0a41143c5" target="_blank">6e408f8</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreeb8e443d543283803aa65f9929bf42d1695649fectargetblankb8e443da"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree6e408f8aacf8c8cfef38b0ab76a496f0a41143c5targetblank6e408f8a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -544,7 +544,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/AgueroZZ/fash-revision/tree/b8e443d543283803aa65f9929bf42d1695649fec" target="_blank">b8e443d</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/6e408f8aacf8c8cfef38b0ab76a496f0a41143c5" target="_blank">6e408f8</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -565,7 +565,6 @@ Ignored files:
     Ignored:    Rplots.pdf
     Ignored:    analysis/.DS_Store
     Ignored:    analysis/.Rhistory
-    Ignored:    analysis/site_libs/
     Ignored:    code/.DS_Store
     Ignored:    code/.Rhistory
     Ignored:    code/revision_simulations/.DS_Store
@@ -644,6 +643,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/6e408f8aacf8c8cfef38b0ab76a496f0a41143c5/analysis/appendixB.rmd" target="_blank">6e408f8</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+<td>
+Slightly thin BF-updated dashed curves
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/eba75a1fc070fbd6a9c984b967215f739f748ce6/docs/appendixB.html" target="_blank">eba75a1</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+<td>
+Publish distinct BF-updated marker and line styling
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -1071,12 +1104,13 @@ power_curves$panel &lt;- factor(power_curves$order, c(&quot;IWP1&quot;, &quot;IW
   c(&quot;A  Dynamic effects&quot;, &quot;B  Nonlinear effects&quot;))
 ggplot(power_curves, aes(alpha, mean_power, color = stage,
   shape = stage, linetype = stage)) +
-  geom_line(linewidth = 0.65) + geom_point(size = 1.4) +
+  geom_line(aes(linewidth = stage)) + geom_point(size = 1.4) +
   geom_vline(xintercept = 0.05, color = &quot;grey50&quot;, linetype = &quot;dashed&quot;, linewidth = 0.4) +
   facet_wrap(~panel, nrow = 1) +
   scale_color_manual(values = c(&quot;Raw EB&quot; = &quot;#0072B2&quot;, &quot;BF updated&quot; = &quot;#D55E00&quot;)) +
   scale_shape_manual(values = method_shapes) +
   scale_linetype_manual(values = method_linetypes) +
+  scale_linewidth_manual(values = method_linewidths, name = NULL) +
   scale_y_continuous(breaks = seq(0.75, 0.90, by = 0.05),
     expand = expansion(mult = 0)) +
   coord_cartesian(ylim = c(0.75, 0.90)) +
@@ -1115,6 +1149,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/eba75a1fc070fbd6a9c984b967215f739f748ce6/docs/figure/appendixB.rmd/power-1.png" target="_blank">eba75a1</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/AgueroZZ/fash-revision/blob/95b4dba57b884b82c1b539cc4ac1beaa29ca2a0f/docs/figure/appendixB.rmd/power-1.png" target="_blank">95b4dba</a>
 </td>
 <td>
@@ -1148,13 +1193,14 @@ fdr_curves$panel &lt;- factor(fdr_curves$order, c(&quot;IWP1&quot;, &quot;IWP2&q
   c(&quot;A  Dynamic effects&quot;, &quot;B  Nonlinear effects&quot;))
 ggplot(fdr_curves, aes(alpha, mean_empirical_fdr, color = stage,
   shape = stage, linetype = stage)) +
-  geom_line(linewidth = 0.65) + geom_point(size = 1.4) +
+  geom_line(aes(linewidth = stage)) + geom_point(size = 1.4) +
   geom_abline(slope = 1, intercept = 0, color = &quot;grey35&quot;, linetype = &quot;dotted&quot;, linewidth = 0.4) +
   geom_vline(xintercept = 0.05, color = &quot;grey50&quot;, linetype = &quot;dashed&quot;, linewidth = 0.4) +
   facet_wrap(~panel, nrow = 1) +
   scale_color_manual(values = c(&quot;Raw EB&quot; = &quot;#0072B2&quot;, &quot;BF updated&quot; = &quot;#D55E00&quot;)) +
   scale_shape_manual(values = method_shapes) +
   scale_linetype_manual(values = method_linetypes) +
+  scale_linewidth_manual(values = method_linewidths, name = NULL) +
   coord_cartesian(ylim = c(0, max(0.2, 1.05 * fdr_curves$empirical_fdr_max))) +
   labs(x = &quot;Nominal FDR level&quot;, y = &quot;Empirical FDR&quot;, color = NULL, shape = NULL, linetype = NULL) + c1_plot_theme()</code></pre>
 <div class="figure" style="text-align: center">
@@ -1189,6 +1235,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/eba75a1fc070fbd6a9c984b967215f739f748ce6/docs/figure/appendixB.rmd/empirical-fdr-1.png" target="_blank">eba75a1</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/AgueroZZ/fash-revision/blob/95b4dba57b884b82c1b539cc4ac1beaa29ca2a0f/docs/figure/appendixB.rmd/empirical-fdr-1.png" target="_blank">95b4dba</a>
