@@ -526,15 +526,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree98996f5a48db7f846f89ac2dffcbcdf755bee32etargetblank98996f5a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree9abee62e6d4e4bc94fecc5cb1cf90a06e48593abtargetblank9abee62a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/AgueroZZ/fash-revision/tree/98996f5a48db7f846f89ac2dffcbcdf755bee32e" target="_blank">98996f5</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/9abee62e6d4e4bc94fecc5cb1cf90a06e48593ab" target="_blank">9abee62</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree98996f5a48db7f846f89ac2dffcbcdf755bee32etargetblank98996f5a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree9abee62e6d4e4bc94fecc5cb1cf90a06e48593abtargetblank9abee62a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -544,7 +544,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/AgueroZZ/fash-revision/tree/98996f5a48db7f846f89ac2dffcbcdf755bee32e" target="_blank">98996f5</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/9abee62e6d4e4bc94fecc5cb1cf90a06e48593ab" target="_blank">9abee62</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -644,6 +644,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/9abee62e6d4e4bc94fecc5cb1cf90a06e48593ab/analysis/revision_functional_testing_simulation.rmd" target="_blank">9abee62</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+<td>
+Simplify R3 Figure 1 to six representative effect trajectories
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/88369fe657fe19951ed0c0372d4c9b13c724aaab/docs/revision_functional_testing_simulation.html" target="_blank">88369fe</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+<td>
+Publish consolidated R3 website and preserve R1 R2 archives
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -885,65 +919,120 @@ half-width 1.5 and are scaled to centered RMS 0.9.</li>
 </ul>
 <div id="examples-of-true-effect-curves" class="section level3">
 <h3>Examples of true effect curves</h3>
-<p>Figure 1 shows three stored true <span
-class="math inline">\(\beta_j(t)\)</span> curves per category from seed
-<code>12345</code>, including the genetic main effect. Examples are
-selected in unit order within the retained illustration pool, without
-filtering on discoveries. Early, Middle, and Late refer to the location
-of the largest absolute effect; Switch requires both positive and
-negative effects beyond <span class="math inline">\(\pm0.25\)</span> and
-can overlap any of the three temporal categories.</p>
-<pre class="r"><code># Select true category members from the validated seed-12345 illustration pool.
-example_members &lt;- unique(truth_example_pool[
-  truth_example_pool$true_functional &gt; 0,
-  c(&quot;truth_mechanism&quot;, &quot;target&quot;, &quot;unit_index&quot;, &quot;pair_key&quot;)
-])
+<p>Figure 1 shows six examples from seed <code>12345</code>: broad
+B-spline effects classified as Early, Middle, or Late (A-C), and
+transient raised-cosine effects with one, two, or three generating peaks
+(D-F). Each panel uses the first eligible unit in the retained
+illustration pool, ordered by original unit index, without filtering on
+discoveries. The missing two-peak illustration is recovered with the
+original seed and frozen input generator, with truth, estimates, and
+standard errors checked against the retained examples. Black points are
+estimated effects, gray bars span <span class="math inline">\(\pm
+2\)</span> reported standard errors, and orange curves show the true
+<span class="math inline">\(\beta_j(t)\)</span>, including the genetic
+main effect.</p>
+<pre class="r"><code># Select one stored example per category, without using method scores or calls.
+example_members &lt;- unique(truth_example_pool[, c(&quot;truth_mechanism&quot;, &quot;target&quot;,
+  &quot;unit_index&quot;, &quot;pair_key&quot;, &quot;true_functional&quot;, &quot;peak_count&quot;)])
 example_members &lt;- example_members[order(example_members$unit_index), ]
-selected_examples &lt;- do.call(rbind, lapply(
-  split(example_members, interaction(example_members$truth_mechanism,
-                                     example_members$target, drop = TRUE)),
-  function(members) head(members, 3L)
-))
-stopifnot(nrow(selected_examples) == 24L)
-example_curves &lt;- merge(truth_example_pool, selected_examples,
-  by = c(&quot;truth_mechanism&quot;, &quot;target&quot;, &quot;unit_index&quot;, &quot;pair_key&quot;), sort = FALSE)
-example_curves$category &lt;- factor(example_curves$target,
-  levels = c(&quot;early&quot;, &quot;middle&quot;, &quot;late&quot;, &quot;switch&quot;),
-  labels = c(&quot;Early&quot;, &quot;Middle&quot;, &quot;Late&quot;, &quot;Switch&quot;))
-example_curves$mechanism &lt;- factor(example_curves$truth_mechanism,
-  levels = c(&quot;random_bspline&quot;, &quot;raised_cosine&quot;),
-  labels = c(&quot;Broad B-spline&quot;, &quot;Compact raised cosine&quot;))
-stopifnot(!anyNA(example_curves$category), !anyNA(example_curves$mechanism),
-          nrow(example_curves) == 24L * 151L)
-windows &lt;- data.frame(category = factor(c(&quot;Early&quot;, &quot;Middle&quot;, &quot;Late&quot;),
-  levels = levels(example_curves$category)), start = c(0, 3, 12), end = c(3, 12, 15))
-switch_reference &lt;- data.frame(category = factor(&quot;Switch&quot;,
-  levels = levels(example_curves$category)), threshold = c(-0.25, 0.25))
+panel_labels &lt;- c(&quot;A. Broad: Early&quot;, &quot;B. Broad: Middle&quot;, &quot;C. Broad: Late&quot;,
+                  &quot;D. Transient: one peak&quot;, &quot;E. Transient: two peaks&quot;,
+                  &quot;F. Transient: three peaks&quot;)
+selected_examples &lt;- do.call(rbind, lapply(seq_along(panel_labels), function(i) {
+  eligible &lt;- if (i &lt;= 3L) {
+    example_members$truth_mechanism == &quot;random_bspline&quot; &amp;
+      example_members$target == c(&quot;early&quot;, &quot;middle&quot;, &quot;late&quot;)[[i]] &amp;
+      example_members$true_functional &gt; 0
+  } else {
+    example_members$truth_mechanism == &quot;raised_cosine&quot; &amp;
+      !is.na(example_members$peak_count) &amp; example_members$peak_count == i - 3L
+  }
+  member &lt;- head(example_members[eligible, c(&quot;truth_mechanism&quot;, &quot;unit_index&quot;,
+    &quot;pair_key&quot;, &quot;peak_count&quot;)], 1L)
+  stopifnot(nrow(member) == 1L)
+  member$panel &lt;- panel_labels[[i]]
+  member
+}))
+# Check stored peak counts against the validated original generating labels.
+peak_labels &lt;- readRDS(file.path(project_root,
+  &quot;output/revision_simulations/internal/r3_peak_stratified_power_20260918&quot;,
+  &quot;peak_labels.rds&quot;))$records[[&quot;12345&quot;]]$units
+transient_examples &lt;- selected_examples[4:6, ]
+stopifnot(identical(transient_examples$peak_count, 1:3),
+  identical(transient_examples$peak_count,
+    peak_labels$peak_count[match(transient_examples$pair_key, peak_labels$pair_key)]))
+example_curves &lt;- merge(unique(truth_example_pool[, c(&quot;truth_mechanism&quot;,
+  &quot;unit_index&quot;, &quot;pair_key&quot;, &quot;time&quot;, &quot;true_effect&quot;)]), selected_examples,
+  by = c(&quot;truth_mechanism&quot;, &quot;unit_index&quot;, &quot;pair_key&quot;), sort = FALSE)
+example_observed &lt;- merge(attr(truth_example_pool, &quot;observed&quot;), selected_examples,
+  by = c(&quot;truth_mechanism&quot;, &quot;unit_index&quot;, &quot;pair_key&quot;), sort = FALSE)
+example_curves$panel &lt;- factor(example_curves$panel, levels = panel_labels)
+example_observed$panel &lt;- factor(example_observed$panel, levels = panel_labels)
+stopifnot(!anyNA(example_curves$panel), !anyNA(example_observed$panel),
+  all(table(example_curves$panel) == 151L),
+  all(table(example_observed$panel) == 16L))
 
-# Plot the saved dense true beta(t), with a common y scale across all panels.
-ggplot2::ggplot(example_curves, ggplot2::aes(time, true_effect, group = pair_key)) +
-  ggplot2::geom_rect(data = windows, ggplot2::aes(xmin = start, xmax = end,
-    ymin = -Inf, ymax = Inf), inherit.aes = FALSE, fill = &quot;#F5E6BF&quot;, alpha = 0.45) +
-  ggplot2::geom_hline(yintercept = 0, color = &quot;grey65&quot;, linewidth = 0.3) +
-  ggplot2::geom_hline(data = switch_reference, ggplot2::aes(yintercept = threshold),
-    linetype = &quot;dotted&quot;, color = &quot;grey45&quot;, linewidth = 0.4) +
-  ggplot2::geom_line(color = &quot;#0072B2&quot;, alpha = 0.8, linewidth = 0.65) +
-  ggplot2::facet_grid(mechanism ~ category) +
-  ggplot2::scale_x_continuous(breaks = c(0, 3, 12, 15)) +
-  ggplot2::labs(x = &quot;Time (days)&quot;, y = expression(&quot;True effect &quot; * beta[j](t))) +
-  ggplot2::theme_bw(base_size = 12) +
+# Use the appendixB convention: estimated effects with +/-2 SE and orange truth.
+ggplot2::ggplot(example_observed, ggplot2::aes(time, estimate)) +
+  ggplot2::geom_errorbar(ggplot2::aes(ymin = estimate - 2 * se,
+    ymax = estimate + 2 * se), width = 0, color = &quot;grey55&quot;, linewidth = 0.35) +
+  ggplot2::geom_point(size = 1.15, color = &quot;black&quot;) +
+  ggplot2::geom_line(data = example_curves, ggplot2::aes(time, true_effect),
+    color = &quot;#D55E00&quot;, linewidth = 0.8) +
+  ggplot2::facet_wrap(~ panel, ncol = 3, scales = &quot;free_y&quot;) +
+  ggplot2::scale_x_continuous(breaks = c(0, 5, 10, 15)) +
+  ggplot2::labs(x = &quot;Time (days)&quot;, y = &quot;Effect&quot;) +
+  ggplot2::theme_bw(base_size = 11) +
   ggplot2::theme(panel.grid.minor = ggplot2::element_blank(),
-    strip.background = ggplot2::element_rect(fill = &quot;grey95&quot;))</code></pre>
+    strip.text = ggplot2::element_text(size = 10),
+    axis.text = ggplot2::element_text(size = 9))</code></pre>
 <div class="figure" style="text-align: center">
-<img src="figure/revision_functional_testing_simulation.rmd/truth-examples-1.png" alt="Figure 1. Examples of true effect curves under broad random B-spline (top) and compact raised-cosine (bottom) truth. Each panel contains three examples with positive values of its defining functional. Shading marks the Early, Middle, or Late time window; dotted horizontal lines in Switch panels mark +/-0.25. All panels share the same effect scale. Curves may appear in both a temporal panel and the Switch panel." width="1980" />
+<img src="figure/revision_functional_testing_simulation.rmd/truth-examples-1.png" alt="Figure 1. Six representative simulated trajectories. A-C: broad B-spline effects with Early, Middle, and Late truth, respectively. D-F: transient raised-cosine effects with one, two, and three generating peaks, respectively. Each panel shows one unit: black points are estimated effects, gray bars span +/-2 reported standard errors, and the orange curve is the true effect. Panels use separate effect scales." width="1800" />
 <p class="caption">
-Figure 1. Examples of true effect curves under broad random B-spline
-(top) and compact raised-cosine (bottom) truth. Each panel contains
-three examples with positive values of its defining functional. Shading
-marks the Early, Middle, or Late time window; dotted horizontal lines in
-Switch panels mark +/-0.25. All panels share the same effect scale.
-Curves may appear in both a temporal panel and the Switch panel.
+Figure 1. Six representative simulated trajectories. A-C: broad B-spline
+effects with Early, Middle, and Late truth, respectively. D-F: transient
+raised-cosine effects with one, two, and three generating peaks,
+respectively. Each panel shows one unit: black points are estimated
+effects, gray bars span +/-2 reported standard errors, and the orange
+curve is the true effect. Panels use separate effect scales.
 </p>
+</div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-truth-examples-1">
+Past versions of truth-examples-1.png
+</button>
+</p>
+<div id="fig-truth-examples-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/88369fe657fe19951ed0c0372d4c9b13c724aaab/docs/figure/revision_functional_testing_simulation.rmd/truth-examples-1.png" target="_blank">88369fe</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 </div>
@@ -1026,6 +1115,43 @@ Direct-test eFDR uses the true null proportion and 100 donor
 permutations.
 </p>
 </div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-stage1-power-1">
+Past versions of stage1-power-1.png
+</button>
+</p>
+<div id="fig-stage1-power-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/88369fe657fe19951ed0c0372d4c9b13c724aaab/docs/figure/revision_functional_testing_simulation.rmd/stage1-power-1.png" target="_blank">88369fe</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="compact-truth-power-by-number-of-peaks" class="section level3">
 <h3>Compact-truth power by number of peaks</h3>
@@ -1083,6 +1209,43 @@ retain their original global discovery thresholds. Each curve is the
 ten-seed mean of within-group power; ribbons show pointwise replicate
 minima and maxima. The vertical line marks alpha = 0.05.
 </p>
+</div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-stage1-power-by-peaks-1">
+Past versions of stage1-power-by-peaks-1.png
+</button>
+</p>
+<div id="fig-stage1-power-by-peaks-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/88369fe657fe19951ed0c0372d4c9b13c724aaab/docs/figure/revision_functional_testing_simulation.rmd/stage1-power-by-peaks-1.png" target="_blank">88369fe</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <p>At <span class="math inline">\(\alpha=0.05\)</span>, direct quadratic
 minus BF-adjusted FASH-IWP1 mean power is +17.0, +6.3, and -13.6
@@ -1152,6 +1315,43 @@ the original global discovery thresholds; ribbons show pointwise
 replicate minima and maxima. The vertical line marks alpha = 0.05.
 </p>
 </div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-stage1-power-by-location-1">
+Past versions of stage1-power-by-location-1.png
+</button>
+</p>
+<div id="fig-stage1-power-by-location-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/88369fe657fe19951ed0c0372d4c9b13c724aaab/docs/figure/revision_functional_testing_simulation.rmd/stage1-power-by-location-1.png" target="_blank">88369fe</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="empirical-fdr-as-a-function-of-alpha" class="section level3">
 <h3>Empirical FDR as a function of alpha</h3>
@@ -1175,6 +1375,43 @@ datasets. Curves average replicate-specific false-discovery proportions
 across ten seeds; ribbons are pointwise replicate minima and maxima. The
 diagonal marks nominal FDR, and the vertical line marks alpha = 0.05.
 </p>
+</div>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-stage1-fdr-1">
+Past versions of stage1-fdr-1.png
+</button>
+</p>
+<div id="fig-stage1-fdr-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/88369fe657fe19951ed0c0372d4c9b13c724aaab/docs/figure/revision_functional_testing_simulation.rmd/stage1-fdr-1.png" target="_blank">88369fe</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <p>At <span class="math inline">\(\alpha=0.05\)</span>, mean power for
 BF-adjusted FASH-IWP1 and direct quadratic is 0.887 and 0.850 under
