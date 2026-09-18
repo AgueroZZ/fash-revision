@@ -194,7 +194,7 @@ fdr_curves$panel <- factor(fdr_curves$order, c("IWP1", "IWP2"),
 ggplot(fdr_curves, aes(alpha, mean_empirical_fdr, color = stage,
   shape = stage, linetype = stage)) +
   geom_line(aes(linewidth = stage)) + geom_point(size = 1.4) +
-  geom_abline(slope = 1, intercept = 0, color = "grey35", linetype = "dotted", linewidth = 0.4) +
+  geom_abline(slope = 1, intercept = 0, color = "grey15", linetype = "dotted", linewidth = 0.7) +
   geom_vline(xintercept = 0.05, color = "grey50", linetype = "dashed", linewidth = 0.4) +
   facet_wrap(~panel, nrow = 1) +
   scale_color_manual(values = c("Raw EB" = "#0072B2", "BF updated" = "#D55E00")) +
