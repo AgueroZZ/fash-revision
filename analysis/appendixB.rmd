@@ -1,7 +1,7 @@
 ---
-title: "Appendix B: Simulation"
+title: "Simulation: prior misspecification and BF adjustment"
 author: "Ziang Zhang"
-date: "2026-08-22"
+date: "2026-09-18"
 output:
   workflowr::wflow_html:
     code_folding: hide
@@ -10,508 +10,250 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  echo = TRUE,
-  fig.width = 9,
-  fig.height = 6,
-  dpi = 180,
-  fig.retina = 2,
-  fig.align = "center",
-  message = FALSE,
-  warning = FALSE
-)
-
+knitr::opts_chunk$set(echo = TRUE, fig.width = 10.4, fig.height = 5.2,
+  dpi = 180, fig.retina = 2, fig.align = "center", message = FALSE, warning = TRUE)
 library(ggplot2)
-source("code/revision_simulations/appendix_b/reporting.R")
-
-appendix_b_cache <- load_appendix_b_reporting_cache()
-grid_summary <- appendix_b_cache$grid_summary
-focused_example <- appendix_b_cache$focused_example
-focused_alpha <- appendix_b_cache$focused_alpha
-grid_long <- prepare_appendix_b_grid_long(grid_summary)
-alpha005 <- prepare_appendix_b_alpha005(focused_alpha)
-alpha_long <- prepare_appendix_b_alpha_long(focused_alpha)
-prior_table <- prepare_appendix_b_prior_table(focused_example)
-trajectory_examples <- prepare_appendix_b_trajectory_examples(
-  focused_example,
-  examples_per_class = 3L
-)
-cumulative_lfdr <- do.call(rbind, lapply(c("IWP1", "IWP2"), function(order) {
-  do.call(rbind, lapply(c("Raw EB", "BF updated"), function(stage) {
-    prepare_appendix_b_cumulative_lfdr(
-      focused_example,
-      order = order,
-      stage = stage,
-      alpha = 0.05
-    )
-  }))
-}))
-cumulative_lfdr$order <- factor(
-  cumulative_lfdr$order,
-  levels = c("IWP1", "IWP2")
-)
-cumulative_lfdr$stage <- factor(
-  cumulative_lfdr$stage,
-  levels = c("Raw EB", "BF updated")
-)
-
-format_integer <- function(x) format(x, big.mark = ",", scientific = FALSE)
-format_decimal <- function(x, digits = 3L) {
-  formatC(x, format = "f", digits = digits)
+source("code/revision_simulations/internal/appendix_c1_mc10/reporting.R")
+report <- c1_load_report()
+display <- c1_load_display(report)
+grid_summary <- report$tables$grid_summary
+alpha_summary <- report$tables$alpha_summary
+at005 <- alpha_summary[abs(alpha_summary$alpha - 0.05) < 1e-12, ]
+value005 <- function(order, stage, metric) {
+  row <- at005[at005$order == order & at005$stage == stage, ]
+  stopifnot(nrow(row) == 1L)
+  sprintf("%.3f", row[[metric]])
 }
-format_percent <- function(x, digits = 1L) {
-  paste0(format_decimal(100 * x, digits), "%")
-}
-
-stage_colors <- c("Raw EB" = "#0072B2", "BF updated" = "#D55E00")
-class_colors <- c(
-  "A: Constant" = "#666666",
-  "B: Linear dynamic" = "#009E73",
-  "C: Nonlinear dynamic" = "#CC79A7"
-)
-
-grid_mae <- aggregate(
-  abs(grid_long$estimated_pi0 - grid_long$true_pi0),
-  list(order = grid_long$order, stage = grid_long$stage),
-  mean
-)
-names(grid_mae)[[3L]] <- "mean_absolute_error"
+grid_results <- report$tables$grid_long
+raw_zero <- sum(grid_results$stage == "Raw EB" & grid_results$order == "IWP1" & grid_results$pi0 == 0)
+bf_grid <- grid_results[grid_results$stage == "BF updated", ]
+bf_below <- sum(bf_grid$pi0 < bf_grid$true_pi0)
 ```
 
 <style>
-html,
-body {
-  max-width: 100%;
-  overflow-x: hidden;
-}
-.r0-key-result {
-  margin: 1.2em 0 1.5em;
-  padding: 1em 1.15em;
-  border-left: 6px solid #0072b2;
-  border-radius: 4px;
-  background: #eef7fc;
-  color: #173f54;
-}
-.main-container .figure {
-  max-width: 980px;
-  margin: 1.4em auto;
-  text-align: center;
-}
-.main-container .figure img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  margin: 0 auto;
-}
-.main-container table {
-  width: auto;
-  max-width: 100%;
-}
-.main-container table caption,
-.main-container p.caption {
-  color: #333333;
-  font-weight: 600;
-  text-align: left;
-}
-pre {
-  box-sizing: border-box;
-  max-width: 100%;
-  overflow-x: auto;
-}
-.MathJax_Display {
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-@media (max-width: 767px) {
-  .main-container table {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-}
+p.caption, table caption { font-weight: 600; color: #333; }
+.main-container p code { white-space: normal; overflow-wrap: anywhere; }
+.MathJax_Display { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+.c1-table { width: 100%; overflow-x: auto; }
 </style>
 
 ## Overview
 
-This page evaluates FASH's exact-null-weight estimation and discovery behavior
-in a controlled three-class simulation. It has been rebuilt from the completed
-versioned cache generated with `fashr` `r appendix_b_cache$manifest$package_provenance$version`
-at commit `r appendix_b_cache$manifest$package_provenance$remote_sha`. Routine
-workflowr builds read this cache and do not refit FASH.
+This experiment evaluates null-weight estimation, discovery power, and empirical
+FDR when constant, linear, and nonlinear effect functions are fitted with FASH.
 
-For unit $j$, the true effect belongs to one of three ordered classes:
+1. Generate ten independent repetitions of each simulation setting.
+2. Fit FASH-IWP1 and FASH-IWP2 before and after BF adjustment, pairing the
+   simulated inputs across the original and denser shrinkage grids.
+3. Average null-weight estimates, power, and false-discovery proportions across
+   repetitions. Shaded ranges show pointwise replicate minima and maxima.
 
-- **A: constant**, which is null for both IWP$_1$ and IWP$_2$ testing;
-- **B: linear dynamic**, which is non-null for IWP$_1$ but null for IWP$_2$;
-- **C: nonlinear dynamic**, which is non-null for both tests.
+All fits use the pinned `fashr` 0.1.43 build. The ten seeds are
+`seq(12345L, by = 10000L, length.out = 10L)`.
 
-Let
+## Data generation and fitting
+
+At sixteen observed times $t=1,\ldots,16$, each unit belongs to one of three classes:
+
+- Constant: $\beta_j(t)=c_j$, with $c_j\sim N(0,1)$.
+- Linear dynamic: $\beta_j(t)=c_j+b_jt$, with independent
+  $c_j\sim N(0,1)$ and $b_j\sim N(0,1/16^2)$.
+- Nonlinear dynamic: an IWP2 function with predictive standard deviation 5
+  over sixteen time units.
+
+Observed effects are independent Gaussian measurements of these functions,
+with standard errors drawn from $\{0.1,0.3,0.5\}$ with equal probabilities.
+The grid experiment has $J=1000$ units per dataset. The dynamic fraction
+$\rho$ ranges from 0.05 to 0.50 in increments of 0.01; half of the dynamic
+units are linear and half nonlinear. The exact-null proportions are
+$1-\rho$ for IWP1 and $1-\rho/2$ for IWP2.
+
+Both models use an unrestricted polynomial baseline and 20 basis functions.
+The positive shrinkage grid is equally spaced from 0 to 10 on the
+log-precision scale, with spacing 0.2 or 0.1, together with an exact-null
+component. Null-weight comparisons use penalty 1. The power/FDR experiment
+uses $J=1200$, $\rho=0.2$, the original grid, and penalty 10.
+
+```{r scientific-settings, eval=FALSE}
+seeds <- seq(12345L, by = 10000L, length.out = 10L)
+rho <- seq(0.05, 0.50, by = 0.01)
+original_grid <- sort(c(0, exp(-0.5 * seq(0, 10, by = 0.2))))
+denser_grid <- sort(c(0, exp(-0.5 * seq(0, 10, by = 0.1))))
+grid_data <- build_appendix_b_datasets(J = 1000L,
+  rho_dynamic = rho_value, rho_nonlinear = rho_value / 2,
+  sigma_vec = c(0.1, 0.3, 0.5))
+focused_data <- build_appendix_b_datasets(J = 1200L,
+  rho_dynamic = 0.2, rho_nonlinear = 0.1,
+  sigma_vec = c(0.1, 0.3, 0.5))
+# Exact Gaussian integration uses the package's basis and prior precision.
+# Package EB optimization and BF updating are unchanged.
+focused_fit <- c1_fit_models(focused_data, original_grid,
+  penalty = 10, num_basis = 20L, num_cores = 1L)
+```
+
+```{r trajectories, fig.width=10, fig.height=8.4, fig.cap="Figure 1. Simulated observations and true effects from the first prespecified repetition. Columns show constant, linear dynamic, and nonlinear dynamic truth. Black points and gray bars show observed estimates and +/-2 standard errors; orange curves show the true effects."}
+# Choose the first three units per truth class, independently of discoveries.
+truth <- report$focused$data_bundle$truth
+chosen <- unlist(lapply(c("nondynamic", "linear", "nonlinear"), function(class) {
+  head(which(truth$class == class), 3L)
+}))
+example_data <- do.call(rbind, lapply(chosen, function(index) {
+  cbind(unit_id = truth$unit_id[index], class = truth$class[index],
+        report$focused$data_bundle$data_list[[index]])
+}))
+panel_ids <- as.vector(t(matrix(truth$unit_id[chosen], nrow = 3)))
+example_data$panel <- factor(example_data$unit_id, levels = panel_ids)
+ggplot(example_data, aes(x, y)) +
+  geom_errorbar(aes(ymin = y - 2 * sd, ymax = y + 2 * sd), width = 0,
+    color = "grey55", linewidth = 0.35) + geom_point(size = 1.15) +
+  geom_line(aes(y = truef), color = "#D55E00", linewidth = 0.8) +
+  facet_wrap(~panel, ncol = 3, scales = "free_y") +
+  labs(x = "Time", y = "Effect") + c1_plot_theme()
+```
+
+## Null-weight estimation
+
+There are 92 combinations of dynamic fraction and shrinkage grid, each with
+ten repetitions and both FASH orders. Raw IWP1 has `r raw_zero` zero-boundary
+null-weight estimates among its 920 fits. BF-adjusted estimates fall below the
+true null proportion in `r bf_below` of the 1,840 order-specific fits.
+
+```{r null-weights, fig.width=10.4, fig.height=8, fig.cap="Figure 2. Mean estimated null weight over ten repetitions per setting. Columns show IWP1 and IWP2; rows show the original and denser grids. Black denotes Raw EB, blue BF adjustment, and the red dashed line equality. Ribbons show pointwise replicate minima and maxima, including zero-boundary estimates."}
+null_curves <- grid_summary[, c("setting", "rho_dynamic", "order", "stage",
+  "true_pi0", "mean_pi0", "pi0_min", "pi0_max", "n_replicates")]
+stopifnot(all(null_curves$n_replicates == 10L))
+null_curves$stage <- factor(null_curves$stage, c("Raw EB", "BF updated"))
+null_curves$panel <- factor(paste(null_curves$setting, null_curves$order, sep = ":"),
+  c("original:IWP1", "original:IWP2", "denser:IWP1", "denser:IWP2"),
+  c("A  IWP1: original grid", "B  IWP2: original grid",
+    "C  IWP1: denser grid", "D  IWP2: denser grid"))
+stopifnot(!anyNA(null_curves$panel))
+ggplot(null_curves, aes(true_pi0, mean_pi0, color = stage, fill = stage)) +
+  geom_ribbon(aes(ymin = pi0_min, ymax = pi0_max), alpha = 0.10,
+    color = NA, show.legend = FALSE) + geom_line(linewidth = 0.7) +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed", linewidth = 0.45) +
+  facet_wrap(~panel, ncol = 2, scales = "free_x") +
+  scale_color_manual(values = c("Raw EB" = "black", "BF updated" = "#0072B2")) +
+  scale_fill_manual(values = c("Raw EB" = "black", "BF updated" = "#0072B2")) +
+  coord_cartesian(ylim = c(0, 1)) +
+  labs(x = expression("True null proportion " * pi[0]),
+    y = expression("Mean estimated null proportion " * hat(pi)[0]), color = NULL, fill = NULL) +
+  c1_plot_theme()
+```
+
+## Discovery power and empirical FDR
+
+For each repetition $b$, discoveries $D_b(\alpha)$ are selected by cumulative
+mean lfdr. With true null and alternative sets $H_{0b}$ and $H_{1b}$, the
+plotted empirical FDR is
 
 $$
-\rho_{\mathrm{dynamic}} = P(B \cup C),
-\qquad
-\rho_{\mathrm{nonlinear}} = P(C).
+\widehat{\mathrm{FDR}}(\alpha)=\frac{1}{10}\sum_{b=1}^{10}
+\frac{|D_b(\alpha)\cap H_{0b}|}{\max\{|D_b(\alpha)|,1\}}.
 $$
 
-The exact-null proportions estimated by the two FASH orders are therefore
+Power is the mean of $|D_b(\alpha)\cap H_{1b}|/|H_{1b}|$ across the same
+ten repetitions. Both rates include every repetition. Ribbons show pointwise
+minimum and maximum replicate rates; they are not confidence intervals.
 
-$$
-\pi_{0,\mathrm{IWP1}} = 1-\rho_{\mathrm{dynamic}},
-\qquad
-\pi_{0,\mathrm{IWP2}} = 1-\rho_{\mathrm{nonlinear}}.
-$$
-
-<div class="r0-key-result">
-<strong>Observed result.</strong> Across the 92 grid conditions, BF updating
-removes all seven raw-IWP1 boundary collapses in which the maximum-likelihood
-exact-null weight is zero. The mean absolute exact-null-weight error changes
-from `r format_decimal(grid_mae$mean_absolute_error[grid_mae$order == "IWP1" & grid_mae$stage == "Raw EB"], 3)`
-to `r format_decimal(grid_mae$mean_absolute_error[grid_mae$order == "IWP1" & grid_mae$stage == "BF updated"], 3)`
-for IWP1, and from
-`r format_decimal(grid_mae$mean_absolute_error[grid_mae$order == "IWP2" & grid_mae$stage == "Raw EB"], 3)`
-to `r format_decimal(grid_mae$mean_absolute_error[grid_mae$order == "IWP2" & grid_mae$stage == "BF updated"], 3)`
-for IWP2. Thus BF updating materially stabilizes IWP1 here, but it does not
-improve every order or every realized dataset.
-</div>
-
-## Simulated effect classes
-
-The retained focused replication contains `r format_integer(focused_example$parameters$J)`
-units with standard errors sampled from `r paste(focused_example$parameters$sigma_vec, collapse = ", ")`.
-Figure 1 shows the first three units in each truth class. Points are noisy
-effect estimates; vertical bars span two reported standard errors; orange
-curves are the true functions.
-
-```{r representative-trajectories, fig.width=10, fig.height=8.4, out.width='96%', fig.cap="Figure 1. Representative simulated trajectories from the focused replication. Columns follow the fixed A/B/C truth definitions: constant, linear dynamic, and nonlinear dynamic. Points are estimated effects, vertical bars span two standard errors, and orange curves are the true effects."}
-# Select exactly three retained units from each ordered truth class.
-trajectory_plot_data <- trajectory_examples
-
-ggplot(
-  trajectory_plot_data,
-  aes(x = time, y = estimate)
-) +
-  geom_errorbar(
-    aes(
-      ymin = estimate - 2 * standard_error,
-      ymax = estimate + 2 * standard_error
-    ),
-    width = 0,
-    color = "grey55",
-    linewidth = 0.35
-  ) +
-  geom_point(size = 1.15, color = "black") +
-  geom_line(aes(y = truth), color = "#D55E00", linewidth = 0.8) +
-  facet_wrap(~ panel, ncol = 3, scales = "free_y") +
-  labs(x = "Time", y = "Effect estimate") +
-  theme_bw(base_size = 11) +
-  theme(
-    panel.grid.minor = element_blank(),
-    strip.text = element_text(size = 8.5),
-    axis.text = element_text(size = 8.5)
-  )
+```{r power, fig.cap="Figure 3. Mean discovery power over ten repetitions (J = 1,200). Panels A and B show dynamic and nonlinear testing. Ribbons show pointwise replicate minima and maxima. The vertical line marks nominal FDR 0.05."}
+power_curves <- alpha_summary[, c("order", "stage", "alpha", "mean_power",
+  "power_min", "power_max", "n_replicates")]
+stopifnot(all(power_curves$n_replicates == 10L))
+power_curves$stage <- factor(power_curves$stage, c("Raw EB", "BF updated"))
+power_curves$panel <- factor(power_curves$order, c("IWP1", "IWP2"),
+  c("A  Dynamic effects", "B  Nonlinear effects"))
+ggplot(power_curves, aes(alpha, mean_power, color = stage, fill = stage)) +
+  geom_ribbon(aes(ymin = power_min, ymax = power_max), alpha = 0.10,
+    color = NA, show.legend = FALSE) + geom_line(linewidth = 0.8) +
+  geom_vline(xintercept = 0.05, color = "grey50", linetype = "dashed", linewidth = 0.4) +
+  facet_wrap(~panel, nrow = 1) +
+  scale_color_manual(values = c("Raw EB" = "#0072B2", "BF updated" = "#D55E00")) +
+  scale_fill_manual(values = c("Raw EB" = "#0072B2", "BF updated" = "#D55E00")) +
+  coord_cartesian(ylim = c(0, 1)) +
+  labs(x = "Nominal FDR level", y = "Mean power", color = NULL, fill = NULL) + c1_plot_theme()
 ```
 
-## Simulation and fitting design
-
-The grid experiment uses the same random-number stream for each grid setting.
-For every $\rho_{\mathrm{dynamic}}$,
-$\rho_{\mathrm{nonlinear}}=\rho_{\mathrm{dynamic}}/2$. This pairs the original
-and denser-grid fits at the simulated-data level; it does not create repeated
-Monte Carlo replicates.
-
-```{r design-table, results='asis'}
-# Record the fixed simulation, estimand, and fit choices shown in Table 1.
-design_table <- data.frame(
-  Item = c(
-    "Package",
-    "Grid experiment units",
-    "Dynamic proportion",
-    "Nonlinear proportion",
-    "Predictive-SD grids",
-    "Grid-fit penalty",
-    "Focused replication",
-    "Focused-fit penalty",
-    "Basis and prediction step",
-    "Random-number stream",
-    "IWP1 exact-null estimand",
-    "IWP2 exact-null estimand"
-  ),
-  Value = c(
-    paste0(
-      "fashr ", appendix_b_cache$manifest$package_provenance$version,
-      " at ", appendix_b_cache$manifest$package_provenance$remote_sha
-    ),
-    format_integer(appendix_b_cache$manifest$grid_design$J),
-    "0.05 to 0.50 by 0.01",
-    "rho_dynamic / 2",
-    "Original spacing 0.2; denser spacing 0.1; both include exact zero",
-    format_integer(appendix_b_cache$manifest$grid_design$penalty),
-    paste0(
-      "J = ", format_integer(focused_example$parameters$J),
-      ", rho_dynamic = 0.20, rho_nonlinear = 0.10"
-    ),
-    format_integer(focused_example$parameters$penalty),
-    paste0(
-      focused_example$parameters$num_basis,
-      " basis functions; pred_step = 1"
-    ),
-    format_integer(focused_example$parameters$stream_seed),
-    "P(A) = 1 - rho_dynamic",
-    "P(A or B) = 1 - rho_nonlinear"
-  ),
-  stringsAsFactors = FALSE,
-  check.names = FALSE
-)
-
-knitr::kable(
-  design_table,
-  align = c("l", "l"),
-  caption = paste(
-    "Table 1. Fixed design and estimands for the versioned Appendix B",
-    "simulation. The grid experiment contains one paired random-number",
-    "stream, not repeated Monte Carlo replicates."
-  )
-)
+```{r empirical-fdr, fig.cap="Figure 4. Empirical FDR over the same ten repetitions. Panels A and B show dynamic and nonlinear testing. Curves average replicate false-discovery proportions; ribbons show pointwise replicate minima and maxima. The diagonal marks nominal calibration and the vertical line nominal FDR 0.05."}
+fdr_curves <- alpha_summary[, c("order", "stage", "alpha", "mean_empirical_fdr",
+  "empirical_fdr_min", "empirical_fdr_max", "n_replicates")]
+stopifnot(all(fdr_curves$n_replicates == 10L))
+fdr_curves$stage <- factor(fdr_curves$stage, c("Raw EB", "BF updated"))
+fdr_curves$panel <- factor(fdr_curves$order, c("IWP1", "IWP2"),
+  c("A  Dynamic effects", "B  Nonlinear effects"))
+ggplot(fdr_curves, aes(alpha, mean_empirical_fdr, color = stage, fill = stage)) +
+  geom_ribbon(aes(ymin = empirical_fdr_min, ymax = empirical_fdr_max), alpha = 0.10,
+    color = NA, show.legend = FALSE) + geom_line(linewidth = 0.8) +
+  geom_abline(slope = 1, intercept = 0, color = "grey35", linetype = "dotted", linewidth = 0.4) +
+  geom_vline(xintercept = 0.05, color = "grey50", linetype = "dashed", linewidth = 0.4) +
+  facet_wrap(~panel, nrow = 1) +
+  scale_color_manual(values = c("Raw EB" = "#0072B2", "BF updated" = "#D55E00")) +
+  scale_fill_manual(values = c("Raw EB" = "#0072B2", "BF updated" = "#D55E00")) +
+  coord_cartesian(ylim = c(0, max(0.2, 1.05 * fdr_curves$empirical_fdr_max))) +
+  labs(x = "Nominal FDR level", y = "Empirical FDR", color = NULL, fill = NULL) + c1_plot_theme()
 ```
 
-## Exact-null-weight estimation across the grid
+At nominal FDR 0.05, BF adjustment changes empirical FDR from
+`r value005("IWP1", "Raw EB", "mean_empirical_fdr")` to
+`r value005("IWP1", "BF updated", "mean_empirical_fdr")` for dynamic testing,
+and from `r value005("IWP2", "Raw EB", "mean_empirical_fdr")` to
+`r value005("IWP2", "BF updated", "mean_empirical_fdr")` for nonlinear testing.
+The corresponding power changes are
+`r value005("IWP1", "Raw EB", "mean_power")` to
+`r value005("IWP1", "BF updated", "mean_power")` and
+`r value005("IWP2", "Raw EB", "mean_power")` to
+`r value005("IWP2", "BF updated", "mean_power")`.
 
-Figure 2 compares each fitted exact-null weight with its order-specific truth.
-The dashed line is equality. Crosses mark the seven raw IWP1 fits whose exact
-null weight reached the simplex boundary at zero; `fashr` explicitly warned
-that their raw lfdr values were consequently zero. The BF-updated fits retain
-the exact-null component and are shown as a separate stage.
-
-```{r grid-null-weight, fig.width=10, fig.height=7.4, out.width='96%', fig.cap="Figure 2. Estimated versus true exact-null weight over 46 dynamic proportions and two predictive-SD grids. Panels separate IWP order and grid spacing; colors separate raw empirical-Bayes and BF-updated fits. The dashed line denotes equality, and crosses identify the seven valid raw-IWP1 boundary solutions with estimated exact-null weight zero."}
-# Map each order to its own null estimand before plotting both fit stages.
-grid_plot_data <- grid_long[
-  order(grid_long$order, grid_long$setting, grid_long$stage, grid_long$true_pi0),
-]
-
-ggplot(
-  grid_plot_data,
-  aes(
-    x = true_pi0,
-    y = estimated_pi0,
-    color = stage,
-    group = stage,
-    shape = boundary_warning
-  )
-) +
-  geom_abline(
-    intercept = 0,
-    slope = 1,
-    color = "grey35",
-    linetype = "dashed",
-    linewidth = 0.55
-  ) +
-  geom_line(linewidth = 0.55, alpha = 0.65) +
-  geom_point(size = 1.8, stroke = 0.8) +
-  facet_grid(order ~ setting) +
-  scale_color_manual(values = stage_colors, drop = FALSE) +
-  scale_shape_manual(
-    values = c(`FALSE` = 16, `TRUE` = 4),
-    labels = c(`FALSE` = "Regular fit", `TRUE` = "Raw null-weight boundary")
-  ) +
-  scale_x_continuous(limits = c(0.48, 1), breaks = seq(0.5, 1, by = 0.1)) +
-  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2)) +
-  labs(
-    x = "True exact-null weight",
-    y = "Estimated exact-null weight",
-    color = "Fit stage",
-    shape = "Fit status"
-  ) +
-  theme_bw(base_size = 11) +
-  theme(
-    panel.grid.minor = element_blank(),
-    legend.position = "bottom"
-  )
+```{r alpha005-table, results='asis'}
+tab <- at005[order(match(at005$order, c("IWP1", "IWP2")),
+                  match(at005$stage, c("Raw EB", "BF updated"))),
+  c("order", "stage", "mean_discoveries", "mean_power", "mean_empirical_fdr")]
+names(tab) <- c("Model", "Prior", "Mean discoveries", "Mean power", "Empirical FDR")
+knitr::asis_output(paste0('<div class="c1-table">',
+  knitr::kable(tab, format = "html", row.names = FALSE, digits = c(0, 0, 1, 3, 3),
+    caption = "Table 1. Ten-repetition mean results at nominal FDR 0.05."), '</div>'))
 ```
 
-## Focused replication
+## Posterior examples
 
-The focused replication fixes $J=1200$,
-$\rho_{\mathrm{dynamic}}=0.2$, and
-$\rho_{\mathrm{nonlinear}}=0.1$. Hence IWP1 has 240 true dynamic units and
-IWP2 has 120 true nonlinear units. Calls are the longest prefix of lfdr-ranked
-units whose mean lfdr does not exceed $\alpha$.
+Figure 5 retains four prespecified examples from seed 12345. All four are
+selected at nominal FDR 0.05 by their respective BF-adjusted models.
+Posterior summaries use 3,000 draws evaluated at time-grid step 0.1.
 
-Table 2 reports realized false-discovery proportion (FDP) and power for this
-single replication at $\alpha=0.05$. These realized quantities are not
-repeated-simulation FDR or expected power.
-
-```{r focused-alpha005-table, results='asis'}
-# Restrict the retained alpha curve to the prespecified alpha = 0.05 rows.
-alpha005_table <- data.frame(
-  Order = as.character(alpha005$order),
-  Target = alpha005$target,
-  Stage = as.character(alpha005$stage),
-  Discoveries = format_integer(alpha005$discoveries),
-  `True discoveries` = format_integer(alpha005$true_discoveries),
-  `False discoveries` = format_integer(alpha005$false_discoveries),
-  `Realized FDP` = format_percent(alpha005$realized_fdp, 1),
-  Power = format_percent(alpha005$power, 1),
-  stringsAsFactors = FALSE,
-  check.names = FALSE
-)
-
-knitr::kable(
-  alpha005_table,
-  align = c("l", "l", "l", "r", "r", "r", "r", "r"),
-  caption = paste(
-    "Table 2. Focused-replication cumulative-lfdr calls at alpha = 0.05.",
-    "FDP and power are realized values for this one retained replication."
-  )
-)
+```{r posterior-examples, fig.width=10.4, fig.height=7.8, fig.cap="Figure 5. Posterior examples from seed 12345. Top: IWP1 dynamic testing; bottom: IWP2 nonlinear testing. Black points and bars show estimates and +/-2 standard errors. Red curves and bands show posterior means and pointwise 95% credible intervals; blue dashed curves show truth."}
+predictions <- display$predictions; observations <- display$observations
+labels <- c("A  C109 (IWP1)", "B  B75 (IWP1)", "C  C24 (IWP2)", "D  C115 (IWP2)")
+predictions$panel <- factor(predictions$panel, LETTERS[1:4], labels)
+observations$panel <- factor(observations$panel, LETTERS[1:4], labels)
+stopifnot(!anyNA(predictions$panel), !anyNA(observations$panel))
+ggplot(predictions, aes(x, mean)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "red", alpha = 0.10) +
+  geom_line(color = "red", linewidth = 0.8) +
+  geom_errorbar(data = observations, aes(x = x, ymin = y - 2 * sd, ymax = y + 2 * sd),
+    inherit.aes = FALSE, width = 0, linewidth = 0.35) +
+  geom_point(data = observations, aes(x, y), inherit.aes = FALSE, size = 1.1) +
+  geom_line(data = observations, aes(x, truef), inherit.aes = FALSE,
+    color = "blue", linetype = "dashed", linewidth = 0.6) +
+  facet_wrap(~panel, ncol = 2, scales = "free_y") +
+  labs(x = "Time", y = "Effect") + c1_plot_theme()
 ```
 
-Figure 3 extends the same calculation across $\alpha=0.01,\ldots,0.20$.
-The dashed diagonal in the FDP panels is the nominal reference, not a claim of
-calibration from one replication.
+## Reproducibility
 
-```{r focused-alpha-curves, fig.width=9.6, fig.height=6.8, out.width='94%', fig.cap="Figure 3. Focused-replication realized FDP and power across cumulative-lfdr thresholds. Columns separate IWP1 dynamic testing and IWP2 nonlinear testing; colors separate raw and BF-updated fits. The dashed diagonal in the FDP row denotes nominal alpha. Curves summarize one retained replication, not Monte Carlo expectations."}
-# Keep the realized-FDP and power estimands distinct before faceting.
-alpha_plot_data <- alpha_long[
-  order(alpha_long$metric, alpha_long$order, alpha_long$stage, alpha_long$alpha),
-]
-nominal_reference <- data.frame(
-  metric = factor("Realized FDP", levels = levels(alpha_plot_data$metric)),
-  order = factor(c("IWP1", "IWP2"), levels = levels(alpha_plot_data$order))
-)
+The runner, equivalence tests, and reporting gate are in
+`code/revision_simulations/internal/appendix_c1_mc10/`.
+The original generator and pinned package EB/BF routines are retained.
+Exact Gaussian integration uses the package's basis and precision matrices;
+likelihood and posterior-score equivalence with TMB are checked before
+production. Original and denser grids have identical input hashes within
+each seed and dynamic fraction.
 
-ggplot(
-  alpha_plot_data,
-  aes(x = alpha, y = value, color = stage, group = stage)
-) +
-  geom_abline(
-    data = nominal_reference,
-    aes(intercept = 0, slope = 1),
-    inherit.aes = FALSE,
-    color = "grey35",
-    linetype = "dashed",
-    linewidth = 0.55
-  ) +
-  geom_line(linewidth = 0.8) +
-  geom_point(size = 1.35) +
-  facet_grid(metric ~ order, scales = "free_y") +
-  scale_color_manual(values = stage_colors, drop = FALSE) +
-  scale_x_continuous(breaks = seq(0, 0.2, by = 0.05)) +
-  scale_y_continuous(labels = function(x) paste0(round(100 * x), "%")) +
-  labs(
-    x = expression(alpha),
-    y = NULL,
-    color = "Fit stage"
-  ) +
-  theme_bw(base_size = 11) +
-  theme(
-    panel.grid.minor = element_blank(),
-    legend.position = "bottom"
-  )
+```{bash, eval=FALSE}
+Rscript --vanilla code/revision_simulations/internal/appendix_c1_mc10/test_mc10.R
+FASH_C1_WORKERS=4 Rscript --vanilla code/revision_simulations/internal/appendix_c1_mc10/run_appendix_c1_mc10.R
+Rscript --vanilla code/revision_simulations/internal/appendix_c1_mc10/build_display_cache.R
 ```
 
-Figure 4 displays the actual lfdr-ranked prefixes underlying Table 2. A unit
-is called at $\alpha=0.05$ while its cumulative mean lfdr remains below the
-horizontal reference. The vertical dotted line is the resulting final call
-count for that panel.
-
-```{r focused-cumulative-lfdr, fig.width=10, fig.height=7.2, out.width='96%', fig.cap="Figure 4. Focused-replication cumulative lfdr after ranking units from smallest to largest lfdr. Panels separate order and fit stage; point colors show the fixed A/B/C truth classes. The horizontal dashed line is alpha = 0.05, and each vertical dotted line marks the final called rank for that panel."}
-# Compute the final called prefix independently within each order and stage.
-cumulative_plot_data <- cumulative_lfdr
-call_cutoffs <- aggregate(
-  called_at_alpha ~ order + stage,
-  data = cumulative_plot_data,
-  FUN = sum
-)
-names(call_cutoffs)[[3L]] <- "called_rank"
-
-ggplot(
-  cumulative_plot_data,
-  aes(x = rank, y = cumulative_lfdr, color = class)
-) +
-  geom_hline(
-    yintercept = 0.05,
-    color = "grey35",
-    linetype = "dashed",
-    linewidth = 0.55
-  ) +
-  geom_vline(
-    data = call_cutoffs,
-    aes(xintercept = called_rank),
-    inherit.aes = FALSE,
-    color = "grey35",
-    linetype = "dotted",
-    linewidth = 0.55
-  ) +
-  geom_point(size = 0.7, alpha = 0.72) +
-  facet_grid(order ~ stage) +
-  scale_color_manual(values = class_colors, drop = FALSE) +
-  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.2)) +
-  labs(
-    x = "lfdr rank",
-    y = "Cumulative mean lfdr",
-    color = "Truth class"
-  ) +
-  theme_bw(base_size = 11) +
-  theme(
-    panel.grid.minor = element_blank(),
-    legend.position = "bottom"
-  )
-```
-
-The exact-null weights for the same focused replication are reported in Table
-3. BF updating shifts both weights upward. In this one realization that
-reduces realized FDP with a small decrease in power, but it does not make both
-point estimates closer to their true values.
-
-```{r focused-prior-table, results='asis'}
-# Compare each fitted exact-null component with its order-specific truth.
-prior_display <- data.frame(
-  Order = as.character(prior_table$order),
-  Target = prior_table$target,
-  Stage = as.character(prior_table$stage),
-  `True pi0` = format_decimal(prior_table$true_pi0, 3),
-  `Estimated pi0` = format_decimal(prior_table$estimated_pi0, 3),
-  `Estimate minus truth` = format_decimal(prior_table$estimation_error, 3),
-  stringsAsFactors = FALSE,
-  check.names = FALSE
-)
-
-knitr::kable(
-  prior_display,
-  align = c("l", "l", "l", "r", "r", "r"),
-  caption = paste(
-    "Table 3. Focused-replication exact-null weights before and after BF",
-    "updating. The estimand differs by IWP order as defined above."
-  )
-)
-```
-
-## Provenance and reproducibility
-
-The retained family completed at
-`r appendix_b_cache$completion[["completed_at"]]` on Midway3. Its manifest
-records R `r appendix_b_cache$manifest$package_provenance$r_version` on
-`r appendix_b_cache$manifest$package_provenance$platform`. The local reporting
-loader verifies the package version and commit, helper and runner SHA-256
-values, all retained output SHA-256 values, the 92-row grid contract, the
-80-row focused alpha curve, and the seven explicitly identified raw-IWP1
-boundary warnings. All older `data/appendixB/*.RData` files remain separate
-and unchanged.
-
-The expensive server run used the following entry point. This chunk is shown
-for reproducibility and is not evaluated by workflowr.
-
-```{bash appendix-b-server-run, eval=FALSE}
-cd /project/mstephens/ziangzhang/fash/workspace
-sbatch slurm/10_appendix_b_simulation.sbatch
-```
-
-After downloading the completed result family, validate its package, source,
-output, historical-cache, and numerical contracts with:
-
-```{bash appendix-b-cache-validation, eval=FALSE}
-Rscript --vanilla \
-  code/revision_simulations/appendix_b/validate_appendix_b_cache.R
-```
+Completed results are in
+`output/revision_simulations/internal/appendix_c1_mc10_fashr0143_20260918/`.
+Page builds validate and read this cache without rerunning simulations.
