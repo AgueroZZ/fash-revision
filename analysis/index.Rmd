@@ -10,6 +10,12 @@ editor_options:
 
 Code and reproducible analyses for function adaptive shrinkage (FASH).
 
+## Data
+
+- [iPSC dynamic eQTL summary statistics (Zenodo)](https://doi.org/10.5281/zenodo.23989707):
+  effect estimates and $t$-adjusted standard errors for all 1,009,173
+  gene-variant pairs (6,362 genes) across 16 differentiation days.
+
 ## Simulations
 
 - [Simulation 1: Summary-statistic simulation](appendixB.html)
