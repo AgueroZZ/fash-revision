@@ -283,7 +283,7 @@ Repository</h1>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-ok text-success"
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -294,8 +294,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
-</a>
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -304,13 +304,13 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2026-09-18
+<strong>Last updated:</strong> 2026-11-04
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 1
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 0
+aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>coderepo-local/</code> <span
@@ -333,33 +333,36 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
-<span class="glyphicon glyphicon-ok text-success"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
-</a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate"
+<div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git
-repository, you know the exact version of the code that produced these
-results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree5dc2a3caca4600d0b69d7c935b300157d30d5e52targetblank5dc2a3ca">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreebfc8f00557e3a587205bc512a5603f7566372599targetblankbfc8f00a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/AgueroZZ/fash-revision/tree/5dc2a3caca4600d0b69d7c935b300157d30d5e52" target="_blank">5dc2a3c</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/bfc8f00557e3a587205bc512a5603f7566372599" target="_blank">bfc8f00</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontree5dc2a3caca4600d0b69d7c935b300157d30d5e52targetblank5dc2a3ca"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreebfc8f00557e3a587205bc512a5603f7566372599targetblankbfc8f00a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -369,7 +372,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/AgueroZZ/fash-revision/tree/5dc2a3caca4600d0b69d7c935b300157d30d5e52" target="_blank">5dc2a3c</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/bfc8f00557e3a587205bc512a5603f7566372599" target="_blank">bfc8f00</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -404,7 +407,12 @@ Ignored files:
     Ignored:    scripts/
 
 Untracked files:
-    Untracked:  analysis/revision_internal_r3_two_stage_functional_testing.rmd
+    Untracked:  analysis/balanced_variant_thinning.rmd
+    Untracked:  analysis/enhancer_enrichment.rmd
+    Untracked:  analysis/evaluation_grid_mc_sensitivity.rmd
+    Untracked:  analysis/functional_testing_simulation.rmd
+    Untracked:  analysis/matched_fash_linear_real_data.rmd
+    Untracked:  code/revision_simulations/internal/appendix_c1_j1000/
     Untracked:  code/revision_simulations/internal/per_unit_enhancer_enrichment/
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/compare_corshrink_versions.R
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/diagnose_discordant_calls.R
@@ -424,6 +432,66 @@ Untracked files:
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/prototype_corshrink.R
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/recover_design_factor.R
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/test_corshrink_reimplementation.R
+    Untracked:  code/revision_simulations/internal/posterior_interval_coverage/
+    Untracked:  code/revision_simulations/internal/r3_stage1_method_comparison/plot_pi0_before_after.py
+
+Unstaged changes:
+    Modified:   analysis/about.Rmd
+    Modified:   analysis/appendixB.rmd
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Deleted:    analysis/dynamic_eQTL_real_cl.rmd
+    Deleted:    analysis/dynamic_eQTL_real_full.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/license.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Deleted:    analysis/nonlinear_dynamic_eQTL_real_cl.Rmd
+    Deleted:    analysis/nonlinear_dynamic_eQTL_real_full.rmd
+    Deleted:    analysis/revision_balanced_variant_thinning.rmd
+    Deleted:    analysis/revision_combined_spiky_genotype_simulation.rmd
+    Deleted:    analysis/revision_correlated_error_simulation.rmd
+    Deleted:    analysis/revision_enhancer_enrichment.rmd
+    Deleted:    analysis/revision_enhancer_enrichment_cl.rmd
+    Deleted:    analysis/revision_functional_testing_simulation.rmd
+    Deleted:    analysis/revision_genotype_level_simulation.rmd
+    Deleted:    analysis/revision_internal_baseline_ld_variant_enrichment.rmd
+    Deleted:    analysis/revision_internal_correlated_likelihood_sensitivity.rmd
+    Deleted:    analysis/revision_internal_correlated_permutation_discoveries.rmd
+    Deleted:    analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd
+    Deleted:    analysis/revision_internal_evaluation_grid_mc_sensitivity_middle_4_11.rmd
+    Deleted:    analysis/revision_internal_fash_cl_manuscript_impact.rmd
+    Deleted:    analysis/revision_internal_fash_cl_variant_enrichment_comparison.rmd
+    Deleted:    analysis/revision_internal_fash_discovery_variant_count.rmd
+    Deleted:    analysis/revision_internal_fash_knockoff.rmd
+    Deleted:    analysis/revision_internal_fash_linear_real_data_ablation.rmd
+    Deleted:    analysis/revision_internal_fash_temporal_class_enhancer_enrichment.rmd
+    Deleted:    analysis/revision_internal_fashr_correlated_observation_model.rmd
+    Deleted:    analysis/revision_internal_mashr_mean_z_null_correlation.rmd
+    Deleted:    analysis/revision_internal_matched_fash_linear_real_data.rmd
+    Deleted:    analysis/revision_internal_matched_fash_linear_real_data_cl.rmd
+    Deleted:    analysis/revision_internal_observational_null_set_pilot.rmd
+    Deleted:    analysis/revision_internal_one_variant_per_gene_refit.rmd
+    Deleted:    analysis/revision_internal_r1_normality_assumption.rmd
+    Deleted:    analysis/revision_internal_r3_full_calibration.rmd
+    Deleted:    analysis/revision_internal_r3_ideal_gaussian_measurement.rmd
+    Deleted:    analysis/revision_internal_r3_truth_specification_pilot.rmd
+    Deleted:    analysis/revision_internal_real_genotype_simulation.rmd
+    Deleted:    analysis/revision_internal_roadmap_enhancer_exploration.rmd
+    Deleted:    analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd
+    Deleted:    analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd
+    Deleted:    analysis/revision_internal_targeted_broad_calibration.rmd
+    Deleted:    analysis/revision_internal_temporal_class_roadmap_enrichment.rmd
+    Deleted:    analysis/revision_internal_three_likelihood_comparison.rmd
+    Deleted:    analysis/revision_internal_twenty_variant_per_gene_refit.rmd
+    Deleted:    analysis/revision_internal_variant_annotation_enrichment.rmd
+    Deleted:    analysis/revision_internal_zero_intercept_correlation.rmd
+    Deleted:    analysis/revision_ld_tagging_switch_example.rmd
+    Deleted:    analysis/toy_example.rmd
+    Modified:   code/figure_exports/pages/export_revision_balanced_variant_thinning.R
+    Modified:   code/figure_exports/pages/export_revision_enhancer_enrichment.R
+    Modified:   code/figure_exports/pages/export_revision_functional_testing_simulation.R
+    Modified:   code/figure_exports/pages/export_revision_internal_evaluation_grid_mc_sensitivity.R
+    Modified:   code/figure_exports/pages/export_revision_internal_matched_fash_linear_real_data.R
+    Modified:   code/revision_simulations/r5_one_variant_per_gene/reporting.R
 
 </code></pre>
 <p>
@@ -467,6 +535,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/bfc8f00557e3a587205bc512a5603f7566372599/docs/index.html" target="_blank">bfc8f00</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-09-18
+</td>
+<td>
+Publish concise simulation names
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -804,7 +889,7 @@ Start workflowr project.
 <ul>
 <li><a href="appendixB.html">Simulation 1: Summary-statistic
 simulation</a></li>
-<li><a href="revision_functional_testing_simulation.html">Simulation 2:
+<li><a href="functional_testing_simulation.html">Simulation 2:
 Real-genotype simulation</a></li>
 </ul>
 </div>
@@ -815,16 +900,14 @@ Real-genotype simulation</a></li>
 data</a></li>
 <li><a href="nonlinear_dynamic_eQTL_real.html">Nonlinear dynamic eQTL
 analysis in iPSC data</a></li>
-<li><a
-href="revision_internal_evaluation_grid_mc_sensitivity.html">Evaluation-grid
-and posterior Monte Carlo sensitivity</a></li>
-<li><a href="revision_balanced_variant_thinning.html">Sensitivity to one
-random variant per gene</a></li>
-<li><a href="revision_enhancer_enrichment.html">Enhancer enrichment of
-dynamic eQTLs</a></li>
-<li><a
-href="revision_internal_matched_fash_linear_real_data.html">Matched
-FASH-linear comparison</a></li>
+<li><a href="evaluation_grid_mc_sensitivity.html">Evaluation-grid and
+posterior Monte Carlo sensitivity</a></li>
+<li><a href="balanced_variant_thinning.html">Sensitivity to one random
+variant per gene</a></li>
+<li><a href="enhancer_enrichment.html">Enhancer enrichment of dynamic
+eQTLs</a></li>
+<li><a href="matched_fash_linear_real_data.html">Matched FASH-linear
+comparison</a></li>
 </ul>
 </div>
 </div>

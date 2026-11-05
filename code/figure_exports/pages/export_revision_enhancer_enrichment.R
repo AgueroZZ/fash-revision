@@ -4,8 +4,8 @@ repo_root <- normalizePath(file.path(dirname(script_path), "..", "..", ".."))
 source(file.path(repo_root, "code", "figure_exports", "export_page_figures.R"))
 
 export_page_figures(
-  page_rmd = "analysis/revision_enhancer_enrichment.rmd",
-  page_html = "docs/revision_enhancer_enrichment.html",
+  page_rmd = "analysis/enhancer_enrichment.rmd",
+  page_html = "docs/enhancer_enrichment.html",
   final_chunk = "section2",
   repo_root = repo_root
 )

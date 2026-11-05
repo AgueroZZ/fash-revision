@@ -7,15 +7,16 @@ editor_options:
   chunk_output_type: console
 ---
 
-What license are you using for your code? See [choosealicense.com][choose] for
-help deciding. It's a convention to save a file `LICENSE` in the root of your
-Git repo that contains the license text.
+## Code and software license
 
-What license are you using for the written content on your site? It is
-traditional to choose a [Creative Commons][cc] license for this type of content.
+The analysis source code in this repository ([stephenslab/fashr-paper](https://github.com/stephenslab/fashr-paper)) and the companion [`fashr`](https://github.com/stephenslab/fashr) R package are distributed under the **GNU General Public License v3.0 or later ([GPL (>= 3)](https://www.gnu.org/licenses/gpl-3.0.en.html))**.
 
-[choose]: https://choosealicense.com/
-[cc]: https://creativecommons.org/choose/
+## Written content
 
-How should others cite your work? It's a convention to save a file `CITATION`
-in the root of your Git repo that contains the citation information.
+The written documentation and rendered workflowr analysis pages on this site are licensed under the **Creative Commons Attribution 4.0 International License ([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/))**.
+
+## Citation
+
+If you use `fashr` or the analyses in this repository, please cite:
+
+> Zhang, Z., Carbonetto, P., and Stephens, M. Empirical Bayes Shrinkage for Functional Data, with Application to Analysis of Dynamic eQTLs.

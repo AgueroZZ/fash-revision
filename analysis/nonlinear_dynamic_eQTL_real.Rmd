@@ -35,8 +35,6 @@ The code to perform this step can be found in the script `dynamic_eQTL_real/00_e
 
 After this step, we have the effect size of eQTLs for each gene-variant pair at each time point, as well as its standard error.
 
-
-
 ## Fitting FASH
 
 To fit the FASH model on $\{\beta_i(t_j), s_{ij}\}_{i\in N,j \in [16]}$, we consider fitting two FASH models:
@@ -68,7 +66,7 @@ sample_int <- function(n, size, seed = NULL) {
 parse_pair_key <- function(keys) {
   parts <- strsplit(keys, "_", fixed = TRUE)
   ens_id <- vapply(parts, `[[`, character(1), 1)
-  rs_id  <- vapply(parts, `[[`, character(1), 2)
+  rs_id <- vapply(parts, `[[`, character(1), 2)
   tibble(key = keys, ens_id = ens_id, rs_id = rs_id)
 }
 
@@ -99,16 +97,16 @@ plot_pair_nonlinear_base <- function(idx,
                                      subtitle_override = NULL,
                                      lfsr_map = NULL) {
   dat <- datasets[[idx]]
-  x  <- dat$x
-  y  <- dat$y
+  x <- dat$x
+  y <- dat$y
   se <- dat$SE
-  w  <- 1 / (se^2)
+  w <- 1 / (se^2)
 
   key <- names(datasets)[idx]
   key_parts <- strsplit(key, "_", fixed = TRUE)[[1]]
   ens_id <- key_parts[1]
-  rs_id  <- key_parts[2]
-  gsym   <- symbol_of(ens_id, gene_map)
+  rs_id <- key_parts[2]
+  gsym <- symbol_of(ens_id, gene_map)
 
   main_txt <- paste0(gsym, ": ", rs_id)
   if (!is.null(main_prefix)) main_txt <- paste0(main_prefix, " ", main_txt)
@@ -119,9 +117,9 @@ plot_pair_nonlinear_base <- function(idx,
   y_max <- max(y + 2 * se, fitted$upper, na.rm = TRUE)
 
   # fits for reference (same as before, but optional)
-  lin_fit  <- if (add_lm)   lm(y ~ x, weights = w) else NULL
+  lin_fit <- if (add_lm) lm(y ~ x, weights = w) else NULL
   quad_fit <- if (add_quad) lm(y ~ poly(x, 2, raw = TRUE), weights = w) else NULL
-  x_grid   <- if (add_quad) seq(min(x), max(x), length.out = 200) else NULL
+  x_grid <- if (add_quad) seq(min(x), max(x), length.out = 200) else NULL
   quad_pred <- if (add_quad) predict(quad_fit, newdata = data.frame(x = x_grid)) else NULL
 
   plot(x, y, pch = 20, col = "black",
@@ -138,7 +136,7 @@ plot_pair_nonlinear_base <- function(idx,
           col = rgb(1, 0, 0, 0.1), border = NA)
   lines(fitted$x, fitted$mean, col = "red", lwd = 2)
 
-  if (add_lm)   abline(lin_fit, col = "green", lty = 2, lwd = 1)
+  if (add_lm) abline(lin_fit, col = "green", lty = 2, lwd = 1)
   if (add_quad) lines(x_grid, quad_pred, col = "purple", lty = 2, lwd = 1)
 
   # caption control
@@ -149,7 +147,7 @@ plot_pair_nonlinear_base <- function(idx,
     cap <- paste0("lfsr (adj) = ", fmt_sci(lfsr_val))
   } else {
     lfdr_before <- fash_raw$lfdr[idx]
-    lfdr_after  <- fash_adj$lfdr[idx]
+    lfdr_after <- fash_adj$lfdr[idx]
     cap <- paste0("lfdr (adj/raw) = ", fmt_sci(lfdr_after), " / ", fmt_sci(lfdr_before))
   }
 
@@ -186,12 +184,6 @@ plot_many_pairs_nonlinear_lfsr <- function(idxs, testing_obj, nrow = 2, ncol = 2
 load(paste0(result_dir, "/fash_fit2_all.RData"))
 ```
 
-```{r}
-# # The version using CL-based PCs
-# load(file.path(result_dir, "fash_fit2_all_CL.RData"))
-```
-
-
 We will load the datasets from the fitted FASH object:
 
 ```{r}
@@ -203,12 +195,11 @@ all_genes <- unique(sapply(strsplit(names(datasets), "_"), "[[", 1))
 
 full_map <- getBM(
   attributes = c("hgnc_symbol", "ensembl_gene_id"),
-  filters    = "ensembl_gene_id",
-  values     = all_genes,
-  mart       = mart
+  filters = "ensembl_gene_id",
+  values = all_genes,
+  mart = mart
 )
 ```
-
 
 In this analysis, we will focus on the **FASH(2)** model that assumes a **second order IWP** and tests for **nonlinear dynamic eQTLs**.
 
@@ -225,7 +216,6 @@ fash_fit2 <- fash(Y = "beta", smooth_var = "time", S = "SE", data_list = dataset
 save(fash_fit2, file = "./results/fash_fit2_all.RData")
 ```
 
-
 ```{r}
 fash_fit2
 ```
@@ -239,7 +229,7 @@ fash_fit2$prior_weights
 
 The original MLE estimated $\pi_0$ is `r fash_fit2$prior_weights$prior_weight[1]`.
 This could be under-estimated due to model-misspecification under the alternative hypothesis.
-To account for this, we will a conservative estimate of $\pi_0$ based on the BF procedure:
+To account for this, we compute a conservative estimate of $\pi_0$ based on the BF procedure:
 
 ```{r eval=FALSE}
 fash_fit2_update <- BF_update(fash_fit2, plot = FALSE)
@@ -257,15 +247,7 @@ stopifnot(
 rm(loaded_fit2_update)
 ```
 
-```{r}
-# # The version using CL-based PCs
-# load(file.path(result_dir, "fash_fit2_all_CL.RData"))
-# fash_fit2_update <- BF_update(fash_fit2, plot = FALSE)
-```
-
-
-All BF-adjusted results below use the retained fit recomputed with `fashr` 0.1.43. The conservative estimate is `r fash_fit2_update$prior_weights$prior_weight[1]`, which is much more conservative.
-
+ The conservative estimate is `r fash_fit2_update$prior_weights$prior_weight[1]`, which is much more conservative.
 
 ```{r}
 # set.seed(1)
@@ -323,7 +305,6 @@ ggsave(filename = file.path(result_dir, "fash_prior_comparison_order2_after.pdf"
        width = 8, height = 6)
 ```
 
-
 ## Detecting Nonlinear dynamic eQTLs
 
 We will use the updated FASH model (2) to detect nonlinear dynamic eQTLs.
@@ -345,7 +326,6 @@ length(pairs_highlighted2)
 length(pairs_highlighted2)/length(datasets)
 ```
 
-
 What is the number before the BF adjustment?
 
 ```{r}
@@ -353,7 +333,6 @@ pairs_highlighted2_before <- names(datasets)[fash_highlighted2_before]
 length(pairs_highlighted2_before)
 length(pairs_highlighted2_before)/length(datasets)
 ```
-
 
 How many unique genes are detected?
 
@@ -371,7 +350,6 @@ length(genes_highlighted2_before)
 length(genes_highlighted2_before)/length(all_genes)
 ```
 
-
 Visualize top-ranked pairs:
 
 ```{r nonlinear_dynamic_examples, echo=FALSE}
@@ -380,9 +358,9 @@ genes_highlighted2_subset <- c("AMN", "RIPK2", "LPAR2", "ST6GALNAC2")
 # convert symbols to ensembl IDs
 map <- getBM(
   attributes = c("hgnc_symbol", "ensembl_gene_id"),
-  filters    = "hgnc_symbol",
-  values     = genes_highlighted2_subset,
-  mart       = mart
+  filters = "hgnc_symbol",
+  values = genes_highlighted2_subset,
+  mart = mart
 )
 genes_highlighted2_subset_ens <- map$ensembl_gene_id[match(genes_highlighted2_subset, map$hgnc_symbol)]
 
@@ -409,7 +387,6 @@ for (i in seq_along(genes_highlighted2_subset_ens)) {
 }
 par(mfrow = c(1, 1))
 ```
-
 
 Some examples of null pairs:
 
@@ -439,8 +416,6 @@ for (i in 10:13) {
 }
 par(mfrow = c(1, 1))
 ```
-
-
 
 ## Comparing with Strober et.al
 
@@ -516,7 +491,6 @@ for (i in 1:min(4, length(gene_missed))) {
 par(mfrow = c(1, 1))
 ```
 
-
 ## Classifying nonlinear dynamic eQTLs
 
 Following the definition in Strober et.al, we will classify the detected eQTLs into different categories:
@@ -527,11 +501,11 @@ Following the definition in Strober et.al, we will classify the detected eQTLs i
 
 - *Middle*: eQTLs with strongest effect in the open middle interval: $\sup_{3<t<12} |\beta(t)| - \sup_{t\leq3\;\text{or}\;t\geq12} |\beta(t)| > 0$.
 
-- *Switch*: eQTLs with effect sign switch during the time course such that $\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}-c>0$ where $c$ is a threshold that we set to 0.25 (which means with two alleles, the maximal difference of effect size is at least $\geq 2\times\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}\times2 \geq  2 \times 0.25  \times 2 = 1$).
+- *Switch*: eQTLs with effect sign switch during the time course such that $\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}-c>0$ where $c$ is a threshold that we set to 0.25 (which means with two alleles, the maximal difference of effect size is at least $\geq 2\times\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}\times2 \geq 2 \times 0.25 \times 2 = 1$).
 
 The displayed functionals are continuous-time definitions using suprema; the code below uses maxima on the `0.1`-day evaluation grid as their discrete approximation.
 
-The retained classification files were recomputed from `fash_fit2_update` using one shared set of 3,000 posterior draws per pair across the four functionals. The canonical regeneration entrypoint is `code/03_nonlindyn_lfsr.R`. We first take a look at the significant pairs detected by FASH (order 2), and classify them based on the false sign rate (lfsr):
+Each classification uses 3,000 posterior draws per pair (`code/03_nonlindyn_lfsr.R`). We first take a look at the significant pairs detected by FASH (order 2), and classify them based on the false sign rate (lfsr):
 
 ```{r eval=FALSE}
 smooth_var_refined = seq(0,15, by = 0.1)
@@ -570,7 +544,6 @@ testing_middle_nonlin_dyn <- testing_functional(functional_middle,
                                                smooth_var = smooth_var_refined)
 ```
 
-
 ```{r}
 load(paste0(result_dir, "/classify_nonlin_dyn_eQTLs_middle.RData"))
 middle_indices <- testing_middle_nonlin_dyn$indices[testing_middle_nonlin_dyn$cfsr <= alpha]
@@ -593,7 +566,6 @@ plot_many_pairs_nonlinear_lfsr(
   gene_map = full_map
 )
 ```
-
 
 How many pairs are classified as late dynamic eQTLs?
 
@@ -677,15 +649,13 @@ plot_many_pairs_nonlinear_lfsr(
 )
 ```
 
-
-
 ## Gene Set Enrichment Analysis
 
 ```{r warning=FALSE, message=FALSE}
 library(clusterProfiler)
 library(tidyverse)
 library(msigdbr)
-library(org.Hs.eg.db)  # Assuming human genes
+library(org.Hs.eg.db) # Assuming human genes
 library(biomaRt)
 library(cowplot)
 # Retrieve Hallmark gene sets for Homo sapiens
@@ -699,8 +669,7 @@ m_t2g <- msigdbr(species = "Homo sapiens", category = "H") %>%
   mutate(ensembl_use = dplyr::coalesce(ensembl_gene, db_ensembl_gene)) %>% 
   dplyr::filter(!is.na(ensembl_use)) %>% 
   dplyr::select(gs_name, ensembl_use) %>%
-  dplyr::distinct()    # one row per (pathway, Ensembl) pair
-
+  dplyr::distinct() # one row per (pathway, Ensembl) pair
 
 ## A function to check gene-enrichment using Ensembl IDs,
 ## forcing the universe to be exactly background_gene
@@ -710,7 +679,7 @@ enrich_set <- function(genes_selected,
                        pvalueCutoff = 0.05) {
 
   # ensure character vectors & unique
-  genes_selected_raw  <- unique(as.character(genes_selected))
+  genes_selected_raw <- unique(as.character(genes_selected))
   background_gene_raw <- unique(as.character(background_gene))
 
   # we'll enforce that the test universe is exactly these:
@@ -728,7 +697,7 @@ enrich_set <- function(genes_selected,
 
   if (length(bg_not_in_hallmark) > 0) {
     dummy_t2g <- tibble(
-      gs_name     = dummy_id,
+      gs_name = dummy_id,
       ensembl_use = bg_not_in_hallmark
     )
     TERM2GENE_full <- bind_rows(m_t2g, dummy_t2g)
@@ -740,16 +709,16 @@ enrich_set <- function(genes_selected,
   genes_sel_used <- intersect(genes_selected_raw, universe_for_test)
 
   # message("Original selected genes: ", length(genes_selected_raw),
-  #         " ; used in enrichment: ", length(genes_sel_used))
+  # " ; used in enrichment: ", length(genes_sel_used))
   # message("Universe size (background_gene): ", length(universe_for_test))
 
   enrich_res <- enricher(
-    gene          = genes_sel_used,
-    TERM2GENE     = TERM2GENE_full,
-    universe      = universe_for_test,
+    gene = genes_sel_used,
+    TERM2GENE = TERM2GENE_full,
+    universe = universe_for_test,
     pAdjustMethod = "BH",
-    qvalueCutoff  = q_val_cutoff,
-    pvalueCutoff  = pvalueCutoff
+    qvalueCutoff = q_val_cutoff,
+    pvalueCutoff = pvalueCutoff
   )
 
   if (is.null(enrich_res) || nrow(enrich_res@result) == 0L) {
@@ -763,16 +732,16 @@ enrich_set <- function(genes_selected,
 
   # keep original ratios for reference
   df$GeneRatio_orig <- df$GeneRatio
-  df$BgRatio_orig   <- df$BgRatio
+  df$BgRatio_orig <- df$BgRatio
 
   # now recompute ratios using exactly:
-  #   - denominator for GeneRatio = number of selected genes in universe
-  #   - denominator for BgRatio   = number of background genes
+  # - denominator for GeneRatio = number of selected genes in universe
+  # - denominator for BgRatio = number of background genes
   n_sel_total <- length(genes_sel_used)
-  n_bg_total  <- length(universe_for_test)
+  n_bg_total <- length(universe_for_test)
 
-  df$GeneRatio_fixed <- paste0(df$Count,   "/", n_sel_total)
-  df$BgRatio_fixed   <- paste0(df$setSize, "/", n_bg_total)
+  df$GeneRatio_fixed <- paste0(df$Count, "/", n_sel_total)
+  df$BgRatio_fixed <- paste0(df$setSize, "/", n_bg_total)
 
   enrich_res@result <- df
   enrich_res

@@ -8,7 +8,6 @@
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-
 <meta name="author" content="Ziang Zhang" />
 
 <meta name="date" content="2025-02-21" />
@@ -47,8 +46,6 @@ div.section {
 }
 </style>
 
-
-
 <style type="text/css">
   code{white-space: pre-wrap;}
   span.smallcaps{font-variant: small-caps;}
@@ -68,14 +65,6 @@ if (window.hljs) {
   }
 }
 </script>
-
-
-
-
-
-
-
-
 
 <style type = "text/css">
 .main-container {
@@ -105,7 +94,6 @@ pre code {
   padding: 0;
 }
 </style>
-
 
 <style type="text/css">
 .dropdown-submenu {
@@ -236,8 +224,6 @@ $(document).ready(function () {
 .code-folding-btn { margin-bottom: 4px; }
 </style>
 
-
-
 <style type="text/css">
 
 #TOC {
@@ -297,20 +283,15 @@ div.tocify {
   border-radius: 0px;
 }
 
-
 </style>
-
-
 
 </head>
 
 <body>
 
-
 <div class="container-fluid main-container">
 
-
-<!-- setup 3col/9col grid for toc_float and main content  -->
+<!-- setup 3col/9col grid for toc_float and main content -->
 <div class="row">
 <div class="col-xs-12 col-sm-4 col-md-3">
 <div id="TOC" class="tocify">
@@ -319,10 +300,7 @@ div.tocify {
 
 <div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
-
-
-
-<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
@@ -361,15 +339,12 @@ div.tocify {
 </ul>
 </div>
 
-
-
 <h1 class="title toc-ignore">Nonlinear Dynamic eQTL analysis on
 iPSC</h1>
 <h4 class="author">Ziang Zhang</h4>
 <h4 class="date">2025-02-21</h4>
 
 </div>
-
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
@@ -562,83 +537,83 @@ were generated:
 </p>
 <pre><code>
 Ignored files:
-    Ignored:    .DS_Store
-    Ignored:    .Rhistory
-    Ignored:    .Rproj.user/
-    Ignored:    Rplots.pdf
-    Ignored:    analysis/.DS_Store
-    Ignored:    analysis/.Rhistory
-    Ignored:    analysis/figure/
-    Ignored:    code/.DS_Store
-    Ignored:    code/.Rhistory
-    Ignored:    code/revision_simulations/.DS_Store
-    Ignored:    data/appendixB/
-    Ignored:    data/dynamic_eQTL_real/
-    Ignored:    data/revision_simulations/
-    Ignored:    data/toy_example/
-    Ignored:    output/dynamic_eQTL_real/
-    Ignored:    output/pdf/
-    Ignored:    output/playwright/
-    Ignored:    output/revision_simulations/
-    Ignored:    scripts/
+    Ignored: .DS_Store
+    Ignored: .Rhistory
+    Ignored: .Rproj.user/
+    Ignored: Rplots.pdf
+    Ignored: analysis/.DS_Store
+    Ignored: analysis/.Rhistory
+    Ignored: analysis/figure/
+    Ignored: code/.DS_Store
+    Ignored: code/.Rhistory
+    Ignored: code/revision_simulations/.DS_Store
+    Ignored: data/appendixB/
+    Ignored: data/dynamic_eQTL_real/
+    Ignored: data/revision_simulations/
+    Ignored: data/toy_example/
+    Ignored: output/dynamic_eQTL_real/
+    Ignored: output/pdf/
+    Ignored: output/playwright/
+    Ignored: output/revision_simulations/
+    Ignored: scripts/
 
 Untracked files:
-    Untracked:  analysis/revision_internal_fash_knockoff.rmd
-    Untracked:  analysis/revision_internal_fash_temporal_class_enhancer_enrichment.rmd
-    Untracked:  analysis/revision_internal_three_likelihood_comparison.rmd
-    Untracked:  code/03_nonlindyn_lfsr.R
-    Untracked:  code/03_nonlindyn_lfsr.sbatch
-    Untracked:  code/revision_simulations/internal/fash_knockoff/reporting.R
-    Untracked:  code/revision_simulations/internal/fash_knockoff/test_reporting.R
-    Untracked:  code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/
-    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/
-    Untracked:  code/revision_simulations/r1_r2_fashr0143/source_snapshots/
-    Untracked:  code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_core.R
-    Untracked:  code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_fashr0143.R
-    Untracked:  code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_fashr0143.sbatch
-    Untracked:  code/revision_simulations/r3_r4_fashr0143/source_snapshots/r3_center_aligned_relative_location_paired_driver.R
-    Untracked:  code/revision_simulations/r3_r4_fashr0143/source_snapshots/r3_center_aligned_relative_location_paired_simulation_functions.R
-    Untracked:  code/revision_simulations/r3_r4_fashr0143/test_r3_center_aligned_relative_location_paired.R
-    Untracked:  code/revision_simulations/r4_correlated_errors/compute_full_model_residual_correlation.R
-    Untracked:  code/revision_simulations/r4_correlated_errors/compute_pc_residual_expression_correlation.R
+    Untracked: analysis/revision_internal_fash_knockoff.rmd
+    Untracked: analysis/revision_internal_fash_temporal_class_enhancer_enrichment.rmd
+    Untracked: analysis/revision_internal_three_likelihood_comparison.rmd
+    Untracked: code/03_nonlindyn_lfsr.R
+    Untracked: code/03_nonlindyn_lfsr.sbatch
+    Untracked: code/revision_simulations/internal/fash_knockoff/reporting.R
+    Untracked: code/revision_simulations/internal/fash_knockoff/test_reporting.R
+    Untracked: code/revision_simulations/internal/fash_temporal_class_enhancer_enrichment/
+    Untracked: code/revision_simulations/internal/per_unit_expression_correlation/
+    Untracked: code/revision_simulations/r1_r2_fashr0143/source_snapshots/
+    Untracked: code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_core.R
+    Untracked: code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_fashr0143.R
+    Untracked: code/revision_simulations/r3_r4_fashr0143/21_r3_center_aligned_relative_location_paired_fashr0143.sbatch
+    Untracked: code/revision_simulations/r3_r4_fashr0143/source_snapshots/r3_center_aligned_relative_location_paired_driver.R
+    Untracked: code/revision_simulations/r3_r4_fashr0143/source_snapshots/r3_center_aligned_relative_location_paired_simulation_functions.R
+    Untracked: code/revision_simulations/r3_r4_fashr0143/test_r3_center_aligned_relative_location_paired.R
+    Untracked: code/revision_simulations/r4_correlated_errors/compute_full_model_residual_correlation.R
+    Untracked: code/revision_simulations/r4_correlated_errors/compute_pc_residual_expression_correlation.R
 
 Unstaged changes:
-    Modified:   analysis/dynamic_eQTL_real.rmd
-    Modified:   analysis/dynamic_eQTL_real_cl.rmd
-    Modified:   analysis/dynamic_eQTL_real_full.rmd
-    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
-    Modified:   analysis/nonlinear_dynamic_eQTL_real_cl.Rmd
-    Modified:   analysis/nonlinear_dynamic_eQTL_real_full.rmd
-    Modified:   analysis/revision_balanced_variant_thinning.rmd
-    Modified:   analysis/revision_combined_spiky_genotype_simulation.rmd
-    Modified:   analysis/revision_correlated_error_simulation.rmd
-    Modified:   analysis/revision_enhancer_enrichment.rmd
-    Modified:   analysis/revision_genotype_level_simulation.rmd
-    Modified:   analysis/revision_internal_temporal_class_roadmap_enrichment.rmd
-    Deleted:    code/02_dyn.R
-    Modified:   code/02_dyn_lfsr.R
-    Modified:   code/02_dyn_lfsr.sbatch
-    Deleted:    code/03_nonlindyn.R
-    Modified:   code/revision_simulations/README.md
-    Modified:   code/revision_simulations/internal/fash_knockoff/plot_lfdr_histograms.R
-    Modified:   code/revision_simulations/internal/fash_knockoff/plot_w_boxplot_by_discovery.R
-    Modified:   code/revision_simulations/internal/fash_strober_enhancer_comparison/reporting.R
-    Modified:   code/revision_simulations/internal/temporal_class_roadmap_enrichment/reporting.R
-    Modified:   code/revision_simulations/internal/temporal_class_roadmap_enrichment/run_temporal_class_roadmap_enrichment.R
-    Modified:   code/revision_simulations/internal/temporal_class_roadmap_enrichment/temporal_class_roadmap_helpers.R
-    Modified:   code/revision_simulations/internal/temporal_class_roadmap_enrichment/test_temporal_class_roadmap_helpers.R
-    Modified:   code/revision_simulations/r1_r2_fashr0143/reporting_overlay.R
-    Modified:   code/revision_simulations/r4_correlated_errors/reporting.R
-    Modified:   code/revision_simulations/r4_correlated_errors/test_unit_specific_residual_permutation_helpers.R
-    Modified:   code/revision_simulations/r4_correlated_errors/unit_specific_residual_permutation_helpers.R
+    Modified: analysis/dynamic_eQTL_real.rmd
+    Modified: analysis/dynamic_eQTL_real_cl.rmd
+    Modified: analysis/dynamic_eQTL_real_full.rmd
+    Modified: analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Modified: analysis/nonlinear_dynamic_eQTL_real_cl.Rmd
+    Modified: analysis/nonlinear_dynamic_eQTL_real_full.rmd
+    Modified: analysis/revision_balanced_variant_thinning.rmd
+    Modified: analysis/revision_combined_spiky_genotype_simulation.rmd
+    Modified: analysis/revision_correlated_error_simulation.rmd
+    Modified: analysis/revision_enhancer_enrichment.rmd
+    Modified: analysis/revision_genotype_level_simulation.rmd
+    Modified: analysis/revision_internal_temporal_class_roadmap_enrichment.rmd
+    Deleted: code/02_dyn.R
+    Modified: code/02_dyn_lfsr.R
+    Modified: code/02_dyn_lfsr.sbatch
+    Deleted: code/03_nonlindyn.R
+    Modified: code/revision_simulations/README.md
+    Modified: code/revision_simulations/internal/fash_knockoff/plot_lfdr_histograms.R
+    Modified: code/revision_simulations/internal/fash_knockoff/plot_w_boxplot_by_discovery.R
+    Modified: code/revision_simulations/internal/fash_strober_enhancer_comparison/reporting.R
+    Modified: code/revision_simulations/internal/temporal_class_roadmap_enrichment/reporting.R
+    Modified: code/revision_simulations/internal/temporal_class_roadmap_enrichment/run_temporal_class_roadmap_enrichment.R
+    Modified: code/revision_simulations/internal/temporal_class_roadmap_enrichment/temporal_class_roadmap_helpers.R
+    Modified: code/revision_simulations/internal/temporal_class_roadmap_enrichment/test_temporal_class_roadmap_helpers.R
+    Modified: code/revision_simulations/r1_r2_fashr0143/reporting_overlay.R
+    Modified: code/revision_simulations/r4_correlated_errors/reporting.R
+    Modified: code/revision_simulations/r4_correlated_errors/test_unit_specific_residual_permutation_helpers.R
+    Modified: code/revision_simulations/r4_correlated_errors/unit_specific_residual_permutation_helpers.R
 
 Staged changes:
-    New:        analysis/revision_internal_temporal_class_roadmap_enrichment.rmd
-    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/reporting.R
-    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/run_temporal_class_roadmap_enrichment.R
-    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/temporal_class_roadmap_helpers.R
-    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/test_reporting.R
-    New:        code/revision_simulations/internal/temporal_class_roadmap_enrichment/test_temporal_class_roadmap_helpers.R
+    New: analysis/revision_internal_temporal_class_roadmap_enrichment.rmd
+    New: code/revision_simulations/internal/temporal_class_roadmap_enrichment/reporting.R
+    New: code/revision_simulations/internal/temporal_class_roadmap_enrichment/run_temporal_class_roadmap_enrichment.R
+    New: code/revision_simulations/internal/temporal_class_roadmap_enrichment/temporal_class_roadmap_helpers.R
+    New: code/revision_simulations/internal/temporal_class_roadmap_enrichment/test_reporting.R
+    New: code/revision_simulations/internal/temporal_class_roadmap_enrichment/test_temporal_class_roadmap_helpers.R
 
 </code></pre>
 <p>
@@ -954,8 +929,6 @@ nonlinear-dynamic eQTLs: <span class="math inline">\(H_0:
 <p>We will directly load the fitted FASH models from the output
 directory.</p>
 <pre class="r"><code>load(paste0(result_dir, &quot;/fash_fit2_all.RData&quot;))</code></pre>
-<pre class="r"><code># # The version using CL-based PCs
-# load(file.path(result_dir, &quot;fash_fit2_all_CL.RData&quot;))</code></pre>
 <p>We will load the datasets from the fitted FASH object:</p>
 <pre class="r"><code>datasets &lt;- fash_fit2$fash_data$data_list
 for (i in 1:length(datasets)) {
@@ -965,9 +938,9 @@ all_genes &lt;- unique(sapply(strsplit(names(datasets), &quot;_&quot;), &quot;[[
 
 full_map &lt;- getBM(
   attributes = c(&quot;hgnc_symbol&quot;, &quot;ensembl_gene_id&quot;),
-  filters    = &quot;ensembl_gene_id&quot;,
-  values     = all_genes,
-  mart       = mart
+  filters = &quot;ensembl_gene_id&quot;,
+  values = all_genes,
+  mart = mart
 )</code></pre>
 <p>In this analysis, we will focus on the <strong>FASH(2)</strong> model
 that assumes a <strong>second order IWP</strong> and tests for
@@ -990,7 +963,7 @@ Number of PSD grid values: 52 (initial), 8 (non-trivial)
 Order of Integrated Wiener Process (IWP): 2</code></pre>
 <p>As well as the estimated priors:</p>
 <pre class="r"><code>fash_fit2$prior_weights</code></pre>
-<pre><code>         psd prior_weight
+<pre><code> psd prior_weight
 1 0.00000000 9.890537e-01
 2 0.02024191 8.838899e-03
 3 0.03019738 3.058324e-04
@@ -1006,16 +979,12 @@ estimation</h2>
 <p>The original MLE estimated <span class="math inline">\(\pi_0\)</span>
 is 0.9890537. This could be under-estimated due to
 model-misspecification under the alternative hypothesis. To account for
-this, we will a conservative estimate of <span
+this, we compute a conservative estimate of <span
 class="math inline">\(\pi_0\)</span> based on the BF procedure:</p>
 <pre class="r"><code>fash_fit2_update &lt;- BF_update(fash_fit2, plot = FALSE)
 fash_fit2_update$prior_weights
 save(fash_fit2_update, file = paste0(result_dir, &quot;/fash_fit2_update.RData&quot;))</code></pre>
-<pre class="r"><code># # The version using CL-based PCs
-# load(file.path(result_dir, &quot;fash_fit2_all_CL.RData&quot;))
-# fash_fit2_update &lt;- BF_update(fash_fit2, plot = FALSE)</code></pre>
-<p>All BF-adjusted results below use the retained fit recomputed with
-<code>fashr</code> 0.1.43. The conservative estimate is 0.9995927, which
+<p> The conservative estimate is 0.9995927, which
 is much more conservative.</p>
 <pre class="r"><code># set.seed(1)
 set.seed(1)
@@ -1144,16 +1113,13 @@ class="math inline">\(\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}-c&gt;0\)</span>
 where <span class="math inline">\(c\)</span> is a threshold that we set
 to 0.25 (which means with two alleles, the maximal difference of effect
 size is at least <span class="math inline">\(\geq
-2\times\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}\times2 \geq  2 \times
-0.25  \times 2 = 1\)</span>).</p></li>
+2\times\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}\times2 \geq 2 \times
+0.25 \times 2 = 1\)</span>).</p></li>
 </ul>
 <p>The displayed functionals are continuous-time definitions using
 suprema; the code below uses maxima on the <code>0.1</code>-day
 evaluation grid as their discrete approximation.</p>
-<p>The retained classification files were recomputed from
-<code>fash_fit2_update</code> using one shared set of 3,000 posterior
-draws per pair across the four functionals. The canonical regeneration
-entrypoint is <code>code/03_nonlindyn_lfsr.R</code>. We first take a
+<p>Each classification uses 3,000 posterior draws per pair (<code>code/03_nonlindyn_lfsr.R</code>). We first take a
 look at the significant pairs detected by FASH (order 2), and classify
 them based on the false sign rate (lfsr):</p>
 <pre class="r"><code>smooth_var_refined = seq(0,15, by = 0.1)
@@ -1246,7 +1212,7 @@ length(switch_genes)</code></pre>
 <pre class="r"><code>library(clusterProfiler)
 library(tidyverse)
 library(msigdbr)
-library(org.Hs.eg.db)  # Assuming human genes
+library(org.Hs.eg.db) # Assuming human genes
 library(biomaRt)
 library(cowplot)
 # Retrieve Hallmark gene sets for Homo sapiens
@@ -1260,8 +1226,7 @@ m_t2g &lt;- msigdbr(species = &quot;Homo sapiens&quot;, category = &quot;H&quot;
   mutate(ensembl_use = dplyr::coalesce(ensembl_gene, db_ensembl_gene)) %&gt;% 
   dplyr::filter(!is.na(ensembl_use)) %&gt;% 
   dplyr::select(gs_name, ensembl_use) %&gt;%
-  dplyr::distinct()    # one row per (pathway, Ensembl) pair
-
+  dplyr::distinct() # one row per (pathway, Ensembl) pair
 
 ## A function to check gene-enrichment using Ensembl IDs,
 ## forcing the universe to be exactly background_gene
@@ -1271,7 +1236,7 @@ enrich_set &lt;- function(genes_selected,
                        pvalueCutoff = 0.05) {
 
   # ensure character vectors &amp; unique
-  genes_selected_raw  &lt;- unique(as.character(genes_selected))
+  genes_selected_raw &lt;- unique(as.character(genes_selected))
   background_gene_raw &lt;- unique(as.character(background_gene))
 
   # we&#39;ll enforce that the test universe is exactly these:
@@ -1289,7 +1254,7 @@ enrich_set &lt;- function(genes_selected,
 
   if (length(bg_not_in_hallmark) &gt; 0) {
     dummy_t2g &lt;- tibble(
-      gs_name     = dummy_id,
+      gs_name = dummy_id,
       ensembl_use = bg_not_in_hallmark
     )
     TERM2GENE_full &lt;- bind_rows(m_t2g, dummy_t2g)
@@ -1301,16 +1266,16 @@ enrich_set &lt;- function(genes_selected,
   genes_sel_used &lt;- intersect(genes_selected_raw, universe_for_test)
 
   # message(&quot;Original selected genes: &quot;, length(genes_selected_raw),
-  #         &quot; ; used in enrichment: &quot;, length(genes_sel_used))
+  # &quot; ; used in enrichment: &quot;, length(genes_sel_used))
   # message(&quot;Universe size (background_gene): &quot;, length(universe_for_test))
 
   enrich_res &lt;- enricher(
-    gene          = genes_sel_used,
-    TERM2GENE     = TERM2GENE_full,
-    universe      = universe_for_test,
+    gene = genes_sel_used,
+    TERM2GENE = TERM2GENE_full,
+    universe = universe_for_test,
     pAdjustMethod = &quot;BH&quot;,
-    qvalueCutoff  = q_val_cutoff,
-    pvalueCutoff  = pvalueCutoff
+    qvalueCutoff = q_val_cutoff,
+    pvalueCutoff = pvalueCutoff
   )
 
   if (is.null(enrich_res) || nrow(enrich_res@result) == 0L) {
@@ -1324,16 +1289,16 @@ enrich_set &lt;- function(genes_selected,
 
   # keep original ratios for reference
   df$GeneRatio_orig &lt;- df$GeneRatio
-  df$BgRatio_orig   &lt;- df$BgRatio
+  df$BgRatio_orig &lt;- df$BgRatio
 
   # now recompute ratios using exactly:
-  #   - denominator for GeneRatio = number of selected genes in universe
-  #   - denominator for BgRatio   = number of background genes
+  # - denominator for GeneRatio = number of selected genes in universe
+  # - denominator for BgRatio = number of background genes
   n_sel_total &lt;- length(genes_sel_used)
-  n_bg_total  &lt;- length(universe_for_test)
+  n_bg_total &lt;- length(universe_for_test)
 
-  df$GeneRatio_fixed &lt;- paste0(df$Count,   &quot;/&quot;, n_sel_total)
-  df$BgRatio_fixed   &lt;- paste0(df$setSize, &quot;/&quot;, n_bg_total)
+  df$GeneRatio_fixed &lt;- paste0(df$Count, &quot;/&quot;, n_sel_total)
+  df$BgRatio_fixed &lt;- paste0(df$setSize, &quot;/&quot;, n_bg_total)
 
   enrich_res@result &lt;- df
   enrich_res
@@ -1343,31 +1308,31 @@ enrich_set &lt;- function(genes_selected,
 result@result %&gt;% 
   filter(pvalue &lt; 0.05) %&gt;%
   dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)</code></pre>
-<pre><code>                                   GeneRatio BgRatio     pvalue     qvalue
-HALLMARK_IL6_JAK_STAT3_SIGNALING         1/9 21/6362 0.02933661 0.05555675
-HALLMARK_INTERFERON_ALPHA_RESPONSE       1/9 27/6362 0.03757675 0.05555675
-HALLMARK_ALLOGRAFT_REJECTION             1/9 36/6362 0.04982039 0.05555675</code></pre>
+<pre><code> GeneRatio BgRatio pvalue qvalue
+HALLMARK_IL6_JAK_STAT3_SIGNALING 1/9 21/6362 0.02933661 0.05555675
+HALLMARK_INTERFERON_ALPHA_RESPONSE 1/9 27/6362 0.03757675 0.05555675
+HALLMARK_ALLOGRAFT_REJECTION 1/9 36/6362 0.04982039 0.05555675</code></pre>
 <p>Among the genes highlighted by FASH that are classified as having
 middle dynamic eQTLs:</p>
 <pre class="r"><code>result &lt;- enrich_set(genes_selected = middle_genes, background_gene = all_genes)
 result@result %&gt;% 
   filter(pvalue &lt; 0.05) %&gt;%
   dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)</code></pre>
-<pre><code>                                   GeneRatio BgRatio     pvalue qvalue
-HALLMARK_INTERFERON_ALPHA_RESPONSE       1/4 27/6362 0.01687199     NA
-HALLMARK_ALLOGRAFT_REJECTION             1/4 36/6362 0.02244825     NA
-HALLMARK_INFLAMMATORY_RESPONSE           1/4 43/6362 0.02676891     NA
-HALLMARK_INTERFERON_GAMMA_RESPONSE       1/4 56/6362 0.03475498     NA
-HALLMARK_TNFA_SIGNALING_VIA_NFKB         1/4 58/6362 0.03597923     NA
-HALLMARK_ESTROGEN_RESPONSE_LATE          1/4 79/6362 0.04876367     NA</code></pre>
+<pre><code> GeneRatio BgRatio pvalue qvalue
+HALLMARK_INTERFERON_ALPHA_RESPONSE 1/4 27/6362 0.01687199 NA
+HALLMARK_ALLOGRAFT_REJECTION 1/4 36/6362 0.02244825 NA
+HALLMARK_INFLAMMATORY_RESPONSE 1/4 43/6362 0.02676891 NA
+HALLMARK_INTERFERON_GAMMA_RESPONSE 1/4 56/6362 0.03475498 NA
+HALLMARK_TNFA_SIGNALING_VIA_NFKB 1/4 58/6362 0.03597923 NA
+HALLMARK_ESTROGEN_RESPONSE_LATE 1/4 79/6362 0.04876367 NA</code></pre>
 <p>Among the genes highlighted by FASH that are classified as having
 late dynamic eQTLs:</p>
 <pre class="r"><code>result &lt;- enrich_set(genes_selected = late_genes, background_gene = all_genes)
 result@result %&gt;% 
   filter(pvalue &lt; 0.05) %&gt;%
   dplyr::select(GeneRatio, BgRatio, pvalue, qvalue)</code></pre>
-<pre><code>                                 GeneRatio BgRatio     pvalue qvalue
-HALLMARK_IL6_JAK_STAT3_SIGNALING       1/6 21/6362 0.01965004     NA</code></pre>
+<pre><code> GeneRatio BgRatio pvalue qvalue
+HALLMARK_IL6_JAK_STAT3_SIGNALING 1/6 21/6362 0.01965004 NA</code></pre>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -1382,8 +1347,8 @@ Platform: aarch64-apple-darwin20
 Running under: macOS Sequoia 15.6.1
 
 Matrix products: default
-BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
-LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+BLAS: /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib; LAPACK version 3.12.1
 
 locale:
 [1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
@@ -1392,60 +1357,60 @@ time zone: America/Chicago
 tzcode source: internal
 
 attached base packages:
-[1] stats4    stats     graphics  grDevices utils     datasets  methods  
+[1] stats4 stats graphics grDevices utils datasets methods  
 [8] base     
 
 other attached packages:
- [1] cowplot_1.2.0          org.Hs.eg.db_3.21.0    AnnotationDbi_1.70.0  
- [4] IRanges_2.42.0         S4Vectors_0.46.0       Biobase_2.68.0        
- [7] BiocGenerics_0.54.1    generics_0.1.4         msigdbr_25.1.1        
-[10] clusterProfiler_4.16.0 lubridate_1.9.4        forcats_1.0.1         
-[13] stringr_1.6.0          purrr_1.2.0            readr_2.1.6           
-[16] tidyr_1.3.1            tidyverse_2.0.0        ggVennDiagram_1.5.4   
-[19] tibble_3.3.0           ggplot2_4.0.3          dplyr_1.1.4           
-[22] biomaRt_2.64.0         fashr_0.1.43          
+ [1] cowplot_1.2.0 org.Hs.eg.db_3.21.0 AnnotationDbi_1.70.0  
+ [4] IRanges_2.42.0 S4Vectors_0.46.0 Biobase_2.68.0        
+ [7] BiocGenerics_0.54.1 generics_0.1.4 msigdbr_25.1.1        
+[10] clusterProfiler_4.16.0 lubridate_1.9.4 forcats_1.0.1         
+[13] stringr_1.6.0 purrr_1.2.0 readr_2.1.6           
+[16] tidyr_1.3.1 tidyverse_2.0.0 ggVennDiagram_1.5.4   
+[19] tibble_3.3.0 ggplot2_4.0.3 dplyr_1.1.4           
+[22] biomaRt_2.64.0 fashr_0.1.43          
 
 loaded via a namespace (and not attached):
-  [1] RColorBrewer_1.1-3      rstudioapi_0.17.1       jsonlite_2.0.0         
-  [4] magrittr_2.0.5          ggtangle_0.0.9          farver_2.1.2           
-  [7] rmarkdown_2.30          fs_1.6.6                ragg_1.5.0             
- [10] vctrs_0.7.3             memoise_2.0.1           ggtree_3.16.3          
- [13] mixsqp_0.3-54           htmltools_0.5.9         progress_1.2.3         
- [16] curl_7.0.0              gridGraphics_0.5-1      sass_0.4.10            
- [19] bslib_0.9.0             plyr_1.8.9              httr2_1.2.2            
- [22] cachem_1.1.0            TMB_1.9.23              igraph_2.3.2           
- [25] whisker_0.4.1           lifecycle_1.0.5         pkgconfig_2.0.3        
- [28] gson_0.1.0              Matrix_1.7-4            R6_2.6.1               
- [31] fastmap_1.2.0           GenomeInfoDbData_1.2.14 digest_0.6.39          
- [34] numDeriv_2016.8-1.1     aplot_0.2.9             enrichplot_1.28.4      
- [37] colorspace_2.1-2        patchwork_1.3.2         rprojroot_2.1.1        
- [40] irlba_2.3.7             textshaping_1.0.4       RSQLite_2.4.5          
- [43] filelock_1.0.3          labeling_0.4.3          timechange_0.3.0       
- [46] httr_1.4.7              compiler_4.5.1          bit64_4.6.0-1          
- [49] withr_3.0.3             S7_0.2.2                BiocParallel_1.42.2    
- [52] DBI_1.2.3               R.utils_2.13.0          rappdirs_0.3.3         
- [55] tools_4.5.1             otel_0.2.0              ape_5.8-1              
- [58] httpuv_1.6.16           R.oo_1.27.1             glue_1.8.1             
- [61] nlme_3.1-168            GOSemSim_2.34.0         promises_1.5.0         
- [64] grid_4.5.1              reshape2_1.4.5          fgsea_1.34.2           
- [67] gtable_0.3.6            tzdb_0.5.0              R.methodsS3_1.8.2      
- [70] data.table_1.17.8       hms_1.1.4               xml2_1.5.1             
- [73] XVector_0.48.0          ggrepel_0.9.6           pillar_1.11.1          
- [76] babelgene_22.9          yulab.utils_0.2.3       later_1.4.4            
- [79] splines_4.5.1           treeio_1.32.0           BiocFileCache_2.16.2   
- [82] lattice_0.22-7          bit_4.6.0               tidyselect_1.2.1       
- [85] GO.db_3.21.0            Biostrings_2.76.0       knitr_1.50             
- [88] git2r_0.36.2            xfun_0.55               LaplacesDemon_16.1.8   
- [91] stringi_1.8.9           UCSC.utils_1.4.0        lazyeval_0.2.2         
- [94] workflowr_1.7.2         ggfun_0.2.0             yaml_2.3.12            
- [97] evaluate_1.0.5          codetools_0.2-20        qvalue_2.40.0          
-[100] ggplotify_0.1.3         cli_3.6.6               systemfonts_1.3.1      
-[103] jquerylib_0.1.4         dichromat_2.0-0.1       Rcpp_1.1.1-1.1         
-[106] GenomeInfoDb_1.44.3     dbplyr_2.5.1            png_0.1-8              
-[109] parallel_4.5.1          assertthat_0.2.1        blob_1.2.4             
-[112] prettyunits_1.2.0       DOSE_4.2.0              tidytree_0.4.6         
-[115] scales_1.4.0            crayon_1.5.3            rlang_1.2.0            
-[118] fastmatch_1.1-6         KEGGREST_1.48.1        </code></pre>
+  [1] RColorBrewer_1.1-3 rstudioapi_0.17.1 jsonlite_2.0.0         
+  [4] magrittr_2.0.5 ggtangle_0.0.9 farver_2.1.2           
+  [7] rmarkdown_2.30 fs_1.6.6 ragg_1.5.0             
+ [10] vctrs_0.7.3 memoise_2.0.1 ggtree_3.16.3          
+ [13] mixsqp_0.3-54 htmltools_0.5.9 progress_1.2.3         
+ [16] curl_7.0.0 gridGraphics_0.5-1 sass_0.4.10            
+ [19] bslib_0.9.0 plyr_1.8.9 httr2_1.2.2            
+ [22] cachem_1.1.0 TMB_1.9.23 igraph_2.3.2           
+ [25] whisker_0.4.1 lifecycle_1.0.5 pkgconfig_2.0.3        
+ [28] gson_0.1.0 Matrix_1.7-4 R6_2.6.1               
+ [31] fastmap_1.2.0 GenomeInfoDbData_1.2.14 digest_0.6.39          
+ [34] numDeriv_2016.8-1.1 aplot_0.2.9 enrichplot_1.28.4      
+ [37] colorspace_2.1-2 patchwork_1.3.2 rprojroot_2.1.1        
+ [40] irlba_2.3.7 textshaping_1.0.4 RSQLite_2.4.5          
+ [43] filelock_1.0.3 labeling_0.4.3 timechange_0.3.0       
+ [46] httr_1.4.7 compiler_4.5.1 bit64_4.6.0-1          
+ [49] withr_3.0.3 S7_0.2.2 BiocParallel_1.42.2    
+ [52] DBI_1.2.3 R.utils_2.13.0 rappdirs_0.3.3         
+ [55] tools_4.5.1 otel_0.2.0 ape_5.8-1              
+ [58] httpuv_1.6.16 R.oo_1.27.1 glue_1.8.1             
+ [61] nlme_3.1-168 GOSemSim_2.34.0 promises_1.5.0         
+ [64] grid_4.5.1 reshape2_1.4.5 fgsea_1.34.2           
+ [67] gtable_0.3.6 tzdb_0.5.0 R.methodsS3_1.8.2      
+ [70] data.table_1.17.8 hms_1.1.4 xml2_1.5.1             
+ [73] XVector_0.48.0 ggrepel_0.9.6 pillar_1.11.1          
+ [76] babelgene_22.9 yulab.utils_0.2.3 later_1.4.4            
+ [79] splines_4.5.1 treeio_1.32.0 BiocFileCache_2.16.2   
+ [82] lattice_0.22-7 bit_4.6.0 tidyselect_1.2.1       
+ [85] GO.db_3.21.0 Biostrings_2.76.0 knitr_1.50             
+ [88] git2r_0.36.2 xfun_0.55 LaplacesDemon_16.1.8   
+ [91] stringi_1.8.9 UCSC.utils_1.4.0 lazyeval_0.2.2         
+ [94] workflowr_1.7.2 ggfun_0.2.0 yaml_2.3.12            
+ [97] evaluate_1.0.5 codetools_0.2-20 qvalue_2.40.0          
+[100] ggplotify_0.1.3 cli_3.6.6 systemfonts_1.3.1      
+[103] jquerylib_0.1.4 dichromat_2.0-0.1 Rcpp_1.1.1-1.1         
+[106] GenomeInfoDb_1.44.3 dbplyr_2.5.1 png_0.1-8              
+[109] parallel_4.5.1 assertthat_0.2.1 blob_1.2.4             
+[112] prettyunits_1.2.0 DOSE_4.2.0 tidytree_0.4.6         
+[115] scales_1.4.0 crayon_1.5.3 rlang_1.2.0            
+[118] fastmatch_1.1-6 KEGGREST_1.48.1 </code></pre>
 </div>
 </div>
 </div>
@@ -1453,7 +1418,6 @@ loaded via a namespace (and not attached):
 </div>
 </div>
 </div>
-
 
 <!-- Adjust MathJax settings so that all math formulae are shown using
 TeX fonts only; see
@@ -1466,9 +1430,6 @@ footer is added to webpages before the MathJax javascript. -->
     "HTML-CSS": { availableFonts: ["TeX"] }
   });
 </script>
-
-
-
 
 </div>
 </div>
@@ -1484,7 +1445,6 @@ function bootstrapStylePandocTables() {
 $(document).ready(function () {
   bootstrapStylePandocTables();
 });
-
 
 </script>
 
@@ -1510,7 +1470,7 @@ $(document).ready(function () {
 </script>
 
 <script>
-$(document).ready(function ()  {
+$(document).ready(function () {
 
     // temporarily add toc-ignore selector to headers for the consistency with Pandoc
     $('.unlisted.unnumbered').addClass('toc-ignore')
@@ -1544,7 +1504,7 @@ $(document).ready(function ()  {
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    script.src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>

@@ -24,11 +24,11 @@ library(ggrepel)
 
 # paths
 result_dir <- file.path(getwd(), "output", "dynamic_eQTL_real")
-data_dir   <- file.path(getwd(), "data",   "dynamic_eQTL_real")
-code_dir   <- file.path(getwd(), "code",   "dynamic_eQTL_real")
+data_dir <- file.path(getwd(), "data", "dynamic_eQTL_real")
+code_dir <- file.path(getwd(), "code", "dynamic_eQTL_real")
 
 # grids
-log_prec  <- seq(0, 10, by = 0.2)
+log_prec <- seq(0, 10, by = 0.2)
 fine_grid <- sort(c(0, exp(-0.5 * log_prec)))
 
 # ----------------------------
@@ -62,9 +62,9 @@ get_gene_map <- function(ens_ids, cache_path) {
 
   mp <- getBM(
     attributes = c("ensembl_gene_id", "hgnc_symbol"),
-    filters    = "ensembl_gene_id",
-    values     = ens_ids,
-    mart       = mart
+    filters = "ensembl_gene_id",
+    values = ens_ids,
+    mart = mart
   ) %>%
     as_tibble() %>%
     distinct()
@@ -90,9 +90,9 @@ symbol_to_ens <- function(symbols, cache_path) {
 
   mp <- getBM(
     attributes = c("hgnc_symbol", "ensembl_gene_id"),
-    filters    = "hgnc_symbol",
-    values     = symbols,
-    mart       = mart
+    filters = "hgnc_symbol",
+    values = symbols,
+    mart = mart
   ) %>% as_tibble() %>% distinct()
 
   cache_write(mp, cache_path)
@@ -157,17 +157,17 @@ plot_pair_base <- function(idx,
   # titles
   key_parts <- strsplit(names(datasets)[idx], "_", fixed = TRUE)[[1]]
   ens_id <- key_parts[1]
-  rs_id  <- key_parts[2]
-  key   <- names(datasets)[idx]
-  gsym   <- symbol_of(ens_id, gene_map)
+  rs_id <- key_parts[2]
+  key <- names(datasets)[idx]
+  gsym <- symbol_of(ens_id, gene_map)
 
   main_txt <- paste0(gsym, ": ", rs_id)
   if (!is.null(main_prefix)) main_txt <- paste0(main_prefix, " ", main_txt)
 
   # fits
-  lin_fit  <- if (add_lm)   lm(y ~ x, weights = w) else NULL
+  lin_fit <- if (add_lm) lm(y ~ x, weights = w) else NULL
   quad_fit <- if (add_quad) lm(y ~ poly(x, 2, raw = TRUE), weights = w) else NULL
-  x_grid   <- if (add_quad) seq(min(x), max(x), length.out = 200) else NULL
+  x_grid <- if (add_quad) seq(min(x), max(x), length.out = 200) else NULL
   quad_pred <- if (add_quad) predict(quad_fit, newdata = data.frame(x = x_grid)) else NULL
 
   plot(x, y, pch = 20, col = "black", xlab = "Time", ylab = "Effect Est", ylim = c(y_min, y_max))
@@ -180,12 +180,12 @@ plot_pair_base <- function(idx,
           col = rgb(1, 0, 0, 0.1), border = NA)
   lines(fitted$x, fitted$mean, col = "red", lwd = 2)
 
-  if (add_lm)   abline(lin_fit, col = "green", lty = 2, lwd = 1)
+  if (add_lm) abline(lin_fit, col = "green", lty = 2, lwd = 1)
   if (add_quad) lines(x_grid, quad_pred, col = "purple", lty = 2, lwd = 1)
   if (include_zero_line) abline(h = 0, col = "blue", lty = 2, lwd = 1)
 
   lfdr_before <- fash_raw$lfdr[idx]
-  lfdr_after  <- fash_adj$lfdr[idx]
+  lfdr_after <- fash_adj$lfdr[idx]
   p_lin_val <- if (!is.null(p_lin) && !is.null(names(p_lin)) && key %in% names(p_lin)) unname(p_lin[[key]]) else NA_real_
 
   p_non_val <- if (!is.null(p_non) && !is.null(names(p_non)) && key %in% names(p_non)) unname(p_non[[key]]) else NA_real_
@@ -261,21 +261,21 @@ plot_lfdr_vs_p <- function(fash_tbl, strober_df, pval_cutoff, lfdr_cutoff,
     inner_join(df_l %>% dplyr::select(ensamble_id, lfdr_adj), by = "ensamble_id") %>%
     mutate(
       gene_symbol = symbol_of(ensamble_id, gene_map),
-      gene_label  = dplyr::coalesce(unname(manual_symbol[ensamble_id]), gene_symbol, ensamble_id),
-      neglog_p    = -log10(pmin(pmax(pvalue, eps), 1)),
+      gene_label = dplyr::coalesce(unname(manual_symbol[ensamble_id]), gene_symbol, ensamble_id),
+      neglog_p = -log10(pmin(pmax(pvalue, eps), 1)),
       neglog_lfdr = -log10(pmin(pmax(lfdr_adj, eps), 1)),
       category = dplyr::case_when(
         pvalue <= pval_cutoff & lfdr_adj <= lfdr_cutoff ~ "Both",
-        pvalue <= pval_cutoff & lfdr_adj >  lfdr_cutoff ~ "Strober only",
-        pvalue >  pval_cutoff & lfdr_adj <= lfdr_cutoff ~ "FASH only",
+        pvalue <= pval_cutoff & lfdr_adj > lfdr_cutoff ~ "Strober only",
+        pvalue > pval_cutoff & lfdr_adj <= lfdr_cutoff ~ "FASH only",
         TRUE ~ "Neither"
       ),
       category = factor(category, levels = c("Both", "FASH only", "Strober only", "Neither"))
     )
 
   top_strober_only <- g %>% dplyr::filter(category == "Strober only") %>% dplyr::arrange(pvalue) %>% dplyr::slice_head(n = 10)
-  top_fash_only    <- g %>% dplyr::filter(category == "FASH only")    %>% dplyr::arrange(lfdr_adj) %>% dplyr::slice_head(n = 10)
-  top_both         <- g %>% dplyr::filter(category == "Both")         %>% dplyr::arrange(pvalue + lfdr_adj) %>% dplyr::slice_head(n = 10)
+  top_fash_only <- g %>% dplyr::filter(category == "FASH only") %>% dplyr::arrange(lfdr_adj) %>% dplyr::slice_head(n = 10)
+  top_both <- g %>% dplyr::filter(category == "Both") %>% dplyr::arrange(pvalue + lfdr_adj) %>% dplyr::slice_head(n = 10)
   label_df <- dplyr::bind_rows(top_strober_only, top_fash_only, top_both)
 
   col_map <- c("Both"="#7B3294","FASH only"="#1B9E77","Strober only"="#D95F02","Neither"="grey80")
@@ -323,17 +323,11 @@ We will directly load the fitted FASH models from the output directory.
 load(file.path(result_dir, "fash_fit1_all.RData"))
 ```
 
-```{r}
-# # The version using CL-based PCs
-# load(file.path(result_dir, "fash_fit1_all_CL.RData"))
-# fash_fit1_update <- BF_update(fash_fit1, plot = FALSE)
-```
-
 We will load the datasets from the fitted FASH object:
 
 ```{r}
 datasets <- fash_fit1$fash_data$data_list
-S_list   <- fash_fit1$fash_data$S
+S_list <- fash_fit1$fash_data$S
 for (i in seq_along(datasets)) datasets[[i]]$SE <- S_list[[i]]
 
 pair_tbl <- parse_pair_keys(names(datasets)) %>%
@@ -395,8 +389,7 @@ stopifnot(
 rm(loaded_fit1_update)
 ```
 
-All BF-adjusted results below use the retained fit recomputed with `fashr` 0.1.43. The conservative estimate is `r fash_fit1_update$prior_weights$prior_weight[1]`, which is much more realistic.
-
+ The conservative estimate is `r fash_fit1_update$prior_weights$prior_weight[1]`, which is much more realistic.
 
 ```{r}
 set.seed(123)
@@ -556,16 +549,16 @@ library(ggVennDiagram)
 library(tidyverse)
 
 strober_nonlinear <- read_strober(file.path(data_dir, "strober_nonlinear", "non_linear_dynamic_eqtls_5_pc.txt"))
-strober_linear    <- read_strober(file.path(data_dir, "strober_linear",    "linear_dynamic_eqtls_5_pc.txt"))
+strober_linear <- read_strober(file.path(data_dir, "strober_linear", "linear_dynamic_eqtls_5_pc.txt"))
 
 strober_nonlinear_highlighted <- strober_nonlinear %>% filter(eFDR <= alpha)
-strober_linear_highlighted    <- strober_linear    %>% filter(eFDR <= alpha)
+strober_linear_highlighted <- strober_linear %>% filter(eFDR <= alpha)
 
 pairs_highlighted_strober_nonlinear <- strober_nonlinear_highlighted$key
-pairs_highlighted_strober_linear    <- strober_linear_highlighted$key
+pairs_highlighted_strober_linear <- strober_linear_highlighted$key
 
 genes_highlighted_strober_nonlinear <- unique(strober_nonlinear_highlighted$ensamble_id)
-genes_highlighted_strober_linear    <- unique(strober_linear_highlighted$ensamble_id)
+genes_highlighted_strober_linear <- unique(strober_linear_highlighted$ensamble_id)
 
 # convenience: gene symbols in strober tables (optional)
 strober_nonlinear <- strober_nonlinear %>%
@@ -587,7 +580,7 @@ What are the lfdr cutoff for FASH (order 1) before and after BF adjustment?
 
 ```{r}
 lfdr_cutoff1_before <- max(fash_fit1$lfdr[test1$fdr_results$index[test1$fdr_results$FDR <= alpha]])
-lfdr_cutoff1_after  <- max(fash_fit1_update$lfdr[test1$fdr_results$index[test1$fdr_results$FDR <= alpha]])
+lfdr_cutoff1_after <- max(fash_fit1_update$lfdr[test1$fdr_results$index[test1$fdr_results$FDR <= alpha]])
 lfdr_cutoff1_before
 lfdr_cutoff1_after
 ```
@@ -650,7 +643,7 @@ qt_threshold <- quantile(fash_fit1_update$lfdr[test1$fdr_results$index[test1$fdr
 pairs_pass_filter <- names(datasets)[test1$fdr_results$index[test1$fdr_results$lfdr >= qt_threshold & test1$fdr_results$FDR <= alpha]]
 
 # vectorized p-value lookup via key
-p_lin <- setNames(strober_linear$pvalue,    strober_linear$key)
+p_lin <- setNames(strober_linear$pvalue, strober_linear$key)
 p_non <- setNames(strober_nonlinear$pvalue, strober_nonlinear$key)
 
 p_val_thres <- 0.2
@@ -672,7 +665,7 @@ sym2ens2 <- map_pass$ensembl_gene_id[match(selected_gene_fashr_only, map_pass$hg
 # choose, for each gene, the pair among pairs_pass_filter with max adjusted lfdr
 idxs <- map_int(sym2ens2, function(gid){
   cand_keys <- pairs_pass_filter[str_detect(pairs_pass_filter, fixed(gid))]
-  cand_idx  <- pair_tbl %>% filter(key %in% cand_keys) %>% pull(idx)
+  cand_idx <- pair_tbl %>% filter(key %in% cand_keys) %>% pull(idx)
   cand_idx[which.max(fash_fit1_update$lfdr[cand_idx])]
 })
 
@@ -756,7 +749,7 @@ pairs_highlighted_all_tbl <- parse_pair_keys(pairs_highlighted_all)
 
 # pick up to 4 genes from the overlap
 genes_olap <- head(unique(pairs_highlighted_all_tbl$ens_id), 4)
-idxs_olap  <- pick_idxs_for_genes(genes_olap, pair_tbl, fash_fit1_update$lfdr, which = "min")
+idxs_olap <- pick_idxs_for_genes(genes_olap, pair_tbl, fash_fit1_update$lfdr, which = "min")
 
 plot_many_pairs(
   idxs_olap,
@@ -778,7 +771,7 @@ gene_missed_symbols <- symbol_of(gene_missed, gene_map)
 
 # For each missed gene, take the best p-value among linear / nonlinear (for display only)
 strober_best <- full_join(
-  strober_linear_highlighted  %>% group_by(ensamble_id) %>% slice_min(pvalue, n = 1, with_ties = FALSE) %>% ungroup() %>% 
+  strober_linear_highlighted %>% group_by(ensamble_id) %>% slice_min(pvalue, n = 1, with_ties = FALSE) %>% ungroup() %>% 
     dplyr::select(ensamble_id, rs_id, pvalue) %>% rename(rs_id_linear = rs_id, p_linear = pvalue),
   strober_nonlinear_highlighted %>% group_by(ensamble_id) %>% slice_min(pvalue, n = 1, with_ties = FALSE) %>% ungroup() %>% 
     dplyr::select(ensamble_id, rs_id, pvalue) %>% rename(rs_id_nonlinear = rs_id, p_nonlinear = pvalue),
@@ -816,44 +809,44 @@ plot(
   sort(strober_nonlinear$eFDR)[subset_seq],
   x = subset_seq,
   type = "l",
-  col  = "blue",
-  lwd  = 2,
+  col = "blue",
+  lwd = 2,
   xlab = "Ranked pairs",
   ylab = "FDR",
   lty = "dashed",
   main = ""
 )
-lines(sort(test1$fdr_results$FDR)[subset_seq], x = subset_seq, col = "red", lty = "solid",  lwd = 2)
-lines(sort(strober_linear$eFDR)[subset_seq],   x = subset_seq, col = "green", lty = "dotted", lwd = 2)
+lines(sort(test1$fdr_results$FDR)[subset_seq], x = subset_seq, col = "red", lty = "solid", lwd = 2)
+lines(sort(strober_linear$eFDR)[subset_seq], x = subset_seq, col = "green", lty = "dotted", lwd = 2)
 
 legend(
   "topleft",
   legend = c("Strober Quadratic", "Strober Linear", "FASH (1)"),
-  col    = c("blue", "green", "red"),
-  lty    = c("dashed", "dotted", "solid"),
-  lwd    = c(2, 2, 2)
+  col = c("blue", "green", "red"),
+  lty = c("dashed", "dotted", "solid"),
+  lwd = c(2, 2, 2)
 )
 
 plot(
   sort(strober_nonlinear$eFDR[strober_nonlinear$eFDR <= 0.05]),
   xlim = c(0, 10000),
   type = "l",
-  col  = "blue",
-  lwd  = 2,
-  lty  = "dashed",
+  col = "blue",
+  lwd = 2,
+  lty = "dashed",
   xlab = "Ranked pairs",
   ylab = "FDR",
   main = "(Zoomed in)"
 )
-lines(sort(test1$fdr_results$FDR[test1$fdr_results$FDR <= 0.05]), col = "red",   lty = "solid",  lwd = 2)
-lines(sort(strober_linear$eFDR[strober_linear$eFDR <= 0.05]),     col = "green", lty = "dotted", lwd = 2)
+lines(sort(test1$fdr_results$FDR[test1$fdr_results$FDR <= 0.05]), col = "red", lty = "solid", lwd = 2)
+lines(sort(strober_linear$eFDR[strober_linear$eFDR <= 0.05]), col = "green", lty = "dotted", lwd = 2)
 
 legend(
   "topleft",
   legend = c("Strober Quadratic", "Strober Linear", "FASH (1)"),
-  col    = c("blue", "green", "red"),
-  lty    = c("dashed", "dotted", "solid"),
-  lwd    = c(2, 2, 2)
+  col = c("blue", "green", "red"),
+  lty = c("dashed", "dotted", "solid"),
+  lwd = c(2, 2, 2)
 )
 ```
 
@@ -892,7 +885,6 @@ plot_lfdr_vs_p(
 
 ## Classifying dynamic eQTLs
 
-
 ```{r plot_helpers_lfsr_classification, echo=FALSE}
 # Helper to show lfsr (adj) on top of each panel for the dynamic-eQTL classification examples.
 # This avoids changing plot_pair_base() so earlier figures remain identical.
@@ -920,7 +912,6 @@ plot_many_pairs_lfsr <- function(idxs, testing_obj, nrow = 2, ncol = 2, ...) {
 }
 ```
 
-
 Following the definition in Strober et.al, we will classify the detected dynamic eQTLs into different categories:
 
 - *Early*: eQTLs with strongest effect during the first three days: $\sup_{t\leq3} |\beta(t)| - \sup_{t> 3} |\beta(t)| > 0$.
@@ -929,11 +920,11 @@ Following the definition in Strober et.al, we will classify the detected dynamic
 
 - *Middle*: eQTLs with strongest effect in the open middle interval: $\sup_{3<t<12} |\beta(t)| - \sup_{t\leq3\;\text{or}\;t\geq12} |\beta(t)| > 0$.
 
-- *Switch*: eQTLs with effect sign switch during the time course such that $\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}-c>0$ where $c$ is a threshold that we set to 0.25 (which means with two alleles, the maximal difference of effect size is at least $\geq 2\times\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}\times2 \geq  2 \times 0.25  \times 2 = 1$).
+- *Switch*: eQTLs with effect sign switch during the time course such that $\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}-c>0$ where $c$ is a threshold that we set to 0.25 (which means with two alleles, the maximal difference of effect size is at least $\geq 2\times\min\{\sup_t\beta(t)^+,\sup_t\beta(t)^-\}\times2 \geq 2 \times 0.25 \times 2 = 1$).
 
 The displayed functionals are continuous-time definitions using suprema; the code below uses maxima on the `0.1`-day evaluation grid as their discrete approximation.
 
-The canonical regeneration entrypoint for these cached classifications is `code/02_dyn_lfsr.R`.
+The classification script is `code/02_dyn_lfsr.R`. 
 
 We will take a look at the significant pairs detected by FASH (order 1), and classify them based on the false sign rate (lfsr).
 
@@ -964,15 +955,14 @@ length(early_genes)
 Let's take a look at the top-ranked early dynamic eQTLs:
 
 ```{r early_examples , echo=FALSE}
-keep   <- testing_early_dyn$indices %in% early_indices
-idx_v  <- testing_early_dyn$indices[keep]
-rn_v   <- rownames(testing_early_dyn)[keep]
+keep <- testing_early_dyn$indices %in% early_indices
+idx_v <- testing_early_dyn$indices[keep]
+rn_v <- rownames(testing_early_dyn)[keep]
 genes_use <- early_genes[c(2,4,6,8)]
 idxs_early <- vapply(genes_use, function(g) {
   pos <- match(TRUE, str_detect(rn_v, fixed(g))) 
   if (is.na(pos)) NA_integer_ else as.integer(idx_v[pos])
 }, integer(1))
-
 
 plot_many_pairs_lfsr(
   idxs_early, 
@@ -1014,15 +1004,14 @@ length(middle_genes)
 Take a look at their results:
 
 ```{r middle_examples , echo=FALSE}
-keep   <- testing_middle_dyn$indices %in% middle_indices
-idx_v  <- testing_middle_dyn$indices[keep]
-rn_v   <- rownames(testing_middle_dyn)[keep]
+keep <- testing_middle_dyn$indices %in% middle_indices
+idx_v <- testing_middle_dyn$indices[keep]
+rn_v <- rownames(testing_middle_dyn)[keep]
 genes_use <- middle_genes[1:4]
 idxs_middle <- vapply(genes_use, function(g) {
   pos <- match(TRUE, str_detect(rn_v, fixed(g))) 
   if (is.na(pos)) NA_integer_ else as.integer(idx_v[pos])
 }, integer(1))
-
 
 plot_many_pairs_lfsr(
   idxs_middle,
@@ -1063,15 +1052,14 @@ length(late_genes)
 Let's take a look at the top-ranked late dynamic eQTLs:
 
 ```{r late_examples , echo=FALSE}
-keep   <- testing_late_dyn$indices %in% late_indices
-idx_v  <- testing_late_dyn$indices[keep]
-rn_v   <- rownames(testing_late_dyn)[keep]
+keep <- testing_late_dyn$indices %in% late_indices
+idx_v <- testing_late_dyn$indices[keep]
+rn_v <- rownames(testing_late_dyn)[keep]
 genes_use <- tail(late_genes, min(4L, length(late_genes)))
 idxs_late <- vapply(genes_use, function(g) {
   pos <- match(TRUE, str_detect(rn_v, fixed(g))) 
   if (is.na(pos)) NA_integer_ else as.integer(idx_v[pos])
 }, integer(1))
-
 
 plot_many_pairs_lfsr(
   idxs_late,
@@ -1121,15 +1109,14 @@ Let's take a look at the top-ranked switch dynamic eQTLs:
 switch_indices_toplot <- testing_switch_dyn$indices[testing_switch_dyn$cfsr <= alpha/10]
 switch_genes_toplot <- unique(pair_tbl$ens_id[pair_tbl$idx %in% switch_indices_toplot])
 
-keep   <- testing_switch_dyn$indices %in% switch_indices_toplot
-idx_v  <- testing_switch_dyn$indices[keep]
-rn_v   <- rownames(testing_switch_dyn)[keep]
+keep <- testing_switch_dyn$indices %in% switch_indices_toplot
+idx_v <- testing_switch_dyn$indices[keep]
+rn_v <- rownames(testing_switch_dyn)[keep]
 genes_use <- switch_genes_toplot[1:4]
 idxs_switch <- vapply(genes_use, function(g) {
   pos <- match(TRUE, str_detect(rn_v, fixed(g))) 
   if (is.na(pos)) NA_integer_ else as.integer(idx_v[pos])
 }, integer(1))
-
 
 plot_many_pairs_lfsr(
   idxs_switch,
@@ -1163,7 +1150,7 @@ enrich_set <- function(genes_selected,
                        q_val_cutoff = 0.05,
                        pvalueCutoff = 0.05) {
 
-  genes_selected_raw  <- unique(as.character(genes_selected))
+  genes_selected_raw <- unique(as.character(genes_selected))
   background_gene_raw <- unique(as.character(background_gene))
 
   universe_for_test <- background_gene_raw
@@ -1174,7 +1161,7 @@ enrich_set <- function(genes_selected,
 
   if (length(bg_not_in_hallmark) > 0) {
     dummy_t2g <- tibble(
-      gs_name     = dummy_id,
+      gs_name = dummy_id,
       ensembl_use = bg_not_in_hallmark
     )
     TERM2GENE_full <- bind_rows(m_t2g, dummy_t2g)
@@ -1185,12 +1172,12 @@ enrich_set <- function(genes_selected,
   genes_sel_used <- intersect(genes_selected_raw, universe_for_test)
 
   enrich_res <- enricher(
-    gene          = genes_sel_used,
-    TERM2GENE     = TERM2GENE_full,
-    universe      = universe_for_test,
+    gene = genes_sel_used,
+    TERM2GENE = TERM2GENE_full,
+    universe = universe_for_test,
     pAdjustMethod = "BH",
-    qvalueCutoff  = q_val_cutoff,
-    pvalueCutoff  = pvalueCutoff
+    qvalueCutoff = q_val_cutoff,
+    pvalueCutoff = pvalueCutoff
   )
 
   if (is.null(enrich_res) || nrow(enrich_res@result) == 0L) {
@@ -1201,13 +1188,13 @@ enrich_set <- function(genes_selected,
   df <- df %>% dplyr::filter(ID != dummy_id)
 
   df$GeneRatio_orig <- df$GeneRatio
-  df$BgRatio_orig   <- df$BgRatio
+  df$BgRatio_orig <- df$BgRatio
 
   n_sel_total <- length(genes_sel_used)
-  n_bg_total  <- length(universe_for_test)
+  n_bg_total <- length(universe_for_test)
 
-  df$GeneRatio_fixed <- paste0(df$Count,   "/", n_sel_total)
-  df$BgRatio_fixed   <- paste0(df$setSize, "/", n_bg_total)
+  df$GeneRatio_fixed <- paste0(df$Count, "/", n_sel_total)
+  df$BgRatio_fixed <- paste0(df$setSize, "/", n_bg_total)
 
   enrich_res@result <- df
   enrich_res

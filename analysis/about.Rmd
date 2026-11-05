@@ -7,4 +7,24 @@ editor_options:
   chunk_output_type: console
 ---
 
-This is the online code repository for [FASH]().
+This website contains the companion simulation studies and real-data analyses for the paper:
+
+> Ziang Zhang, Peter Carbonetto, and Matthew Stephens. *Empirical Bayes Shrinkage for Functional Data, with Application to Analysis of Dynamic eQTLs.*
+
+## Software and repositories
+
+- **`fashr` R package:** [https://github.com/stephenslab/fashr](https://github.com/stephenslab/fashr)
+- **Companion analysis repository:** [https://github.com/stephenslab/fashr-paper](https://github.com/stephenslab/fashr-paper)
+
+## Overview of analyses
+
+- **Simulations:**
+  - [Simulation 1](appendixB.html): Summary-statistic simulation evaluating null-weight estimation, discovery power, and empirical FDR for FASH(1) and FASH(2) before and after Bayes factor (BF) adjustment.
+  - [Simulation 2](functional_testing_simulation.html): Real-genotype simulation comparing FASH-IWP1, FASH-linear, and direct linear/quadratic interaction tests, followed by conditional functional classification (Early, Middle, Late, and Switch).
+- **iPSC Dynamic eQTL Analyses:**
+  - [Dynamic eQTL analysis on iPSC](dynamic_eQTL_real.html): FASH(1) analysis of dynamic eQTLs during cardiomyocyte differentiation using data from Strober et al. (2019).
+  - [Nonlinear Dynamic eQTL analysis on iPSC](nonlinear_dynamic_eQTL_real.html): FASH(2) analysis of nonlinear dynamic eQTLs during cardiomyocyte differentiation.
+  - [Evaluation-grid and posterior Monte Carlo sensitivity](evaluation_grid_mc_sensitivity.html): Sensitivity of functional classification LFSRs to evaluation-grid resolution and posterior Monte Carlo sample size.
+  - [Sensitivity to one random variant per gene](balanced_variant_thinning.html): Sensitivity of null-weight estimation and discovery calls across 100 one-variant-per-gene refits.
+  - [Enhancer enrichment of dynamic eQTLs](enhancer_enrichment.html): Overlap of FASH and Strober lead dynamic eQTL variants with Roadmap Epigenomics ChromHMM enhancer annotations.
+  - [Matched FASH-linear comparison](matched_fash_linear_real_data.html): Comparison of FASH-IWP1 and FASH-IWP2 against a matched FASH-linear mixture model on the iPSC dataset.

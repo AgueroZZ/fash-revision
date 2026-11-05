@@ -13,9 +13,9 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE, fig.width = 10.4, fig.height = 5.2,
   dpi = 180, fig.retina = 2, fig.align = "center", message = FALSE, warning = TRUE)
 library(ggplot2)
-source("code/revision_simulations/internal/appendix_c1_mc10/reporting.R")
-report <- c1_load_report()
-display <- c1_load_display(report)
+source("code/revision_simulations/internal/appendix_c1_j1000/reporting.R")
+report <- c1j_load_report()
+display <- c1j_load_display(report)
 grid_summary <- report$tables$grid_summary
 alpha_summary <- report$tables$alpha_summary
 at005 <- alpha_summary[abs(alpha_summary$alpha - 0.05) < 1e-12, ]
@@ -52,7 +52,7 @@ FDR when constant, linear, and nonlinear effect functions are fitted with FASH.
    repetitions. Figure 2 shows pointwise replicate ranges; Figures 3 and 4
    show means as points connected by lines.
 
-All fits use the pinned `fashr` 0.1.43 build. The ten seeds are
+All fits use `fashr` 0.1.43. The ten seeds are
 `seq(12345L, by = 10000L, length.out = 10L)`.
 
 ## Data generation and fitting
@@ -76,7 +76,7 @@ Both models use an unrestricted polynomial baseline and 20 basis functions.
 The positive shrinkage grid is equally spaced from 0 to 10 on the
 log-precision scale, with spacing 0.2 or 0.1, together with an exact-null
 component. Null-weight comparisons use penalty 1. The power/FDR experiment
-uses $J=1200$, $\rho=0.2$, the original grid, and penalty 10.
+uses $J=1000$, $\rho=0.2$, the original grid, and penalty 10.
 
 ```{r scientific-settings, eval=FALSE}
 seeds <- seq(12345L, by = 10000L, length.out = 10L)
@@ -86,7 +86,7 @@ denser_grid <- sort(c(0, exp(-0.5 * seq(0, 10, by = 0.1))))
 grid_data <- build_appendix_b_datasets(J = 1000L,
   rho_dynamic = rho_value, rho_nonlinear = rho_value / 2,
   sigma_vec = c(0.1, 0.3, 0.5))
-focused_data <- build_appendix_b_datasets(J = 1200L,
+focused_data <- build_appendix_b_datasets(J = 1000L,
   rho_dynamic = 0.2, rho_nonlinear = 0.1,
   sigma_vec = c(0.1, 0.3, 0.5))
 # Exact Gaussian integration uses the package's basis and prior precision.
@@ -129,8 +129,8 @@ stopifnot(all(null_curves$n_replicates == 10L))
 null_curves$stage <- factor(null_curves$stage, c("Raw EB", "BF updated"))
 null_curves$panel <- factor(paste(null_curves$setting, null_curves$order, sep = ":"),
   c("original:IWP1", "original:IWP2", "denser:IWP1", "denser:IWP2"),
-  c("A  IWP1: original grid", "B  IWP2: original grid",
-    "C  IWP1: denser grid", "D  IWP2: denser grid"))
+  c("A IWP1: original grid", "B IWP2: original grid",
+    "C IWP1: denser grid", "D IWP2: denser grid"))
 stopifnot(!anyNA(null_curves$panel))
 ggplot(null_curves, aes(true_pi0, mean_pi0, color = stage, fill = stage)) +
   geom_ribbon(aes(ymin = pi0_min, ymax = pi0_max), alpha = 0.10,
@@ -160,14 +160,14 @@ Power is the mean of $|D_b(\alpha)\cap H_{1b}|/|H_{1b}|$ across the same
 ten repetitions. Both rates include every repetition. Points connected by
 lines show the ten-repetition means.
 
-```{r power, fig.cap="Figure 3. Mean discovery power over ten repetitions (J = 1,200). Panels A and B show dynamic and nonlinear testing. Points connected by lines show ten-repetition mean power. Raw EB uses circles and solid lines; BF updated uses triangles and dashed lines. The vertical line marks nominal FDR 0.05."}
+```{r power, fig.cap="Figure 3. Mean discovery power over ten repetitions (J = 1,000). Panels A and B show dynamic and nonlinear testing. Points connected by lines show ten-repetition mean power. Raw EB uses circles and solid lines; BF updated uses triangles and dashed lines. The vertical line marks nominal FDR 0.05."}
 power_curves <- alpha_summary[, c("order", "stage", "alpha", "mean_power",
   "power_min", "power_max", "n_replicates")]
 stopifnot(all(power_curves$n_replicates == 10L))
 power_curves$stage <- factor(power_curves$stage, names(method_shapes))
 stopifnot(!anyNA(power_curves$stage))
 power_curves$panel <- factor(power_curves$order, c("IWP1", "IWP2"),
-  c("A  Dynamic effects", "B  Nonlinear effects"))
+  c("A Dynamic effects", "B Nonlinear effects"))
 ggplot(power_curves, aes(alpha, mean_power, color = stage,
   shape = stage, linetype = stage)) +
   geom_line(aes(linewidth = stage)) + geom_point(size = 1.4) +
@@ -179,7 +179,7 @@ ggplot(power_curves, aes(alpha, mean_power, color = stage,
   scale_linewidth_manual(values = method_linewidths, name = NULL) +
   scale_y_continuous(breaks = seq(0.75, 0.90, by = 0.05),
     expand = expansion(mult = 0)) +
-  coord_cartesian(ylim = c(0.75, 0.90)) +
+  coord_cartesian(ylim = c(0.74, 0.90)) +
   labs(x = "Nominal FDR level", y = "Mean power", color = NULL, shape = NULL, linetype = NULL) + c1_plot_theme()
 ```
 
@@ -190,7 +190,7 @@ stopifnot(all(fdr_curves$n_replicates == 10L))
 fdr_curves$stage <- factor(fdr_curves$stage, names(method_shapes))
 stopifnot(!anyNA(fdr_curves$stage))
 fdr_curves$panel <- factor(fdr_curves$order, c("IWP1", "IWP2"),
-  c("A  Dynamic effects", "B  Nonlinear effects"))
+  c("A Dynamic effects", "B Nonlinear effects"))
 ggplot(fdr_curves, aes(alpha, mean_empirical_fdr, color = stage,
   shape = stage, linetype = stage)) +
   geom_line(aes(linewidth = stage)) + geom_point(size = 1.4) +
@@ -215,6 +215,8 @@ The corresponding power changes are
 `r value005("IWP1", "BF updated", "mean_power")` and
 `r value005("IWP2", "Raw EB", "mean_power")` to
 `r value005("IWP2", "BF updated", "mean_power")`.
+BF-adjusted dynamic FDR exceeds nominal at some higher thresholds; the largest
+excess is `r sprintf("%.4f", max(alpha_summary$mean_empirical_fdr[alpha_summary$stage == "BF updated"] - alpha_summary$alpha[alpha_summary$stage == "BF updated"]))`.
 
 ```{r alpha005-table, results='asis'}
 tab <- at005[order(match(at005$order, c("IWP1", "IWP2")),
@@ -228,13 +230,15 @@ knitr::asis_output(paste0('<div class="c1-table">',
 
 ## Posterior examples
 
-Figure 5 retains four prespecified examples from seed 12345. All four are
-selected at nominal FDR 0.05 by their respective BF-adjusted models.
+Figure 5 uses seed 12345. Within each specified truth class, examples are the
+first distinct numeric IDs selected at nominal FDR 0.05 by the corresponding
+BF-adjusted model: one nonlinear and one linear example for IWP1, then two
+nonlinear examples for IWP2.
 Posterior summaries use 3,000 draws evaluated at time-grid step 0.1.
 
 ```{r posterior-examples, fig.width=10.4, fig.height=7.8, fig.cap="Figure 5. Posterior examples from seed 12345. Top: IWP1 dynamic testing; bottom: IWP2 nonlinear testing. Black points and bars show estimates and +/-2 standard errors. Red curves and bands show posterior means and pointwise 95% credible intervals; blue dashed curves show truth."}
 predictions <- display$predictions; observations <- display$observations
-labels <- c("A  C109 (IWP1)", "B  B75 (IWP1)", "C  C24 (IWP2)", "D  C115 (IWP2)")
+labels <- paste0(LETTERS[1:4], " ", display$ids, " (", c("IWP1", "IWP1", "IWP2", "IWP2"), ")")
 predictions$panel <- factor(predictions$panel, LETTERS[1:4], labels)
 observations$panel <- factor(observations$panel, LETTERS[1:4], labels)
 stopifnot(!anyNA(predictions$panel), !anyNA(observations$panel))
@@ -252,20 +256,11 @@ ggplot(predictions, aes(x, mean)) +
 
 ## Reproducibility
 
-The runner, equivalence tests, and reporting gate are in
-`code/revision_simulations/internal/appendix_c1_mc10/`.
-The original generator and pinned package EB/BF routines are retained.
-Exact Gaussian integration uses the package's basis and precision matrices;
-likelihood and posterior-score equivalence with TMB are checked before
-production. Original and denser grids have identical input hashes within
-each seed and dynamic fraction.
+The simulation scripts are in `code/revision_simulations/internal/appendix_c1_j1000/`, and outputs are saved under `output/revision_simulations/internal/appendix_c1_j1000_fashr0143_20260918/`.
 
 ```{bash, eval=FALSE}
-Rscript --vanilla code/revision_simulations/internal/appendix_c1_mc10/test_mc10.R
-FASH_C1_WORKERS=4 Rscript --vanilla code/revision_simulations/internal/appendix_c1_mc10/run_appendix_c1_mc10.R
-Rscript --vanilla code/revision_simulations/internal/appendix_c1_mc10/build_display_cache.R
+Rscript --vanilla code/revision_simulations/internal/appendix_c1_j1000/run_appendix_c1_j1000.R
+Rscript --vanilla code/revision_simulations/internal/appendix_c1_j1000/test_reporting.R
+Rscript --vanilla code/revision_simulations/internal/appendix_c1_j1000/build_display_cache.R
 ```
 
-Completed results are in
-`output/revision_simulations/internal/appendix_c1_mc10_fashr0143_20260918/`.
-Page builds validate and read this cache without rerunning simulations.

@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-26" />
+
+<title>Evaluation-grid and posterior Monte Carlo sensitivity</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Evaluation-grid and posterior Monte Carlo
+sensitivity</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-26</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-11-04
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreebfc8f00557e3a587205bc512a5603f7566372599targetblankbfc8f00a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/bfc8f00557e3a587205bc512a5603f7566372599" target="_blank">bfc8f00</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreebfc8f00557e3a587205bc512a5603f7566372599targetblankbfc8f00a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/AgueroZZ/fash-revision/tree/bfc8f00557e3a587205bc512a5603f7566372599" target="_blank">bfc8f00</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Rplots.pdf
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/revision_simulations/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/playwright/
+    Ignored:    output/revision_simulations/
+    Ignored:    scripts/
+
+Untracked files:
+    Untracked:  analysis/balanced_variant_thinning.rmd
+    Untracked:  analysis/enhancer_enrichment.rmd
+    Untracked:  analysis/evaluation_grid_mc_sensitivity.rmd
+    Untracked:  analysis/functional_testing_simulation.rmd
+    Untracked:  analysis/matched_fash_linear_real_data.rmd
+    Untracked:  code/revision_simulations/internal/appendix_c1_j1000/
+    Untracked:  code/revision_simulations/internal/per_unit_enhancer_enrichment/
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/compare_corshrink_versions.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/diagnose_discordant_calls.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/diagnose_smooth_mismatch.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/extract_perunit_lfdr.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_call_venns.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_class_variograms.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_corshrink_result.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_corshrink_versions.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_cs_vs_diagonal.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_day0_day1_distribution.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_mechanism_summary.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_perunit_variogram.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_strober_concordance.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_three_models.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/prepare_reference_sets.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/prototype_corshrink.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/recover_design_factor.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/test_corshrink_reimplementation.R
+    Untracked:  code/revision_simulations/internal/posterior_interval_coverage/
+    Untracked:  code/revision_simulations/internal/r3_stage1_method_comparison/plot_pi0_before_after.py
+
+Unstaged changes:
+    Modified:   analysis/about.Rmd
+    Modified:   analysis/appendixB.rmd
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Deleted:    analysis/dynamic_eQTL_real_cl.rmd
+    Deleted:    analysis/dynamic_eQTL_real_full.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/license.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Deleted:    analysis/nonlinear_dynamic_eQTL_real_cl.Rmd
+    Deleted:    analysis/nonlinear_dynamic_eQTL_real_full.rmd
+    Deleted:    analysis/revision_balanced_variant_thinning.rmd
+    Deleted:    analysis/revision_combined_spiky_genotype_simulation.rmd
+    Deleted:    analysis/revision_correlated_error_simulation.rmd
+    Deleted:    analysis/revision_enhancer_enrichment.rmd
+    Deleted:    analysis/revision_enhancer_enrichment_cl.rmd
+    Deleted:    analysis/revision_functional_testing_simulation.rmd
+    Deleted:    analysis/revision_genotype_level_simulation.rmd
+    Deleted:    analysis/revision_internal_baseline_ld_variant_enrichment.rmd
+    Deleted:    analysis/revision_internal_correlated_likelihood_sensitivity.rmd
+    Deleted:    analysis/revision_internal_correlated_permutation_discoveries.rmd
+    Deleted:    analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd
+    Deleted:    analysis/revision_internal_evaluation_grid_mc_sensitivity_middle_4_11.rmd
+    Deleted:    analysis/revision_internal_fash_cl_manuscript_impact.rmd
+    Deleted:    analysis/revision_internal_fash_cl_variant_enrichment_comparison.rmd
+    Deleted:    analysis/revision_internal_fash_discovery_variant_count.rmd
+    Deleted:    analysis/revision_internal_fash_knockoff.rmd
+    Deleted:    analysis/revision_internal_fash_linear_real_data_ablation.rmd
+    Deleted:    analysis/revision_internal_fash_temporal_class_enhancer_enrichment.rmd
+    Deleted:    analysis/revision_internal_fashr_correlated_observation_model.rmd
+    Deleted:    analysis/revision_internal_mashr_mean_z_null_correlation.rmd
+    Deleted:    analysis/revision_internal_matched_fash_linear_real_data.rmd
+    Deleted:    analysis/revision_internal_matched_fash_linear_real_data_cl.rmd
+    Deleted:    analysis/revision_internal_observational_null_set_pilot.rmd
+    Deleted:    analysis/revision_internal_one_variant_per_gene_refit.rmd
+    Deleted:    analysis/revision_internal_r1_normality_assumption.rmd
+    Deleted:    analysis/revision_internal_r3_full_calibration.rmd
+    Deleted:    analysis/revision_internal_r3_ideal_gaussian_measurement.rmd
+    Deleted:    analysis/revision_internal_r3_truth_specification_pilot.rmd
+    Deleted:    analysis/revision_internal_real_genotype_simulation.rmd
+    Deleted:    analysis/revision_internal_roadmap_enhancer_exploration.rmd
+    Deleted:    analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd
+    Deleted:    analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd
+    Deleted:    analysis/revision_internal_targeted_broad_calibration.rmd
+    Deleted:    analysis/revision_internal_temporal_class_roadmap_enrichment.rmd
+    Deleted:    analysis/revision_internal_three_likelihood_comparison.rmd
+    Deleted:    analysis/revision_internal_twenty_variant_per_gene_refit.rmd
+    Deleted:    analysis/revision_internal_variant_annotation_enrichment.rmd
+    Deleted:    analysis/revision_internal_zero_intercept_correlation.rmd
+    Deleted:    analysis/revision_ld_tagging_switch_example.rmd
+    Deleted:    analysis/toy_example.rmd
+    Modified:   code/figure_exports/pages/export_revision_balanced_variant_thinning.R
+    Modified:   code/figure_exports/pages/export_revision_enhancer_enrichment.R
+    Modified:   code/figure_exports/pages/export_revision_functional_testing_simulation.R
+    Modified:   code/figure_exports/pages/export_revision_internal_evaluation_grid_mc_sensitivity.R
+    Modified:   code/figure_exports/pages/export_revision_internal_matched_fash_linear_real_data.R
+    Modified:   code/revision_simulations/r5_one_variant_per_gene/reporting.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style type="text/css">
+table > caption,
+p.caption {
+  color: #1f2937 !important;
+  font-size: 1.05em !important;
+  font-weight: 600 !important;
+  line-height: 1.35;
+  text-align: left !important;
+  margin-top: 0.7em;
+  margin-bottom: 0.7em;
+}
+
+table > caption {
+  caption-side: top;
+}
+
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.main-container p code,
+.main-container li code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+</style>
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>We assess the sensitivity of the dynamic eQTL functional
+classifications (Early, Middle, Late, and Switch) to the evaluation-grid
+step size and the number of posterior Monte Carlo draws. The main
+analysis uses evaluation-grid step <code>0.10</code> on <span
+class="math inline">\([0, 15]\)</span> and <span class="math inline">\(M
+= 3{,}000\)</span> posterior draws. Here we compare the resulting
+<code>lfsr</code> values for the discovered gene–variant pairs in each
+category against alternative grid steps (<code>0.15</code> and
+<code>0.05</code> at <span class="math inline">\(M = 3{,}000\)</span>)
+and alternative Monte Carlo sample sizes (<span class="math inline">\(M
+= 2{,}000\)</span> and <span class="math inline">\(M = 5{,}000\)</span>
+at grid step <code>0.10</code>).</p>
+<p>For posterior trajectory draw <span
+class="math inline">\(\beta^{(m)}(t)\)</span>, the four functional
+statistics are</p>
+<p><span class="math display">\[
+\begin{aligned}
+T_{\mathrm{early}}^{(m)}
+&amp;= \sup_{t\leq3}|\beta^{(m)}(t)|-\sup_{t&gt;3}|\beta^{(m)}(t)|,\\
+T_{\mathrm{middle}}^{(m)}
+&amp;= \sup_{3&lt;t&lt;12}|\beta^{(m)}(t)|
+   -\sup_{t\leq3\;\mathrm{or}\;t\geq12}|\beta^{(m)}(t)|,\\
+T_{\mathrm{late}}^{(m)}
+&amp;= \sup_{t\geq12}|\beta^{(m)}(t)|-\sup_{t&lt;12}|\beta^{(m)}(t)|,\\
+T_{\mathrm{switch}}^{(m)}
+&amp;= \min\!\left\{\sup_t \beta^{(m)}(t),-\inf_t
+\beta^{(m)}(t)\right\}-0.25,
+\end{aligned}
+\]</span></p>
+<p>and the local false sign rate for category <span
+class="math inline">\(c\)</span> is estimated by</p>
+<p><span class="math display">\[
+\widehat{\mathrm{lfsr}}_c
+=\frac{1}{M}\sum_{m=1}^{M}I\!\left\{T_c^{(m)}\leq0\right\}.
+\]</span></p>
+<pre class="r"><code>category_display_names &lt;- c(
+  early = &quot;Early&quot;,
+  middle = &quot;Middle&quot;,
+  late = &quot;Late&quot;,
+  switch = &quot;Switch&quot;
+)
+
+population_table &lt;- data.frame(
+  Category = unname(category_display_names[population_summary$category]),
+  Definition = c(
+    &quot;Strongest effect during the first three days (t &lt;= 3)&quot;,
+    &quot;Strongest effect in the middle window (3 &lt; t &lt; 12)&quot;,
+    &quot;Strongest effect during the last four days (t &gt;= 12)&quot;,
+    &quot;Positive and negative excursions both exceed 0.25&quot;
+  ),
+  `Discovered pairs` = population_summary$n_pairs,
+  `Unique genes` = population_summary$n_genes,
+  check.names = FALSE
+)
+
+knitr::kable(
+  population_table,
+  align = c(&quot;l&quot;, &quot;l&quot;, &quot;r&quot;, &quot;r&quot;),
+  caption = &quot;Table 1. Dynamic eQTL functional categories and numbers of discovered pairs and genes (cumulative FSR &lt;= 0.05 at grid step 0.10 and 3,000 posterior draws).&quot;
+)</code></pre>
+<table>
+<caption>Table 1. Dynamic eQTL functional categories and numbers of
+discovered pairs and genes (cumulative FSR &lt;= 0.05 at grid step 0.10
+and 3,000 posterior draws).</caption>
+<colgroup>
+<col width="9%" />
+<col width="58%" />
+<col width="18%" />
+<col width="13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Category</th>
+<th align="left">Definition</th>
+<th align="right">Discovered pairs</th>
+<th align="right">Unique genes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Early</td>
+<td align="left">Strongest effect during the first three days (t &lt;=
+3)</td>
+<td align="right">126</td>
+<td align="right">8</td>
+</tr>
+<tr class="even">
+<td align="left">Middle</td>
+<td align="left">Strongest effect in the middle window (3 &lt; t &lt;
+12)</td>
+<td align="right">58</td>
+<td align="right">14</td>
+</tr>
+<tr class="odd">
+<td align="left">Late</td>
+<td align="left">Strongest effect during the last four days (t &gt;=
+12)</td>
+<td align="right">21</td>
+<td align="right">11</td>
+</tr>
+<tr class="even">
+<td align="left">Switch</td>
+<td align="left">Positive and negative excursions both exceed 0.25</td>
+<td align="right">981</td>
+<td align="right">250</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>library(ggplot2)
+
+build_comparison_data &lt;- function(comparison_id) {
+  comparison_spec &lt;- configuration$comparisons[
+    configuration$comparisons$comparison_id == comparison_id,
+    ,
+    drop = FALSE
+  ]
+  if (nrow(comparison_spec) != 1L) {
+    stop(&quot;The requested comparison is not uniquely specified.&quot;)
+  }
+
+  x_rows &lt;- pair_lfsr[
+    pair_lfsr$setting_id == comparison_spec$x_setting_id,
+    c(&quot;category&quot;, &quot;pair_id&quot;, &quot;gene_symbol&quot;, &quot;lfsr&quot;),
+    drop = FALSE
+  ]
+  y_rows &lt;- pair_lfsr[
+    pair_lfsr$setting_id == comparison_spec$y_setting_id,
+    c(&quot;category&quot;, &quot;pair_id&quot;, &quot;lfsr&quot;),
+    drop = FALSE
+  ]
+  names(x_rows)[names(x_rows) == &quot;lfsr&quot;] &lt;- &quot;x_lfsr&quot;
+  names(y_rows)[names(y_rows) == &quot;lfsr&quot;] &lt;- &quot;y_lfsr&quot;
+
+  plot_data &lt;- merge(
+    x_rows,
+    y_rows,
+    by = c(&quot;category&quot;, &quot;pair_id&quot;),
+    all = FALSE,
+    sort = FALSE
+  )
+
+  plot_data$category_panel &lt;- factor(
+    plot_data$category,
+    levels = category_order,
+    labels = unname(category_display_names[category_order])
+  )
+  plot_data
+}
+
+build_comparison_plot &lt;- function(comparison_id, x_label, y_label) {
+  plot_data &lt;- build_comparison_data(comparison_id)
+
+  ggplot(plot_data, aes(x = x_lfsr, y = y_lfsr)) +
+    geom_abline(
+      intercept = c(-0.01, 0.01),
+      slope = 1,
+      color = &quot;grey65&quot;,
+      linewidth = 0.45,
+      linetype = &quot;dotted&quot;
+    ) +
+    geom_abline(
+      intercept = 0,
+      slope = 1,
+      color = &quot;grey20&quot;,
+      linewidth = 0.55
+    ) +
+    geom_vline(
+      xintercept = 0.05,
+      color = &quot;grey72&quot;,
+      linewidth = 0.4,
+      linetype = &quot;dashed&quot;
+    ) +
+    geom_hline(
+      yintercept = 0.05,
+      color = &quot;grey72&quot;,
+      linewidth = 0.4,
+      linetype = &quot;dashed&quot;
+    ) +
+    geom_point(
+      color = &quot;#1B9E77&quot;,
+      alpha = 0.65,
+      size = 1.4
+    ) +
+    facet_wrap(~category_panel, ncol = 2) +
+    scale_x_continuous(
+      limits = c(0, 0.13),
+      breaks = c(0, 0.05, 0.10),
+      labels = c(&quot;0&quot;, &quot;0.05&quot;, &quot;0.10&quot;),
+      expand = expansion(mult = c(0.01, 0.02))
+    ) +
+    scale_y_continuous(
+      limits = c(0, 0.13),
+      breaks = c(0, 0.05, 0.10),
+      labels = c(&quot;0&quot;, &quot;0.05&quot;, &quot;0.10&quot;),
+      expand = expansion(mult = c(0.01, 0.02))
+    ) +
+    coord_equal() +
+    labs(
+      x = x_label,
+      y = y_label
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(
+      panel.grid.minor = element_blank(),
+      panel.grid.major = element_line(color = &quot;grey92&quot;, linewidth = 0.35),
+      strip.background = element_blank(),
+      strip.text = element_text(face = &quot;bold&quot;, size = 12),
+      panel.spacing = grid::unit(1.0, &quot;lines&quot;)
+    )
+}</code></pre>
+</div>
+<div id="evaluation-grid-sensitivity" class="section level2">
+<h2>Evaluation-grid sensitivity</h2>
+<p>We first compare evaluation-grid step <code>0.10</code> against a
+coarser grid (<code>0.15</code>) and a finer grid (<code>0.05</code>),
+holding the number of posterior draws fixed at <span
+class="math inline">\(M = 3{,}000\)</span>. In all plots below, the
+solid diagonal indicates equality and the dotted lines mark an absolute
+<code>lfsr</code> difference of <code>0.01</code>.</p>
+<pre class="r"><code>build_comparison_plot(
+  comparison_id = &quot;grid_0p10_vs_0p05_M3000&quot;,
+  x_label = &quot;lfsr at grid step 0.10&quot;,
+  y_label = &quot;lfsr at grid step 0.05&quot;
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/evaluation_grid_mc_sensitivity.rmd/grid-0p10-vs-0p05-1.png" alt="Figure 1. Evaluation-grid sensitivity: step 0.10 versus 0.05 at 3,000 posterior draws across the four functional categories." width="1296" />
+<p class="caption">
+Figure 1. Evaluation-grid sensitivity: step 0.10 versus 0.05 at 3,000
+posterior draws across the four functional categories.
+</p>
+</div>
+<pre class="r"><code>build_comparison_plot(
+  comparison_id = &quot;grid_0p10_vs_0p15_M3000&quot;,
+  x_label = &quot;lfsr at grid step 0.10&quot;,
+  y_label = &quot;lfsr at grid step 0.15&quot;
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/evaluation_grid_mc_sensitivity.rmd/grid-0p10-vs-0p15-1.png" alt="Figure 2. Evaluation-grid sensitivity: step 0.10 versus 0.15 at 3,000 posterior draws across the four functional categories." width="1296" />
+<p class="caption">
+Figure 2. Evaluation-grid sensitivity: step 0.10 versus 0.15 at 3,000
+posterior draws across the four functional categories.
+</p>
+</div>
+<p>Across the four categories, mean absolute <code>lfsr</code>
+differences relative to step <code>0.10</code> range from
+<code>0.0003</code> to <code>0.0016</code> for step <code>0.05</code>
+and from <code>0.0005</code> to <code>0.0016</code> for step
+<code>0.15</code>, with every pair differing by at most
+<code>0.01</code>.</p>
+</div>
+<div id="posterior-monte-carlo-sensitivity" class="section level2">
+<h2>Posterior Monte Carlo sensitivity</h2>
+<p>Next, we compare <span class="math inline">\(M = 3{,}000\)</span>
+posterior draws against <span class="math inline">\(M = 5{,}000\)</span>
+and <span class="math inline">\(M = 2{,}000\)</span> draws at
+evaluation-grid step <code>0.10</code>.</p>
+<pre class="r"><code>build_comparison_plot(
+  comparison_id = &quot;M3000_vs_M5000_grid_0p10&quot;,
+  x_label = &quot;lfsr with 3,000 draws&quot;,
+  y_label = &quot;lfsr with 5,000 draws&quot;
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/evaluation_grid_mc_sensitivity.rmd/M3000-vs-M5000-1.png" alt="Figure 3. Posterior Monte Carlo sensitivity: 3,000 versus 5,000 posterior draws at evaluation-grid step 0.10." width="1296" />
+<p class="caption">
+Figure 3. Posterior Monte Carlo sensitivity: 3,000 versus 5,000
+posterior draws at evaluation-grid step 0.10.
+</p>
+</div>
+<pre class="r"><code>build_comparison_plot(
+  comparison_id = &quot;M2000_vs_M3000_grid_0p10&quot;,
+  x_label = &quot;lfsr with 2,000 draws&quot;,
+  y_label = &quot;lfsr with 3,000 draws&quot;
+)</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/evaluation_grid_mc_sensitivity.rmd/M2000-vs-M3000-1.png" alt="Figure 4. Posterior Monte Carlo sensitivity: 2,000 versus 3,000 posterior draws at evaluation-grid step 0.10." width="1296" />
+<p class="caption">
+Figure 4. Posterior Monte Carlo sensitivity: 2,000 versus 3,000
+posterior draws at evaluation-grid step 0.10.
+</p>
+</div>
+<p>Across categories, mean absolute <code>lfsr</code> differences are
+<code>0.0017</code>–<code>0.0023</code> between 3,000 and 5,000 draws
+(with more than 99.8% of pairs differing by at most <code>0.01</code>)
+and <code>0.0020</code>–<code>0.0022</code> between 2,000 and 3,000
+draws.</p>
+</div>
+<div id="reproducibility" class="section level2">
+<h2>Reproducibility</h2>
+<p>The sensitivity analysis can be reproduced with:</p>
+<pre class="bash"><code>Rscript --vanilla \
+  code/revision_simulations/internal/evaluation_grid_sensitivity/run_all_category_baseline_discovery_sensitivity.R \
+  --num-cores 2 \
+  --seed 20260826 \
+  --middle-definition open_3_12 \
+  --output-id evaluation_grid_mc_all_category_current_fashr0143_20260826</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()
+#&gt; R version 4.5.1 (2025-06-13)
+#&gt; Platform: aarch64-apple-darwin20
+#&gt; Running under: macOS Sequoia 15.6.1
+#&gt; 
+#&gt; Matrix products: default
+#&gt; BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+#&gt; 
+#&gt; locale:
+#&gt; [1] en_CA/en_CA/en_CA/C/en_CA/en_CA
+#&gt; 
+#&gt; time zone: America/Chicago
+#&gt; tzcode source: internal
+#&gt; 
+#&gt; attached base packages:
+#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     
+#&gt; 
+#&gt; other attached packages:
+#&gt; [1] ggplot2_4.0.3
+#&gt; 
+#&gt; loaded via a namespace (and not attached):
+#&gt;  [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.1.4        compiler_4.5.1    
+#&gt;  [5] promises_1.5.0     tidyselect_1.2.1   Rcpp_1.1.1-1.1     stringr_1.6.0     
+#&gt;  [9] git2r_0.36.2       dichromat_2.0-0.1  later_1.4.4        jquerylib_0.1.4   
+#&gt; [13] scales_1.4.0       yaml_2.3.12        fastmap_1.2.0      R6_2.6.1          
+#&gt; [17] generics_0.1.4     workflowr_1.7.2    knitr_1.50         tibble_3.3.0      
+#&gt; [21] rprojroot_2.1.1    bslib_0.9.0        pillar_1.11.1      RColorBrewer_1.1-3
+#&gt; [25] rlang_1.2.0        cachem_1.1.0       stringi_1.8.9      httpuv_1.6.16     
+#&gt; [29] xfun_0.55          S7_0.2.2           fs_1.6.6           sass_0.4.10       
+#&gt; [33] otel_0.2.0         cli_3.6.6          withr_3.0.3        magrittr_2.0.5    
+#&gt; [37] digest_0.6.39      grid_4.5.1         rstudioapi_0.17.1  lifecycle_1.0.5   
+#&gt; [41] vctrs_0.7.3        evaluate_1.0.5     glue_1.8.1         farver_2.1.2      
+#&gt; [45] rmarkdown_2.30     tools_4.5.1        pkgconfig_2.0.3    htmltools_0.5.9</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

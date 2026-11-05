@@ -86,7 +86,8 @@ format_metric_five_number <- function(x, digits) {
 render_scrollable_table <- function(data,
                                     caption = NULL,
                                     align = NULL,
-                                    minimum_width = "900px") {
+                                    minimum_width = "900px",
+                                    escape = TRUE) {
   if (length(minimum_width) != 1L ||
       !grepl("^[0-9]+(px|em|rem|%)$", minimum_width)) {
     stop("minimum_width must be one CSS length using px, em, rem, or %.")
@@ -94,7 +95,7 @@ render_scrollable_table <- function(data,
   table_html <- knitr::kable(
     data,
     format = "html",
-    escape = TRUE,
+    escape = escape,
     caption = caption,
     align = align,
     row.names = FALSE

@@ -1,0 +1,4647 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Ziang Zhang" />
+
+<meta name="date" content="2026-08-29" />
+
+<title>Matched FASH-linear comparison</title>
+
+<script src="site_libs/header-attrs-2.30/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">fashr-paper</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Matched FASH-linear comparison</h1>
+<h4 class="author">Ziang Zhang</h4>
+<h4 class="date">2026-08-29</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-11-04
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 5
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 2
+</p>
+<p>
+<strong>Knit directory:</strong> <code>coderepo-local/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongobjectspresent">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>Environment:</strong> objects present
+</a>
+</p>
+</div>
+<div id="strongEnvironmentstrongobjectspresent"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+The global environment had objects present when the code in the R
+Markdown file was run. These objects can affect the analysis in your R
+Markdown file in unknown ways. For reproduciblity it’s best to always
+run the code in an empty environment. Use <code>wflow_publish</code> or
+<code>wflow_build</code> to ensure that the code is always run in an
+empty environment.
+</p>
+<p>
+The following objects were defined in the global environment when these
+results were created:
+</p>
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th style="text-align:left;">
+Name
+</th>
+<th style="text-align:left;">
+Class
+</th>
+<th style="text-align:left;">
+Size
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+across_seed_specs
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+across_seed_summary
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+4.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+across_seed_summary_table
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+4.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+alpha_summary
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+17.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+appendix_b_class_counts
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+11.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+APPENDIX_B_FASHR_REMOTE_SHA
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+152 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+APPENDIX_B_FASHR_VERSION
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+112 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+assert_scalar_number
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+29.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+at005
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+2.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+background_variant_count
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+bf_below
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+bf_grid
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+195.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+broad_table
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+build_appendix_b_datasets
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+31.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+build_comparison_data
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+105.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+build_comparison_plot
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+207.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1_contract
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+13.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1_fit_from_likelihood
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+15.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1_fit_models
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+10.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1_gaussian_likelihood
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+25.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1_gaussian_setup
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+15.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1_grid_long
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+65.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1_load_display
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+8.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1_load_report
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+142.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1_plot_alpha
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+33.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1_plot_grid
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+21.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1_plot_theme
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+11.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1_run_seed
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+63.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1_sha
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1_summary
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+129 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1_validate
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+163.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1_write
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+3.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1j_contract
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+3.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1j_load_display
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+48.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1j_load_report
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+145.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1j_select_examples
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+82.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1j_source_paths
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1j_summarize
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+3.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+c1j_validate
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+132.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cache
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+46.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cache_directory
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+240 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cache_path
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+248 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cache_validation
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+capture_warnings
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+3.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+category_labels
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+720 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+category_order
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+304 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+chosen
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+96 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+compact_table
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+comparison_experiment
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+232 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+comparison_summary
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+6.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+conditional_jaccard_range
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+64 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+configuration
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+2.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+count_above_one
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+10.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cumulative_lfdr_calls
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+53.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+current_input_md5
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+672 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+describe_fold
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+3.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+design_summary
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+2.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+design_table
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+2.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+discovery_frequency_summary
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+discovery_frequency_summary_table
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+discovery_plot_data
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+6.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+display
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+41 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+displayed_sets
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+352 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+enhancer_forest
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+156.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+enrichment
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+19.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+enrichment_lookup
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+5.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+evaluate_appendix_b_discoveries
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+10.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ever_discovered
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ever_discovered_additional
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ever_discovered_full
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+example_curves
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+41.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+example_data
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+9.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+example_members
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+7.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+example_observed
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+9.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_alpha
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_cache_id
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+152 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_comparison_ids
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+400 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_fashr_provenance
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+824 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_full_discovered_genes
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_full_discovered_pairs
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_full_genes
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_full_pi0
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_full_units
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_gene_counts
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+480 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_grid
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+464 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_pair_counts
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+480 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_penalty
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_seeds
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+448 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_selected_units
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_setting_ids
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+416 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_source_hashes
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+712 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_source_sizes
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+360 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+expected_variant_counts
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+528 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+experiment
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+232 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+extract_fash_lfdr
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+10 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+extract_fash_null_weight
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+14.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fashr_provenance
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fdr_curves
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+18 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+find_workflowr_root
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+22.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fit_appendix_b_models
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+22.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+focused_alpha_curve
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+22.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fold_value
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+1.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+format_decimal
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+5.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+format_integer
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+4.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+format_metric_five_number
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+15 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+format_range
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+1.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+full_data_status
+</td>
+<td style="text-align:left;">
+logical
+</td>
+<td style="text-align:left;">
+24.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+full_discovered_genes
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+83.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+full_discovery_summary
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+full_pi0
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+full_status
+</td>
+<td style="text-align:left;">
+logical
+</td>
+<td style="text-align:left;">
+24.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gene_discovery_frequency
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+547.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+grid_comparisons
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+4.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+grid_results
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+296.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+grid_summary
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+28 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+group_display_labels
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+752 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+labels
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+336 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+labels_above_one
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+3.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+lfdr_agreement_plot_data
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+lfdr_mae_range
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+64 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+lfdr_spearman_range
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+64 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+location_curves
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+71.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+location_power
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+817.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+maximum_variant_multiplicity
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mc_2000_vs_3000
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+4.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mc_3000_vs_5000
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+4.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mechanism_labels
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+528 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+method_colors
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+648 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+method_labels
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+864 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+method_levels
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+288 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+method_lines
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+792 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+method_linetypes
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+472 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+method_linewidths
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+360 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+method_shapes
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+352 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+metric_colors
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+728 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+metric_five_number
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+18.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+minimum_overlap
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+not_estimable_note
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+4.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+null_curves
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+29.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+null_weight_plot_data
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+observations
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+4.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+package
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+112 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pair_lfsr
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+826.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+panel
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+11.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+panel_ids
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+680 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+panel_labels
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+544 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+panel_table
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+2.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+peak_curves
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+29.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+peak_difference
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+36.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+peak_labels
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+622.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+peak_power
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+317.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pi0_difference_range
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+64 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pi0_range
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+64 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_discovery_robustness
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+18.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_fash_only
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+38.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_method_comparison
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+3.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_null_weight_stability
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+11.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_paired_lfdr_agreement
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+12.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_seed_12345_lfdr
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+7.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plot_variants_per_gene_histogram
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+7.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+population
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+278.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+population_summary
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+population_table
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+power_curves
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+18 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+predictions
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+33 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+primary_states
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+256 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+project_root
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+112 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_assert
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+7.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_base
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+180.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_context
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+17.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_contract
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+37.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_curves
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+146.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_direct_payload
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+3.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_direct_scores
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+9.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_fit_linear
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+11.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_linear_scores
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+7.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_load_report
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+336.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_load_truth_examples
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+688.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_location_power
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+403.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_manifest
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+57.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_peak_power
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+608.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_plot_stage1
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+366.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_scores_from_fdr
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+46.2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_sha
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+14.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_summarize
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+187.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_validate_direct
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+197.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_validate_inputs
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+29.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_validate_record
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+234.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_validate_scores
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+59.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3c_write
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+4.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_assert
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+7.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_contract
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+46.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_expected_keys
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_format_stage2_table
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+32.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_functional_cfsr_table
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+10.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_load_report
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+89.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_migrate_base_record
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+10.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_plot_stage1
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+47.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_replicate_names
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_require_base_environment
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+3.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_serialized_object_md5
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+4.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_sha256
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+8.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_show_table
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+11.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_stage1_alpha_by_seed
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+12.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_stage1_at_alpha
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+9.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_stage2_display_values
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+67.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_summarize
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+55 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_validate_added_inputs
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+27.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_validate_formal_configuration
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+17.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_validate_record
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+38.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r3ts10_write_rds
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+4.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r4_sensitivity_cache_dir
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+232 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r5_blue
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+112 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r5_green
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+112 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r5_orange
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+112 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+r5_theme
+</td>
+<td style="text-align:left;">
+theme;ggplot2::theme;gg;S7_object
+</td>
+<td style="text-align:left;">
+15.3 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+range_above_one
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+29.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+raw_zero
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+read_required_csv
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+10.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+read_required_rds
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+8.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+reference_color
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+112 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+render_scrollable_table
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+45.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+repeated_variant_assignment_range
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+repeated_variant_assignments
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+448 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+report
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+175.6 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+require_appendix_b_fashr
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+6.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+require_reporting_package
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+8.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+required_lfdr_columns
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+776 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+required_seed_columns
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+2.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+required_seed_files
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+952 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+runtime
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sampling_runtime_seconds
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+seed
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+seed_12345_display
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+seed_12345_lfdr
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.7 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+seed_12345_plot_data
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.7 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+seed_12345_summary
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+4.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+seed_12345_table
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+2 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+seed_configurations
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+889.1 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+seed_directories
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+19.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+seed_index
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+seed_selections
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+148 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+seed_summary
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+19.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+selected_examples
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+2.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+selection
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.5 Mb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sensitivity
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+776 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sensitivity_summary
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+1.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+set_display_labels
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+816 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+set_metadata
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.5 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+set_rows
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+15.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+set_size
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+4.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sha256_file
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+39.3 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+shared_configuration
+</td>
+<td style="text-align:left;">
+list
+</td>
+<td style="text-align:left;">
+8.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+stage1_alpha005
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+stage1_summary
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+42 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+stage1_value
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+20.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+stage2_summary
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+4.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+stored_source_hashes
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+712 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+stored_source_paths
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+712 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+stored_source_sizes
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+360 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+summarize_appendix_b_grid_fit
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+11.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+summarize_metric
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+36 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+summary_table
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+6.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+summary_table_html
+</td>
+<td style="text-align:left;">
+knitr_kable
+</td>
+<td style="text-align:left;">
+8.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+tab
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+thinned_discovery_range
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+56 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+transient_examples
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+truth
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+83.4 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+truth_example_pool
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+940.7 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+value005
+</td>
+<td style="text-align:left;">
+function
+</td>
+<td style="text-align:left;">
+17.8 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+variant_count_by_gene
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+473 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+variant_count_quantiles
+</td>
+<td style="text-align:left;">
+numeric
+</td>
+<td style="text-align:left;">
+96 bytes
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+variant_count_summary
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+variant_count_summary_table
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+1.6 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+variant_count_values
+</td>
+<td style="text-align:left;">
+integer
+</td>
+<td style="text-align:left;">
+24.9 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+variant_histogram_data
+</td>
+<td style="text-align:left;">
+data.frame
+</td>
+<td style="text-align:left;">
+473 Kb
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+workflowr_root
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+168 bytes
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20251109code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20251109)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20251109code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20251109)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreebfc8f00557e3a587205bc512a5603f7566372599targetblankbfc8f00a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/bfc8f00557e3a587205bc512a5603f7566372599" target="_blank">bfc8f00</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreebfc8f00557e3a587205bc512a5603f7566372599targetblankbfc8f00a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/AgueroZZ/fash-revision/tree/bfc8f00557e3a587205bc512a5603f7566372599" target="_blank">bfc8f00</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    Rplots.pdf
+    Ignored:    analysis/.DS_Store
+    Ignored:    analysis/.Rhistory
+    Ignored:    code/.DS_Store
+    Ignored:    code/.Rhistory
+    Ignored:    code/revision_simulations/.DS_Store
+    Ignored:    data/appendixB/
+    Ignored:    data/dynamic_eQTL_real/
+    Ignored:    data/revision_simulations/
+    Ignored:    data/toy_example/
+    Ignored:    output/dynamic_eQTL_real/
+    Ignored:    output/pdf/
+    Ignored:    output/playwright/
+    Ignored:    output/revision_simulations/
+    Ignored:    scripts/
+
+Untracked files:
+    Untracked:  analysis/balanced_variant_thinning.rmd
+    Untracked:  analysis/enhancer_enrichment.rmd
+    Untracked:  analysis/evaluation_grid_mc_sensitivity.rmd
+    Untracked:  analysis/functional_testing_simulation.rmd
+    Untracked:  analysis/matched_fash_linear_real_data.rmd
+    Untracked:  code/revision_simulations/internal/appendix_c1_j1000/
+    Untracked:  code/revision_simulations/internal/per_unit_enhancer_enrichment/
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/compare_corshrink_versions.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/diagnose_discordant_calls.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/diagnose_smooth_mismatch.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/extract_perunit_lfdr.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_call_venns.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_class_variograms.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_corshrink_result.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_corshrink_versions.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_cs_vs_diagonal.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_day0_day1_distribution.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_mechanism_summary.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_perunit_variogram.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_strober_concordance.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/plot_three_models.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/prepare_reference_sets.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/prototype_corshrink.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/recover_design_factor.R
+    Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/test_corshrink_reimplementation.R
+    Untracked:  code/revision_simulations/internal/posterior_interval_coverage/
+    Untracked:  code/revision_simulations/internal/r3_stage1_method_comparison/plot_pi0_before_after.py
+
+Unstaged changes:
+    Modified:   analysis/about.Rmd
+    Modified:   analysis/appendixB.rmd
+    Modified:   analysis/dynamic_eQTL_real.rmd
+    Deleted:    analysis/dynamic_eQTL_real_cl.rmd
+    Deleted:    analysis/dynamic_eQTL_real_full.rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/license.Rmd
+    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
+    Deleted:    analysis/nonlinear_dynamic_eQTL_real_cl.Rmd
+    Deleted:    analysis/nonlinear_dynamic_eQTL_real_full.rmd
+    Deleted:    analysis/revision_balanced_variant_thinning.rmd
+    Deleted:    analysis/revision_combined_spiky_genotype_simulation.rmd
+    Deleted:    analysis/revision_correlated_error_simulation.rmd
+    Deleted:    analysis/revision_enhancer_enrichment.rmd
+    Deleted:    analysis/revision_enhancer_enrichment_cl.rmd
+    Deleted:    analysis/revision_functional_testing_simulation.rmd
+    Deleted:    analysis/revision_genotype_level_simulation.rmd
+    Deleted:    analysis/revision_internal_baseline_ld_variant_enrichment.rmd
+    Deleted:    analysis/revision_internal_correlated_likelihood_sensitivity.rmd
+    Deleted:    analysis/revision_internal_correlated_permutation_discoveries.rmd
+    Deleted:    analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd
+    Deleted:    analysis/revision_internal_evaluation_grid_mc_sensitivity_middle_4_11.rmd
+    Deleted:    analysis/revision_internal_fash_cl_manuscript_impact.rmd
+    Deleted:    analysis/revision_internal_fash_cl_variant_enrichment_comparison.rmd
+    Deleted:    analysis/revision_internal_fash_discovery_variant_count.rmd
+    Deleted:    analysis/revision_internal_fash_knockoff.rmd
+    Deleted:    analysis/revision_internal_fash_linear_real_data_ablation.rmd
+    Deleted:    analysis/revision_internal_fash_temporal_class_enhancer_enrichment.rmd
+    Deleted:    analysis/revision_internal_fashr_correlated_observation_model.rmd
+    Deleted:    analysis/revision_internal_mashr_mean_z_null_correlation.rmd
+    Deleted:    analysis/revision_internal_matched_fash_linear_real_data.rmd
+    Deleted:    analysis/revision_internal_matched_fash_linear_real_data_cl.rmd
+    Deleted:    analysis/revision_internal_observational_null_set_pilot.rmd
+    Deleted:    analysis/revision_internal_one_variant_per_gene_refit.rmd
+    Deleted:    analysis/revision_internal_r1_normality_assumption.rmd
+    Deleted:    analysis/revision_internal_r3_full_calibration.rmd
+    Deleted:    analysis/revision_internal_r3_ideal_gaussian_measurement.rmd
+    Deleted:    analysis/revision_internal_r3_truth_specification_pilot.rmd
+    Deleted:    analysis/revision_internal_real_genotype_simulation.rmd
+    Deleted:    analysis/revision_internal_roadmap_enhancer_exploration.rmd
+    Deleted:    analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd
+    Deleted:    analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd
+    Deleted:    analysis/revision_internal_targeted_broad_calibration.rmd
+    Deleted:    analysis/revision_internal_temporal_class_roadmap_enrichment.rmd
+    Deleted:    analysis/revision_internal_three_likelihood_comparison.rmd
+    Deleted:    analysis/revision_internal_twenty_variant_per_gene_refit.rmd
+    Deleted:    analysis/revision_internal_variant_annotation_enrichment.rmd
+    Deleted:    analysis/revision_internal_zero_intercept_correlation.rmd
+    Deleted:    analysis/revision_ld_tagging_switch_example.rmd
+    Deleted:    analysis/toy_example.rmd
+    Modified:   code/figure_exports/pages/export_revision_balanced_variant_thinning.R
+    Modified:   code/figure_exports/pages/export_revision_enhancer_enrichment.R
+    Modified:   code/figure_exports/pages/export_revision_functional_testing_simulation.R
+    Modified:   code/figure_exports/pages/export_revision_internal_evaluation_grid_mc_sensitivity.R
+    Modified:   code/figure_exports/pages/export_revision_internal_matched_fash_linear_real_data.R
+    Modified:   code/revision_simulations/r5_one_variant_per_gene/reporting.R
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<style>
+.matched-banner {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border: 1px solid #d9a441;
+  border-left: 6px solid #d9a441;
+  border-radius: 4px;
+  background: #fff8e8;
+  color: #4a3b1c;
+}
+.matched-result {
+  margin: 1.2em 0 1.5em;
+  padding: 1em 1.15em;
+  border-left: 6px solid #0072b2;
+  border-radius: 4px;
+  background: #eef7fc;
+  color: #173f54;
+}
+.matched-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 1.2em;
+}
+.matched-table-scroll caption,
+p.caption {
+  color: #243447;
+  font-weight: 650;
+  text-align: left;
+  padding: 0.35em 0 0.55em;
+}
+.main-container img {
+  max-width: 100%;
+  height: auto;
+}
+.MathJax_Display,
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+</style>
+<div id="analysis-definition" class="section level2">
+<h2>Analysis definition</h2>
+<p>Both FASH fits use the same 1,009,173 time-specific-PC effect
+estimates, standard errors, exact constant null, 52-point one-day
+predictive-SD grid, <code>betaprec=0</code>, <code>pred_step=1</code>,
+<code>penalty=10</code>, corrected BF adjustment, and cumulative-lfdr
+FDR 0.05.</p>
+<p>For FASH-linear,</p>
+<p><span class="math display">\[
+\beta_j(t)=a_j+b_j(t-t_{j,\min}),\qquad
+b_j\sim\sum_{k=1}^{51}\pi_k
+N\!\left(0,\left\{s_k/\mathrm{pred\_step}\right\}^2\right),
+\]</span></p>
+<p>where <span
+class="math inline">\(s_k=\operatorname{SD}(b_j\,\mathrm{pred\_step})\)</span>
+is <code>sd_linear_step</code>. The exact-null component is <span
+class="math inline">\(s_0=0\)</span>. Its 51 positive values are
+numerically identical to the IWP1 <code>psd</code> grid.</p>
+<p>The fitting code is shown below.</p>
+<pre class="r"><code># Match the predictive-SD grid and fitting options to the IWP1 reference fit.
+matched_grid &lt;- as.numeric(current_raw$psd_grid)
+matched_pred_step &lt;- as.numeric(current_raw$settings$pred_step)
+matched_penalty &lt;- as.integer(current_raw$settings$penalty)
+matched_betaprec &lt;- as.numeric(current_raw$settings$betaprec)
+matched_likelihood &lt;- as.character(current_raw$settings$likelihood)
+
+# Fit the exact-null plus 51-component linear-slope mixture.
+linear_raw &lt;- fit_linear_mixture_fash_from_stats(
+  statistics = statistics,
+  grid = matched_grid,
+  pred_step = matched_pred_step,
+  penalty = matched_penalty,
+  statistic_time_span = 15,
+  n_time = 16
+)
+
+# Record the matched likelihood settings in the fitted object.
+linear_raw$settings$betaprec &lt;- matched_betaprec
+linear_raw$settings$likelihood &lt;- matched_likelihood
+
+# Apply the same corrected Bayes-factor adjustment used for FASH-IWP1.
+linear_bf &lt;- BF_update_linear_mixture_fash(linear_raw)</code></pre>
+<pre class="r"><code>settings_to_report &lt;- matched_settings_table[, c(
+  &quot;setting&quot;, &quot;fash_iwp1&quot;, &quot;fash_linear&quot;, &quot;alignment&quot;
+)]
+names(settings_to_report) &lt;- c(
+  &quot;Setting&quot;, &quot;FASH-IWP1&quot;, &quot;FASH-linear&quot;, &quot;Alignment&quot;
+)
+render_scrollable_table_matched(
+  settings_to_report,
+  caption = &quot;Table 1. Matched data, prior-scale, fitting, and discovery settings.&quot;,
+  minimum_width = &quot;1040px&quot;
+)</code></pre>
+<div class="matched-table-scroll">
+<table class="table table-striped table-condensed" style="min-width:1040px;">
+<caption>
+Table 1. Matched data, prior-scale, fitting, and discovery settings.
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Setting
+</th>
+<th style="text-align:left;">
+FASH-IWP1
+</th>
+<th style="text-align:left;">
+FASH-linear
+</th>
+<th style="text-align:left;">
+Alignment
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Tested units
+</td>
+<td style="text-align:left;">
+1,009,173
+</td>
+<td style="text-align:left;">
+1,009,173
+</td>
+<td style="text-align:left;">
+Identical
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Time grid
+</td>
+<td style="text-align:left;">
+0:15
+</td>
+<td style="text-align:left;">
+0:15
+</td>
+<td style="text-align:left;">
+Identical
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Likelihood
+</td>
+<td style="text-align:left;">
+Gaussian
+</td>
+<td style="text-align:left;">
+Gaussian
+</td>
+<td style="text-align:left;">
+Identical
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Null trajectory
+</td>
+<td style="text-align:left;">
+Unrestricted constant
+</td>
+<td style="text-align:left;">
+Unrestricted constant
+</td>
+<td style="text-align:left;">
+Identical
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Alternative family
+</td>
+<td style="text-align:left;">
+IWP1 Gaussian process mixture
+</td>
+<td style="text-align:left;">
+Zero-centered Gaussian slope mixture
+</td>
+<td style="text-align:left;">
+Matched scale; different covariance geometry
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Scale parameter
+</td>
+<td style="text-align:left;">
+psd
+</td>
+<td style="text-align:left;">
+SD(beta * pred_step)
+</td>
+<td style="text-align:left;">
+Equivalent one-step SD
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Grid components
+</td>
+<td style="text-align:left;">
+52
+</td>
+<td style="text-align:left;">
+52
+</td>
+<td style="text-align:left;">
+Identical
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Positive grid range
+</td>
+<td style="text-align:left;">
+0.006738 to 1.0
+</td>
+<td style="text-align:left;">
+0.006738 to 1.0
+</td>
+<td style="text-align:left;">
+Identical
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pred_step
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+1
+</td>
+<td style="text-align:left;">
+Identical
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+betaprec
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+0
+</td>
+<td style="text-align:left;">
+Identical
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+penalty
+</td>
+<td style="text-align:left;">
+10
+</td>
+<td style="text-align:left;">
+10
+</td>
+<td style="text-align:left;">
+Identical
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IWP basis functions
+</td>
+<td style="text-align:left;">
+20
+</td>
+<td style="text-align:left;">
+Not used: exact rank-one linear kernel
+</td>
+<td style="text-align:left;">
+Not applicable
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FDR rule
+</td>
+<td style="text-align:left;">
+Cumulative lfdr at 0.05
+</td>
+<td style="text-align:left;">
+Cumulative lfdr at 0.05
+</td>
+<td style="text-align:left;">
+Identical
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The scientific selection rules used below are:</p>
+<pre class="r"><code>alpha &lt;- 0.05
+
+iwp1_bf_indices &lt;- select_cumulative_lfdr_calls(
+  fash_iwp1_bf$lfdr,
+  alpha
+)
+linear_bf_indices &lt;- select_cumulative_lfdr_calls(
+  fash_linear_bf$lfdr,
+  alpha
+)
+strober_quadratic_discoveries &lt;- subset(strober_quadratic, eFDR &lt;= alpha)
+strober_linear_discoveries &lt;- subset(strober_linear, eFDR &lt;= alpha)</code></pre>
+</div>
+<div id="discovery-counts" class="section level2">
+<h2>Discovery counts</h2>
+<div class="matched-result">
+<p>After BF adjustment, FASH-IWP1 identifies 9,214 pairs, 1,176 genes,
+and 9,148 unique variants. FASH-linear identifies 14,902 pairs, 1,663
+genes, and 14,761 unique variants.</p>
+</div>
+<pre class="r"><code>render_scrollable_table_matched(
+  discovery_counts_display,
+  caption = &quot;Table 2. Raw and BF-adjusted cumulative-lfdr FDR-0.05 discovery counts.&quot;,
+  digits = 6L,
+  minimum_width = &quot;820px&quot;
+)</code></pre>
+<div class="matched-table-scroll">
+<table class="table table-striped table-condensed" style="min-width:820px;">
+<caption>
+Table 2. Raw and BF-adjusted cumulative-lfdr FDR-0.05 discovery counts.
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Method
+</th>
+<th style="text-align:left;">
+Adjustment
+</th>
+<th style="text-align:left;">
+Pairs
+</th>
+<th style="text-align:left;">
+Genes
+</th>
+<th style="text-align:left;">
+Unique variants
+</th>
+<th style="text-align:left;">
+Estimated pi0
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+FASH-IWP1
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+43,860
+</td>
+<td style="text-align:left;">
+3,258
+</td>
+<td style="text-align:left;">
+42,893
+</td>
+<td style="text-align:left;">
+0.42899
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-IWP1
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+9,214
+</td>
+<td style="text-align:left;">
+1,176
+</td>
+<td style="text-align:left;">
+9,148
+</td>
+<td style="text-align:left;">
+0.938159
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+Raw
+</td>
+<td style="text-align:left;">
+60,188
+</td>
+<td style="text-align:left;">
+3,863
+</td>
+<td style="text-align:left;">
+58,570
+</td>
+<td style="text-align:left;">
+0.457235
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FASH-linear
+</td>
+<td style="text-align:left;">
+BF-adjusted
+</td>
+<td style="text-align:left;">
+14,902
+</td>
+<td style="text-align:left;">
+1,663
+</td>
+<td style="text-align:left;">
+14,761
+</td>
+<td style="text-align:left;">
+0.919253
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The directional coverage is the fraction of each IWP discovery set
+also found by FASH-linear.</p>
+<pre class="r"><code>render_scrollable_table_matched(
+  iwp1_linear_proportion_display,
+  caption = &quot;Table 3. BF-adjusted FASH-IWP1 discoveries covered by BF-adjusted FASH-linear at the three reporting levels.&quot;,
+  minimum_width = &quot;860px&quot;
+)</code></pre>
+<div class="matched-table-scroll">
+<table class="table table-striped table-condensed" style="min-width:860px;">
+<caption>
+Table 3. BF-adjusted FASH-IWP1 discoveries covered by BF-adjusted
+FASH-linear at the three reporting levels.
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Level
+</th>
+<th style="text-align:left;">
+FASH-linear
+</th>
+<th style="text-align:left;">
+FASH-IWP1
+</th>
+<th style="text-align:left;">
+Intersection
+</th>
+<th style="text-align:left;">
+FASH-IWP1 covered by linear
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Pairs
+</td>
+<td style="text-align:left;">
+14,902
+</td>
+<td style="text-align:left;">
+9,214
+</td>
+<td style="text-align:left;">
+8,530
+</td>
+<td style="text-align:left;">
+92.6%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Genes
+</td>
+<td style="text-align:left;">
+1,663
+</td>
+<td style="text-align:left;">
+1,176
+</td>
+<td style="text-align:left;">
+1,112
+</td>
+<td style="text-align:left;">
+94.6%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Variants
+</td>
+<td style="text-align:left;">
+14,761
+</td>
+<td style="text-align:left;">
+9,148
+</td>
+<td style="text-align:left;">
+8,468
+</td>
+<td style="text-align:left;">
+92.6%
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre class="r"><code>render_scrollable_table_matched(
+  iwp2_linear_proportion_display,
+  caption = &quot;Table 4. BF-adjusted FASH-IWP2 discoveries covered by BF-adjusted FASH-linear at the three reporting levels.&quot;,
+  minimum_width = &quot;860px&quot;
+)</code></pre>
+<div class="matched-table-scroll">
+<table class="table table-striped table-condensed" style="min-width:860px;">
+<caption>
+Table 4. BF-adjusted FASH-IWP2 discoveries covered by BF-adjusted
+FASH-linear at the three reporting levels.
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Level
+</th>
+<th style="text-align:left;">
+FASH-linear
+</th>
+<th style="text-align:left;">
+FASH-IWP2
+</th>
+<th style="text-align:left;">
+Intersection
+</th>
+<th style="text-align:left;">
+FASH-IWP2 covered by linear
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Pairs
+</td>
+<td style="text-align:left;">
+14,902
+</td>
+<td style="text-align:left;">
+44
+</td>
+<td style="text-align:left;">
+21
+</td>
+<td style="text-align:left;">
+47.7%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Genes
+</td>
+<td style="text-align:left;">
+1,663
+</td>
+<td style="text-align:left;">
+9
+</td>
+<td style="text-align:left;">
+6
+</td>
+<td style="text-align:left;">
+66.7%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Variants
+</td>
+<td style="text-align:left;">
+14,761
+</td>
+<td style="text-align:left;">
+44
+</td>
+<td style="text-align:left;">
+21
+</td>
+<td style="text-align:left;">
+47.7%
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>FASH-linear covers 92.6% of the FASH-IWP1 pair discoveries and 47.7%
+of the FASH-IWP2 pair discoveries.</p>
+</div>
+<div id="four-method-overlap" class="section level2">
+<h2>Four-method overlap</h2>
+<p>The following Venn diagrams extend the real-data comparison by adding
+BF-adjusted FASH-linear to Strober quadratic, Strober linear, and
+BF-adjusted FASH-IWP1. Strober discoveries use eFDR at most 0.05.</p>
+<pre class="r"><code>pair_sets &lt;- list(
+  `Strober quad.` =
+    venn_sets$`Gene-variant pairs`$`Strober quadratic`,
+  `Strober linear` =
+    venn_sets$`Gene-variant pairs`$`Strober linear`,
+  `FASH-linear` =
+    venn_sets$`Gene-variant pairs`$`FASH-linear BF`,
+  `FASH-IWP1` =
+    venn_sets$`Gene-variant pairs`$`FASH-IWP1 BF`
+)
+
+ggVennDiagram::ggVennDiagram(
+  pair_sets,
+  label = &quot;count&quot;,
+  label_alpha = 0,
+  label_size = 3.7,
+  set_size = 3.8,
+  edge_size = 0.8
+) +
+  ggplot2::scale_fill_gradient(low = &quot;#f7fbff&quot;, high = &quot;#2171b5&quot;) +
+  ggplot2::theme(
+    legend.position = &quot;right&quot;,
+    plot.margin = ggplot2::margin(20, 40, 20, 40)
+  )</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/matched_fash_linear_real_data.rmd/venn-pairs-1.png" alt="Figure 1. Gene-variant-pair overlap among Strober quadratic, Strober linear, BF-adjusted FASH-IWP1, and BF-adjusted FASH-linear. FASH sets use cumulative-lfdr FDR 0.05; Strober sets use eFDR 0.05." width="1764" />
+<p class="caption">
+Figure 1. Gene-variant-pair overlap among Strober quadratic, Strober
+linear, BF-adjusted FASH-IWP1, and BF-adjusted FASH-linear. FASH sets
+use cumulative-lfdr FDR 0.05; Strober sets use eFDR 0.05.
+</p>
+</div>
+<pre class="r"><code>gene_sets &lt;- list(
+  `Strober quad.` = venn_sets$Genes$`Strober quadratic`,
+  `Strober linear` = venn_sets$Genes$`Strober linear`,
+  `FASH-linear` = venn_sets$Genes$`FASH-linear BF`,
+  `FASH-IWP1` = venn_sets$Genes$`FASH-IWP1 BF`
+)
+
+ggVennDiagram::ggVennDiagram(
+  gene_sets,
+  label = &quot;count&quot;,
+  label_alpha = 0,
+  label_size = 3.7,
+  set_size = 3.8,
+  edge_size = 0.8
+) +
+  ggplot2::scale_fill_gradient(low = &quot;#f7fbff&quot;, high = &quot;#2171b5&quot;) +
+  ggplot2::theme(
+    legend.position = &quot;right&quot;,
+    plot.margin = ggplot2::margin(20, 40, 20, 40)
+  )</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/matched_fash_linear_real_data.rmd/venn-genes-1.png" alt="Figure 2. Gene-level overlap among Strober quadratic, Strober linear, BF-adjusted FASH-IWP1, and BF-adjusted FASH-linear. A gene enters a set when at least one of its tested variants is discovered by that method." width="1764" />
+<p class="caption">
+Figure 2. Gene-level overlap among Strober quadratic, Strober linear,
+BF-adjusted FASH-IWP1, and BF-adjusted FASH-linear. A gene enters a set
+when at least one of its tested variants is discovered by that method.
+</p>
+</div>
+<pre class="r"><code>variant_sets &lt;- list(
+  `Strober quad.` = venn_sets$Variants$`Strober quadratic`,
+  `Strober linear` = venn_sets$Variants$`Strober linear`,
+  `FASH-linear` = venn_sets$Variants$`FASH-linear BF`,
+  `FASH-IWP1` = venn_sets$Variants$`FASH-IWP1 BF`
+)
+
+ggVennDiagram::ggVennDiagram(
+  variant_sets,
+  label = &quot;count&quot;,
+  label_alpha = 0,
+  label_size = 3.7,
+  set_size = 3.8,
+  edge_size = 0.8
+) +
+  ggplot2::scale_fill_gradient(low = &quot;#f7fbff&quot;, high = &quot;#2171b5&quot;) +
+  ggplot2::theme(
+    legend.position = &quot;right&quot;,
+    plot.margin = ggplot2::margin(20, 40, 20, 40)
+  )</code></pre>
+<div class="figure" style="text-align: center">
+<img src="figure/matched_fash_linear_real_data.rmd/venn-variants-1.png" alt="Figure 3. Unique-variant overlap among Strober quadratic, Strober linear, BF-adjusted FASH-IWP1, and BF-adjusted FASH-linear. Each rsID is counted once per method, regardless of the number of associated genes." width="1764" />
+<p class="caption">
+Figure 3. Unique-variant overlap among Strober quadratic, Strober
+linear, BF-adjusted FASH-IWP1, and BF-adjusted FASH-linear. Each rsID is
+counted once per method, regardless of the number of associated genes.
+</p>
+</div>
+<p>The BF-adjusted IWP1–linear intersections are 8,530 pairs, 1,112
+genes, and 8,468 unique variants.</p>
+</div>
+<div id="reproducibility" class="section level2">
+<h2>Reproducibility</h2>
+<p>To reproduce the matched FASH-linear fit and overlap summaries:</p>
+<pre class="bash"><code>OMP_NUM_THREADS=1 \
+OPENBLAS_NUM_THREADS=1 \
+MKL_NUM_THREADS=1 \
+VECLIB_MAXIMUM_THREADS=1 \
+BLIS_NUM_THREADS=1 \
+Rscript --vanilla \
+  code/revision_simulations/internal/matched_fash_linear_real_data/\
+run_matched_fash_linear_real_data.R
+
+Rscript --vanilla \
+  code/revision_simulations/internal/matched_fash_linear_real_data/\
+build_iwp_overlap_proportion_cache.R
+
+Rscript --vanilla -e \
+  &#39;workflowr::wflow_build(&quot;analysis/matched_fash_linear_real_data.rmd&quot;, local = TRUE)&#39;</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.1 (2025-06-13)
+Platform: aarch64-apple-darwin20
+Running under: macOS Sequoia 15.6.1
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] en_CA/en_CA/en_CA/C/en_CA/en_CA
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] ggplot2_4.0.3
+
+loaded via a namespace (and not attached):
+ [1] sass_0.4.10         generics_0.1.4      xml2_1.5.1         
+ [4] stringi_1.8.9       digest_0.6.39       magrittr_2.0.5     
+ [7] evaluate_1.0.5      grid_4.5.1          RColorBrewer_1.1-3 
+[10] fastmap_1.2.0       rprojroot_2.1.1     workflowr_1.7.2    
+[13] jsonlite_2.0.0      whisker_0.4.1       promises_1.5.0     
+[16] viridisLite_0.4.3   scales_1.4.0        codetools_0.2-20   
+[19] textshaping_1.0.4   jquerylib_0.1.4     cli_3.6.6          
+[22] rlang_1.2.0         withr_3.0.3         cachem_1.1.0       
+[25] yaml_2.3.12         otel_0.2.0          tools_4.5.1        
+[28] dplyr_1.1.4         httpuv_1.6.16       kableExtra_1.4.0   
+[31] vctrs_0.7.3         R6_2.6.1            lifecycle_1.0.5    
+[34] git2r_0.36.2        stringr_1.6.0       fs_1.6.6           
+[37] pkgconfig_2.0.3     pillar_1.11.1       bslib_0.9.0        
+[40] later_1.4.4         gtable_0.3.6        glue_1.8.1         
+[43] Rcpp_1.1.1-1.1      systemfonts_1.3.1   xfun_0.55          
+[46] tibble_3.3.0        tidyselect_1.2.1    rstudioapi_0.17.1  
+[49] knitr_1.50          dichromat_2.0-0.1   farver_2.1.2       
+[52] htmltools_0.5.9     rmarkdown_2.30      svglite_2.2.2      
+[55] labeling_0.4.3      ggVennDiagram_1.5.4 compiler_4.5.1     
+[58] S7_0.2.2           </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

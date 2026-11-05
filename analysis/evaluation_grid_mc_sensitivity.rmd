@@ -1,0 +1,291 @@
+---
+title: "Evaluation-grid and posterior Monte Carlo sensitivity"
+author: "Ziang Zhang"
+date: "2026-08-26"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+    toc: true
+    toc_float: true
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  fig.width = 7.2,
+  fig.height = 6.6,
+  dpi = 180,
+  fig.retina = 2,
+  fig.align = "center",
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>"
+)
+
+source(file.path(
+  "code", "revision_simulations", "internal",
+  "evaluation_grid_sensitivity", "reporting.R"
+))
+```
+
+<style type="text/css">
+table > caption,
+p.caption {
+  color: #1f2937 !important;
+  font-size: 1.05em !important;
+  font-weight: 600 !important;
+  line-height: 1.35;
+  text-align: left !important;
+  margin-top: 0.7em;
+  margin-bottom: 0.7em;
+}
+
+table > caption {
+  caption-side: top;
+}
+
+.MathJax_Display {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.main-container p code,
+.main-container li code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+</style>
+
+## Overview
+
+We assess the sensitivity of the dynamic eQTL functional classifications (Early,
+Middle, Late, and Switch) to the evaluation-grid step size and the number of
+posterior Monte Carlo draws. The main analysis uses evaluation-grid step `0.10`
+on $[0, 15]$ and $M = 3{,}000$ posterior draws. Here we compare the resulting
+`lfsr` values for the discovered gene--variant pairs in each category against
+alternative grid steps (`0.15` and `0.05` at $M = 3{,}000$) and alternative
+Monte Carlo sample sizes ($M = 2{,}000$ and $M = 5{,}000$ at grid step `0.10`).
+
+For posterior trajectory draw $\beta^{(m)}(t)$, the four functional statistics are
+
+$$
+\begin{aligned}
+T_{\mathrm{early}}^{(m)}
+&= \sup_{t\leq3}|\beta^{(m)}(t)|-\sup_{t>3}|\beta^{(m)}(t)|,\\
+T_{\mathrm{middle}}^{(m)}
+&= \sup_{3<t<12}|\beta^{(m)}(t)|
+   -\sup_{t\leq3\;\mathrm{or}\;t\geq12}|\beta^{(m)}(t)|,\\
+T_{\mathrm{late}}^{(m)}
+&= \sup_{t\geq12}|\beta^{(m)}(t)|-\sup_{t<12}|\beta^{(m)}(t)|,\\
+T_{\mathrm{switch}}^{(m)}
+&= \min\!\left\{\sup_t \beta^{(m)}(t),-\inf_t \beta^{(m)}(t)\right\}-0.25,
+\end{aligned}
+$$
+
+and the local false sign rate for category $c$ is estimated by
+
+$$
+\widehat{\mathrm{lfsr}}_c
+=\frac{1}{M}\sum_{m=1}^{M}I\!\left\{T_c^{(m)}\leq0\right\}.
+$$
+
+```{r analysis-population-table}
+category_display_names <- c(
+  early = "Early",
+  middle = "Middle",
+  late = "Late",
+  switch = "Switch"
+)
+
+population_table <- data.frame(
+  Category = unname(category_display_names[population_summary$category]),
+  Definition = c(
+    "Strongest effect during the first three days (t <= 3)",
+    "Strongest effect in the middle window (3 < t < 12)",
+    "Strongest effect during the last four days (t >= 12)",
+    "Positive and negative excursions both exceed 0.25"
+  ),
+  `Discovered pairs` = population_summary$n_pairs,
+  `Unique genes` = population_summary$n_genes,
+  check.names = FALSE
+)
+
+knitr::kable(
+  population_table,
+  align = c("l", "l", "r", "r"),
+  caption = "Table 1. Dynamic eQTL functional categories and numbers of discovered pairs and genes (cumulative FSR <= 0.05 at grid step 0.10 and 3,000 posterior draws)."
+)
+```
+
+```{r scatter-construction}
+library(ggplot2)
+
+build_comparison_data <- function(comparison_id) {
+  comparison_spec <- configuration$comparisons[
+    configuration$comparisons$comparison_id == comparison_id,
+    ,
+    drop = FALSE
+  ]
+  if (nrow(comparison_spec) != 1L) {
+    stop("The requested comparison is not uniquely specified.")
+  }
+
+  x_rows <- pair_lfsr[
+    pair_lfsr$setting_id == comparison_spec$x_setting_id,
+    c("category", "pair_id", "gene_symbol", "lfsr"),
+    drop = FALSE
+  ]
+  y_rows <- pair_lfsr[
+    pair_lfsr$setting_id == comparison_spec$y_setting_id,
+    c("category", "pair_id", "lfsr"),
+    drop = FALSE
+  ]
+  names(x_rows)[names(x_rows) == "lfsr"] <- "x_lfsr"
+  names(y_rows)[names(y_rows) == "lfsr"] <- "y_lfsr"
+
+  plot_data <- merge(
+    x_rows,
+    y_rows,
+    by = c("category", "pair_id"),
+    all = FALSE,
+    sort = FALSE
+  )
+
+  plot_data$category_panel <- factor(
+    plot_data$category,
+    levels = category_order,
+    labels = unname(category_display_names[category_order])
+  )
+  plot_data
+}
+
+build_comparison_plot <- function(comparison_id, x_label, y_label) {
+  plot_data <- build_comparison_data(comparison_id)
+
+  ggplot(plot_data, aes(x = x_lfsr, y = y_lfsr)) +
+    geom_abline(
+      intercept = c(-0.01, 0.01),
+      slope = 1,
+      color = "grey65",
+      linewidth = 0.45,
+      linetype = "dotted"
+    ) +
+    geom_abline(
+      intercept = 0,
+      slope = 1,
+      color = "grey20",
+      linewidth = 0.55
+    ) +
+    geom_vline(
+      xintercept = 0.05,
+      color = "grey72",
+      linewidth = 0.4,
+      linetype = "dashed"
+    ) +
+    geom_hline(
+      yintercept = 0.05,
+      color = "grey72",
+      linewidth = 0.4,
+      linetype = "dashed"
+    ) +
+    geom_point(
+      color = "#1B9E77",
+      alpha = 0.65,
+      size = 1.4
+    ) +
+    facet_wrap(~category_panel, ncol = 2) +
+    scale_x_continuous(
+      limits = c(0, 0.13),
+      breaks = c(0, 0.05, 0.10),
+      labels = c("0", "0.05", "0.10"),
+      expand = expansion(mult = c(0.01, 0.02))
+    ) +
+    scale_y_continuous(
+      limits = c(0, 0.13),
+      breaks = c(0, 0.05, 0.10),
+      labels = c("0", "0.05", "0.10"),
+      expand = expansion(mult = c(0.01, 0.02))
+    ) +
+    coord_equal() +
+    labs(
+      x = x_label,
+      y = y_label
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(
+      panel.grid.minor = element_blank(),
+      panel.grid.major = element_line(color = "grey92", linewidth = 0.35),
+      strip.background = element_blank(),
+      strip.text = element_text(face = "bold", size = 12),
+      panel.spacing = grid::unit(1.0, "lines")
+    )
+}
+```
+
+## Evaluation-grid sensitivity
+
+We first compare evaluation-grid step `0.10` against a coarser grid (`0.15`) and
+a finer grid (`0.05`), holding the number of posterior draws fixed at $M = 3{,}000$.
+In all plots below, the solid diagonal indicates equality and the dotted lines
+mark an absolute `lfsr` difference of `0.01`.
+
+```{r grid-0p10-vs-0p05, fig.cap="Figure 1. Evaluation-grid sensitivity: step 0.10 versus 0.05 at 3,000 posterior draws across the four functional categories."}
+build_comparison_plot(
+  comparison_id = "grid_0p10_vs_0p05_M3000",
+  x_label = "lfsr at grid step 0.10",
+  y_label = "lfsr at grid step 0.05"
+)
+```
+
+```{r grid-0p10-vs-0p15, fig.cap="Figure 2. Evaluation-grid sensitivity: step 0.10 versus 0.15 at 3,000 posterior draws across the four functional categories."}
+build_comparison_plot(
+  comparison_id = "grid_0p10_vs_0p15_M3000",
+  x_label = "lfsr at grid step 0.10",
+  y_label = "lfsr at grid step 0.15"
+)
+```
+
+Across the four categories, mean absolute `lfsr` differences relative to step
+`0.10` range from `0.0003` to `0.0016` for step `0.05` and from `0.0005` to
+`0.0016` for step `0.15`, with every pair differing by at most `0.01`.
+
+## Posterior Monte Carlo sensitivity
+
+Next, we compare $M = 3{,}000$ posterior draws against $M = 5{,}000$ and
+$M = 2{,}000$ draws at evaluation-grid step `0.10`.
+
+```{r M3000-vs-M5000, fig.cap="Figure 3. Posterior Monte Carlo sensitivity: 3,000 versus 5,000 posterior draws at evaluation-grid step 0.10."}
+build_comparison_plot(
+  comparison_id = "M3000_vs_M5000_grid_0p10",
+  x_label = "lfsr with 3,000 draws",
+  y_label = "lfsr with 5,000 draws"
+)
+```
+
+```{r M2000-vs-M3000, fig.cap="Figure 4. Posterior Monte Carlo sensitivity: 2,000 versus 3,000 posterior draws at evaluation-grid step 0.10."}
+build_comparison_plot(
+  comparison_id = "M2000_vs_M3000_grid_0p10",
+  x_label = "lfsr with 2,000 draws",
+  y_label = "lfsr with 3,000 draws"
+)
+```
+
+Across categories, mean absolute `lfsr` differences are `0.0017`--`0.0023`
+between 3,000 and 5,000 draws (with more than 99.8% of pairs differing by at
+most `0.01`) and `0.0020`--`0.0022` between 2,000 and 3,000 draws.
+
+## Reproducibility
+
+The sensitivity analysis can be reproduced with:
+
+```{bash, eval=FALSE}
+Rscript --vanilla \
+  code/revision_simulations/internal/evaluation_grid_sensitivity/run_all_category_baseline_discovery_sensitivity.R \
+  --num-cores 2 \
+  --seed 20260826 \
+  --middle-definition open_3_12 \
+  --output-id evaluation_grid_mc_all_category_current_fashr0143_20260826
+```
