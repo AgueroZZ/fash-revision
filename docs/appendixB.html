@@ -374,7 +374,7 @@ simulation</h1>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+workflowr <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -385,8 +385,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> </a>
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -399,9 +399,9 @@ aria-hidden="true"></span> </a>
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 1
+aria-hidden="true"></span> 0
 </p>
 <p>
 <strong>Knit directory:</strong> <code>coderepo-local/</code> <span
@@ -424,21 +424,18 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
-<span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
-changes </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguncommittedchanges"
+<div id="strongRMarkdownfilestronguptodate"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown file has unstaged changes. To know which version of
-the R Markdown file created these results, you’ll want to first commit
-it to the Git repo. If you’re still working on the analysis, you can
-ignore this warning. When you’re finished, you can run
-<code>wflow_publish</code> to commit the R Markdown file and build the
-HTML.</p>
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
 </div>
 </div>
 </div>
@@ -529,15 +526,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreebfc8f00557e3a587205bc512a5603f7566372599targetblankbfc8f00a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreefe649c2147b4635d655be4793811ce5674a41db7targetblankfe649c2a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/AgueroZZ/fash-revision/tree/bfc8f00557e3a587205bc512a5603f7566372599" target="_blank">bfc8f00</a>
+<a href="https://github.com/AgueroZZ/fash-revision/tree/fe649c2147b4635d655be4793811ce5674a41db7" target="_blank">fe649c2</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreebfc8f00557e3a587205bc512a5603f7566372599targetblankbfc8f00a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomAgueroZZfashrevisiontreefe649c2147b4635d655be4793811ce5674a41db7targetblankfe649c2a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -547,7 +544,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/AgueroZZ/fash-revision/tree/bfc8f00557e3a587205bc512a5603f7566372599" target="_blank">bfc8f00</a>.
+<a href="https://github.com/AgueroZZ/fash-revision/tree/fe649c2147b4635d655be4793811ce5674a41db7" target="_blank">fe649c2</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -582,12 +579,6 @@ Ignored files:
     Ignored:    scripts/
 
 Untracked files:
-    Untracked:  analysis/balanced_variant_thinning.rmd
-    Untracked:  analysis/enhancer_enrichment.rmd
-    Untracked:  analysis/evaluation_grid_mc_sensitivity.rmd
-    Untracked:  analysis/functional_testing_simulation.rmd
-    Untracked:  analysis/matched_fash_linear_real_data.rmd
-    Untracked:  code/revision_simulations/internal/appendix_c1_j1000/
     Untracked:  code/revision_simulations/internal/per_unit_enhancer_enrichment/
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/compare_corshrink_versions.R
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/diagnose_discordant_calls.R
@@ -609,64 +600,6 @@ Untracked files:
     Untracked:  code/revision_simulations/internal/per_unit_expression_correlation/test_corshrink_reimplementation.R
     Untracked:  code/revision_simulations/internal/posterior_interval_coverage/
     Untracked:  code/revision_simulations/internal/r3_stage1_method_comparison/plot_pi0_before_after.py
-
-Unstaged changes:
-    Modified:   analysis/about.Rmd
-    Modified:   analysis/appendixB.rmd
-    Modified:   analysis/dynamic_eQTL_real.rmd
-    Deleted:    analysis/dynamic_eQTL_real_cl.rmd
-    Deleted:    analysis/dynamic_eQTL_real_full.rmd
-    Modified:   analysis/index.Rmd
-    Modified:   analysis/license.Rmd
-    Modified:   analysis/nonlinear_dynamic_eQTL_real.Rmd
-    Deleted:    analysis/nonlinear_dynamic_eQTL_real_cl.Rmd
-    Deleted:    analysis/nonlinear_dynamic_eQTL_real_full.rmd
-    Deleted:    analysis/revision_balanced_variant_thinning.rmd
-    Deleted:    analysis/revision_combined_spiky_genotype_simulation.rmd
-    Deleted:    analysis/revision_correlated_error_simulation.rmd
-    Deleted:    analysis/revision_enhancer_enrichment.rmd
-    Deleted:    analysis/revision_enhancer_enrichment_cl.rmd
-    Deleted:    analysis/revision_functional_testing_simulation.rmd
-    Deleted:    analysis/revision_genotype_level_simulation.rmd
-    Deleted:    analysis/revision_internal_baseline_ld_variant_enrichment.rmd
-    Deleted:    analysis/revision_internal_correlated_likelihood_sensitivity.rmd
-    Deleted:    analysis/revision_internal_correlated_permutation_discoveries.rmd
-    Deleted:    analysis/revision_internal_evaluation_grid_mc_sensitivity.rmd
-    Deleted:    analysis/revision_internal_evaluation_grid_mc_sensitivity_middle_4_11.rmd
-    Deleted:    analysis/revision_internal_fash_cl_manuscript_impact.rmd
-    Deleted:    analysis/revision_internal_fash_cl_variant_enrichment_comparison.rmd
-    Deleted:    analysis/revision_internal_fash_discovery_variant_count.rmd
-    Deleted:    analysis/revision_internal_fash_knockoff.rmd
-    Deleted:    analysis/revision_internal_fash_linear_real_data_ablation.rmd
-    Deleted:    analysis/revision_internal_fash_temporal_class_enhancer_enrichment.rmd
-    Deleted:    analysis/revision_internal_fashr_correlated_observation_model.rmd
-    Deleted:    analysis/revision_internal_mashr_mean_z_null_correlation.rmd
-    Deleted:    analysis/revision_internal_matched_fash_linear_real_data.rmd
-    Deleted:    analysis/revision_internal_matched_fash_linear_real_data_cl.rmd
-    Deleted:    analysis/revision_internal_observational_null_set_pilot.rmd
-    Deleted:    analysis/revision_internal_one_variant_per_gene_refit.rmd
-    Deleted:    analysis/revision_internal_r1_normality_assumption.rmd
-    Deleted:    analysis/revision_internal_r3_full_calibration.rmd
-    Deleted:    analysis/revision_internal_r3_ideal_gaussian_measurement.rmd
-    Deleted:    analysis/revision_internal_r3_truth_specification_pilot.rmd
-    Deleted:    analysis/revision_internal_real_genotype_simulation.rmd
-    Deleted:    analysis/revision_internal_roadmap_enhancer_exploration.rmd
-    Deleted:    analysis/revision_internal_small_m_clean_working_null_sensitivity.rmd
-    Deleted:    analysis/revision_internal_small_m_matched_null_eb_sensitivity.rmd
-    Deleted:    analysis/revision_internal_targeted_broad_calibration.rmd
-    Deleted:    analysis/revision_internal_temporal_class_roadmap_enrichment.rmd
-    Deleted:    analysis/revision_internal_three_likelihood_comparison.rmd
-    Deleted:    analysis/revision_internal_twenty_variant_per_gene_refit.rmd
-    Deleted:    analysis/revision_internal_variant_annotation_enrichment.rmd
-    Deleted:    analysis/revision_internal_zero_intercept_correlation.rmd
-    Deleted:    analysis/revision_ld_tagging_switch_example.rmd
-    Deleted:    analysis/toy_example.rmd
-    Modified:   code/figure_exports/pages/export_revision_balanced_variant_thinning.R
-    Modified:   code/figure_exports/pages/export_revision_enhancer_enrichment.R
-    Modified:   code/figure_exports/pages/export_revision_functional_testing_simulation.R
-    Modified:   code/figure_exports/pages/export_revision_internal_evaluation_grid_mc_sensitivity.R
-    Modified:   code/figure_exports/pages/export_revision_internal_matched_fash_linear_real_data.R
-    Modified:   code/revision_simulations/r5_one_variant_per_gene/reporting.R
 
 </code></pre>
 <p>
@@ -711,6 +644,42 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/fe649c2147b4635d655be4793811ce5674a41db7/analysis/appendixB.rmd" target="_blank">fe649c2</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-11-04
+</td>
+<td>
+Clean up unlinked internal pages, rename analysis pages, and polish
+website prose
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/AgueroZZ/fash-revision/fe649c2147b4635d655be4793811ce5674a41db7/docs/appendixB.html" target="_blank">fe649c2</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-11-04
+</td>
+<td>
+Clean up unlinked internal pages, rename analysis pages, and polish
+website prose
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -1144,6 +1113,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/fe649c2147b4635d655be4793811ce5674a41db7/docs/figure/appendixB.rmd/trajectories-1.png" target="_blank">fe649c2</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-11-04
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/AgueroZZ/fash-revision/blob/dea1967ac33c8391d3d836a338f802a90237f7be/docs/figure/appendixB.rmd/trajectories-1.png" target="_blank">dea1967</a>
 </td>
 <td>
@@ -1217,6 +1197,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/fe649c2147b4635d655be4793811ce5674a41db7/docs/figure/appendixB.rmd/null-weights-1.png" target="_blank">fe649c2</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-11-04
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/AgueroZZ/fash-revision/blob/dea1967ac33c8391d3d836a338f802a90237f7be/docs/figure/appendixB.rmd/null-weights-1.png" target="_blank">dea1967</a>
@@ -1300,6 +1291,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/fe649c2147b4635d655be4793811ce5674a41db7/docs/figure/appendixB.rmd/power-1.png" target="_blank">fe649c2</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-11-04
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/AgueroZZ/fash-revision/blob/a62da03e9d76f4014cf716eee7a6feb3a6b0ddf0/docs/figure/appendixB.rmd/power-1.png" target="_blank">a62da03</a>
@@ -1399,6 +1401,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/fe649c2147b4635d655be4793811ce5674a41db7/docs/figure/appendixB.rmd/empirical-fdr-1.png" target="_blank">fe649c2</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-11-04
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/AgueroZZ/fash-revision/blob/1eff913a381fdcb1526f09ff95d7bc3d26b949dc/docs/figure/appendixB.rmd/empirical-fdr-1.png" target="_blank">1eff913</a>
@@ -1622,6 +1635,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/AgueroZZ/fash-revision/blob/fe649c2147b4635d655be4793811ce5674a41db7/docs/figure/appendixB.rmd/posterior-examples-1.png" target="_blank">fe649c2</a>
+</td>
+<td>
+Ziang Zhang
+</td>
+<td>
+2026-11-04
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/AgueroZZ/fash-revision/blob/dea1967ac33c8391d3d836a338f802a90237f7be/docs/figure/appendixB.rmd/posterior-examples-1.png" target="_blank">dea1967</a>
 </td>
 <td>
@@ -1672,22 +1696,23 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] ggplot2_4.0.3
+[1] ggplot2_4.0.3   workflowr_1.7.2
 
 loaded via a namespace (and not attached):
  [1] gtable_0.3.6       jsonlite_2.0.0     dplyr_1.1.4        compiler_4.5.1    
  [5] promises_1.5.0     tidyselect_1.2.1   Rcpp_1.1.1-1.1     stringr_1.6.0     
- [9] git2r_0.36.2       dichromat_2.0-0.1  later_1.4.4        jquerylib_0.1.4   
-[13] scales_1.4.0       yaml_2.3.12        fastmap_1.2.0      R6_2.6.1          
-[17] labeling_0.4.3     generics_0.1.4     workflowr_1.7.2    knitr_1.50        
-[21] tibble_3.3.0       rprojroot_2.1.1    bslib_0.9.0        pillar_1.11.1     
-[25] RColorBrewer_1.1-3 rlang_1.2.0        cachem_1.1.0       stringi_1.8.9     
-[29] httpuv_1.6.16      xfun_0.55          S7_0.2.2           fs_1.6.6          
-[33] sass_0.4.10        otel_0.2.0         cli_3.6.6          withr_3.0.3       
-[37] magrittr_2.0.5     digest_0.6.39      grid_4.5.1         rstudioapi_0.17.1 
-[41] lifecycle_1.0.5    vctrs_0.7.3        evaluate_1.0.5     glue_1.8.1        
-[45] farver_2.1.2       whisker_0.4.1      rmarkdown_2.30     tools_4.5.1       
-[49] pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
+ [9] git2r_0.36.2       dichromat_2.0-0.1  callr_3.7.6        later_1.4.4       
+[13] jquerylib_0.1.4    scales_1.4.0       yaml_2.3.12        fastmap_1.2.0     
+[17] R6_2.6.1           labeling_0.4.3     generics_0.1.4     knitr_1.50        
+[21] tibble_3.3.0       rprojroot_2.1.1    RColorBrewer_1.1-3 bslib_0.9.0       
+[25] pillar_1.11.1      rlang_1.2.0        cachem_1.1.0       stringi_1.8.9     
+[29] httpuv_1.6.16      xfun_0.55          S7_0.2.2           getPass_0.2-4     
+[33] fs_1.6.6           sass_0.4.10        otel_0.2.0         cli_3.6.6         
+[37] withr_3.0.3        magrittr_2.0.5     ps_1.9.1           grid_4.5.1        
+[41] digest_0.6.39      processx_3.8.6     rstudioapi_0.17.1  lifecycle_1.0.5   
+[45] vctrs_0.7.3        evaluate_1.0.5     glue_1.8.1         farver_2.1.2      
+[49] whisker_0.4.1      rmarkdown_2.30     httr_1.4.7         tools_4.5.1       
+[53] pkgconfig_2.0.3    htmltools_0.5.9   </code></pre>
 </div>
 </div>
 </div>
